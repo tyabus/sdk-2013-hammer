@@ -259,14 +259,12 @@ void CMapView3D::SetDrawType(DrawType_t eDrawType)
 		case VIEW3D_LIGHTING_PREVIEW2:
 		{
 			eRenderMode = RENDER_MODE_LIGHT_PREVIEW2;
-			m_bLightingPreview = true;
 			break;
 		}
 
 		case VIEW3D_LIGHTING_PREVIEW_RAYTRACED:
 		{
 			eRenderMode = RENDER_MODE_LIGHT_PREVIEW_RAYTRACED;
-			m_bLightingPreview = true;
 			break;
 		}
 

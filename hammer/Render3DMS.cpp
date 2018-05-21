@@ -1324,10 +1324,19 @@ void CRender3D::EndRenderFrame(void)
 				}
 				// because of no blend support on ati, we have to ping pong. This needs an nvidia-specifc
 				// path for perf
-				CMaterialReference add_0_to_1( "editor/addlight0", TEXTURE_GROUP_OTHER, true );
-				CMaterialReference add_1_to_0( "editor/addlight1", TEXTURE_GROUP_OTHER, true );
-				CMaterialReference sample_last( "editor/sample_result_0", TEXTURE_GROUP_OTHER, true );
-				CMaterialReference sample_other( "editor/sample_result_1", TEXTURE_GROUP_OTHER, true );
+				IMaterial* add_0_to_1 = materials->FindMaterial( "editor/addlight0", TEXTURE_GROUP_OTHER, true );
+				IMaterial *add_1_to_0 = materials->FindMaterial( "editor/addlight1", TEXTURE_GROUP_OTHER, true );
+				IMaterial *sample_last = materials->FindMaterial( "editor/sample_result_0", TEXTURE_GROUP_OTHER, true );
+				IMaterial *sample_other = materials->FindMaterial( "editor/sample_result_1", TEXTURE_GROUP_OTHER, true );
+				static bool bIncrementedRefCount = false;
+				if ( !bIncrementedRefCount )
+				{
+					bIncrementedRefCount = true;
+					add_0_to_1->IncrementReferenceCount();
+					add_1_to_0->IncrementReferenceCount();
+					sample_last->IncrementReferenceCount();
+					sample_other->IncrementReferenceCount();
+				}
 
 				ITexture *dest_rt_current=materials->FindTexture("_rt_accbuf_1", TEXTURE_GROUP_RENDER_TARGET );
 				ITexture *dest_rt_other=materials->FindTexture("_rt_accbuf_0", TEXTURE_GROUP_RENDER_TARGET );
