@@ -1,0 +1,21 @@
+//-----------------------------------------------------------------------------
+//	GROUPS.VGC
+//
+//	Group Configurations for all Source(TM) Projects
+//-----------------------------------------------------------------------------
+
+///////////////////////
+// Group definitions //
+///////////////////////
+
+$Group "hammer"
+{
+	"fgdlib"
+	"hammer_dll"
+	"hammer_launcher"
+	"mathlib"
+	"raytrace"
+	"tier1"
+	"vgui_controls"
+}
+
