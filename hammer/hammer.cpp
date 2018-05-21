@@ -154,21 +154,12 @@ CreateInterfaceFn g_Factory;
 
 bool g_bHDR = true;
 
-void WriteMiniDump(unsigned int a, struct _EXCEPTION_POINTERS* b )
-{
-	SteamAPI_WriteMiniDump( a, b, 0 );
-}
-
-
 int WrapFunctionWithMinidumpHandler( int (*pfn)(void *pParam), void *pParam, int errorRetVal )
 {
 	int nRetVal;
 
 	if ( !Plat_IsInDebugSession() && !CommandLine()->FindParm( "-nominidumps") )
 	{
-#ifndef NO_STEAM
-		_set_se_translator( WriteMiniDump );
-#endif
 		try  // this try block allows the SE translator to work
 		{
 			nRetVal = pfn( pParam );

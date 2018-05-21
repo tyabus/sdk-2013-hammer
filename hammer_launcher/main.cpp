@@ -32,20 +32,6 @@ IFileSystem *g_pFileSystem;
 IDataCache *g_pDataCache;
 IInputSystem *g_pInputSystem;
 
-extern "C" void WriteMiniDumpUsingExceptionInfo
-(
- unsigned int			uStructuredExceptionCode,
-struct _EXCEPTION_POINTERS * pExceptionInfo
-	)
-{
-#ifndef NO_STEAM
-	// TODO: dynamically set the minidump comment from contextual info about the crash (i.e current VPROF node)?
-	SteamAPI_WriteMiniDump( uStructuredExceptionCode, pExceptionInfo, 0 );
-
-#endif
-}
-
-
 //-----------------------------------------------------------------------------
 // The application object
 //-----------------------------------------------------------------------------

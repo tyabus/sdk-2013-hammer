@@ -10,9 +10,9 @@
 
 $Group "hammer"
 {
-	"fgdlib"
-	"hammer_dll"
 	"hammer_launcher"
+	"hammer_dll"
+	"fgdlib"
 	"mathlib"
 	"raytrace"
 	"tier1"

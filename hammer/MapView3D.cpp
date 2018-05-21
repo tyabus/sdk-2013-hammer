@@ -334,7 +334,6 @@ void CMapView3D::SetDrawType(DrawType_t eDrawType)
 	//
 	if (m_pRender != NULL)
 	{
-		EditorRenderMode_t previous = m_pRender->GetDefaultRenderMode();
 		m_pRender->SetDefaultRenderMode(eRenderMode);
 		m_pRender->SetInLightingPreview( m_bLightingPreview );
 
