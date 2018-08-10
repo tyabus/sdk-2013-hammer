@@ -35,7 +35,7 @@ install:
 
 # Let's get into this source directory, where our "creategameprojects" script normally is
 # NOTE: This will change depending on if you've changed the clone directory!
-  - cd c:\build\sdk-2013-hammer
+  - cd c:\build
   
 # It's important to note that this is what is found inside of createallprojects.bat, but our script pauses
 # to help know if something went wrong with VPC, so we directly call it here instead.
@@ -77,7 +77,7 @@ test: off
 after_build:
 # Gonna be deleting some PDB files, these things are nasty big and we won't want them for our build artifacts zip.
 # CHANGEME to be your correct game's name (not momentum I hope)
-  - if exist c:\build\sdk-2013-hammer\bin\*.pdb del /f c:\build\sdk-2013-hammer\bin\*.pdb
+  - if exist c:\build\bin\*.pdb del /f c:\build\bin\*.pdb
 
 # This is trimming the commit hash to be only around 7 characters long, much more bearable when you have it
 # sent to a slack channel or something. Feel free to CHANGEME if you don't use/don't want to shorten it.
