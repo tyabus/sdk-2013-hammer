@@ -37,3 +37,5 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1

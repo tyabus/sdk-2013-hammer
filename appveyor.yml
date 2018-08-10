@@ -18,7 +18,7 @@ skip_tags: true
 max_jobs: 1
 
 # Build image
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 # Clone the project into this folder
 # You can change me, but make sure to change it for every other part of the build!
