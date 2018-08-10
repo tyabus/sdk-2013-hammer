@@ -61,17 +61,8 @@ install:
 configuration: Release
 
 # Showtime. Main build.
-build:
-# We want parallel builds so this thing is done in like 6 minutes.
-  parallel: true
-
-# Path to the Visual Studio sln or project file, relative to the clone folder
-# CHANGEME to match the solution file generated above in the install script!
-  project: hammer.sln
-
-# Verbosity of the build depends on how much spam you'll want. We'll use minimal here, but refer to
-# Google if you want to change this.
-  verbosity: minimal
+build_script:
+  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" hammer.sln /m /p:Configuration=Release /t:Clean;Build /v:m
 
 # Disable automatic testing
 test: off  
