@@ -11,7 +11,7 @@ $Configuration
 		$PlatformToolset "v100" [$VS2010]
 		$PlatformToolset "v110_xp" [$VS2012 && !$ANALYZE] // VS 2012 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 		$PlatformToolset "v110" [$VS2012 && $ANALYZE] // VS 2012 for /analyze
-		$PlatformToolset "v141_xp" [$VS2013 && !$ANALYZE] // VS 2013 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
+		$PlatformToolset "v141" [$VS2013 && !$ANALYZE] // VS 2013 targeting Windows XP - http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 		$PlatformToolset "v141" [$VS2013 && $ANALYZE] // VS 2013 for /analyze
 	}
 
@@ -43,7 +43,7 @@ $Configuration
 
 		// Defines to differentiate 32 from 64 bit builds
 		$PreprocessorDefinitions			"$BASE;PLATFORM_64BITS;WIN64;_WIN64;COMPILER_MSVC64" [$WIN64]
-		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32" [$WIN32]
+		$PreprocessorDefinitions			"$BASE;COMPILER_MSVC32;NO_WARN_MBCS_MFC_DEPRECATION" [$WIN32]
 
 		// /Gw is a VS 2013 option that puts global and static variables in individual sections so that the
 		// linker can discard unreferenced data. When building @client /dota with linker optimizations this
