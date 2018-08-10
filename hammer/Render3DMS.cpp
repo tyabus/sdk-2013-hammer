@@ -781,7 +781,7 @@ bool CompareLightPreview_Lights(CLightPreview_Light const &a, CLightPreview_Ligh
 	return (a.m_flDistanceToEye > b.m_flDistanceToEye);
 }
 
-#define MAX_PREVIEW_LIGHTS 10								// max # of lights to process.
+#define MAX_PREVIEW_LIGHTS 75								// max # of lights to process.
 
 
 void CRender3D::SendShadowTriangles( void )
@@ -1325,9 +1325,9 @@ void CRender3D::EndRenderFrame(void)
 				// because of no blend support on ati, we have to ping pong. This needs an nvidia-specifc
 				// path for perf
 				IMaterial* add_0_to_1 = materials->FindMaterial( "editor/addlight0", TEXTURE_GROUP_OTHER, true );
-				IMaterial *add_1_to_0 = materials->FindMaterial( "editor/addlight1", TEXTURE_GROUP_OTHER, true );
-				IMaterial *sample_last = materials->FindMaterial( "editor/sample_result_0", TEXTURE_GROUP_OTHER, true );
-				IMaterial *sample_other = materials->FindMaterial( "editor/sample_result_1", TEXTURE_GROUP_OTHER, true );
+				IMaterial* add_1_to_0 = materials->FindMaterial( "editor/addlight1", TEXTURE_GROUP_OTHER, true );
+				IMaterial* sample_last = materials->FindMaterial( "editor/sample_result_0", TEXTURE_GROUP_OTHER, true );
+				IMaterial* sample_other = materials->FindMaterial( "editor/sample_result_1", TEXTURE_GROUP_OTHER, true );
 				static bool bIncrementedRefCount = false;
 				if ( !bIncrementedRefCount )
 				{

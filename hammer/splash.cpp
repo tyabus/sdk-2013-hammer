@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -16,14 +16,14 @@
 #include <tier0/memdbgon.h>
 
 // Sorry Tom...   :(
-//#define HAMMER_TIME 1
+#define HAMMER_TIME 1
 #ifdef HAMMER_TIME
 #include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include "StatusBarIDs.h"
 
-unsigned char g_CantTouchThis[] = 
+unsigned char g_CantTouchThis[] =
 {
 	0x4D, 0x54, 0x68, 0x64, 0x00, 0x00, 0x00, 0x06, 0x00, 0x01, 0x00, 0x0B, 0x00, 0xF0, 0x4D, 0x54,
 	0x72, 0x6B, 0x00, 0x00, 0x00, 0x13, 0x00, 0xFF, 0x58, 0x04, 0x04, 0x02, 0x18, 0x08, 0x00, 0xFF,
@@ -70,7 +70,7 @@ unsigned char g_CantTouchThis[] =
 
 /////////////////////////////////////////////////////////////////////////////
 
-#include <mmsystem.h> 
+#include <mmsystem.h>
 
 int m_uiMIDIPlayerID = 0;
 
@@ -127,6 +127,7 @@ void CantTouchThisThread( void * )
 		AfxGetApp()->GetMainWnd()->SetWindowText( "Hammer time!" );
 		SetStatusText(SBI_PROMPT, "Stop, Hammer time!");
 		bool fPlay = ( _write( file, g_CantTouchThis, sizeof( g_CantTouchThis ) ) == sizeof( g_CantTouchThis ) );
+		NOTE_UNUSED( fPlay );
 		_close( file );
 		PlayMIDISong("hamrtime.mid", false );
 		CloseMIDIPlayer();
@@ -140,11 +141,7 @@ void CantTouchThisThread( void * )
 
 void CantTouchThis()
 {
-	if ( !AfxGetApp()->GetProfileInt("General", "Hammer time", 0))
-	{
-		AfxGetApp()->WriteProfileInt("General", "Hammer time", 1);
-		_beginthread( CantTouchThisThread, 0, NULL );
-	}
+	_beginthread( CantTouchThisThread, 0, NULL );
 }
 
 #else
@@ -166,7 +163,7 @@ END_MESSAGE_MAP()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CSplashWnd::CSplashWnd()
 {
@@ -176,7 +173,7 @@ CSplashWnd::CSplashWnd()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CSplashWnd::~CSplashWnd()
 {
@@ -187,8 +184,8 @@ CSplashWnd::~CSplashWnd()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bEnable - 
+// Purpose:
+// Input  : bEnable -
 //-----------------------------------------------------------------------------
 void CSplashWnd::EnableSplashScreen(bool bEnable)
 {
@@ -197,8 +194,8 @@ void CSplashWnd::EnableSplashScreen(bool bEnable)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pParentWnd - 
+// Purpose:
+// Input  : pParentWnd -
 //-----------------------------------------------------------------------------
 void CSplashWnd::ShowSplashScreen(CWnd* pParentWnd /*= NULL*/)
 {
@@ -257,7 +254,7 @@ void CSplashWnd::OnTimer(UINT nIDEvent)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CSplashWnd::DoHide()
 {
@@ -266,7 +263,7 @@ void CSplashWnd::DoHide()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 BOOL CSplashWnd::PreTranslateAppMessage(MSG* pMsg)
 {
@@ -292,8 +289,8 @@ BOOL CSplashWnd::PreTranslateAppMessage(MSG* pMsg)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pParentWnd - 
+// Purpose:
+// Input  : pParentWnd -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL CSplashWnd::Create(CWnd* pParentWnd /*= NULL*/)
@@ -311,7 +308,7 @@ BOOL CSplashWnd::Create(CWnd* pParentWnd /*= NULL*/)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CSplashWnd::PostNcDestroy()
 {
@@ -320,7 +317,7 @@ void CSplashWnd::PostNcDestroy()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 int CSplashWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -331,7 +328,7 @@ int CSplashWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CenterWindow();
 
 	// set topmost
-	SetWindowPos(&wndTop, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | 
+	SetWindowPos(&wndTop, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
 		SWP_NOREDRAW);
 
 	// Set a timer to destroy the splash screen.
@@ -342,7 +339,7 @@ int CSplashWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CSplashWnd::OnPaint()
 {
