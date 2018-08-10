@@ -1,2 +1,1 @@
 "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" hammer.sln /m /p:Configuration=Release /t:Clean;Build /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-pause
