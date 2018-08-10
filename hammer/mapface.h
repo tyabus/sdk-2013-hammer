@@ -375,6 +375,8 @@ protected:
 	// Serialization (chunk handlers).
 	//
 	static ChunkFileResult_t LoadDispInfoCallback(CChunkFile *pFile, CMapFace *pFace);
+    static ChunkFileResult_t LoadPointDataCallback(CChunkFile *pFile, CMapFace *pFace);
+    static ChunkFileResult_t LoadPointDataKeyCallback(const char *szKey, const char *szValue, CMapFace *pFace);
 	static ChunkFileResult_t LoadKeyCallback(const char *szKey, const char *szValue, LoadFace_t *pLoadFace);
 
 	unsigned char m_uchAlpha;			// HACK: should be in CMapAtom

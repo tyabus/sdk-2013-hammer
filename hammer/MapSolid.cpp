@@ -924,11 +924,13 @@ int CMapSolid::CreateFromPlanes( DWORD dwFlags )
 			//
 			if ( dwFlags & CREATE_FROM_PLANES_CLIPPING )
 			{
-				pFace->CreateFace( w, CREATE_FACE_PRESERVE_PLANE | CREATE_FACE_CLIPPING );
+				//pFace->CreateFace( w, CREATE_FACE_PRESERVE_PLANE | CREATE_FACE_CLIPPING );
+                pFace->CreateFace(pFace->Points, pFace->nPoints);
 			}
 			else
 			{
-				pFace->CreateFace(w, CREATE_FACE_PRESERVE_PLANE);
+				//pFace->CreateFace(w, CREATE_FACE_PRESERVE_PLANE);
+                pFace->CreateFace(pFace->Points, pFace->nPoints);
 			}
 
 			//

@@ -2551,6 +2551,40 @@ ChunkFileResult_t CMapFace::LoadDispInfoCallback(CChunkFile *pFile, CMapFace *pF
 	return( eResult );
 }
 
+ChunkFileResult_t CMapFace::LoadPointDataCallback(CChunkFile* pFile, CMapFace* pFace)
+{
+    SignalUpdate(EVTYPE_FACE_CHANGED);
+
+    ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadPointDataKeyCallback, pFace);
+    
+    return eResult;
+}
+
+ChunkFileResult_t CMapFace::LoadPointDataKeyCallback(const char* szKey, const char* szValue, CMapFace* pFace)
+{
+    SignalUpdate(EVTYPE_FACE_CHANGED);
+
+    if (!stricmp(szKey, "numpts"))
+    {
+        int numPoints;
+        if (CChunkFile::ReadKeyValueInt(szValue, numPoints))
+            pFace->AllocatePoints(numPoints);
+    }
+    else if (!stricmp(szKey, "point"))
+    {
+        Vector p;
+        int num = 0;
+        int nRead = sscanf(szValue, "%i %f %f %f", &num, &p.x, &p.y, &p.z);
+
+        if (nRead != 4)
+            return ChunkFile_Fail;
+
+        pFace->Points[num] = p;
+    }
+
+    return ChunkFile_Ok;
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Handles key values when loading a VMF file.
@@ -2577,7 +2611,7 @@ ChunkFileResult_t CMapFace::LoadKeyCallback(const char *szKey, const char *szVal
 			&pFace->plane.planepts[0][0], &pFace->plane.planepts[0][1], &pFace->plane.planepts[0][2],
 			&pFace->plane.planepts[1][0], &pFace->plane.planepts[1][1], &pFace->plane.planepts[1][2],
 			&pFace->plane.planepts[2][0], &pFace->plane.planepts[2][1], &pFace->plane.planepts[2][2]);
-
+        
 		if (nRead != 9)
 		{
 			// TODO: need specific error message
@@ -2636,6 +2670,7 @@ ChunkFileResult_t CMapFace::LoadVMF(CChunkFile *pFile)
 	//
 	CChunkHandlerMap Handlers;
 	Handlers.AddHandler("dispinfo", (ChunkHandler_t)LoadDispInfoCallback, this);
+    Handlers.AddHandler("point_data", (ChunkHandler_t) LoadPointDataCallback, this);
 
 	//
 	// Read the keys and sub-chunks.
@@ -2748,6 +2783,32 @@ ChunkFileResult_t CMapFace::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 
 		eResult = pFile->WriteKeyValue("plane", szBuf);
 	}
+
+    if (eResult == ChunkFile_Ok)
+    {
+        if (nPoints > 0)
+        {
+            eResult = pFile->BeginChunk("point_data");
+
+            if (eResult == ChunkFile_Ok)
+            {
+                eResult = pFile->WriteKeyValueInt("numpts", nPoints);
+
+                if (eResult == ChunkFile_Ok)
+                {
+                    char tempBuf[512];
+                    for (int i = 0; i < nPoints && eResult == ChunkFile_Ok; i++)
+                    {
+                        V_snprintf(tempBuf, 512, "\"point\" \"%i %g %g %g\"", i, (double) Points[i][0], (double) Points[i][1], (double) Points[i][2]);
+                        eResult = pFile->WriteLine(tempBuf);
+                    }
+
+                    if (eResult == ChunkFile_Ok)
+                        eResult = pFile->EndChunk();
+                }
+            }
+        }
+    }
 
 	if (eResult == ChunkFile_Ok)
 	{
