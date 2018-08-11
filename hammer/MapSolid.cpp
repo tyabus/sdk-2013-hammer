@@ -803,7 +803,8 @@ int CMapSolid::CreateFromPlanes( DWORD dwFlags )
 	{
 		CMapFace *pFace = GetFace(i);
 
-		pFace->AllocatePoints(0);
+        if (!(dwFlags & CREATE_ALREADY_HAS_POINTS))
+		    pFace->AllocatePoints(0);
 		pFace->SetParent(this);
 		pFace->SetRenderColor(r, g, b);
 	}
@@ -856,89 +857,92 @@ int CMapSolid::CreateFromPlanes( DWORD dwFlags )
 	// Now we have a set of planes, indicated by TRUE values in the 'useplanes' array,
 	// from which we will build a solid.
 	//
-	BOOL bGotFaces = FALSE;
+	BOOL bGotFaces = TRUE;
 
-	for (i = 0; i < nFaces; i++)
-	{
-		CMapFace *pFace = GetFace(i);
+    if (!(dwFlags & CREATE_ALREADY_HAS_POINTS))
+    {
+        bGotFaces = FALSE;
 
-		if (!useplane[i])
-			continue;
+        for (i = 0; i < nFaces; i++)
+        {
+            CMapFace *pFace = GetFace(i);
 
-		//
-		// Create a huge winding from this face's plane, then clip it by all other
-		// face planes.
-		//
-		winding_t *w = CreateWindingFromPlane(&pFace->plane);
-		for (j = 0; j < nFaces && w; j++)
-		{
-			CMapFace *pFaceClip = GetFace(j);
+            if (!useplane[i])
+                continue;
 
-			//
-			// Flip the plane, because we want to keep the back side
-			//
-			if (j != i)
-			{
-				PLANE plane;
+            //
+            // Create a huge winding from this face's plane, then clip it by all other
+            // face planes.
+            //
+            winding_t *w = CreateWindingFromPlane(&pFace->plane);
+            for (j = 0; j < nFaces && w; j++)
+            {
+                CMapFace *pFaceClip = GetFace(j);
 
-				VectorSubtract(vec3_origin, pFaceClip->plane.normal, plane.normal);
-				plane.dist = -pFaceClip->plane.dist;
+                //
+                // Flip the plane, because we want to keep the back side
+                //
+                if (j != i)
+                {
+                    PLANE plane;
 
-				w = ClipWinding(w, &plane);
-			}
-		}
+                    VectorSubtract(vec3_origin, pFaceClip->plane.normal, plane.normal);
+                    plane.dist = -pFaceClip->plane.dist;
 
-		//
-		// If we still have a winding after all that clipping, build a face from
-		// the winding.
-		//
-		if (w != NULL)
-		{
-			//
-			// Round all points in the winding that are within ROUND_VERTEX_EPSILON of
-			// integer values.
-			//
-			for (j = 0; j < w->numpoints; j++)
-			{
-				for (k = 0; k < 3; k++)
-				{
-					float v = w->p[j][k];
-					float v1 = rint(v);
-					if ((v != v1) && (fabs(v - v1) < ROUND_VERTEX_EPSILON))
-					{
-					   w->p[j][k] = v1;
-					}
-				}
-			}
+                    w = ClipWinding(w, &plane);
+                }
+            }
 
-			//
-			// The above rounding process may have created duplicate points. Eliminate them.
-			//
-			RemoveDuplicateWindingPoints(w, MIN_EDGE_LENGTH_EPSILON);
+            //
+            // If we still have a winding after all that clipping, build a face from
+            // the winding.
+            //
+            if (w != NULL)
+            {
+                //
+                // Round all points in the winding that are within ROUND_VERTEX_EPSILON of
+                // integer values.
+                //
+                for (j = 0; j < w->numpoints; j++)
+                {
+                    for (k = 0; k < 3; k++)
+                    {
+                        float v = w->p[j][k];
+                        float v1 = rint(v);
+                        if ((v != v1) && (fabs(v - v1) < ROUND_VERTEX_EPSILON))
+                        {
+                            w->p[j][k] = v1;
+                        }
+                    }
+                }
 
-			bGotFaces = TRUE;
+                //
+                // The above rounding process may have created duplicate points. Eliminate them.
+                //
+                RemoveDuplicateWindingPoints(w, MIN_EDGE_LENGTH_EPSILON);
 
-			//
-			// Create a face from this winding. Leave the face plane
-			// alone because we are still in the process of building our solid.
-			//
-			if ( dwFlags & CREATE_FROM_PLANES_CLIPPING )
-			{
-				//pFace->CreateFace( w, CREATE_FACE_PRESERVE_PLANE | CREATE_FACE_CLIPPING );
-                pFace->CreateFace(pFace->Points, pFace->nPoints);
-			}
-			else
-			{
-				//pFace->CreateFace(w, CREATE_FACE_PRESERVE_PLANE);
-                pFace->CreateFace(pFace->Points, pFace->nPoints);
-			}
+                bGotFaces = TRUE;
 
-			//
-			// Done with the winding, we can free it now.
-			//
-			FreeWinding(w);
-		}
-	}
+                //
+                // Create a face from this winding. Leave the face plane
+                // alone because we are still in the process of building our solid.
+                //
+                if (dwFlags & CREATE_FROM_PLANES_CLIPPING)
+                {
+                    pFace->CreateFace( w, CREATE_FACE_PRESERVE_PLANE | CREATE_FACE_CLIPPING );
+                }
+                else
+                {
+                    pFace->CreateFace(w, CREATE_FACE_PRESERVE_PLANE);
+                }
+
+                //
+                // Done with the winding, we can free it now.
+                //
+                FreeWinding(w);
+            }
+        }
+    }
 
 	if (!bGotFaces)
 	{
@@ -974,7 +978,7 @@ int CMapSolid::CreateFromPlanes( DWORD dwFlags )
 	{
 		CMapFace *pFace = GetFace(i);
 
-		if (dwFlags & CREATE_BUILD_PLANE_POINTS)
+		if (dwFlags & (CREATE_BUILD_PLANE_POINTS | CREATE_ALREADY_HAS_POINTS))
 		{
 			pFace->CalcPlaneFromFacePoints();
 		}
@@ -988,10 +992,13 @@ int CMapSolid::CreateFromPlanes( DWORD dwFlags )
 		//
 		// Make sure the face is valid.
 		//
-		if (!pFace->CheckFace())
-		{
-			m_bValid = FALSE;
-		}
+        if (!(dwFlags & CREATE_ALREADY_HAS_POINTS))
+        {
+            if (!pFace->CheckFace())
+            {
+                m_bValid = FALSE;
+            }
+        }
 	}
 
     //
@@ -1087,7 +1094,7 @@ ChunkFileResult_t CMapSolid::LoadVMF(CChunkFile *pFile, bool &bValid)
 		//
 		// Create the solid using the planes that were read from the MAP file.
 		//
-		if (CreateFromPlanes())
+		if (CreateFromPlanes(CREATE_ALREADY_HAS_POINTS))
 		{
 			bValid = true;
 			CalcBounds();

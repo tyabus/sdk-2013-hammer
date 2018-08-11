@@ -24,6 +24,7 @@ struct ExportDXFInfo_s;
 //
 #define CREATE_BUILD_PLANE_POINTS		0x0001		// Whether to regenerate the 3 plane points from the generated face points.
 #define CREATE_FROM_PLANES_CLIPPING		0x0002
+#define CREATE_ALREADY_HAS_POINTS 0x0004
 
 #define MAPSOLID_MAX_FACES				256         // Maximum number of faces a solid can have.
 
