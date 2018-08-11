@@ -4575,8 +4575,8 @@ void CMapDoc::OnFileSaveAs(void)
 		}
 	} while (!bSave);
 
+    OnSaveDocument(str);
 	SetPathName(str);
-	OnSaveDocument(str);
 }
 
 
