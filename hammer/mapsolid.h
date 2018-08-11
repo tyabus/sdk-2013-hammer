@@ -147,6 +147,8 @@ public:
 	void DebugSolid(void);
 #endif // _DEBUG
 
+    bool m_bFacesHavePoints : 1;
+
 protected:
 
 	void GenerateNewFaceIDs(CMapWorld *pWorld);

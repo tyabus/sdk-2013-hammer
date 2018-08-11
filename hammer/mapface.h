@@ -222,6 +222,8 @@ public:
 	// Renders opaque faces
 	static void RenderOpaqueFaces( CRender3D* pRender );
 
+    void SetParent(CMapAtom* pParent) OVERRIDE;
+
 	//
 	// Serialization.
 	//

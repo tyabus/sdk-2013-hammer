@@ -11,6 +11,7 @@
 #include "MapFace.h"
 #include "MapDisp.h"
 #include "MapWorld.h"
+#include "MapSolid.h"
 #include "fgdlib/WCKeyValues.h"
 #include "GlobalFunctions.h"
 #include "Render3D.h"
@@ -2264,6 +2265,17 @@ void CMapFace::RenderOpaqueFaces( CRender3D* pRender )
 	RenderFaces( pRender, nFaceCount, ppMapFaces ); 
 
 	g_OpaqueFaces.RemoveAll();
+}
+
+void CMapFace::SetParent(CMapAtom* pParent)
+{
+    CMapSolid *pSolid = dynamic_cast<CMapSolid*>(pParent);
+    if (pSolid)
+    {
+        pSolid->m_bFacesHavePoints = nPoints > 0;
+    }
+
+    CMapAtom::SetParent(pParent);
 }
 
 void CMapFace::Render2D(CRender2D *pRender)

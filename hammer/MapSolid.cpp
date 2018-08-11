@@ -39,7 +39,7 @@ int CMapSolid::g_nBadSolidCount = 0;
 // Input  : Parent0 - The parent of this solid. Typically this is the world.
 //-----------------------------------------------------------------------------
 CMapSolid::CMapSolid(CMapClass *Parent0)
-	: m_bValid(FALSE)	// well, no faces
+	: m_bValid(FALSE), m_bFacesHavePoints(false)	// well, no faces
 {
 	m_pParent = Parent0;
 	m_eSolidType = btSolid;
@@ -1094,7 +1094,7 @@ ChunkFileResult_t CMapSolid::LoadVMF(CChunkFile *pFile, bool &bValid)
 		//
 		// Create the solid using the planes that were read from the MAP file.
 		//
-		if (CreateFromPlanes(CREATE_ALREADY_HAS_POINTS))
+		if (CreateFromPlanes(m_bFacesHavePoints ? CREATE_ALREADY_HAS_POINTS : 0))
 		{
 			bValid = true;
 			CalcBounds();
