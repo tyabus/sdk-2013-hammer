@@ -7,6 +7,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "Splash.h"
+#include "tier0/icommandline.h"
 
 
 #define SPLASH_MIN_SHOW_TIME_MS	500
@@ -207,7 +208,8 @@ void CSplashWnd::ShowSplashScreen(CWnd* pParentWnd /*= NULL*/)
 	if (s_pSplashWnd->Create(pParentWnd))
 	{
 		s_pSplashWnd->UpdateWindow();
-		CantTouchThis();
+        if (CommandLine()->FindParm("-hammertime"))
+		    CantTouchThis();
 	}
 	else
 	{
