@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -30,7 +30,7 @@ enum ChunkFileResult_t;
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 class CEditGameClass
 {
@@ -63,7 +63,7 @@ class CEditGameClass
 		inline LPCTSTR GetKey(int nIndex) { return(m_KeyValues.GetKey(nIndex)); }
 		inline LPCTSTR GetKeyValue(int nIndex) { return(m_KeyValues.GetValue(nIndex)); }
 		inline LPCTSTR GetKeyValue(LPCTSTR pszKey, int *piIndex = NULL) { return(m_KeyValues.GetValue(pszKey, piIndex)); }
-		
+
 		// Iterate the list of keyvalues.
 		inline int GetFirstKeyValue() const			{ return m_KeyValues.GetFirst(); }
 		inline int GetNextKeyValue( int i ) const	{ return m_KeyValues.GetNext( i ); }
@@ -131,7 +131,7 @@ class CEditGameClass
 		char m_szClass[MAX_CLASS_NAME_LEN];
 		char *m_pszComments;		// Comments text, dynamically allocated.
 
-		static char *g_pszEmpty;
+		static const char *g_pszEmpty;
 
 		CEntityConnectionList m_Connections;
 		CEntityConnectionList m_Upstream;
@@ -189,8 +189,8 @@ const char *CEditGameClass::GetComments(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : NULL - 
+// Purpose:
+// Input  : NULL -
 // Output : inline bool
 //-----------------------------------------------------------------------------
 inline bool CEditGameClass::IsClass(const char *pszClass)
@@ -204,8 +204,8 @@ inline bool CEditGameClass::IsClass(const char *pszClass)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszComments - 
+// Purpose:
+// Input  : pszComments -
 //-----------------------------------------------------------------------------
 void CEditGameClass::SetComments(const char *pszComments)
 {

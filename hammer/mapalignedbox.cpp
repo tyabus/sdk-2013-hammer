@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -92,7 +92,7 @@ CMapClass *CMapAlignedBox::Create(CHelperInfo *pHelperInfo, CMapEntity *pParent)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CMapAlignedBox::CMapAlignedBox(void)
 {
@@ -105,11 +105,11 @@ CMapAlignedBox::CMapAlignedBox(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pfMins - 
-//			pfMaxs - 
+// Purpose:
+// Input  : pfMins -
+//			pfMaxs -
 //-----------------------------------------------------------------------------
-CMapAlignedBox::CMapAlignedBox(Vector &Mins, Vector &Maxs)
+CMapAlignedBox::CMapAlignedBox(const Vector &Mins, const Vector &Maxs)
 {
 	m_bUseKeyName = false;
 	m_bWireframe = false;
@@ -120,15 +120,15 @@ CMapAlignedBox::CMapAlignedBox(Vector &Mins, Vector &Maxs)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pMinsKeyName - 
-//			*pMaxsKeyName - 
+// Purpose:
+// Input  : *pMinsKeyName -
+//			*pMaxsKeyName -
 //-----------------------------------------------------------------------------
 CMapAlignedBox::CMapAlignedBox(const char *pMinsKeyName, const char *pMaxsKeyName)
 {
 	m_bUseKeyName = true;
 	m_bWireframe = false;
-	
+
 	strncpy(m_MinsKeyName, pMinsKeyName, sizeof(m_MinsKeyName)-1);
 	strncpy(m_MaxsKeyName, pMaxsKeyName, sizeof(m_MaxsKeyName)-1);
 
@@ -138,7 +138,7 @@ CMapAlignedBox::CMapAlignedBox(const char *pMinsKeyName, const char *pMaxsKeyNam
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CMapAlignedBox::~CMapAlignedBox(void)
 {
@@ -146,8 +146,8 @@ CMapAlignedBox::~CMapAlignedBox(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bFullUpdate - 
+// Purpose:
+// Input  : bFullUpdate -
 //-----------------------------------------------------------------------------
 void CMapAlignedBox::CalcBounds(BOOL bFullUpdate)
 {
@@ -162,7 +162,7 @@ void CMapAlignedBox::CalcBounds(BOOL bFullUpdate)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : CMapClass
 //-----------------------------------------------------------------------------
 CMapClass *CMapAlignedBox::Copy(bool bUpdateDependencies)
@@ -179,8 +179,8 @@ CMapClass *CMapAlignedBox::Copy(bool bUpdateDependencies)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pObject - 
+// Purpose:
+// Input  : pObject -
 // Output : CMapClass
 //-----------------------------------------------------------------------------
 CMapClass *CMapAlignedBox::CopyFrom(CMapClass *pObject, bool bUpdateDependencies)
@@ -206,8 +206,8 @@ CMapClass *CMapAlignedBox::CopyFrom(CMapClass *pObject, bool bUpdateDependencies
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pRender - 
+// Purpose:
+// Input  : pRender -
 //-----------------------------------------------------------------------------
 void CMapAlignedBox::Render2D(CRender2D *pRender)
 {
@@ -240,7 +240,7 @@ void CMapAlignedBox::Render2D(CRender2D *pRender)
 
 		int sizex = abs(pt.x - pt2.x)+1;
 		int sizey = abs(pt.y - pt2.y)+1;
-		
+
 		// dont draw handle if object is too small
 		if ( sizex > 6 && sizey > 6 )
 		{
@@ -252,8 +252,8 @@ void CMapAlignedBox::Render2D(CRender2D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pRender - 
+// Purpose:
+// Input  : pRender -
 //-----------------------------------------------------------------------------
 void CMapAlignedBox::Render3D(CRender3D *pRender)
 {
@@ -271,9 +271,9 @@ void CMapAlignedBox::Render3D(CRender3D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
+// Purpose:
+// Input  : File -
+//			bRMF -
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapAlignedBox::SerializeRMF(std::fstream &File, BOOL bRMF)
@@ -283,9 +283,9 @@ int CMapAlignedBox::SerializeRMF(std::fstream &File, BOOL bRMF)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
+// Purpose:
+// Input  : File -
+//			bRMF -
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapAlignedBox::SerializeMAP(std::fstream &File, BOOL bRMF)
@@ -295,9 +295,9 @@ int CMapAlignedBox::SerializeMAP(std::fstream &File, BOOL bRMF)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : key - 
-//			value - 
+// Purpose:
+// Input  : key -
+//			value -
 //-----------------------------------------------------------------------------
 void CMapAlignedBox::OnParentKeyChanged( const char* key, const char* value )
 {

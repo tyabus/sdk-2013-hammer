@@ -121,7 +121,7 @@ typedef struct
 
 // This is a reference-counted class that holds a pointer to an object.
 // When the object goes away, it can set the pointer in here to NULL
-// and anyone else who holds a reference to this can know that the 
+// and anyone else who holds a reference to this can know that the
 // object has gone away. It's similar to the EHANDLEs in the engine,
 // except there's no finite list of objects that's managed anywhere.
 template<class T>
@@ -133,7 +133,7 @@ public:
 		CSafeObject<T> *pRet = new CSafeObject<T>( pObject );
 		return CSmartPtr< CSafeObject< T> >( pRet );
 	}
-	
+
 	void AddRef()
 	{
 		++m_RefCount;
@@ -147,9 +147,9 @@ public:
 	int GetRefCount() const
 	{
 		return m_RefCount;
-	}	
+	}
 
-public:	
+public:
 	T *m_pObject;
 
 private:
@@ -158,7 +158,7 @@ private:
 		m_RefCount = 0;
 		m_pObject = pObject;
 	}
-		
+
 private:
 	int m_RefCount;	// This object goes away when all smart pointers to it go away.
 };
@@ -172,7 +172,7 @@ public:
 	//
 	CMapClass(void);
 	virtual ~CMapClass(void);
-	
+
 	const CSmartPtr< CSafeObject< CMapClass > >& GetSafeObjectSmartPtr();
 
 	inline int GetID(void);
@@ -218,7 +218,7 @@ public:
 
 	inline int GetChildCount(void) { return( m_Children.Count()); }
 	inline const CMapObjectList *GetChildren() { return &m_Children; }
-		
+
 	CMapClass *GetFirstDescendent(EnumChildrenPos_t &pos);
 	CMapClass *GetNextDescendent(EnumChildrenPos_t &pos);
 
@@ -257,11 +257,13 @@ public:
 	// Bounds calculation and intersection functions.
 	//
 	virtual void CalcBounds(BOOL bFullUpdate = FALSE);
-	
-	void GetCullBox(Vector &mins, Vector &maxs);
-	void SetCullBoxFromFaceList( CMapFaceList *pFaces );
-	
-	void GetRender2DBox(Vector &mins, Vector &maxs);
+
+	virtual void GetCullBox(Vector &mins, Vector &maxs);
+	virtual bool GetCullBoxChild( Vector &mins, Vector &maxs ) { return false; }
+	virtual void SetCullBoxFromFaceList( CMapFaceList *pFaces );
+
+	virtual void GetRender2DBox(Vector &mins, Vector &maxs);
+	virtual bool GetRender2DBoxChild( Vector &mins, Vector &maxs ) { return false; }
 
 	// NOTE: Logical position is in global space
 	virtual void SetLogicalPosition( const Vector2D &vecPosition ) {}
@@ -271,22 +273,24 @@ public:
 	virtual void GetRenderLogicalBox( Vector2D &mins, Vector2D &maxs );
 
 	// HACK: temp stuff to ease the transition to not inheriting from BoundBox
-	void GetBoundsCenter(Vector &vecCenter) { m_Render2DBox.GetBoundsCenter(vecCenter); }
-	void GetBoundsSize(Vector &vecSize) { m_Render2DBox.GetBoundsSize(vecSize); }
-	inline bool IsInsideBox(Vector const &Mins, Vector const &Maxs) const { return(m_Render2DBox.IsInsideBox(Mins, Maxs)); }
-	inline bool IsIntersectingBox(const Vector &vecMins, const Vector& vecMaxs) const { return(m_Render2DBox.IsIntersectingBox(vecMins, vecMaxs)); }
+	virtual void GetBoundsCenter(Vector &vecCenter) { m_Render2DBox.GetBoundsCenter(vecCenter); }
+	virtual bool GetBoundsCenterChild( Vector& vecCenter ) { return false; }
+	virtual void GetBoundsSize(Vector &vecSize) { m_Render2DBox.GetBoundsSize(vecSize); }
+	virtual bool GetBoundsSizeChild( Vector& vecCenter ) { return false; }
+	virtual bool IsInsideBox(Vector const &Mins, Vector const &Maxs) const { return(m_Render2DBox.IsInsideBox(Mins, Maxs)); }
+	virtual bool IsIntersectingBox(const Vector &vecMins, const Vector& vecMaxs) const { return(m_Render2DBox.IsIntersectingBox(vecMins, vecMaxs)); }
 
 	virtual CMapClass *PrepareSelection(SelectMode_t eSelectMode);
 
 	void PostUpdate(Notify_Dependent_t eNotifyType);
 	static void UpdateAllDependencies(CMapClass *pObject);
 
-	void SetOrigin(Vector& origin);
+	virtual void SetOrigin(Vector& origin);
 
 	// hierarchy
 	virtual void UpdateAnimation( float animTime ) {}
 	virtual bool GetTransformMatrix( VMatrix& matrix );
-		
+
 	virtual MAPCLASSTYPE GetType(void) = 0;
 	virtual BOOL IsMapClass(MAPCLASSTYPE Type) = 0;
 	virtual CMapClass *Copy(bool bUpdateDependencies);
@@ -307,9 +311,9 @@ public:
 	virtual bool ShouldSerialize(void) { return true; }
 	virtual int SerializeRMF(std::fstream &File, BOOL bRMF);
 	virtual int SerializeMAP(std::fstream &File, BOOL bRMF);
-	virtual void PostloadWorld(CMapWorld *pWorld);		
+	virtual void PostloadWorld(CMapWorld *pWorld);
 	virtual void PresaveWorld(void) {}
-	bool PostloadVisGroups( bool bIsLoading );
+	virtual bool PostloadVisGroups( bool bIsLoading );
 
 	virtual bool IsGroup(void) { return false; }
 	virtual bool IsScaleable(void) { return false; }
@@ -323,7 +327,7 @@ public:
 
 	// HACK: get the world that this object is contained within.
 	static CMapWorld *GetWorldObject(CMapAtom *pStart);
-    
+
 	virtual const char* GetDescription() { return ""; }
 
 	BOOL EnumChildren(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam = 0, MAPCLASSTYPE Type = NULL);
@@ -400,7 +404,7 @@ protected:
 	// Implements CMapAtom transformation interface:
 	//
 	virtual void DoTransform(const VMatrix &matrix);
-		
+
 	//
 	// Serialization callbacks.
 	//
@@ -442,9 +446,10 @@ protected:
 	CVisGroup *m_pColorVisGroup;	// The visgroup from which we get our color, NULL if none.
 
 	WCKeyValuesT<WCKVBase_Vector> *m_pEditorKeys;		// Temporary storage for keys loaded from the "editor" chunk of the VMF file, freed after loading.
-	
+
 	friend class CTrackEntry;						// Friends with Undo/Redo system so that parentage can be changed.
 	friend void FixHiddenObject(MapError *pError);	// So that the Check for Problems dialog can fix visgroups problems.
+	friend class CMapInstance;
 };
 
 

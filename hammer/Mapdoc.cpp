@@ -1360,7 +1360,7 @@ ChunkFileResult_t CMapDoc::LoadHiddenCallback(CChunkFile *pFile, CMapDoc *pDoc)
 //			eError -
 // Output : Returns true to continue loading, false to stop loading.
 //-----------------------------------------------------------------------------
-bool CMapDoc::HandleLoadError(CChunkFile *pFile, const char *szChunkName, ChunkFileResult_t eError, CMapDoc *pDoc)
+bool CMapDoc::HandleLoadError(CChunkFile *pFile, const char *szChunkName, CMapDoc *pDoc)
 {
 	return(false);
 }
@@ -1371,7 +1371,7 @@ bool CMapDoc::HandleLoadError(CChunkFile *pFile, const char *szChunkName, ChunkF
 // Input  : pszFileName - Full path of file to load.
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CMapDoc::LoadVMF(const char *pszFileName)
+bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 {
 	//
 	// Create a new world to hold the loaded objects.
@@ -1381,16 +1381,21 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 		m_pWorld = new CMapWorld;
 	}
 
-	// Show our progress dialog.
-	pProgDlg = new CProgressDlg;
-	pProgDlg->Create();
-	pProgDlg->SetRange(0,18000);
-	pProgDlg->SetStep(1000);
+	m_bLoadingInstance = bIsInstance;
 
-	// Set the progress dialog title
-	CString caption;
-	caption.LoadString(IDS_LOADINGFILE);
-	pProgDlg->SetWindowText(caption);
+	if ( !m_bLoadingInstance )
+	{
+		// Show our progress dialog.
+		pProgDlg = new CProgressDlg;
+		pProgDlg->Create();
+		pProgDlg->SetRange(0,18000);
+		pProgDlg->SetStep(1000);
+
+		// Set the progress dialog title
+		CString caption;
+		caption.LoadString(IDS_LOADINGFILE);
+		pProgDlg->SetWindowText(caption);
+	}
 
 	g_nFileFormatVersion = 0;
 
@@ -1401,7 +1406,8 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 	//
 	CChunkFile File;
 	ChunkFileResult_t eResult = File.Open(pszFileName, ChunkFile_Read);
-	pProgDlg->StepIt();
+	if ( !m_bLoadingInstance )
+		pProgDlg->StepIt();
 
 	//
 	// Read the file.
@@ -1429,7 +1435,8 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 
 		File.PushHandlers(&Handlers);
 
-		SetActiveMapDoc( this );
+		if ( !m_bLoadingInstance )
+			SetActiveMapDoc( this );
 		m_bLoading = true;
 
 		//
@@ -1437,13 +1444,17 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 		// key value callback to ReadChunk.
 		//
 
-		pProgDlg->SetWindowText( "Reading Chunks..." );
+		if ( !m_bLoadingInstance )
+			pProgDlg->SetWindowText( "Reading Chunks..." );
 		while (eResult == ChunkFile_Ok)
 		{
 			eResult = File.ReadChunk();
 		}
-		pProgDlg->SetStep(5000);
-		pProgDlg->StepIt();
+		if ( !m_bLoadingInstance )
+		{
+			pProgDlg->SetStep(5000);
+			pProgDlg->StepIt();
+		}
 
 		if (eResult == ChunkFile_EOF)
 		{
@@ -1456,10 +1467,12 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 
 	if (eResult == ChunkFile_Ok)
 	{
-		pProgDlg->SetWindowText( "Postload Processing..." );
+		if ( !m_bLoadingInstance )
+			pProgDlg->SetWindowText( "Postload Processing..." );
 		Postload();
 
-		pProgDlg->StepIt();
+		if ( !m_bLoadingInstance )
+			pProgDlg->StepIt();
 		m_bLoading = false;
 	}
 	else
@@ -1470,7 +1483,7 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 	if ( bLocked )
 		VisGroups_LockUpdates( false );
 
-	if (pProgDlg)
+	if (pProgDlg && !m_bLoadingInstance)
 	{
 		pProgDlg->DestroyWindow();
 		delete pProgDlg;
@@ -1478,8 +1491,11 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 	}
 
 	// force rendering even if application is not active
-	UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
-	APP()->SetForceRenderNextFrame();
+	if ( !m_bLoadingInstance )
+	{
+		UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
+		APP()->SetForceRenderNextFrame();
+	}
 
 	return(eResult == ChunkFile_Ok);
 }
@@ -1649,27 +1665,37 @@ void CMapDoc::Postload(void)
 	//
 	CountGUIDs();
 	m_pWorld->PostloadWorld();
-	pProgDlg->StepIt();
-	pProgDlg->SetStep(1000);
+	if ( !m_bLoadingInstance )
+	{
+		pProgDlg->StepIt();
+		pProgDlg->SetStep(1000);
+	}
 
-	pProgDlg->SetWindowText( "Assigning to groups..." );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Assigning to groups..." );
 	AssignToGroups();
 	AssignToVisGroups();
-	pProgDlg->StepIt();
+	if ( !m_bLoadingInstance )
+		pProgDlg->StepIt();
 
-	pProgDlg->SetWindowText( "Postprocessing VisGroups..." );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Postprocessing VisGroups..." );
 	m_pWorld->PostloadVisGroups();
-	pProgDlg->StepIt();
+	if ( !m_bLoadingInstance )
+		pProgDlg->StepIt();
 
 	// Do this after AssignToVisGroups, because deleting objects causes empty visgroups to be purged,
 	// and until AssignToVisGroups is called all the visgroups are empty!
-	pProgDlg->SetWindowText( "Updating Visibility..." );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Updating Visibility..." );
 	RemoveEmptyGroups();
 	UpdateVisibilityAll();
-    pProgDlg->StepIt();
+	if ( !m_bLoadingInstance )
+		pProgDlg->StepIt();
 
 	// update displacement neighbors
-	pProgDlg->SetWindowText( "Updating Displacements..." );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Updating Displacements..." );
 	IWorldEditDispMgr *pDispMgr = GetActiveWorldEditDispManager();
 	if( pDispMgr )
 	{
@@ -1684,12 +1710,14 @@ void CMapDoc::Postload(void)
 			}
 		}
 	}
-    pProgDlg->StepIt();
+	if ( !m_bLoadingInstance )
+		pProgDlg->StepIt();
 
 	//
 	// Do batch search and replace of textures from trans.txt if it exists.
 	//
-	pProgDlg->SetWindowText( "Updating Texture Names..." );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Updating Texture Names..." );
 	char translationFilename[MAX_PATH];
 	Q_snprintf( translationFilename, sizeof( translationFilename ), "materials/trans.txt" );
 	FileHandle_t searchReplaceFP = g_pFileSystem->Open( translationFilename, "r" );
@@ -1698,19 +1726,24 @@ void CMapDoc::Postload(void)
 		BatchReplaceTextures( searchReplaceFP );
 		g_pFileSystem->Close( searchReplaceFP );
 	}
-    pProgDlg->StepIt();
+	if ( !m_bLoadingInstance )
+		pProgDlg->StepIt();
 
-	pProgDlg->SetWindowText( "Building Cull Tree..." );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Building Cull Tree..." );
 	m_pWorld->CullTree_Build();
-    pProgDlg->StepIt();
+	if ( !m_bLoadingInstance )
+		pProgDlg->StepIt();
 
 	// We disabled building detail objects above to prevent it from generating them extra times.
 	// Now generate the ones that need to be generated.
-	pProgDlg->SetWindowText( "Building Detail Objects..." );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Building Detail Objects..." );
 	DetailObjects::EnableBuildDetailObjects( true );
 	BuildAllDetailObjects();
 
-	pProgDlg->SetWindowText( "Finished Loading!" );
+	if ( !m_bLoadingInstance )
+		pProgDlg->SetWindowText( "Finished Loading!" );
 }
 
 
@@ -1986,6 +2019,19 @@ void CMapDoc::Dump(CDumpContext& dc) const
 //-----------------------------------------------------------------------------
 void CMapDoc::DeleteContents(void)
 {
+	DeleteCurrentMap();
+
+	CDocument::DeleteContents();
+
+	CMainFrame *pwndMain = GetMainWnd();
+	if (pwndMain != NULL)
+	{
+		pwndMain->OnDeleteActiveDocument();
+	}
+}
+
+void CMapDoc::DeleteCurrentMap()
+{
 	//
 	// Don't leave pointers to deleted worlds lying around!
 	//
@@ -2002,14 +2048,6 @@ void CMapDoc::DeleteContents(void)
 	m_pWorld = NULL;
 
 	GetMainWnd()->m_pFaceEditSheet->ClearFaceListByMapDoc( this );
-
-	CDocument::DeleteContents();
-
-	CMainFrame *pwndMain = GetMainWnd();
-	if (pwndMain != NULL)
-	{
-		pwndMain->OnDeleteActiveDocument();
-	}
 }
 
 
@@ -3837,7 +3875,7 @@ void CMapDoc::OnToolsSubtractselection(void)
 				//
 				if (Outside.Count() > 1)
 				{
-					pResult = (CMapClass *)(new CMapGroup);
+					pResult = new CMapGroup;
 					FOR_EACH_OBJ( Outside, pos2 )
 					{
 						CMapClass *pTemp = Outside.Element(pos2);

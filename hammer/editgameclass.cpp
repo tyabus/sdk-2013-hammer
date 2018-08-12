@@ -29,7 +29,7 @@
 //
 // An empty string returned by GetComments when we have no comments set.
 //
-char *CEditGameClass::g_pszEmpty = "";
+const char *CEditGameClass::g_pszEmpty = "";
 
 
 //-----------------------------------------------------------------------------
@@ -56,8 +56,8 @@ CEditGameClass::~CEditGameClass(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pConnection - 
+// Purpose:
+// Input  : *pConnection -
 //-----------------------------------------------------------------------------
 void CEditGameClass::Connections_Add(CEntityConnection *pConnection)
 {
@@ -76,8 +76,8 @@ void CEditGameClass::Connections_Add(CEntityConnection *pConnection)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pConnection - 
+// Purpose:
+// Input  : *pConnection -
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CEditGameClass::Connections_Remove(CEntityConnection *pConnection)
@@ -100,7 +100,7 @@ void CEditGameClass::Connections_RemoveAll()
 {
 	//
 	// Remove all our connections from their targets' upstream lists.
-	//	
+	//
 	int nConnectionsCount = m_Connections.Count();
 	for (int nConnection = 0; nConnection < nConnectionsCount; nConnection++)
 	{
@@ -116,8 +116,8 @@ void CEditGameClass::Connections_RemoveAll()
 				pEntity->Upstream_Remove( pConnection );
 			}
 		}
-#endif 
-		
+#endif
+
 		delete pConnection;
 	}
 
@@ -126,7 +126,7 @@ void CEditGameClass::Connections_RemoveAll()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEditGameClass::Connections_FixBad(bool bRelink)
 {
@@ -149,8 +149,8 @@ void CEditGameClass::Connections_FixBad(bool bRelink)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pConnection - 
+// Purpose:
+// Input  : *pConnection -
 //-----------------------------------------------------------------------------
 void CEditGameClass::Upstream_Add(CEntityConnection *pConnection)
 {
@@ -171,8 +171,8 @@ void CEditGameClass::Upstream_Add(CEntityConnection *pConnection)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pConnection - 
+// Purpose:
+// Input  : *pConnection -
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CEditGameClass::Upstream_Remove(CEntityConnection *pConnection)
@@ -190,14 +190,14 @@ bool CEditGameClass::Upstream_Remove(CEntityConnection *pConnection)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEditGameClass::Upstream_RemoveAll(void)
 {
 #if defined( ENTITY_MAINTAIN_UPSTREAM_LISTS )
 	//
 	// Remove all our connections from their targets' upstream lists.
-	//	
+	//
 	int nUpstreamCount = m_Upstream.Count();
 	for (int nConnection = 0; nConnection < nUpstreamCount; nConnection++)
 	{
@@ -213,14 +213,14 @@ void CEditGameClass::Upstream_RemoveAll(void)
 			}
 		}
 	}
-#endif 
+#endif
 
 	m_Upstream.RemoveAll();
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEditGameClass::Upstream_FixBad()
 {
@@ -242,9 +242,9 @@ void CEditGameClass::Upstream_FixBad()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszClass - 
-//			bLoading - 
+// Purpose:
+// Input  : pszClass -
+//			bLoading -
 //-----------------------------------------------------------------------------
 void CEditGameClass::SetClass(LPCTSTR pszClass, bool bLoading)
 {
@@ -325,7 +325,7 @@ void CEditGameClass::GetDefaultKeys( void )
 				//
 				// If the variable is not present in this object, set the default value.
 				//
-				if (p == NULL) 
+				if (p == NULL)
 				{
 					MDkeyvalue tmpkv;
 					pVar->ResetDefaults();
@@ -397,15 +397,15 @@ void CEditGameClass::ImportAngle(int nAngle)
 //-----------------------------------------------------------------------------
 void CEditGameClass::SetAngles(const QAngle &vecAngles)
 {
-	char szAngles[80];	
+	char szAngles[80];
 	sprintf(szAngles, "%g %g %g", (double)vecAngles[PITCH], (double)vecAngles[YAW], (double)vecAngles[ROLL]);
 	SetKeyValue("angles", szAngles);
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
+// Purpose:
+// Input  : *pFile -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CEditGameClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
@@ -482,7 +482,7 @@ ChunkFileResult_t CEditGameClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInf
 				//
 				// If the variable is not present in this object, write out the default value.
 				//
-				if (p == NULL) 
+				if (p == NULL)
 				{
 					MDkeyvalue TempKey;
 					pVar->ResetDefaults();
@@ -529,7 +529,7 @@ ChunkFileResult_t CEditGameClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInf
 					}
 				}
 			}
-		
+
 			eResult = pFile->EndChunk();
 		}
 	}
@@ -602,7 +602,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 
 	// Set the "source" name to be the name of the pEditGameClass' targetname
 	pConnection->SetSourceName( pEditGameClass->GetKeyValue("targetname") ); // Use the classname if no targetname is defined?
-	
+
 	// Set the "output" from the passed in parameter
 	pConnection->SetOutputName(szKey);
 
@@ -660,9 +660,9 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
-//			*pEntity - 
+// Purpose:
+// Input  : *pFile -
+//			*pEntity -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CEditGameClass::LoadConnectionsCallback(CChunkFile *pFile, CEditGameClass *pEditGameClass)

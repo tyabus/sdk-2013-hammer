@@ -1465,9 +1465,13 @@ void CRender3D::EndRenderFrame(void)
 			// Display the frame rate and camera position.
 			//
 			char szText[100];
-			Vector ViewPoint;
+			Vector ViewPoint, ViewForward, ViewUp;
 			GetCamera()->GetViewPoint(ViewPoint);
-			int nLen = sprintf(szText, "FPS=%3.2f Pos=[%.f %.f %.f]", m_fFrameRate, ViewPoint[0], ViewPoint[1], ViewPoint[2]);
+			GetCamera()->GetViewForward(ViewForward);
+			GetCamera()->GetViewUp(ViewUp);
+			QAngle ang;
+			VectorAngles( ViewForward, ViewUp, ang );
+			int nLen = sprintf(szText, "FPS=%3.2f Pos=[%.f %.f %.f] Ang=[%.f %.f %.f]", m_fFrameRate, ViewPoint[0], ViewPoint[1], ViewPoint[2], ang[0], ang[1], ang[2]);
 			TextOut(m_WinData.hDC, 2, 18, szText, nLen);
 		}
 	}
@@ -1551,7 +1555,7 @@ void CRender3D::Render(void)
 		 (! view_changed ) )
 	{
 		// blit it
-		BITMAPINFOHEADER mybmh;
+		/*BITMAPINFOHEADER mybmh;
 		mybmh.biHeight=-g_pLPreviewOutputBitmap->Height();
 		mybmh.biSize=sizeof(BITMAPINFOHEADER);
 		// now, set up bitmapheader struct for StretchDIB
@@ -1559,13 +1563,13 @@ void CRender3D::Render(void)
 		mybmh.biPlanes=1;
 		mybmh.biBitCount=32;
 		mybmh.biCompression=BI_RGB;
-		mybmh.biSizeImage=g_pLPreviewOutputBitmap->Width()*g_pLPreviewOutputBitmap->Height();
+		mybmh.biSizeImage=g_pLPreviewOutputBitmap->Width()*g_pLPreviewOutputBitmap->Height();*/
 
-		RECT wrect;
-		memset(&wrect,0,sizeof(wrect));
+		//RECT wrect;
+		//memset(&wrect,0,sizeof(wrect));
 
-		int width, height;
-		pCamera->GetViewPort( width, height );
+		//int width, height;
+		//pCamera->GetViewPort( width, height );
 // 		StretchDIBits(
 // 			m_WinData.hDC,0,0,width,height,
 // 			0,0,g_pLPreviewOutputBitmap->m_nWidth, g_pLPreviewOutputBitmap->m_nHeight,
