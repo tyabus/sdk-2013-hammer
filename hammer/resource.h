@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by hammer.rc
+// Used by Hammer.rc
 //
 #define IDB_SPLASHOLD                   1
 #define IDS_ERROR_PLAYING               1
@@ -26,6 +26,10 @@
 #define IDC_Y                           115
 #define ID_VSCALE_CHANGED               115
 #define IDC_Z                           116
+#define ID_TOOLS_QUICKHIDE_OBJECTS      116
+#define ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL 117
+#define ID_TOOLS_QUICKHIDE_UNHIDE       118
+#define ID_TOOLS_QUICKHIDE_CONVERT      119
 #define IDR_MAINFRAME                   128
 #define IDR_FORGEMAPTYPE                129
 #define IDR_MAPDOC                      129
@@ -952,7 +956,6 @@
 #define ID_VIEW_2DXY                    32779
 #define ID_VIEW_2DXZ                    32780
 #define ID_VIEW_2DYZ                    32781
-#define ID_BUTTON32782                  32782
 #define IDS_CANT_OPEN_ENTS_FILE         32782
 #define IDS_CANT_SAVE_ENTS_FILE         32783
 #define ID_NO_BRUSH_SELECTED            32784
@@ -962,8 +965,6 @@
 #define ID_VIEW_3DTEXTURED_SHADED       32788
 #define ID_VIEW_3DPOLYGON               32790
 #define ID_VIEW_GRID                    32796
-#define ID_BUTTON32799                  32799
-#define ID_BUTTON32800                  32800
 #define ID_VIEW_BRUSHEDITOR             32801
 #define IDBE_VIEW_WIREFRAME             32804
 #define IDBE_VIEW_POLYGON               32805
@@ -1256,8 +1257,8 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        339
-#define _APS_NEXT_COMMAND_VALUE         33226
+#define _APS_NEXT_COMMAND_VALUE         33235
 #define _APS_NEXT_CONTROL_VALUE         1677
-#define _APS_NEXT_SYMED_VALUE           116
+#define _APS_NEXT_SYMED_VALUE           120
 #endif
 #endif

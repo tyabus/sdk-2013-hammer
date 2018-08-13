@@ -256,6 +256,14 @@ BEGIN_MESSAGE_MAP(CMapDoc, CDocument)
 	ON_COMMAND(ID_LOGICALOBJECT_LAYOUTGEOMETRIC, OnLogicalobjectLayoutgeometric)
 	ON_COMMAND(ID_LOGICALOBJECT_LAYOUTDEFAULT, OnLogicalobjectLayoutdefault)
 	ON_COMMAND(ID_LOGICALOBJECT_LAYOUTLOGICAL, OnLogicalobjectLayoutlogical)
+    ON_COMMAND_EX(ID_TOOLS_QUICKHIDE_OBJECTS, OnViewQuickHide)
+    ON_UPDATE_COMMAND_UI(ID_TOOLS_QUICKHIDE_OBJECTS, OnUpdateToggleQuickHide)
+    ON_COMMAND_EX(ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL, OnViewQuickHide)
+    ON_UPDATE_COMMAND_UI(ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL, OnUpdateToggleQuickHideUnsel)
+    ON_COMMAND(ID_TOOLS_QUICKHIDE_UNHIDE, OnViewQuickHideUnhide)
+    ON_UPDATE_COMMAND_UI(ID_TOOLS_QUICKHIDE_UNHIDE, OnUpdateToggleQuickHideUnhide)
+    ON_COMMAND(ID_TOOLS_QUICKHIDE_CONVERT, OnViewQuickHideConvert)
+
 	//}}AFX_MSG_MAP
 	END_MESSAGE_MAP()
 
@@ -6562,7 +6570,6 @@ bool CMapDoc::GetChildrenToHide(CMapClass *pObject, bool bSelected, CMapObjectLi
 		{
 			if (pChild->IsVisible())
 			{
-				CMapEntity *pEntity = dynamic_cast<CMapEntity *>(pChild);
 				if (pGroup || (pEntity && pEntity->IsSolidClass()))
 				{
 					// This child is a group or a solid entity -- check all its children.
@@ -6698,6 +6705,102 @@ void CMapDoc::OnShowNoDrawBrushes(void)
 	Options.general.bShowNoDrawBrushes = !Options.general.bShowNoDrawBrushes;
 	UpdateAllViews( MAPVIEW_UPDATE_TOOL );
 }
+
+BOOL CMapDoc::OnViewQuickHide(UINT nID)
+{
+    bool bSelected = (nID == ID_TOOLS_QUICKHIDE_OBJECTS);
+
+    if (m_pSelection->IsEmpty())
+    {
+        return TRUE;
+    }
+
+    if (bSelected)
+    {
+        m_QuickHideObjects.AddVectorToTail(*m_pSelection->GetList());
+    }
+    else 
+    {
+        GetChildrenToHide(m_pWorld, false, m_QuickHideObjects);
+    }
+
+    for (int i = 0; i < m_QuickHideObjects.Count(); i++)
+        m_QuickHideObjects[i]->SetVisible(false);
+
+    if (bSelected)
+        m_pSelection->SelectObject(nullptr, scClear);
+
+    UpdateAllViews(MAPVIEW_UPDATE_OBJECTS);
+
+    return TRUE;
+}
+
+void CMapDoc::OnViewQuickHideUnhide()
+{
+    if (m_QuickHideObjects.IsEmpty())
+        return;
+
+    FOR_EACH_VEC_BACK(m_QuickHideObjects, i)
+    {
+        m_QuickHideObjects[i]->SetVisible(true);
+        m_QuickHideObjects.Remove(i);
+    }
+
+    UpdateAllViews(MAPVIEW_UPDATE_OBJECTS);
+}
+
+void CMapDoc::OnViewQuickHideConvert()
+{
+    int nOriginalCount = m_QuickHideObjects.Count();
+    for (int pos = nOriginalCount - 1; pos >= 0; pos--)
+    {
+        CMapClass *pObject = m_QuickHideObjects.Element(pos);
+        if (!VisGroups_ObjectCanBelongToVisGroup(pObject))
+        {
+            pObject->SetVisible(true);
+            m_QuickHideObjects.Remove(pos);
+        }
+    }
+    int nFinalCount = m_QuickHideObjects.Count();
+
+    //
+    // If no eligible selected objects were found, exit.
+    //
+    if (!nFinalCount)
+    {
+        CString str;
+        str.Format("There are no eligible objects. The only objects\n"
+                   "that can be put in a Visible Group are objects that are not\n"
+                   "part of an entity.");
+
+        AfxMessageBox(str);
+        return;
+    }
+    
+    if (nFinalCount < nOriginalCount)
+    {
+        AfxMessageBox("Some objects could not put in the new Visible Group because\n"
+                      "they are part of an entity.");
+    }
+
+    ShowNewVisGroupsDialog(m_QuickHideObjects, false);
+}
+
+void CMapDoc::OnUpdateToggleQuickHide(CCmdUI* pCmdUI)
+{
+    pCmdUI->Enable(!m_pSelection->IsEmpty() && !GetMainWnd()->IsShellSessionActive());
+}
+
+void CMapDoc::OnUpdateToggleQuickHideUnhide(CCmdUI* pCmdUI)
+{
+    pCmdUI->Enable(m_QuickHideObjects.Count() > 0 && !GetMainWnd()->IsShellSessionActive());
+}
+
+void CMapDoc::OnUpdateToggleQuickHideUnsel(CCmdUI* pCmdUI)
+{
+    pCmdUI->Enable(!m_pSelection->IsEmpty() && !GetMainWnd()->IsShellSessionActive());
+}
+
 
 void CMapDoc::OnUpdateShowNoDrawBrushes(CCmdUI *pCmdUI)
 {

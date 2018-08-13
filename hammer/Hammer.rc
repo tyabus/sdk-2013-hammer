@@ -225,6 +225,9 @@ BEGIN
     SEPARATOR
     BUTTON      ID_VIEW_HIDESELECTEDOBJECTS
     BUTTON      ID_VIEW_HIDENONSELECTEDOBJECTS
+    BUTTON      ID_TOOLS_QUICKHIDE_OBJECTS
+    BUTTON      ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL
+    BUTTON      ID_TOOLS_QUICKHIDE_UNHIDE
     SEPARATOR
     BUTTON      ID_EDIT_CUTWC
     BUTTON      ID_EDIT_COPYWC
@@ -421,6 +424,11 @@ BEGIN
         MENUITEM "&Hide Items",                 ID_TOOLS_HIDEITEMS
         MENUITEM "Hide Entity &Names",          ID_TOOLS_HIDE_ENTITY_NAMES
         MENUITEM SEPARATOR
+        MENUITEM "QuickHide Objects\tH",        ID_TOOLS_QUICKHIDE_OBJECTS
+        MENUITEM "QuickHide Unselected Objects\tCtrl+H", ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL
+        MENUITEM "Unhide QuickHide Objects\tU", ID_TOOLS_QUICKHIDE_UNHIDE
+        MENUITEM "Convert QuickHide Objects to VisGroup", ID_TOOLS_QUICKHIDE_CONVERT
+        MENUITEM SEPARATOR
         MENUITEM "Move Selection To V&isgroup", ID_VIEW_HIDESELECTEDOBJECTS
         MENUITEM "&Draw Materials Opaque",      ID_VIEW_OPAQUE_MATERIALS
         MENUITEM "HDR",                         ID_HDR
@@ -428,7 +436,7 @@ BEGIN
     POPUP "&Tools"
     BEGIN
         MENUITEM "&Carve\tCtrl+Shift+C",        ID_TOOLS_SUBTRACTSELECTION
-        MENUITEM "Make Hollow\tCtrl+H",         ID_TOOLS_HOLLOW
+        MENUITEM "Make Hollow",                 ID_TOOLS_HOLLOW
         MENUITEM SEPARATOR
         MENUITEM "&Group\tCtrl+G",              ID_TOOLS_GROUP
         MENUITEM "&Ungroup\tCtrl+U",            ID_TOOLS_UNGROUP
@@ -648,6 +656,7 @@ BEGIN
     VK_DELETE,      ID_EDIT_CUTWC,          VIRTKEY, SHIFT, NOINVERT
     "X",            ID_EDIT_CUTWC,          VIRTKEY, CONTROL, NOINVERT
     "F",            ID_EDIT_FINDENTITIES,   VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTESPECIAL,   VIRTKEY, SHIFT, CONTROL, NOINVERT
     "V",            ID_EDIT_PASTEWC,        VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_PASTEWC,        VIRTKEY, SHIFT, NOINVERT
     VK_RETURN,      ID_EDIT_PROPERTIES,     VIRTKEY, ALT, NOINVERT
@@ -688,12 +697,14 @@ BEGIN
     "E",            ID_TOOLS_ENTITY,        VIRTKEY, SHIFT, NOINVERT
     "G",            ID_TOOLS_GROUP,         VIRTKEY, CONTROL, NOINVERT
     "N",            ID_TOOLS_HIDE_ENTITY_NAMES, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "H",            ID_TOOLS_HOLLOW,        VIRTKEY, CONTROL, NOINVERT
     "G",            ID_TOOLS_MAGNIFY,       VIRTKEY, SHIFT, NOINVERT
     "V",            ID_TOOLS_MORPH,         VIRTKEY, SHIFT, NOINVERT
     "O",            ID_TOOLS_OVERLAY,       VIRTKEY, SHIFT, NOINVERT
     "P",            ID_TOOLS_PATH,          VIRTKEY, SHIFT, NOINVERT
     "S",            ID_TOOLS_POINTER,       VIRTKEY, SHIFT, NOINVERT
+    "h",            ID_TOOLS_QUICKHIDE_OBJECTS, ASCII, NOINVERT
+    "H",            ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL, VIRTKEY, CONTROL, NOINVERT
+    "u",            ID_TOOLS_QUICKHIDE_UNHIDE, ASCII, NOINVERT
     "B",            ID_TOOLS_SNAP_SELECTED_TO_GRID_INDIVIDUALLY, VIRTKEY, SHIFT, CONTROL, NOINVERT
     "B",            ID_TOOLS_SNAPSELECTEDTOGRID, VIRTKEY, CONTROL, NOINVERT
     "S",            ID_TOOLS_SOUND_BROWSER, VIRTKEY, SHIFT, CONTROL, NOINVERT
@@ -712,7 +723,6 @@ BEGIN
     "M",            ID_VIEW_SHOWMODELSIN2D, VIRTKEY, SHIFT, NOINVERT
     VK_F8,          ID_VIEW_TEXTUREBROWSER, VIRTKEY, ALT, NOINVERT
     "E",            ID_VSCALE_TOGGLE,       VIRTKEY, ALT, NOINVERT
-    "V",            ID_EDIT_PASTESPECIAL,   VIRTKEY, SHIFT, CONTROL, NOINVERT
 END
 
 
@@ -730,7 +740,7 @@ BEGIN
     PUSHBUTTON      "Close",IDOK,189,49,50,14,WS_GROUP
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
     LTEXT           "Valve Hammer Editor is a trademark of Valve Corporation",IDC_STATIC,38,19,186,8
-    LTEXT           "Copyright © 1996-2006, Valve Corporation, All rights reserved.",IDC_STATIC,38,31,201,10
+    LTEXT           "Copyright ï¿½ 1996-2006, Valve Corporation, All rights reserved.",IDC_STATIC,38,31,201,10
     LTEXT           " ",IDC_REDHERRING,13,47,156,8
     LTEXT           "Build %d",IDC_BUILD_NUMBER,38,7,69,8
 END
@@ -2088,7 +2098,7 @@ BEGIN
             VALUE "FileDescription", "Hammer"
             VALUE "FileVersion", "4.0.0"
             VALUE "InternalName", "Hammer"
-            VALUE "LegalCopyright", "Copyright © 1996-2004 Valve Corporation"
+            VALUE "LegalCopyright", "Copyright ï¿½ 1996-2004 Valve Corporation"
             VALUE "OriginalFilename", "WC.EXE"
             VALUE "ProductName", "Valve Hammer Editor (tm)"
             VALUE "ProductVersion", "4.0.0"
@@ -3210,6 +3220,17 @@ END
 STRINGTABLE
 BEGIN
     IDS_ERROR_PLAYING       "(error playing)"
+END
+
+STRINGTABLE
+BEGIN
+    ID_TOOLS_QUICKHIDE_OBJECTS 
+                            "Temporarily hide selected object(s)\nQuickHide"
+    ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL 
+                            "Temporarily hide unselected object(s)\nQuickHide Unselected"
+    ID_TOOLS_QUICKHIDE_UNHIDE 
+                            "Restore temporarily hidden object(s)\nRestore Hidden"
+    ID_TOOLS_QUICKHIDE_CONVERT "Convert QuickHide Objects to VisGroup"
 END
 
 #endif    // English (United States) resources

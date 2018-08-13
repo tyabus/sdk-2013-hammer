@@ -547,6 +547,9 @@ class CMapDoc : public CDocument
 
 		int	m_nLogicalPositionCount;
 
+        // QuickHide objects
+        CMapObjectList m_QuickHideObjects;
+
 		//
 		// Expands %i keyword in prefab targetnames to generate unique targetnames for this map.
 		//
@@ -625,6 +628,14 @@ class CMapDoc : public CDocument
 		afx_msg void OnCollisionWireframe();
 		afx_msg void OnShowDetailObjects();
 		afx_msg void OnShowNoDrawBrushes();
+
+        // ->Quickhide
+        afx_msg BOOL OnViewQuickHide(UINT nID);
+        afx_msg void OnViewQuickHideUnhide();
+        afx_msg void OnViewQuickHideConvert();
+        afx_msg void OnUpdateToggleQuickHide(CCmdUI *pCmdUI);
+        afx_msg void OnUpdateToggleQuickHideUnsel(CCmdUI *pCmdUI);
+        afx_msg void OnUpdateToggleQuickHideUnhide(CCmdUI *pCmdUI);
 
 		afx_msg void OnToolsHollow();
 		afx_msg void OnEditPastespecial();
