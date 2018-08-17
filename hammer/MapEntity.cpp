@@ -1874,6 +1874,45 @@ void CMapEntity::AlignOnPlane( Vector& pos, PLANE *plane, alignType_e align )
 	SignalChanged();
 }
 
+void CMapEntity::GetCullBox( Vector& mins, Vector& maxs )
+{
+	FOR_EACH_OBJ( m_Children, i )
+	{
+		if ( m_Children[i]->GetCullBoxChild( mins, maxs ) )
+			return;
+	}
+	CMapClass::GetCullBox( mins, maxs );
+}
+
+void CMapEntity::GetRender2DBox( Vector& mins, Vector& maxs )
+{
+	FOR_EACH_OBJ( m_Children, i )
+	{
+		if ( m_Children[i]->GetRender2DBoxChild( mins, maxs ) )
+			return;
+	}
+	CMapClass::GetCullBox( mins, maxs );
+}
+
+void CMapEntity::GetBoundsCenter( Vector& vecCenter )
+{
+	FOR_EACH_OBJ( m_Children, i )
+	{
+		if ( m_Children[i]->GetBoundsCenterChild( vecCenter ) )
+			return;
+	}
+	CMapClass::GetBoundsCenter( vecCenter );
+}
+
+void CMapEntity::GetBoundsSize( Vector& vecCenter )
+{
+	FOR_EACH_OBJ( m_Children, i )
+	{
+		if ( m_Children[i]->GetBoundsSizeChild( vecCenter ) )
+			return;
+	}
+	CMapClass::GetBoundsSize( vecCenter );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Looks for an input with a given name in the entity list. ALL entities

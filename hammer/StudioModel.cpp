@@ -510,30 +510,36 @@ matrix3x4_t *StudioModel::SetUpBones ( bool bUpdatePose )
 
 	matrix3x4_t *pBoneToWorld = g_pStudioRender->LockBoneMatrices( pStudioHdr->numbones() );
 	if ( pBoneToWorld )
-	for (int i = 0; i < pStudioHdr->numbones(); i++)
 	{
+		for (int i = 0; i < pStudioHdr->numbones(); i++)
 		{
-			CBoneAccessor boneAccessor( pBoneToWorld );
-			if ( CalcProceduralBone( pStudioHdr, i, boneAccessor ))
-				continue;
+			{
+				CBoneAccessor boneAccessor( pBoneToWorld );
+				if ( CalcProceduralBone( pStudioHdr, i, boneAccessor ))
+					continue;
+			}
+
+			matrix3x4_t	bonematrix;
+
+			QuaternionMatrix( m_pPoseAng[i], bonematrix );
+
+			bonematrix[0][3] = m_pPosePos[i][0];
+			bonematrix[1][3] = m_pPosePos[i][1];
+			bonematrix[2][3] = m_pPosePos[i][2];
+
+			if (pbones[i].parent == -1)
+			{
+				ConcatTransforms( cameraTransform, bonematrix, pBoneToWorld[ i ] );
+			}
+			else
+			{
+				ConcatTransforms ( pBoneToWorld[ pbones[i].parent ], bonematrix, pBoneToWorld[ i ] );
+			}
 		}
-
-		matrix3x4_t	bonematrix;
-
-		QuaternionMatrix( m_pPoseAng[i], bonematrix );
-
-		bonematrix[0][3] = m_pPosePos[i][0];
-		bonematrix[1][3] = m_pPosePos[i][1];
-		bonematrix[2][3] = m_pPosePos[i][2];
-
-		if (pbones[i].parent == -1)
-		{
-			ConcatTransforms( cameraTransform, bonematrix, pBoneToWorld[ i ] );
-		}
-		else
-		{
-			ConcatTransforms ( pBoneToWorld[ pbones[i].parent ], bonematrix, pBoneToWorld[ i ] );
-		}
+	}
+	else
+	{
+		AssertMsg( 0, "Hammer can crash! g_pStudioRender->LockBoneMatrices returned null." );
 	}
 	g_pStudioRender->UnlockBoneMatrices();
 	return pBoneToWorld;
@@ -623,12 +629,17 @@ void StudioModel::DrawModel3D( CRender3D *pRender, float flAlpha, bool bWirefram
 	{
 		matrix3x4_t *pBoneToWorld = SetUpBones( true );
 		if ( !pBoneToWorld )
+		{
+			AssertMsg( 0, "Hammer would crash now! pBoneToWorld was null." );
+			const VMatrix& mViewMatrix = SetupMatrixOrgAngles( m_origin, m_angles );
+			pRender->DrawCollisionModel( m_MDLHandle, mViewMatrix );
 			return;
+		}
 		pRender->DrawModel( &info, pBoneToWorld, m_origin, flAlpha, bWireframe );
 
 		if ( Options.general.bShowCollisionModels )
 		{
-			VMatrix mViewMatrix = SetupMatrixOrgAngles( m_origin, m_angles );
+			const VMatrix& mViewMatrix = SetupMatrixOrgAngles( m_origin, m_angles );
 			pRender->DrawCollisionModel( m_MDLHandle, mViewMatrix );
 		}
 	}

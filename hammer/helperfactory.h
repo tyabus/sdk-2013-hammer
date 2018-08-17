@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -17,9 +17,8 @@ class CMapEntity;
 
 class CHelperFactory
 {
-	public:
-
-		static CMapClass *CreateHelper(CHelperInfo *pHelperInfo, CMapEntity *pParent);
+public:
+	static CMapClass *CreateHelper(CHelperInfo *pHelperInfo, CMapEntity *pParent);
 };
 
 #endif // HELPERFACTORY_H

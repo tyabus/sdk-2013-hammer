@@ -1,6 +1,6 @@
 //===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: 
+// Purpose:
 //
 //===========================================================================//
 
@@ -34,7 +34,7 @@ public:
 
 	DECLARE_MAPCLASS(CMapEntity,CMapClass);
 
-	CMapEntity(); 
+	CMapEntity();
 	~CMapEntity();
 
 	void Debug(void);
@@ -42,7 +42,7 @@ public:
 	size_t GetSize();
 
 	int m_EntityTypeFlags;									// for fast checks w/o using class name
-	
+
 	//
 	// For flags field.
 	//
@@ -133,6 +133,11 @@ public:
 	inline void SetClass(GDclass *pClass) { CEditGameClass::SetClass(pClass); } // Works around a namespace issue.
 	virtual void SetClass(LPCTSTR pszClassname, bool bLoading = false);
 	virtual void AlignOnPlane( Vector& pos, PLANE *plane, alignType_e align );
+	virtual void GetCullBox( Vector&mins, Vector&maxs );
+	virtual void GetRender2DBox( Vector&mins, Vector&maxs );
+
+	virtual void GetBoundsCenter( Vector &vecCenter );
+	virtual void GetBoundsSize( Vector &vecSize );
 
 	//
 	// Hit testing/selection.

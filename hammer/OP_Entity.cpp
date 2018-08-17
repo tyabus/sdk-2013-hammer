@@ -2678,6 +2678,9 @@ void COP_Entity::UpdateDisplayClass(const char *szClass)
 
 void COP_Entity::UpdateDisplayClass(GDclass *pClass)
 {
+	if ( !GetDlgItem( IDC_SMARTEDIT ) )
+		return;
+
 	// The outer check here is lame, but somewhere along the line, all the controls get enabled
 	// behind our backs. So verify that our state information is sane. If it's not, then we'll redo some state in here.
 	bool bForceRefresh = false;
