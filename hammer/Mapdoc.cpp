@@ -9351,6 +9351,12 @@ bool CMapDoc::ShouldObjectBeVisible(CMapClass *pObject)
 		return false;
 	}
 
+    //
+    // If the object was quickhidden, hide it
+    //
+    if (m_QuickHideObjects.Find(pObject) != m_QuickHideObjects.InvalidIndex())
+        return false;
+
 	//
 	// If the cordon tool is active and the object is not within the cordon bounds,
 	// hide the object. The exception to this is some helpers, which only hide if their

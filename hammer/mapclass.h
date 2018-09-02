@@ -175,7 +175,7 @@ public:
 
 	const CSmartPtr< CSafeObject< CMapClass > >& GetSafeObjectSmartPtr();
 
-	inline int GetID(void);
+	inline int GetID(void) const;
 	inline void SetID(int nID);
 	virtual size_t GetSize(void);
 
@@ -398,6 +398,11 @@ public:
 	// Drastically speeds up load times.
 	static bool s_bLoadingVMF;
 
+    bool operator==(const CMapClass &other) const
+    {
+        return (other.m_nID == m_nID);
+    }
+
 protected:
 
 	//
@@ -456,7 +461,7 @@ protected:
 //-----------------------------------------------------------------------------
 // Purpose: Returns this object's unique ID.
 //-----------------------------------------------------------------------------
-int CMapClass::GetID(void)
+int CMapClass::GetID(void) const
 {
 	return(m_nID);
 }
