@@ -195,11 +195,13 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		m_strCurrentVMF.Set( value );
 		if ( !m_strCurrentVMF.IsEmpty() )
 		{
-			m_pTemplate->LoadVMF( value, true );
-			Vector origin;
-			GetOrigin( origin );
-			m_pTemplate->GetMapWorld()->TransMove( origin );
-			m_pTemplate->GetMapWorld()->SetRenderColor( 64, 192, 255 );
+			if (m_pTemplate->LoadVMF( value, true ))
+			{
+                Vector origin;
+                GetOrigin(origin);
+                m_pTemplate->GetMapWorld()->TransMove(origin);
+                m_pTemplate->GetMapWorld()->SetRenderColor(64, 192, 255);
+			}
 		}
 		PostUpdate(Notify_Changed);
 	}
@@ -225,7 +227,7 @@ void CMapInstance::Render2D( CRender2D* pRender )
 
 void CMapInstance::Render3D( CRender3D* pRender )
 {
-	if ( m_pTemplate )
+	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
 	{
 		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 		CAutoPushPop<bool> guard2( pRender->m_DeferRendering, false );
