@@ -42,7 +42,6 @@
 #include "IHammer.h"
 #include "op_entity.h"
 #include "tier0/dbg.h"
-#include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "istudiorender.h"
 #include "FileSystem.h"
 #include "filesystem_init.h"
@@ -55,8 +54,6 @@
 #include "steam/steam_api.h"
 #include "inputsystem/iinputsystem.h"
 #include "datacache/idatacache.h"
-#include "datamodel/idatamodel.h"
-#include "dmserializers/idmserializers.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -87,35 +84,6 @@
 //		Please see MFC Technical Notes 33 and 58 for additional
 //		details.
 //
-
-static class CDmElementFrameworkEmpty : public IDmElementFramework
-{
-public:
-	bool Connect( CreateInterfaceFn factory ) override { return true; }
-	void Disconnect() override {}
-	void* QueryInterface( const char* pInterfaceName ) override { if ( !V_strcmp( pInterfaceName, VDMELEMENTFRAMEWORK_VERSION ) ) return this; return NULL; }
-	InitReturnVal_t Init() override { return INIT_OK; }
-	void Shutdown() override {}
-	DmPhase_t GetPhase() override { return PH_EDIT; }
-	void SetOperators( const CUtlVector<IDmeOperator*>& operators ) override {}
-	void BeginEdit() override {}
-	void Operate( bool bResolve ) override {}
-	void Resolve() override {}
-} emptyElemtFramework;
-
-static class CDmSerializersEmpty : public IDmSerializers
-{
-public:
-	bool Connect( CreateInterfaceFn factory ) override { return true; }
-	void Disconnect() override {}
-	void* QueryInterface( const char* pInterfaceName ) override { if ( !V_strcmp( pInterfaceName, DMSERIALIZERS_INTERFACE_VERSION ) ) return this; return NULL; }
-	InitReturnVal_t Init() override { return INIT_OK; }
-	void Shutdown() override {}
-} emptySerializers;
-
-class IDmElementFramework* g_pDmElementFramework = NULL;
-class IDataModel* g_pDataModel = NULL;
-class IDmSerializers* g_pDmSerializers = NULL;
 
 // dvs: hack
 extern LPCTSTR GetErrorString(void);
@@ -338,20 +306,7 @@ CHammer::~CHammer(void)
 //-----------------------------------------------------------------------------
 bool CHammer::Connect( CreateInterfaceFn factory )
 {
-	//g_pDmElementFramework = &emptyElemtFramework;// ( IDmElementFramework* )factory( "VDmElementFrameworkVersion001", NULL );
-	//g_pDmSerializers = &emptySerializers;// ( IDmSerializers* )factory( "VDmSerializers001", NULL );
-	//g_pDataModel = (IDataModel*)factory( VDATAMODEL_INTERFACE_VERSION, NULL );
-	//static CreateInterfaceFn tempFactory;
-	//tempFactory = factory;
 	if ( !BaseClass::Connect( factory ) )
-	/*if ( !BaseClass::Connect( [](const char* intName, int* retCode) -> void*
-	{
-		if ( !V_stricmp( intName, VDMELEMENTFRAMEWORK_VERSION ) )
-			return &emptyElemtFramework;
-		if ( !V_stricmp( intName, DMSERIALIZERS_INTERFACE_VERSION ) )
-			return &emptySerializers;
-		return tempFactory( intName, retCode );
-	} ) )*/
 		return false;
 
 //	bool bCVarOk = ConnectStudioRenderCVars( factory );

@@ -4,7 +4,8 @@
 #include "stdafx.h"
 #undef PropertySheet
 #include "ModelBrowser.h"
-#include "matsys_controls/mdlpanel.h"
+#include "dme_controls/mdlpanel.h"
+#include "dme_controls/mdlpicker.h"
 #include "vgui_controls/TextEntry.h"
 #include "vgui_controls/Splitter.h"
 #include "vgui_controls/CheckButton.h"
@@ -22,10 +23,11 @@
 #include "texturesystem.h"
 #include "utlntree.h"
 #include "filesystem.h"
+#include <istudiorender.h>
 
 static LPCTSTR pszIniSection = "Model Browser";
 
-DECLARE_HANDLE( AssetList_t );
+/*DECLARE_HANDLE( AssetList_t );
 #define ASSET_LIST_INVALID ((AssetList_t)(0xFFFF))
 typedef unsigned short DirHandle_t;
 
@@ -1895,7 +1897,7 @@ void CMDLPicker2::OnAssetSelected( KeyValues *pParams )
 	}
 
 	m_pMDLPreview->SetLightProbe( pLightProbe );
-	g_pDataModel->RemoveFileId( pLightProbe->GetFileId() );*/
+	g_pDataModel->RemoveFileId( pLightProbe->GetFileId() );#1#
 
 }
 
@@ -1909,7 +1911,7 @@ void CMDLPicker2::OnCommand( const char *pCommand )
 	{
 		/*CAssetPickerFrame *pPicker = new CAssetPickerFrame( this, "Select Light Probe (.prb) File",
 															"Light Probe", "prb", "materials/lightprobes", "lightprobe" );
-		pPicker->DoModal();*/
+		pPicker->DoModal();#1#
 		return;
 	}
 
@@ -1942,7 +1944,7 @@ void CMDLPicker2::RefreshActivitiesAndSequencesList()
 
 	for ( int j = 0; j < hdr->GetNumSeq(); j++ )
 	{
-		if ( /*g_viewerSettings.showHidden ||*/ !( hdr->pSeqdesc( j ).flags & STUDIO_HIDDEN ) )
+		if ( /*g_viewerSettings.showHidden ||#1# !( hdr->pSeqdesc( j ).flags & STUDIO_HIDDEN ) )
 		{
 			const char *pActivityName = hdr->pSeqdesc( j ).pszActivityName();
 			if ( pActivityName && pActivityName[0] )
@@ -2375,7 +2377,7 @@ int CMDLPicker2::UpdatePropDataList( const char* pszPropData, bool &bIsStatic )
 		}
 	}
 	return iCount;
-}
+}*/
 
 
 
@@ -2441,7 +2443,7 @@ IMPLEMENT_DYNAMIC(CModelBrowser, CDialog)
 CModelBrowser::CModelBrowser(CWnd* pParent /*=NULL*/)
 	: CDialog(CModelBrowser::IDD, pParent)
 {
-	m_pPicker = new CMDLPicker2( NULL );
+	m_pPicker = new CMDLPicker( NULL );
 	m_pStatusLine = new vgui::TextEntry( NULL, "StatusLine" );
 }
 

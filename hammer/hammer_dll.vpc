@@ -691,13 +691,16 @@ $Project "hammer_dll"
 	{
 		$File	"$SRCDIR\lib\public\bitmap.lib"
 		$File	"$SRCDIR\lib\public\choreoobjects.lib"
-		$File	"$SRCDIR\lib\public\matsys_controls.lib"
 		$File	"$SRCDIR\lib\public\tier2.lib"
 		$File	"$SRCDIR\lib\public\tier3.lib"
         $Lib "vgui_controls"
         $Lib "raytrace"
         $Lib "mathlib"
         $Lib "fgdlib"
+        $Lib "movieobjects"
+        $Lib "dme_controls"
+        $Lib "datamodel"
+        $Lib "matsys_controls"
 		$File	"$SRCDIR\lib\public\dmxloader.lib"
 	}
 

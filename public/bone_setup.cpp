@@ -13,7 +13,7 @@
 
 #include "collisionutils.h"
 #include "vstdlib/random.h"
-#include "tier0/vprof.h"
+//#include "tier0/vprof.h"
 #include "bone_accessor.h"
 #include "mathlib/ssequaternion.h"
 #include "bitvec.h"
@@ -5685,9 +5685,9 @@ bool TraceToStudio( IPhysicsSurfaceProps *pProps, const Ray_t& ray, CStudioHdr *
 
 void Studio_SeqAnims( const CStudioHdr *pStudioHdr, mstudioseqdesc_t &seqdesc, int iSequence, const float poseParameter[], mstudioanimdesc_t *panim[4], float *weight )
 {
-#if _DEBUG
+/*#if _DEBUG
 	VPROF_INCREMENT_COUNTER("SEQ_ANIMS",1);
-#endif
+#endif*/
 	if (!pStudioHdr || iSequence >= pStudioHdr->GetNumSeq())
 	{
 		weight[0] = weight[1] = weight[2] = weight[3] = 0.0;

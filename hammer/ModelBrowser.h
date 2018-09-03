@@ -13,7 +13,7 @@ namespace vgui
 }
 
 class CModelBrowserPanel;
-class CMDLPicker2;
+class CMDLPicker;
 
 
 class CModelBrowser : public CDialog
@@ -51,7 +51,7 @@ public:
 
 	CVGuiPanelWnd	m_VGuiWindow;
 
-	CMDLPicker2		*m_pPicker;
+	CMDLPicker		*m_pPicker;
 	vgui::Button	*m_pButtonOK;
 	vgui::Button	*m_pButtonCancel;
 	vgui::TextEntry	*m_pStatusLine;
