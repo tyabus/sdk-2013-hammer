@@ -272,8 +272,6 @@ bool CDependencyGraph::GetOperatorOrdering( CUtlVector< COperatorNode * > &pOpNo
 		}
 		pOpNode->m_state = TS_VISITING; // mark as in being visited
 
-		// DBG_PrintOperator( pIndent, pOpNode->m_operator );
-
 		// leaves to roots (outputs to inputs)
 		uint an = pOpNode->m_OutputAttributes.Count();
 		for ( uint ai = 0; ai < an; ++ai )
@@ -318,13 +316,4 @@ CAttributeNode *CDependencyGraph::FindAttrNode( CDmAttribute *pAttr )
 		m_attrNodes.Insert( pAttrNode );
 	}
 	return pAttrNode;
-}
-
-//-----------------------------------------------------------------------------
-// temporary internal debugging function
-//-----------------------------------------------------------------------------
-void CDependencyGraph::DBG_PrintOperator( const char *pIndent, IDmeOperator *pOp )
-{
-	CDmElement *pElement = dynamic_cast< CDmElement* >( pOp );
-	Msg( "%s%s <%s> {\n", pIndent, pElement->GetName(), pElement->GetType() );
 }

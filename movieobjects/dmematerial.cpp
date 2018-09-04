@@ -4,6 +4,7 @@
 //
 //=============================================================================
 #include "movieobjects/dmematerial.h"
+#include "datamodel/dmattributevar.h"
 #include "datamodel/dmelementfactoryhelper.h"
 #include "movieobjects_interfaces.h"
 

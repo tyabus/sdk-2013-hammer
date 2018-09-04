@@ -4,6 +4,7 @@
 //
 //=============================================================================
 #include "movieobjects/dmesound.h"
+#include "datamodel/dmattributevar.h"
 #include "datamodel/dmelementfactoryhelper.h"
 #include "movieobjects_interfaces.h"
 #include "tier2/tier2.h"

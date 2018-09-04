@@ -272,5 +272,17 @@ const T& CBaseAttributePanel::GetAttributeValue( )
 	return GetArrayAttributeValue<T>( GetPanelElement(), m_szAttributeName, m_nArrayIndex );
 }
 
+//-----------------------------------------------------------------------------
+// Returns the panel element
+//-----------------------------------------------------------------------------
+inline CDmElement *CBaseAttributePanel::GetPanelElement()
+{
+    return m_hObject;
+}
+
+inline const CDmElement *CBaseAttributePanel::GetPanelElement() const
+{
+    return m_hObject;
+}
 
 #endif // BASEATTRIBUTEPANEL_H

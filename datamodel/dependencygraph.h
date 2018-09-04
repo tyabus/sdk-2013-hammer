@@ -41,7 +41,6 @@ public:
 
 private:
 	static bool GetOperatorOrdering( CUtlVector< COperatorNode* > &pOpNodes, CUtlVector< IDmeOperator * > &operators );
-	static void DBG_PrintOperator( const char *pIndent, IDmeOperator *pOp );
 
 	friend class CDmElementFramework;
 

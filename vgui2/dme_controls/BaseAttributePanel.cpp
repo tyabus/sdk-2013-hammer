@@ -180,19 +180,6 @@ void CBaseAttributePanel::ApplySchemeSettings( IScheme *pScheme )
 
 }
 
-//-----------------------------------------------------------------------------
-// Returns the panel element
-//-----------------------------------------------------------------------------
-inline CDmElement *CBaseAttributePanel::GetPanelElement()
-{
-	return m_hObject;
-}
-
-inline const CDmElement *CBaseAttributePanel::GetPanelElement() const
-{
-	return m_hObject;
-}
-
 
 //-----------------------------------------------------------------------------
 // Gets/Sets the attribute value from a string

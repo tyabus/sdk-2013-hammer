@@ -14,7 +14,6 @@ $Configuration
 	$Compiler
 	{
 		$PreprocessorDefinitions			"$BASE;DATAMODEL_LIB;RAD_TELEMETRY_DISABLED;_HAS_ITERATOR_DEBUGGING=0;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH"
-		$PrecompiledHeaderFile				"Debug/datamodel.pch"
 	}
 }
 
@@ -24,23 +23,6 @@ $Project "Datamodel"
 	{
 		$File	"clipboardmanager.cpp"
 		$File	"datamodel.cpp"
-		{
-			$Configuration	"Release"
-			{
-				$Compiler
-				{
-					$PreprocessorDefinitions			"NDEBUG;_WINDOWS;_MBCS;_USRDLL;DATAMODEL_LIB;_WIN32;RAD_TELEMETRY_DISABLED;_HAS_ITERATOR_DEBUGGING=0;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;$(NoInherit)"
-				}
-			}
-			$Configuration	"Debug"
-			{
-				$Compiler
-				{
-					$PreprocessorDefinitions			"_DEBUG;_WINDOWS;_MBCS;_USRDLL;DATAMODEL_LIB;_WIN32;RAD_TELEMETRY_DISABLED;_HAS_ITERATOR_DEBUGGING=0;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;$(NoInherit)"
-				}
-			}
-		}
-
 		$File	"dependencygraph.cpp"
 		$File	"dmattribute.cpp"
 		$File	"dmelement.cpp"

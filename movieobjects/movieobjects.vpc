@@ -147,11 +147,6 @@ $Project "Movieobjects"
 		$File	"$SRCDIR\public\movieobjects\dmeeyeball.h"
 	}
 
-    $Folder "Link Libraries"
-    {
-        $Lib "datamodel"
-    }
-
 	$Folder	"external"
 	{
 		$File	"$SRCDIR\public\bone_setup.cpp"
@@ -162,4 +157,9 @@ $Project "Movieobjects"
 		$File	"$SRCDIR\public\studio.cpp"
 		$File	"$SRCDIR\public\mathlib\vector.h"
 	}
+
+    $Folder "Link Libraries"
+    {
+        $Lib "particles"
+    }
 }
