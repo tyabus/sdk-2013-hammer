@@ -54,6 +54,7 @@
 #include "steam/steam_api.h"
 #include "inputsystem/iinputsystem.h"
 #include "datacache/idatacache.h"
+#include "datamodel/dmelementfactoryhelper.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -317,6 +318,8 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 
 	if ( !g_pMDLCache || !g_pFileSystem || !g_pFullFileSystem || !materials || !g_pMaterialSystemHardwareConfig || !g_pStudioRender )
 		return false;
+
+    InstallDmElementFactories();
 
 	// ensure we're in the same directory as the .EXE
 	char *p;
