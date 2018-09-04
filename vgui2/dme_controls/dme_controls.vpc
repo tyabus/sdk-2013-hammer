@@ -144,4 +144,9 @@ $Project "Dme_controls"
 			$File	"$SRCDIR\public\phonemeconverter.cpp"
 		}
 	}
+
+    $Folder "Link Libraries"
+    {
+        $Lib "datamodel"
+    }
 }

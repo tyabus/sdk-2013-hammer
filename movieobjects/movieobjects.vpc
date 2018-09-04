@@ -147,6 +147,11 @@ $Project "Movieobjects"
 		$File	"$SRCDIR\public\movieobjects\dmeeyeball.h"
 	}
 
+    $Folder "Link Libraries"
+    {
+        $Lib "datamodel"
+    }
+
 	$Folder	"external"
 	{
 		$File	"$SRCDIR\public\bone_setup.cpp"

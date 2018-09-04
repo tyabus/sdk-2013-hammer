@@ -9,11 +9,6 @@ $Macro OUTLIBDIR	"$SRCDIR\lib\public"
 
 $Include "$SRCDIR\vpc_scripts\source_lib_win32_base.vpc"
 
-//$Linux
-//{
-//		$BuildForLinux 1
-//}
-
 $Configuration
 {
 	$Compiler
@@ -70,7 +65,6 @@ $Project "Datamodel"
 		$File	"$SRCDIR\public\datamodel\dmelementfactoryhelper.h"
 		$File	"DmElementFramework.h"
 		$File	"$SRCDIR\public\datamodel\dmelementhandle.h"
-		//$File	"$SRCDIR\public\datamodel\dmelementinternal.h"
 		$File	"dmserializerbinary.h"
 		$File	"dmserializerkeyvalues.h"
 		$File	"dmserializerkeyvalues2.h"
@@ -103,6 +97,5 @@ $Project "Datamodel"
 		$File	"$SRCDIR\public\datamodel\dmelement.h"
 		$File	"$SRCDIR\public\datamodel\dmehandle.h"
 		$File	"$SRCDIR\public\datamodel\idatamodel.h"
-		//$File	"$SRCDIR\public\datamodel\idmattribute.h"
 	}
 }
