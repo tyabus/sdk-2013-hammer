@@ -21,9 +21,9 @@
 
 
 #define DISPPAINT_DISTANCE_MIN			0
-#define DISPPAINT_DISTANCE_MAX			30
+#define DISPPAINT_DISTANCE_MAX			60
 #define DISPPAINT_SPATIALRADIUS_MIN		1
-#define DISPPAINT_SPATIALRADIUS_MAX		256
+#define DISPPAINT_SPATIALRADIUS_MAX		1024
 #define DISPPAINT_SPATIALRADIUS_STEP	16
 
 //=============================================================================
