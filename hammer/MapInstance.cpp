@@ -242,6 +242,19 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 	}
 }
 
+void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
+{
+	CMapObjectList& children = pEnt->m_Children;
+	for( CMapClass* pChild : children )
+	{
+		if ( pChild && pChild->IsVisible() && pChild->IsVisible2D() )
+		{
+			pChild->Render2D(pRender);
+			Render2DChildren( pRender, pChild );
+		}
+	}
+}
+
 void CMapInstance::Render2D( CRender2D* pRender )
 {
 	if ( !m_pTemplate || !m_pTemplate->GetMapWorld() )
@@ -249,14 +262,7 @@ void CMapInstance::Render2D( CRender2D* pRender )
 
 	CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 
-	CMapObjectList& children = m_pTemplate->GetMapWorld()->m_Children;
-	for( CMapClass* pChild : children )
-	{
-		if (pChild->IsVisible() && pChild->IsVisible2D())
-		{
-			pChild->Render2D(pRender);
-		}
-	}
+	Render2DChildren( pRender, m_pTemplate->GetMapWorld() );
 }
 
 void CMapInstance::Render3D( CRender3D* pRender )

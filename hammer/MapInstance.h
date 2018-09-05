@@ -52,6 +52,8 @@ public:
 	void AddShadowingTriangles(CUtlVector<Vector>& tri_list) override;
 
 private:
+	void Render2DChildren( CRender2D* pRender, CMapClass* pEnt );
+
 	CMapDoc* m_pTemplate;
 	CUtlString m_strCurrentVMF;
 };

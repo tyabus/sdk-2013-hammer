@@ -1471,7 +1471,7 @@ void CRender3D::EndRenderFrame(void)
 			GetCamera()->GetViewUp(ViewUp);
 			QAngle ang;
 			VectorAngles( ViewForward, ViewUp, ang );
-			int nLen = sprintf(szText, "FPS=%3.2f Pos=[%.f %.f %.f] Ang=[%.f %.f %.f]", m_fFrameRate, ViewPoint[0], ViewPoint[1], ViewPoint[2], ang[0], ang[1], ang[2]);
+			int nLen = sprintf(szText, "FPS=%3.2f Pos=[%.f %.f %.f] Ang=[%.f %.f]", m_fFrameRate, ViewPoint[0], ViewPoint[1], ViewPoint[2], ang[0], ang[1]);
 			TextOut(m_WinData.hDC, 2, 18, szText, nLen);
 		}
 	}
