@@ -1,6 +1,6 @@
 //===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: 
+// Purpose:
 //
 //===========================================================================//
 
@@ -41,7 +41,7 @@
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 Selection3D::Selection3D(void)
 {
@@ -51,7 +51,7 @@ Selection3D::Selection3D(void)
 	m_bIsLogicalTranslating = false;
 	m_bInLogicalBoxSelection = false;
 	m_bBoxSelection = false;
-		
+
 	m_bEyedropper = false;
 	m_b3DEditMode = false;
 	m_bSelected = false;
@@ -76,7 +76,7 @@ void Selection3D::Init( CMapDoc *pDocument )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 Selection3D::~Selection3D(void)
 {
@@ -121,10 +121,10 @@ void Selection3D::UpdateHandleState(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Input  : pView - The view that invoked the eyedropper.
-//			VarList - 
-// Output : 
+//			VarList -
+// Output :
 //-----------------------------------------------------------------------------
 GDinputvariable *Selection3D::ChooseEyedropperVar(CMapView *pView, CUtlVector<GDinputvariable *> &VarList)
 {
@@ -155,9 +155,9 @@ GDinputvariable *Selection3D::ChooseEyedropperVar(CMapView *pView, CUtlVector<GD
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pt - 
-//			bValidOnly - 
+// Purpose:
+// Input  : pt -
+//			bValidOnly -
 // Output : Returns the handle under the given point, -1 if there is none.
 //-----------------------------------------------------------------------------
 int Selection3D::HitTest(CMapView *pView, const Vector2D &ptClient, bool bTestHandles)
@@ -171,7 +171,7 @@ int Selection3D::HitTest(CMapView *pView, const Vector2D &ptClient, bool bTestHa
 }
 
 bool Selection3D::HitTestLogical( CMapView *pView, const Vector2D &ptClient )
-{	
+{
 	Vector2D vecLogicalMins, vecLogicalMaxs;
 	if ( !m_pSelection->GetLogicalBounds(vecLogicalMins, vecLogicalMaxs) )
 		return false;
@@ -194,7 +194,7 @@ bool Selection3D::HitTestLogical( CMapView *pView, const Vector2D &ptClient )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void Selection3D::SetEmpty(void)
 {
@@ -206,7 +206,7 @@ void Selection3D::SetEmpty(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool Selection3D::IsEmpty(void)
 {
@@ -215,8 +215,8 @@ bool Selection3D::IsEmpty(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : 
+// Purpose:
+// Input  :
 //-----------------------------------------------------------------------------
 void Selection3D::UpdateSelectionBounds( void )
 {
@@ -227,22 +227,22 @@ void Selection3D::UpdateSelectionBounds( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pt3 - 
+// Purpose:
+// Input  : pt3 -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 bool Selection3D::StartBoxSelection( CMapView *pView, const Vector2D &vPoint, const Vector &vStart)
 {
 	m_bBoxSelection = true;
-	
+
 	Box3D::StartNew( pView, vPoint, vStart, Vector(0,0,0) );
-	
+
 	return true;
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void Selection3D::EndBoxSelection()
 {
@@ -270,7 +270,7 @@ void Selection3D::EndLogicalBoxSelection( )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void Selection3D::TransformSelection(void)
 {
@@ -287,7 +287,7 @@ void Selection3D::TransformSelection(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void Selection3D::TransformLogicalSelection( const Vector2D &vecTranslation )
 {
@@ -311,7 +311,7 @@ void Selection3D::TransformLogicalSelection( const Vector2D &vecTranslation )
 // Purpose: Draws objects when they are selected. Odd, how this code is stuck
 //			in this obscure place, away from all the other 2D rendering code.
 // Input  : pobj - Object to draw.
-//			pSel - 
+//			pSel -
 // Output : Returns TRUE to keep enumerating.
 //-----------------------------------------------------------------------------
 static BOOL DrawObject(CMapClass *pobj, CRender *pRender)
@@ -358,8 +358,8 @@ static BOOL DrawObjectLogical( CMapClass *pObj, CRender2D *pRender2D )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pRender - 
+// Purpose:
+// Input  : *pRender -
 //-----------------------------------------------------------------------------
 void Selection3D::RenderTool2D(CRender2D *pRender)
 {
@@ -381,7 +381,7 @@ void Selection3D::RenderTool2D(CRender2D *pRender)
 		for (int i = 0; i < pSelList->Count(); i++)
 		{
 			CMapClass *pobj = pSelList->Element(i);
-			
+
 			DrawObject(pobj, pRender);
 			pobj->EnumChildren((ENUMMAPCHILDRENPROC)DrawObject, (DWORD)pRender);
 		}
@@ -418,14 +418,14 @@ void Selection3D::RenderToolLogical( CRender2D *pRender )
 		for (int i = 0; i < pSelList->Count(); i++)
 		{
 			CMapClass *pobj = pSelList->Element(i);
-			
+
 			DrawObjectLogical(pobj, pRender);
 			pobj->EnumChildren((ENUMMAPCHILDRENPROC)DrawObjectLogical, (DWORD)pRender);
 		}
 
 		pRender->EndLocalTransfrom();
 	}
-	
+
 	Vector2D vecLogicalMins, vecLogicalMaxs;
 	if ( IsLogicalBoxSelecting() )
 	{
@@ -435,7 +435,7 @@ void Selection3D::RenderToolLogical( CRender2D *pRender )
 	else if ( !m_pSelection->GetLogicalBounds( vecLogicalMins, vecLogicalMaxs ) )
 		return;
 
-	
+
 
 	Vector mins( vecLogicalMins.x, vecLogicalMins.y, 0.0f );
 	Vector maxs( vecLogicalMaxs.x, vecLogicalMaxs.y, 0.0f );
@@ -447,10 +447,10 @@ void Selection3D::RenderToolLogical( CRender2D *pRender )
 	pRender->PopRenderMode();
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Purpose: Renders a selection gizmo at our bounds center.
-// Input  : pRender - 
+// Input  : pRender -
 //-----------------------------------------------------------------------------
 void Selection3D::RenderTool3D(CRender3D *pRender)
 {
@@ -484,7 +484,7 @@ void Selection3D::RenderTool3D(CRender3D *pRender)
 		VMatrix matrix = GetTransformMatrix();
 		pRender->BeginLocalTransfrom( matrix );
 
-		
+
 		for (int i = 0; i < pSelList->Count(); i++)
 		{
 			CMapClass *pobj = pSelList->Element(i);
@@ -522,6 +522,7 @@ CBaseTool *Selection3D::GetToolObject( CMapView2D *pView, const Vector2D &vPoint
 		// information about what was clicked on.
 		//
 		HitInfo_t HitData;
+		V_memset( &HitData, 0, sizeof( HitInfo_t ) );
 		if ( pObject->HitTest2D(pView, vPoint, HitData) )
 		{
 			//
@@ -551,6 +552,7 @@ CBaseTool *Selection3D::GetToolObjectLogical( CMapViewLogical *pView, const Vect
 		// information about what was clicked on.
 		//
 		HitInfo_t HitData;
+		V_memset( &HitData, 0, sizeof( HitInfo_t ) );
 		if ( pObject->HitTestLogical(pView, vPoint, HitData) )
 		{
 			//
@@ -569,16 +571,16 @@ CBaseTool *Selection3D::GetToolObjectLogical( CMapViewLogical *pView, const Vect
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pView - 
-//			point - 
+// Purpose:
+// Input  : pView -
+//			point -
 //-----------------------------------------------------------------------------
-bool Selection3D::OnContextMenu2D(CMapView2D *pView, UINT nFlags, const Vector2D &vPoint) 
+bool Selection3D::OnContextMenu2D(CMapView2D *pView, UINT nFlags, const Vector2D &vPoint)
 {
 	// First give any selected tool helpers a chance to handle the message.
 	// Don't hit test against tool helpers when shift is held down
 	// (beginning a Clone operation).
-		
+
 	CBaseTool *pToolHit = GetToolObject( pView, vPoint, true );
 
 	if ( pToolHit )
@@ -615,11 +617,11 @@ bool Selection3D::OnContextMenu2D(CMapView2D *pView, UINT nFlags, const Vector2D
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pView - 
-//			point - 
+// Purpose:
+// Input  : pView -
+//			point -
 //-----------------------------------------------------------------------------
-bool Selection3D::OnContextMenuLogical(CMapViewLogical *pView, UINT nFlags, const Vector2D &vPoint) 
+bool Selection3D::OnContextMenuLogical(CMapViewLogical *pView, UINT nFlags, const Vector2D &vPoint)
 {
 	// First give any selected tool helpers a chance to handle the message.
 	// Don't hit test against tool helpers when shift is held down
@@ -657,7 +659,7 @@ bool Selection3D::OnContextMenuLogical(CMapViewLogical *pView, UINT nFlags, cons
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void Selection3D::SelectInBox(CMapDoc *pDoc, bool bInsideOnly)
 {
@@ -689,7 +691,7 @@ void Selection3D::SelectInBox(CMapDoc *pDoc, bool bInsideOnly)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void Selection3D::SelectInLogicalBox(CMapDoc *pDoc, bool bInsideOnly)
 {
@@ -718,7 +720,7 @@ void Selection3D::SelectInLogicalBox(CMapDoc *pDoc, bool bInsideOnly)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void Selection3D::NudgeObjects(CMapView *pView, int nChar, bool bSnap, bool bClone)
 {
@@ -733,7 +735,7 @@ void Selection3D::NudgeObjects(CMapView *pView, int nChar, bool bSnap, bool bClo
 
 	if ( !pView2D )
 		return;
-	
+
 	// Try to keep the selection fully in the view if it started that way.
 	bool bFullyVisible = pView2D->IsBoxFullyVisible(bmins, bmaxs);
 
@@ -810,7 +812,7 @@ bool Selection3D::OnKeyDown2D(CMapView2D *pView, UINT nChar, UINT nRepCnt, UINT 
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -865,7 +867,7 @@ bool Selection3D::OnKeyDownLogical(CMapViewLogical *pView, UINT nChar, UINT nRep
 	default:
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -880,7 +882,7 @@ bool Selection3D::OnLMouseDown2D(CMapView2D *pView, UINT nFlags, const Vector2D 
 	// First give any selected tool helpers a chance to handle the message.
 	// Don't hit test against tool helpers when shift is held down
 	// (beginning a Clone operation).
-	
+
 	if (!(nFlags & MK_SHIFT))
 	{
 		CBaseTool *pToolHit = GetToolObject( pView, vPoint, true );
@@ -917,15 +919,15 @@ bool Selection3D::OnLMouseDown2D(CMapView2D *pView, UINT nFlags, const Vector2D 
 		m_TranslateMode = modeScale;
 		m_bSelected = pView->SelectAt(vPoint, true, false);
 	}
-	
+
 	return true;
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns the constraints flags for the translation.
-// Input  : bDisableSnap - 
-//			nKeyFlags - 
+// Input  : bDisableSnap -
+//			nKeyFlags -
 //-----------------------------------------------------------------------------
 unsigned int Selection3D::GetConstraints(unsigned int nKeyFlags)
 {
@@ -962,7 +964,7 @@ unsigned int Selection3D::GetConstraints(unsigned int nKeyFlags)
 // Input  : Per CWnd::OnMouseMove.
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
-bool Selection3D::OnMouseMove2D(CMapView2D *pView, UINT nFlags, const Vector2D &vPoint) 
+bool Selection3D::OnMouseMove2D(CMapView2D *pView, UINT nFlags, const Vector2D &vPoint)
 {
 	Tool3D::OnMouseMove2D(pView, nFlags, vPoint);
 
@@ -970,9 +972,9 @@ bool Selection3D::OnMouseMove2D(CMapView2D *pView, UINT nFlags, const Vector2D &
 
 	bool bCtrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000);
 	unsigned int uConstraints = GetConstraints( nFlags);
-			
+
 	// Convert to world coords.
-	
+
 	Vector vecWorld;
 	pView->ClientToWorld(vecWorld, vPoint);
 
@@ -990,7 +992,7 @@ bool Selection3D::OnMouseMove2D(CMapView2D *pView, UINT nFlags, const Vector2D &
 	if ( IsTranslating() )
 	{
 		Tool3D::UpdateTranslation( pView, vPoint, uConstraints );
-		
+
 		hCursor = vgui::dc_none;
 	}
 	//
@@ -1003,7 +1005,7 @@ bool Selection3D::OnMouseMove2D(CMapView2D *pView, UINT nFlags, const Vector2D &
 		if ( !bCtrl && HitTest( pView, m_vMouseStart[MOUSE_LEFT], true) )
 		{
 			// we selected a handle - start translation the selection
-			StartTranslation( pView, m_vMouseStart[MOUSE_LEFT], m_LastHitTestHandle ); 
+			StartTranslation( pView, m_vMouseStart[MOUSE_LEFT], m_LastHitTestHandle );
 
 			hCursor = UpdateCursor( pView, m_LastHitTestHandle, m_TranslateMode );
 		}
@@ -1099,7 +1101,7 @@ void Selection3D::FinishTranslation(bool bSave, bool bClone )
 void Selection3D::StartTranslation(CMapView *pView, const Vector2D &vPoint, const Vector &vHandleOrigin )
 {
 	Vector refPoint;
-    Vector *pRefPoint = NULL; 
+    Vector *pRefPoint = NULL;
 
 	// use single object origin as translation origin
 	if (m_pSelection->GetCount() == 1)
@@ -1128,7 +1130,7 @@ void Selection3D::StartTranslation(CMapView *pView, const Vector2D &vPoint, cons
 		pCustomHandleBox = vCustomHandleBox;
 		m_pSelection->GetBoundsForTranslation( vCustomHandleBox[0], vCustomHandleBox[1] );
 	}
-	Box3D::StartTranslation( pView, vPoint, vHandleOrigin, pRefPoint, pCustomHandleBox ); 
+	Box3D::StartTranslation( pView, vPoint, vHandleOrigin, pRefPoint, pCustomHandleBox );
 	if ( !m_pSelection->IsEmpty() )
 		UpdateSelectionBounds();
 
@@ -1140,12 +1142,12 @@ void Selection3D::StartTranslation(CMapView *pView, const Vector2D &vPoint, cons
 // Input  : Per CWnd::OnLButtonUp.
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
-bool Selection3D::OnLMouseUp2D(CMapView2D *pView, UINT nFlags, const Vector2D &vPoint) 
+bool Selection3D::OnLMouseUp2D(CMapView2D *pView, UINT nFlags, const Vector2D &vPoint)
 {
 	bool bShift = nFlags & MK_SHIFT;
 
 	Tool3D::OnLMouseUp2D(pView, nFlags, vPoint);
-  	
+
 	if ( IsTranslating() )
 	{
 		// selecting stuff in box
@@ -1162,7 +1164,7 @@ bool Selection3D::OnLMouseUp2D(CMapView2D *pView, UINT nFlags, const Vector2D &v
 		{
 			FinishTranslation( true, bShift );
 		}
-			
+
 	}
 	else if ( !m_bSelected && !m_pSelection->IsEmpty() )
 	{
@@ -1178,7 +1180,7 @@ bool Selection3D::OnLMouseUp2D(CMapView2D *pView, UINT nFlags, const Vector2D &v
 
 	// we might have removed some stuff that was relevant:
 	m_pDocument->UpdateStatusbar();
-	
+
 	return true;
 }
 
@@ -1189,11 +1191,11 @@ bool Selection3D::OnLMouseUp2D(CMapView2D *pView, UINT nFlags, const Vector2D &v
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
 bool Selection3D::OnLMouseDownLogical(CMapViewLogical *pView, UINT nFlags, const Vector2D &vPoint)
-{				 
+{
 	// First give any selected tool helpers a chance to handle the message.
 	// Don't hit test against tool helpers when shift is held down
 	// (beginning a Clone operation).
-	
+
 	if (!(nFlags & MK_SHIFT))
 	{
 		CBaseTool *pToolHit = GetToolObjectLogical( pView, vPoint, true );
@@ -1228,7 +1230,7 @@ bool Selection3D::OnLMouseDownLogical(CMapViewLogical *pView, UINT nFlags, const
 		if ( HitTestLogical( pView, vPoint ) )
 			return true;
 	}
-	 
+
 	if ( bAltClick )
 	{
 		m_bSelected = ( pView->SelectAtCascading( vPoint, !bCtrlClick ) == true );
@@ -1245,15 +1247,15 @@ bool Selection3D::OnLMouseDownLogical(CMapViewLogical *pView, UINT nFlags, const
 // Input  : Per CWnd::OnMouseMove.
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
-bool Selection3D::OnMouseMoveLogical(CMapViewLogical *pView, UINT nFlags, const Vector2D &vPoint) 
-{			
+bool Selection3D::OnMouseMoveLogical(CMapViewLogical *pView, UINT nFlags, const Vector2D &vPoint)
+{
 	if ( m_bLButtonDown )
 	{
 		if ( !m_bLeftDragged )
 		{
 			// check if mouse was dragged if button is pressed down
 			Vector2D sizeDragged = vPoint - m_vLDownLogicalClient;
-			
+
 			if ((abs(sizeDragged.x) > DRAG_THRESHHOLD) || (abs(sizeDragged.y) > DRAG_THRESHHOLD))
 			{
 				// If here, means we've dragged the mouse
@@ -1273,11 +1275,11 @@ bool Selection3D::OnMouseMoveLogical(CMapViewLogical *pView, UINT nFlags, const 
 	char szBuf[128];
 	sprintf(szBuf, " @%.0f, %.0f ", vecWorld.x, vecWorld.y);
 	SetStatusText( SBI_COORDS, szBuf );
-		   
+
 	// If we are currently dragging the selection (moving)
 	// update that operation based on the current cursor position and keyboard state.
 	if ( m_bIsLogicalTranslating )
-	{			  
+	{
 		Vector2D vecTranslation;
 		Vector2DSubtract( vecWorld, m_vLastLogicalDragPoint, vecTranslation );
 		m_vLastLogicalDragPoint = vecWorld;
@@ -1330,7 +1332,7 @@ bool Selection3D::OnMouseMoveLogical(CMapViewLogical *pView, UINT nFlags, const 
 		}
 		else if ( !m_bSelected )
 		{
-			// We're doing a drag with the mouse down, and nothing is selected. 
+			// We're doing a drag with the mouse down, and nothing is selected.
 			// Start a logical box selection
 			Vector ptOrg;
 			pView->ClientToWorld( ptOrg, m_vLDownLogicalClient );
@@ -1339,7 +1341,7 @@ bool Selection3D::OnMouseMoveLogical(CMapViewLogical *pView, UINT nFlags, const 
 
 		return true;
 	}
-	
+
 	// If we are simply hovering over an object but the mouse isn't down, update the cursor.
 	vgui::HCursor hCursor = vgui::dc_arrow;
 	if ( !IsEmpty() )
@@ -1352,7 +1354,7 @@ bool Selection3D::OnMouseMoveLogical(CMapViewLogical *pView, UINT nFlags, const 
 			hCursor =  vgui::dc_crosshair;
 			bFoundTool = true;
 		}
-		  
+
 		// If we haven't moused over any interactive handles contained in the object, see if the
 		// mouse is over one of the selection handles.
 		if ( !bFoundTool && HitTestLogical(pView, vPoint) )
@@ -1374,7 +1376,7 @@ bool Selection3D::OnMouseMoveLogical(CMapViewLogical *pView, UINT nFlags, const 
 // Input  : Per CWnd::OnLButtonUp.
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
-bool Selection3D::OnLMouseUpLogical(CMapViewLogical *pView, UINT nFlags, const Vector2D &vPoint) 
+bool Selection3D::OnLMouseUpLogical(CMapViewLogical *pView, UINT nFlags, const Vector2D &vPoint)
 {
 	bool bShift = ((GetKeyState(VK_SHIFT) & 0x8000) != 0);
 
@@ -1395,7 +1397,7 @@ bool Selection3D::OnLMouseUpLogical(CMapViewLogical *pView, UINT nFlags, const V
 		m_pSelection->SetSelectionState( SELECT_NORMAL );
 		goto updateStatusBar;
 	}
-		  
+
 	if ( m_bIsLogicalTranslating )
 	{
 		// keep copy of current objects?
@@ -1426,11 +1428,11 @@ bool Selection3D::OnLMouseUpLogical(CMapViewLogical *pView, UINT nFlags, const V
 		m_pSelection->SetSelectionState( SELECT_NORMAL );
 		goto updateStatusBar;
 	}
-	
+
 updateStatusBar:
 	// we might have removed some stuff that was relevant:
 	m_pDocument->UpdateStatusbar();
-	
+
 	return true;
 }
 
@@ -1440,11 +1442,11 @@ updateStatusBar:
 // Input  : Per CWnd::OnKeyDown.
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
-bool Selection3D::OnKeyDown3D(CMapView3D *pView, UINT nChar, UINT nRepCnt, UINT nFlags) 
+bool Selection3D::OnKeyDown3D(CMapView3D *pView, UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	bool bShift = ((GetKeyState(VK_SHIFT) & 0x8000) != 0);
 	bool bCtrl = ((GetKeyState(VK_CONTROL) & 0x8000) != 0);
-	
+
 	switch (nChar)
 	{
 		/*
@@ -1530,9 +1532,9 @@ bool Selection3D::OnLMouseDblClkLogical(CMapViewLogical *pView, UINT nFlags, con
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pView - 
-//			point - 
+// Purpose:
+// Input  : pView -
+//			point -
 //-----------------------------------------------------------------------------
 void Selection3D::EyedropperPick2D(CMapView2D *pView, const Vector2D &vPoint)
 {
@@ -1540,9 +1542,9 @@ void Selection3D::EyedropperPick2D(CMapView2D *pView, const Vector2D &vPoint)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pView - 
-//			point - 
+// Purpose:
+// Input  : *pView -
+//			point -
 //-----------------------------------------------------------------------------
 void Selection3D::EyedropperPick3D(CMapView3D *pView, const Vector2D &vPoint)
 {
@@ -1568,8 +1570,8 @@ void Selection3D::EyedropperPick3D(CMapView3D *pView, const Vector2D &vPoint)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pObject - 
+// Purpose:
+// Input  : pObject -
 //-----------------------------------------------------------------------------
 void Selection3D::EyedropperPick(CMapView *pView, CMapClass *pObject)
 {
@@ -1663,7 +1665,7 @@ void Selection3D::EyedropperPick(CMapView *pView, CMapClass *pObject)
 	for (int i = 0; i < pSelList->Count(); i++)
 	{
 		CMapClass *pObject = pSelList->Element(i);
-	
+
 		CMapEntity *pEntity = dynamic_cast <CMapEntity *> (pObject);
 		if (pEntity != NULL)
 		{
@@ -1714,7 +1716,7 @@ CMapEntity *Selection3D::FindEntityInTree(CMapClass *pObject)
 // Input  : Per CWnd::OnLButtonDown.
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
-bool Selection3D::OnLMouseDown3D(CMapView3D *pView, UINT nFlags, const Vector2D &vPoint) 
+bool Selection3D::OnLMouseDown3D(CMapView3D *pView, UINT nFlags, const Vector2D &vPoint)
 {
 	Tool3D::OnLMouseDown3D(pView, nFlags, vPoint);
 
@@ -1742,8 +1744,9 @@ bool Selection3D::OnLMouseDown3D(CMapView3D *pView, UINT nFlags, const Vector2D 
 		if ( !IsBoxSelecting() && m_LastHitTestHandle == vec3_origin )
 		{
 			//  clicked somewhere on our selection tool but maybe something else is inbetween
-			
+
 			HitInfo_t HitData;
+			V_memset( &HitData, 0, sizeof( HitInfo_t ) );
 
 			m_bDrawAsSolidBox = true;
 
@@ -1779,7 +1782,7 @@ bool Selection3D::OnLMouseDown3D(CMapView3D *pView, UINT nFlags, const Vector2D 
 // Input  : Per CWnd::OnLButtonUp.
 // Output : Returns true if the message was handled, false if not.
 //-----------------------------------------------------------------------------
-bool Selection3D::OnLMouseUp3D(CMapView3D *pView, UINT nFlags, const Vector2D &vPoint) 
+bool Selection3D::OnLMouseUp3D(CMapView3D *pView, UINT nFlags, const Vector2D &vPoint)
 {
 	bool bShift = nFlags & MK_SHIFT;
 
@@ -1842,7 +1845,7 @@ bool Selection3D::OnMouseMove3D(CMapView3D *pView, UINT nFlags, const Vector2D &
 	// If we are currently dragging the selection (moving, scaling, rotating, or shearing)
 	// update that operation based on the current cursor position and keyboard state.
 	//
-	
+
 	else if ( IsTranslating() )
 	{
 		unsigned int uConstraints = GetConstraints(nFlags);
@@ -1863,8 +1866,8 @@ bool Selection3D::OnMouseMove3D(CMapView3D *pView, UINT nFlags, const Vector2D &
 		if ( HitTest( pView, m_vMouseStart[MOUSE_LEFT], true) )
 		{
 			// we selected a handle - start translation the selection
-			StartTranslation( pView, vPoint, m_LastHitTestHandle ); 
-			
+			StartTranslation( pView, vPoint, m_LastHitTestHandle );
+
 			hCursor = UpdateCursor( pView, m_LastHitTestHandle, m_TranslateMode );
 		}
 	}
@@ -1879,7 +1882,7 @@ bool Selection3D::OnMouseMove3D(CMapView3D *pView, UINT nFlags, const Vector2D &
 	}
 
 	pView->SetCursor( hCursor );
-	
+
 	return true;
 }
 
@@ -1890,12 +1893,12 @@ bool Selection3D::OnMouseMove3D(CMapView3D *pView, UINT nFlags, const Vector2D &
 void Selection3D::SetEyedropperCursor(void)
 {
 	static HCURSOR hcurEyedropper = NULL;
-	
+
 	if (!hcurEyedropper)
 	{
 		hcurEyedropper = LoadCursor(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDC_EYEDROPPER));
 	}
-	
+
 	SetCursor(hcurEyedropper);
 }
 

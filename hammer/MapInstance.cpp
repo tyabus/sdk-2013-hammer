@@ -81,6 +81,14 @@ void CMapInstance::SetParent( CMapAtom* pParent )
 		m_pTemplate->GetMapWorld()->SetPreferredPickObject( GetParent() );
 }
 
+SelectionState_t CMapInstance::SetSelectionState( SelectionState_t eSelectionState )
+{
+	const SelectionState_t old = CMapHelper::SetSelectionState( eSelectionState );
+	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+		m_pTemplate->GetMapWorld()->SetSelectionState( eSelectionState == SELECT_NONE ? SELECT_NONE : SELECT_NORMAL );
+	return old;
+}
+
 void CMapInstance::SetOrigin( Vector& pfOrigin )
 {
 	CMapHelper::SetOrigin( pfOrigin );
@@ -227,6 +235,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 				m_pTemplate->GetMapWorld()->TransMove( origin ); // TODO: Also rotate
 				m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
 				m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
+				m_pTemplate->GetMapWorld()->SetPreferredPickObject( GetParent() );
 			}
 		}
 		PostUpdate(Notify_Changed);

@@ -23,6 +23,7 @@ public:
 
 	void UpdateDependencies( CMapWorld* pWorld, CMapClass* pObject ) override;
 	void SetParent( CMapAtom *pParent ) override;
+	SelectionState_t SetSelectionState(SelectionState_t eSelectionState) override;
 
 	void SetOrigin( Vector& pfOrigin ) override;
 	void SetCullBoxFromFaceList( CMapFaceList* pFaces ) override;

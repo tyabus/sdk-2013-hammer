@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -118,12 +118,14 @@ public:
 	virtual void SetRenderColor(unsigned char uchRed, unsigned char uchGreen, unsigned char uchBlue);
 	virtual void SetRenderColor(color32 rgbColor);
 
+	virtual void SetModulationColor(const Vector& col);
+
 	//
 	// face info
 	//
 	inline int GetFaceCount( void ) { return( Faces.GetCount() ); }
 	inline void SetFaceCount( int nFaceCount ) { Faces.SetCount( nFaceCount ); }
-	inline CMapFace *GetFace( int nFace ) { return( &Faces[nFace] ); }		
+	inline CMapFace *GetFace( int nFace ) { return( &Faces[nFace] ); }
 	int GetFaceIndex( CMapFace *pFace );	// Returns the index (you could use it with GetFace) or -1 if the face doesn't exist in this solid.
 	void AddFace( CMapFace *pFace );
 	void DeleteFace( int iIndex );
@@ -160,13 +162,13 @@ protected:
 	// Implements CMapAtom transformation functions.
 	//
 	void DoTransform(const VMatrix &matrix);
-		
+
 	// dvs: brought in from old carve code; should be reconciled with AddFace, Split, Subtract
 	bool AddPlane(const CMapFace *p);
 	bool Carve(CMapObjectList *pInside, CMapObjectList *pOutside, CMapSolid *pCarver);
 	void ClipByFace(const CMapFace *fa, CMapSolid **f, CMapSolid **b);
 	void RemoveEmptyFaces(void);
-	
+
 	//
 	// Serialization.
 	//
@@ -174,7 +176,7 @@ protected:
 	ChunkFileResult_t SaveEditorData(CChunkFile *pFile);
 	static int g_nBadSolidCount;
 
-	CSolidFaces Faces;					// The list of faces on this solid.	
+	CSolidFaces Faces;					// The list of faces on this solid.
 
 	bool m_bValid : 1;						// Is it a proper convex solid?
 	bool m_bIsCordonBrush : 1;				// Whether this brush was added by the cordon tool.

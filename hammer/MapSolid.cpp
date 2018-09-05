@@ -717,6 +717,21 @@ void CMapSolid::SetRenderColor(unsigned char uchRed, unsigned char uchGreen, uns
 
 
 //-----------------------------------------------------------------------------
+// Purpose: Sets the render color of all of our faces when our render color is set.
+//-----------------------------------------------------------------------------
+void CMapSolid::SetModulationColor(const Vector& clr)
+{
+	CMapClass::SetModulationColor(clr);
+
+	int nFaces = Faces.GetCount();
+	for (int i = 0; i < nFaces; i++)
+	{
+		Faces[i].SetModulationColor(clr);
+	}
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose:
 // Input  :
 // Output : size_t
