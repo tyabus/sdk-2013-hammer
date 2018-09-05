@@ -822,10 +822,11 @@ void CRender::DrawDisplacement( CCoreDispInfo *pMapDisp )
 	m_pMesh->Draw();
 }
 
-void CRender::DrawModel( DrawModelInfo_t* pInfo, matrix3x4_t *pBoneToWorld, const Vector &vOrigin, float fAlpha, bool bWireFrame )
+void CRender::DrawModel( DrawModelInfo_t* pInfo, matrix3x4_t *pBoneToWorld, const Vector &vOrigin, const Vector& vColor, float fAlpha, bool bWireFrame )
 {
 	UpdateStudioRenderConfig( true, bWireFrame );
 
+	g_pStudioRender->SetColorModulation( vColor.Base() );
 	g_pStudioRender->SetAlphaModulation( fAlpha );
 
 	Vector viewOrigin;
@@ -835,6 +836,8 @@ void CRender::DrawModel( DrawModelInfo_t* pInfo, matrix3x4_t *pBoneToWorld, cons
 
 	g_pStudioRender->DrawModel( NULL, *pInfo, pBoneToWorld, NULL, NULL, vOrigin, STUDIORENDER_DRAW_ENTIRE_MODEL );
 
+	Vector vOrigColor( 1.f );
+	g_pStudioRender->SetColorModulation( vOrigColor.Base() );
 	g_pStudioRender->SetAlphaModulation( 1.0f );
 
 	// force rendermode reset

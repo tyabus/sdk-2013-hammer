@@ -580,7 +580,7 @@ void StudioModel::SetupModel ( int bodypart )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void StudioModel::DrawModel3D( CRender3D *pRender, float flAlpha, bool bWireframe )
+void StudioModel::DrawModel3D( CRender3D *pRender, const Vector& vColor, float flAlpha, bool bWireframe )
 {
 	studiohdr_t *pStudioHdr = GetStudioRenderHdr();
 	if (!pStudioHdr)
@@ -620,7 +620,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, float flAlpha, bool bWirefram
 		MatrixAngles(fMatrixNew, m_angles);
 
 		matrix3x4_t *pBoneToWorld = SetUpBones( false );
-		pRender->DrawModel( &info, pBoneToWorld, m_origin, flAlpha, bWireframe );
+		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireframe );
 
 		m_origin = orgOrigin;
 		m_angles = orgAngles;
@@ -635,7 +635,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, float flAlpha, bool bWirefram
 			pRender->DrawCollisionModel( m_MDLHandle, mViewMatrix );
 			return;
 		}
-		pRender->DrawModel( &info, pBoneToWorld, m_origin, flAlpha, bWireframe );
+		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireframe );
 
 		if ( Options.general.bShowCollisionModels )
 		{
@@ -645,7 +645,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, float flAlpha, bool bWirefram
 	}
 }
 
-void StudioModel::DrawModel2D( CRender2D *pRender, float flAlpha, bool bWireFrame  )
+void StudioModel::DrawModel2D( CRender2D *pRender, const Vector& vColor, float flAlpha, bool bWireFrame  )
 {
 	studiohdr_t *pStudioHdr = GetStudioRenderHdr();
 	if (!pStudioHdr)
@@ -696,7 +696,7 @@ void StudioModel::DrawModel2D( CRender2D *pRender, float flAlpha, bool bWireFram
 	else
 	{
 		matrix3x4_t *pBoneToWorld = SetUpBones( false );
-		pRender->DrawModel( &info, pBoneToWorld, m_origin, flAlpha, bWireFrame );
+		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireFrame );
 	}
 
 

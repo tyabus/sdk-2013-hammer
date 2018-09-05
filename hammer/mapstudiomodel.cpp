@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -131,8 +131,8 @@ void CMapStudioModel::AdvanceAnimation(float flInterval)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bFullUpdate - 
+// Purpose:
+// Input  : bFullUpdate -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::CalcBounds(BOOL bFullUpdate)
 {
@@ -192,7 +192,7 @@ void CMapStudioModel::CalcBounds(BOOL bFullUpdate)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : CMapClass
 //-----------------------------------------------------------------------------
 CMapClass *CMapStudioModel::Copy(bool bUpdateDependencies)
@@ -243,8 +243,8 @@ CMapClass *CMapStudioModel::CopyFrom(CMapClass *pObject, bool bUpdateDependencie
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bEnable - 
+// Purpose:
+// Input  : bEnable -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::EnableAnimation(BOOL bEnable)
 {
@@ -281,7 +281,7 @@ void CMapStudioModel::GetRenderAngles(QAngle &Angles)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CMapStudioModel::Initialize(void)
 {
@@ -343,8 +343,8 @@ void CMapStudioModel::OnParentKeyChanged(const char* szKey, const char* szValue)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pRender - 
+// Purpose:
+// Input  : pRender -
 //-----------------------------------------------------------------------------
 bool CMapStudioModel::RenderPreload(CRender3D *pRender, bool bNewContext)
 {
@@ -372,7 +372,7 @@ static void DrawBasisVectors( CRender3D* pRender, const Vector &origin, const QA
 	meshBuilder.AdvanceVertex();
 
 	meshBuilder.Color3ub(255, 0, 0);
-	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][0]), 
+	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][0]),
 		origin[1] + (100 * fCurrentMatrix[1][0]), origin[2] + (100 * fCurrentMatrix[2][0]));
 	meshBuilder.AdvanceVertex();
 
@@ -381,7 +381,7 @@ static void DrawBasisVectors( CRender3D* pRender, const Vector &origin, const QA
 	meshBuilder.AdvanceVertex();
 
 	meshBuilder.Color3ub(0, 255, 0);
-	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][1]), 
+	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][1]),
 		origin[1] + (100 * fCurrentMatrix[1][1]), origin[2] + (100 * fCurrentMatrix[2][1]));
 	meshBuilder.AdvanceVertex();
 
@@ -390,7 +390,7 @@ static void DrawBasisVectors( CRender3D* pRender, const Vector &origin, const QA
 	meshBuilder.AdvanceVertex();
 
 	meshBuilder.Color3ub(0, 0, 255);
-	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][2]), 
+	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][2]),
 		origin[1] + (100 * fCurrentMatrix[1][2]), origin[2] + (100 * fCurrentMatrix[2][2]));
 	meshBuilder.AdvanceVertex();
 
@@ -442,7 +442,7 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 	int sizeY = abs(pt2.y-pt.y);
 
 	//
-	// Don't draw the center handle if the model is smaller than the handle cross 	
+	// Don't draw the center handle if the model is smaller than the handle cross
 	//
 	if ( sizeX >= 8 && sizeY >= 8 && pRender->IsActiveView() )
 	{
@@ -450,13 +450,13 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 
 		pRender->DrawHandle( (vecMins+vecMaxs)/2 );
 	}
-	
+
 	QAngle vecAngles;
 	GetRenderAngles(vecAngles);
 
-	bool bDrawAsModel = (Options.view2d.bDrawModels && ((sizeX+sizeY) > 50)) ||	
+	bool bDrawAsModel = (Options.view2d.bDrawModels && ((sizeX+sizeY) > 50)) ||
 						IsSelected() ||	pRender->IsInLocalTransformMode();
-						
+
 	if ( !bDrawAsModel || IsSelected() )
 	{
 		// Draw the bounding box.
@@ -476,12 +476,12 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 		if ( GetSelectionState()==SELECT_NORMAL || pRender->IsInLocalTransformMode() )
 		{
  			// draw textured model half translucent
-			m_pStudioModel->DrawModel2D(pRender, 0.6 , false );
+			m_pStudioModel->DrawModel2D(pRender, GetModulationColor(), 0.6 , false );
 		}
 		else
 		{
-			// just draw the wireframe 
-			m_pStudioModel->DrawModel2D(pRender, 1.0 , true );
+			// just draw the wireframe
+			m_pStudioModel->DrawModel2D(pRender, GetModulationColor(), 1.0 , true );
 		}
 	}
 
@@ -490,7 +490,7 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 		//
 		// Render the forward vector if the object is selected.
 		//
-		
+
 		Vector Forward;
 		AngleVectors(vecAngles, &Forward, NULL, NULL);
 
@@ -507,7 +507,7 @@ inline float CMapStudioModel::ComputeDistanceFade( CRender3D *pRender ) const
 	Vector vecViewPos;
 	pRender->GetCamera()->GetViewPoint( vecViewPos );
 
-	Vector vecDelta;		
+	Vector vecDelta;
 	vecDelta = m_Origin - vecViewPos;
 
 	float flMin = min(m_flFadeMinDist, m_flFadeMaxDist);
@@ -531,7 +531,7 @@ inline float CMapStudioModel::ComputeDistanceFade( CRender3D *pRender ) const
 			alpha = RemapValClamped( flDist, flMin, flMax, 1.0f, 0 );
 		}
 	}
-		
+
 	return alpha;
 }
 
@@ -617,12 +617,12 @@ void CMapStudioModel::Render3D(CRender3D *pRender)
 			}
 
 			bool bWireframe = pRender->GetCurrentRenderMode() == RENDER_MODE_WIREFRAME;
- 
+
 			if ( GetSelectionState() == SELECT_MODIFY )
 				bWireframe = true;
 
 			pRender->BeginRenderHitTarget(this);
-			m_pStudioModel->DrawModel3D(pRender, flAlpha, bWireframe );
+			m_pStudioModel->DrawModel3D(pRender, GetModulationColor(), flAlpha, bWireframe );
 			pRender->EndRenderHitTarget();
 
 			if (IsSelected())
@@ -660,9 +660,9 @@ void CMapStudioModel::Render3D(CRender3D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &File - 
-//			bRMF - 
+// Purpose:
+// Input  : &File -
+//			bRMF -
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapStudioModel::SerializeRMF(std::fstream &File, BOOL bRMF)
@@ -672,9 +672,9 @@ int CMapStudioModel::SerializeRMF(std::fstream &File, BOOL bRMF)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &File - 
-//			bRMF - 
+// Purpose:
+// Input  : &File -
+//			bRMF -
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapStudioModel::SerializeMAP(std::fstream &File, BOOL bRMF)
@@ -684,8 +684,8 @@ int CMapStudioModel::SerializeMAP(std::fstream &File, BOOL bRMF)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : Angles - 
+// Purpose:
+// Input  : Angles -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::SetAngles(QAngle &Angles)
 {
@@ -743,8 +743,8 @@ void CMapStudioModel::SetRenderDistance(float fRenderDistance)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pTransBox - 
+// Purpose:
+// Input  : pTransBox -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::DoTransform(const VMatrix &matrix)
 {
@@ -767,7 +767,7 @@ void CMapStudioModel::DoTransform(const VMatrix &matrix)
 
 	QAngle angles;
 	GetAngles( angles );
-	
+
 	AngleMatrix( angles, fCurrentMatrix);
 	ConcatTransforms(fRotateMatrix, fCurrentMatrix, fMatrixNew);
 	MatrixAngles( fMatrixNew, angles );
@@ -776,7 +776,7 @@ void CMapStudioModel::DoTransform(const VMatrix &matrix)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapStudioModel::GetFrame(void)
@@ -787,8 +787,8 @@ int CMapStudioModel::GetFrame(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nFrame - 
+// Purpose:
+// Input  : nFrame -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::SetFrame(int nFrame)
 {
@@ -810,7 +810,7 @@ int CMapStudioModel::GetSequence(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapStudioModel::GetSequenceCount(void)
@@ -824,9 +824,9 @@ int CMapStudioModel::GetSequenceCount(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nIndex - 
-//			szName - 
+// Purpose:
+// Input  : nIndex -
+//			szName -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::GetSequenceName(int nIndex, char *szName)
 {
@@ -838,8 +838,8 @@ void CMapStudioModel::GetSequenceName(int nIndex, char *szName)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nIndex - 
+// Purpose:
+// Input  : nIndex -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::SetSequence(int nIndex)
 {

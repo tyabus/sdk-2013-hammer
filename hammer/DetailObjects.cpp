@@ -729,7 +729,7 @@ void DetailObjects::EnableBuildDetailObjects( bool bEnable )
 	s_bBuildDetailObjects = bEnable;
 }
 
-void	DetailObjects::Render3D(CRender3D *pRender)
+void DetailObjects::Render3D(CRender3D *pRender)
 {
 	Vector Mins, Maxs;
 	float fDetailDistance = Options.view3d.nDetailDistance;
@@ -750,7 +750,7 @@ void	DetailObjects::Render3D(CRender3D *pRender)
 				Maxs[j] += fDetailDistance;
 			}
 			if ( IsPointInBox( viewPoint, Mins, Maxs ) )
-				pModel->DrawModel3D( pRender, 1, false  );
+				pModel->DrawModel3D( pRender, GetModulationColor(), 1, false  );
 		}
 		pRender->PopRenderMode();
 

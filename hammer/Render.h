@@ -159,7 +159,7 @@ public:
 			void DrawPlane( const Vector &p0, const Vector &p1, const Vector &p2, const Vector &p3, bool bFill = false );
 
 	// drawing complex objects
-			void DrawModel( DrawModelInfo_t* pInfo, matrix3x4_t *pBoneToWorld, const Vector &vOrigin, float fAlpha = 1, bool bWireframe = false );
+			void DrawModel( DrawModelInfo_t* pInfo, matrix3x4_t *pBoneToWorld, const Vector &vOrigin, const Vector& vColor = Vector( 1.f ), float fAlpha = 1, bool bWireframe = false );
 			void DrawDisplacement( CCoreDispInfo *pDisp );
 			void DrawCollisionModel( MDLHandle_t mdlHandle, const VMatrix &mViewMatrix );
 

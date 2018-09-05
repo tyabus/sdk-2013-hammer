@@ -371,6 +371,8 @@ public:
 	virtual void SetRenderColor(unsigned char red, unsigned char green, unsigned char blue);
 	virtual void SetRenderColor(color32 rgbColor);
 
+	virtual void SetModulationColor( const Vector& col );
+
 	//
 	// Can be rendered:
 	//

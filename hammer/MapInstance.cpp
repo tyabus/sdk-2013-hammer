@@ -31,6 +31,7 @@ CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( NULL )
 		if ( m_pTemplate->LoadVMF( m_strCurrentVMF, true ) )
 		{
 			m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
+			m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
 			m_pTemplate->GetMapWorld()->SetPreferredPickObject( pParent );
 		}
 	}
@@ -225,6 +226,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 				GetOrigin( origin );
 				m_pTemplate->GetMapWorld()->TransMove( origin ); // TODO: Also rotate
 				m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
+				m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
 			}
 		}
 		PostUpdate(Notify_Changed);
