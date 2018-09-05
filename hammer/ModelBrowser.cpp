@@ -237,7 +237,7 @@ BOOL CModelBrowser::OnInitDialog()
 	m_VGuiWindow.SetParentWindow( &m_VGuiWindow );
 	m_VGuiWindow.SetMainPanel( pMainPanel );
 	pMainPanel->MakePopup( false, false );
-    m_VGuiWindow.SetRepaintInterval( 75 );
+    m_VGuiWindow.SetRepaintInterval( 30 );
 
 
 	m_pPicker->SetParent( pMainPanel );
