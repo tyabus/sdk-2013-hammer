@@ -15,11 +15,14 @@ public:
 
 	static CMapClass* Create( CHelperInfo* pHelperInfo, CMapEntity* pParent );
 	CMapInstance();
-	CMapInstance( const char* pszMapPath );
+	CMapInstance( CMapEntity* pParent );
 	~CMapInstance();
 
 	CMapClass* Copy( bool bUpdateDependencies ) override;
 	CMapClass* CopyFrom( CMapClass* pFrom, bool bUpdateDependencies ) override;
+
+	void UpdateDependencies( CMapWorld* pWorld, CMapClass* pObject ) override;
+	void SetParent( CMapAtom *pParent ) override;
 
 	void SetOrigin( Vector& pfOrigin ) override;
 	void SetCullBoxFromFaceList( CMapFaceList* pFaces ) override;

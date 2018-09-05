@@ -27,7 +27,7 @@ CSelection::~CSelection(void)
 
 }
 
-void CSelection::Init( CMapDoc *pDocument ) 
+void CSelection::Init( CMapDoc *pDocument )
 {
 	m_pDocument = pDocument;
 	m_eSelectMode = selectGroups;
@@ -40,9 +40,12 @@ void CSelection::Init( CMapDoc *pDocument )
 	UpdateSelectionBounds();
 }
 
-bool CSelection::IsSelected(CMapClass *pobj)
+bool CSelection::IsSelected(CMapClass *pObj)
 {
-	return (m_SelectionList.Find(pobj) != m_SelectionList.InvalidIndex());
+	if ( CMapClass* pPreferred = pObj->GetPreferredPickObject() )
+		pObj = pPreferred;
+
+	return (m_SelectionList.Find(pObj) != m_SelectionList.InvalidIndex());
 }
 
 
@@ -81,7 +84,7 @@ bool CSelection::GetLogicalBounds(Vector2D &vecMins, Vector2D &vecMaxs)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Used for translations. Uses entity origins and brush bounds. 
+// Purpose: Used for translations. Uses entity origins and brush bounds.
 // That way, when moving stuff, the entity origins will stay on the grid.
 //-----------------------------------------------------------------------------
 void CSelection::GetBoundsForTranslation( Vector &vecMins, Vector &vecMaxs )
@@ -95,7 +98,7 @@ void CSelection::GetBoundsForTranslation( Vector &vecMins, Vector &vecMaxs )
 
 		// update physical bounds
 		Vector mins, maxs;
-		
+
 		CEditGameClass *pEdit = dynamic_cast< CEditGameClass* >( pobj );
 		if ( (pEdit && pEdit->IsSolidClass()) || dynamic_cast<CMapSolid *>(pobj) )
 		{
@@ -105,8 +108,8 @@ void CSelection::GetBoundsForTranslation( Vector &vecMins, Vector &vecMaxs )
 		{
 			pobj->GetOrigin( mins );
 			maxs = mins;
-		}		
-		
+		}
+
 		VectorMin( mins, vecMins, vecMins );
 		VectorMax( maxs, vecMaxs, vecMaxs );
 	}
@@ -115,10 +118,10 @@ void CSelection::GetBoundsForTranslation( Vector &vecMins, Vector &vecMaxs )
 void CSelection::UpdateSelectionBounds( void )
 {
 	m_Bounds.ResetBounds();
-	
+
 	m_vecLogicalMins[0] = m_vecLogicalMins[1] = COORD_NOTINIT;
 	m_vecLogicalMaxs[0] = m_vecLogicalMaxs[1] = -COORD_NOTINIT;
-	
+
 	for (int i = 0; i < m_SelectionList.Count(); i++)
 	{
 		CMapClass *pobj = m_SelectionList[i];
@@ -211,7 +214,7 @@ void CSelection::SetSelectionState(SelectionState_t eSelectionState)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CSelection::IsAnEntitySelected(void)
 {
@@ -241,7 +244,7 @@ void CSelection::SetMode(SelectMode_t eNewSelectMode)
 {
 	SelectMode_t eOldSelectMode = m_eSelectMode;
 	m_eSelectMode = eNewSelectMode;
-	
+
 	if ((eOldSelectMode == selectSolids) ||
 		((eOldSelectMode == selectObjects) && (eNewSelectMode == selectGroups)))
 	{
@@ -284,11 +287,14 @@ void CSelection::SetMode(SelectMode_t eNewSelectMode)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pObject - 
+// Purpose:
+// Input  : *pObject -
 //-----------------------------------------------------------------------------
 void CSelection::AddHit(CMapClass *pObject)
 {
+	if ( CMapClass* pPreferred = pObject->GetPreferredPickObject() )
+		pObject = pPreferred;
+
 	if ( m_HitList.Find(pObject) == -1 )
 	{
 		m_HitList.AddToTail(pObject);
@@ -296,7 +302,7 @@ void CSelection::AddHit(CMapClass *pObject)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CSelection::ClearHitList(void)
 {
@@ -310,7 +316,7 @@ bool CSelection::RemoveAll(void)
 	{
 		CMapClass *pObject = m_SelectionList.Element(i);
 		pObject->SetSelectionState(SELECT_NONE);
-	} 
+	}
 
 	m_SelectionList.RemoveAll();
 	SetBoundsDirty();
@@ -321,7 +327,7 @@ bool CSelection::RemoveAll(void)
 bool CSelection::RemoveDead(void)
 {
 	bool bFoundOne = false;
-	
+
 	for ( int i=m_SelectionList.Count()-1; i>=0; i-- )
 	{
 		CMapClass *pObject = m_SelectionList.Element(i);
@@ -331,7 +337,7 @@ bool CSelection::RemoveDead(void)
 			pObject->SetSelectionState(SELECT_NONE);
 			bFoundOne = true;
 		}
-	} 
+	}
 
 	// TODO check if we do the same as in SelectObject
 	SetBoundsDirty();
@@ -355,7 +361,7 @@ bool CSelection::RemoveInvisibles(void)
 			pObject->SetSelectionState(SELECT_NONE);
 			bFoundOne = true;
 		}
-	} 
+	}
 
 	SetBoundsDirty();
 
@@ -363,9 +369,9 @@ bool CSelection::RemoveInvisibles(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : iIndex - 
-//			bUpdateViews - 
+// Purpose:
+// Input  : iIndex -
+//			bUpdateViews -
 //-----------------------------------------------------------------------------
 void CSelection::SetCurrentHit(int iIndex, bool bCascading)
 {
@@ -413,19 +419,19 @@ void CSelection::SetCurrentHit(int iIndex, bool bCascading)
 	{
 		// Build actual selection list based on cascading...
 		CUtlRBTree< CMapClass*, unsigned short > tree( 0, 0, DefLessFunc( CMapClass* ) );
-				
+
 		bool bRecursive = false; // not used yet
 		m_pDocument->BuildCascadingSelectionList( pObject, tree, bRecursive );
-				
+
 		CMapObjectList list;
 		list.AddToTail( pObject );
 		bool bRootIsSelected = IsSelected(pObject);
 		bool bUniformSelectionState = true;
-		
+
 		for ( unsigned short h = tree.FirstInorder(); h != tree.InvalidIndex(); h = tree.NextInorder(h) )
 		{
 			list.AddToTail( list[h] );
-			
+
 			if ( IsSelected( list[h] ) != bRootIsSelected )
 			{
 				bUniformSelectionState = false;
@@ -433,7 +439,7 @@ void CSelection::SetCurrentHit(int iIndex, bool bCascading)
 		}
 
 		/* Change toggle to select or unselect if we're toggling and cascading
-		// but the root + children have different selection state 
+		// but the root + children have different selection state
 		if ( ( !bUniformSelectionState ) && ( cmd == scToggle ) )
 		{
 			cmd = bRootIsSelected ? scSelect : scUnselect;
@@ -448,9 +454,9 @@ void CSelection::SetCurrentHit(int iIndex, bool bCascading)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pobj - 
-//			cmd - 
+// Purpose:
+// Input  : pobj -
+//			cmd -
 //-----------------------------------------------------------------------------
 bool CSelection::SelectObject(CMapClass *pObj, int cmd)
 {
@@ -458,7 +464,7 @@ bool CSelection::SelectObject(CMapClass *pObj, int cmd)
 	if ( pObj == NULL )
 	{
 		// check if selection is already empty
-		if (m_SelectionList.Count() == 0) 
+		if (m_SelectionList.Count() == 0)
 			return false; // nothing to do
 
 		if ( cmd & scClear )
@@ -468,9 +474,12 @@ bool CSelection::SelectObject(CMapClass *pObj, int cmd)
 	}
 	else // object oriented operation
 	{
+		if ( CMapClass* pPreferred = pObj->GetPreferredPickObject() )
+			pObj = pPreferred;
+
 		int iIndex = m_SelectionList.Find(pObj);
 		bool bAlreadySelected = iIndex != -1;
-	
+
 		if ( cmd & scToggle )
 		{
 			if ( bAlreadySelected )
@@ -493,7 +502,7 @@ bool CSelection::SelectObject(CMapClass *pObj, int cmd)
 
 			if ( bAlreadySelected )
 				return false;
-			
+
 			m_SelectionList.AddToTail(pObj);
 			pObj->SetSelectionState(SELECT_NORMAL);
 		}
@@ -523,7 +532,7 @@ bool CSelection::SelectObject(CMapClass *pObj, int cmd)
 
 	// uddate all views
 	m_pDocument->UpdateAllViews( MAPVIEW_UPDATE_SELECTION );
-	
+
 	return true;
 }
 

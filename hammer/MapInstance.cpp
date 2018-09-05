@@ -15,19 +15,25 @@ IMPLEMENT_MAPCLASS( CMapInstance );
 
 CMapClass* CMapInstance::Create( CHelperInfo* pHelperInfo, CMapEntity* pParent )
 {
-	if ( const char* file = pParent->GetKeyValue( "file" ) )
-		return new CMapInstance( file );
-	else
-		return new CMapInstance;
+	return new CMapInstance( pParent );
 }
 
 CMapInstance::CMapInstance() : m_pTemplate( NULL )
 {
 }
 
-CMapInstance::CMapInstance( const char* pszMapPath ) : m_pTemplate( static_cast<CMapDoc*>( CMapDoc::CreateObject() ) ), m_strCurrentVMF( pszMapPath )
+CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( NULL )
 {
-	m_pTemplate->LoadVMF( pszMapPath, true );
+	m_strCurrentVMF = pParent->GetKeyValue( "file" );
+	if ( !m_strCurrentVMF.IsEmpty() )
+	{
+		m_pTemplate = static_cast<CMapDoc*>( CMapDoc::CreateObject() );
+		if ( m_pTemplate->LoadVMF( m_strCurrentVMF, true ) )
+		{
+			m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
+			m_pTemplate->GetMapWorld()->SetPreferredPickObject( pParent );
+		}
+	}
 }
 
 CMapInstance::~CMapInstance()
@@ -54,6 +60,24 @@ CMapClass* CMapInstance::CopyFrom( CMapClass* pFrom, bool bUpdateDependencies )
 	m_strCurrentVMF = pObject->m_strCurrentVMF;
 
 	return this;
+}
+
+void CMapInstance::UpdateDependencies( CMapWorld* pWorld, CMapClass* pObject )
+{
+	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	{
+		Vector origin, oldOrigin;
+		GetOrigin( origin );
+		m_pTemplate->GetMapWorld()->GetOrigin( oldOrigin );
+		m_pTemplate->GetMapWorld()->TransMove( origin - oldOrigin ); // TODO: Do complete transformation
+	}
+}
+
+void CMapInstance::SetParent( CMapAtom* pParent )
+{
+	CMapHelper::SetParent( pParent );
+	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+		m_pTemplate->GetMapWorld()->SetPreferredPickObject( GetParent() );
 }
 
 void CMapInstance::SetOrigin( Vector& pfOrigin )
@@ -136,7 +160,7 @@ bool CMapInstance::GetBoundsSizeChild( Vector & vecSize )
 void CMapInstance::DoTransform( const VMatrix& matrix )
 {
 	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
-		m_pTemplate->GetMapWorld()->DoTransform( matrix );
+		m_pTemplate->GetMapWorld()->DoTransform( matrix );	// TODO: Do not move entities inside instance
 	CMapHelper::DoTransform( matrix );
 }
 
@@ -195,12 +219,12 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		m_strCurrentVMF.Set( value );
 		if ( !m_strCurrentVMF.IsEmpty() )
 		{
-			if (m_pTemplate->LoadVMF( value, true ))
+			if ( m_pTemplate->LoadVMF( value, true ) )
 			{
                 Vector origin;
-                GetOrigin(origin);
-                m_pTemplate->GetMapWorld()->TransMove(origin);
-                m_pTemplate->GetMapWorld()->SetRenderColor(64, 192, 255);
+				GetOrigin( origin );
+				m_pTemplate->GetMapWorld()->TransMove( origin ); // TODO: Also rotate
+				m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
 			}
 		}
 		PostUpdate(Notify_Changed);
@@ -214,7 +238,6 @@ void CMapInstance::Render2D( CRender2D* pRender )
 
 	CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 
-	m_pTemplate->GetMapWorld()->SetRenderColor( 64, 192, 255 );
 	CMapObjectList& children = m_pTemplate->GetMapWorld()->m_Children;
 	for( CMapClass* pChild : children )
 	{
@@ -232,7 +255,6 @@ void CMapInstance::Render3D( CRender3D* pRender )
 		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 		CAutoPushPop<bool> guard2( pRender->m_DeferRendering, false );
 
-		m_pTemplate->GetMapWorld()->SetRenderColor( 64, 192, 255 );
 		pRender->RenderMapClass( m_pTemplate->GetMapWorld() );
 	}
 }

@@ -330,6 +330,8 @@ public:
 
 	virtual const char* GetDescription() { return ""; }
 
+	virtual CMapClass* GetPreferredPickObject();
+
 	BOOL EnumChildren(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam = 0, MAPCLASSTYPE Type = NULL);
 	BOOL EnumChildrenRecurseGroupsOnly(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam, MAPCLASSTYPE Type = NULL);
 	BOOL IsChildOf(CMapAtom *pObject);
