@@ -53,6 +53,7 @@ public:
 
 private:
 	void Render2DChildren( CRender2D* pRender, CMapClass* pEnt );
+	void AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt );
 
 	CMapDoc* m_pTemplate;
 	CUtlString m_strCurrentVMF;

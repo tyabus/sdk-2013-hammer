@@ -537,7 +537,7 @@ bool CLightingPreviewThread::AnyUsefulWorkToDo( void )
 			CLightingPreviewLightDescription &l=(*m_pLightList)[i];
 			CIncrementalLightInfo *l_info=l.m_pIncrementalInfo;
 			if ( l_info->HasWorkToDo() )
-				return true;
+				return m_pRtEnv != NULL;
 		}
 	}
 	return false;

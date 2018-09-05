@@ -291,5 +291,18 @@ bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 {
 	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
-		m_pTemplate->GetMapWorld()->AddShadowingTriangles( tri_list );
+		AddShadowingTrianglesChildren( tri_list, m_pTemplate->GetMapWorld() );
+}
+
+void CMapInstance::AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt )
+{
+	CMapObjectList& children = pEnt->m_Children;
+	for( CMapClass* pChild : children )
+	{
+		if ( pChild && pChild->IsVisible() && pChild->ShouldAppearInLightingPreview() )
+		{
+			pChild->AddShadowingTriangles( tri_list );
+			AddShadowingTrianglesChildren( tri_list, pChild );
+		}
+	}
 }
