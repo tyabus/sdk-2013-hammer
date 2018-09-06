@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -35,14 +35,14 @@ void CRichEditCtrlEx::PreSubclassWindow()
 }
 
 
-CRTFBuilder &doWrite(CRTFBuilder &r, CRichEditCtrl &c) throw()
+CRTFBuilder &doWrite(CRTFBuilder &r, CRichEditCtrl &c)
 {
 	r.write(c);
 	return r;
 }
 
 
-CRTFBuilder &doSize(CRTFBuilder &r, int n) throw()
+CRTFBuilder &doSize(CRTFBuilder &r, int n)
 {
 	r.size(n);
 	return r;
@@ -112,66 +112,66 @@ CRTFBuilder &doAddFont(CRTFBuilder &r, CString &s)
 }
 
 
-CControlManip write(CRichEditCtrl &c) throw ()
+CControlManip write(CRichEditCtrl &c)
 {
 	return CControlManip(&doWrite, c);
 }
 
-CIntManip size(int n) throw()
+CIntManip size(int n)
 {
 	return CIntManip(&doSize, n);
 }
 
 
-CIntManip color(int n) throw()
+CIntManip color(int n)
 {
 	return CIntManip(&doColor, n);
 }
 
 
-CIntManip backColor(int n) throw()
+CIntManip backColor(int n)
 {
 	return CIntManip(&doBackColor, n);
 }
 
 
-CIntManip addColor(int n) throw()
+CIntManip addColor(int n)
 {
 	return CIntManip(&doAddColor, n);
 }
 
 
-CStringManip font(LPCTSTR s) throw()
+CStringManip font(LPCTSTR s)
 {
 	return CStringManip(&doFont, s);
 }
 
 
-CStringManip addFont(LPCTSTR s) throw()
+CStringManip addFont(LPCTSTR s)
 {
 	return CStringManip(&doAddFont, s);
 }
 
 
-CBoolManip bold(bool b) throw()
+CBoolManip bold(bool b)
 {
 	return CBoolManip(&doBold, b);
 }
 
 
-CBoolManip strike(bool b) throw()
+CBoolManip strike(bool b)
 {
 	return CBoolManip(&doStrike, b);
 }
 
 
-CBoolManip italic(bool b) throw()
+CBoolManip italic(bool b)
 {
 	return CBoolManip(&doItalic, b);
 }
 
 
-CBoolManip underline(bool b) throw()
+CBoolManip underline(bool b)
 {
 	return CBoolManip(&doUnderline, b);
 }
