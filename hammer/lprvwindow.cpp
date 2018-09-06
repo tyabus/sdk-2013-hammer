@@ -54,7 +54,7 @@ CLightingPreviewResultsWindow::~CLightingPreviewResultsWindow(void)
 // Input  : *pParentWnd -
 //			rect -
 //-----------------------------------------------------------------------------
-void CLightingPreviewResultsWindow::Create(CWnd *pParentWnd )
+void CLightingPreviewResultsWindow::Create( CWnd *pParentWnd )
 {
 	static CString LPreviewWndClassName;
 
@@ -73,7 +73,7 @@ void CLightingPreviewResultsWindow::Create(CWnd *pParentWnd )
 
 	CWnd::CreateEx(0,LPreviewWndClassName, "LightingPreviewWindow",
 				   WS_OVERLAPPEDWINDOW|WS_SIZEBOX,
-				   rect, NULL, NULL,NULL);
+				   rect, pParentWnd, NULL,NULL);
 
 }
 
@@ -87,7 +87,7 @@ void CLightingPreviewResultsWindow::OnPaint(void)
 
 	CRect clientrect;
 	GetClientRect(clientrect);
-	if ( g_pLPreviewOutputBitmap)
+	if ( g_pLPreviewOutputBitmap )
 	{
 		// blit it
 		BITMAPINFOHEADER mybmh;
@@ -99,7 +99,6 @@ void CLightingPreviewResultsWindow::OnPaint(void)
 		mybmh.biBitCount=32;
 		mybmh.biCompression=BI_RGB;
 		mybmh.biSizeImage=g_pLPreviewOutputBitmap->Width()*g_pLPreviewOutputBitmap->Height();
-
 
 		StretchDIBits(
 			dc.GetSafeHdc(),clientrect.left,clientrect.top,1+(clientrect.right-clientrect.left),
