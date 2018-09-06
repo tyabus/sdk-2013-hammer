@@ -1352,7 +1352,7 @@ void CMapFace::SetTexture(IEditorTexture *pTexture, bool bRescaleTextureCoordina
 	{
 		const Vector& color = GetModulationColor();
 		m_pTexture->GetMaterial()->ColorModulate( XYZ( color ) );
-		m_pTexture->GetMaterial()->SetMaterialVarFlag( MATERIAL_VAR_VERTEXCOLOR, true );
+		m_pTexture->GetMaterial()->SetMaterialVarFlag( MATERIAL_VAR_VERTEXCOLOR, color != Vector( 1.f ) );
 		CalcTextureCoords();
 	}
 
@@ -3217,7 +3217,7 @@ void CMapFace::SetModulationColor( const Vector& clr )
 	if ( m_pTexture != NULL && m_pTexture->GetMaterial() )
 	{
 		m_pTexture->GetMaterial()->ColorModulate( clr.x, clr.y, clr.z );
-		m_pTexture->GetMaterial()->SetMaterialVarFlag( MATERIAL_VAR_VERTEXCOLOR, true );
+		m_pTexture->GetMaterial()->SetMaterialVarFlag( MATERIAL_VAR_VERTEXCOLOR, clr != Vector( 1.f ) );
 	}
 }
 
