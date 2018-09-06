@@ -508,7 +508,8 @@ matrix3x4_t *StudioModel::SetUpBones ( bool bUpdatePose )
 	cameraTransform[1][3] = m_origin[1];
 	cameraTransform[2][3] = m_origin[2];
 
-	matrix3x4_t *pBoneToWorld = g_pStudioRender->LockBoneMatrices( pStudioHdr->numbones() );
+	//matrix3x4_t *pBoneToWorld = g_pStudioRender->LockBoneMatrices( pStudioHdr->numbones() );
+	matrix3x4_t *pBoneToWorld = (matrix3x4_t*)malloc( pStudioHdr->numbones() * sizeof( matrix3x4_t ) );
 	if ( pBoneToWorld )
 	{
 		for (int i = 0; i < pStudioHdr->numbones(); i++)
@@ -541,7 +542,7 @@ matrix3x4_t *StudioModel::SetUpBones ( bool bUpdatePose )
 	{
 		AssertMsg( 0, "Hammer can crash! g_pStudioRender->LockBoneMatrices returned null." );
 	}
-	g_pStudioRender->UnlockBoneMatrices();
+	//g_pStudioRender->UnlockBoneMatrices();
 	return pBoneToWorld;
 }
 
@@ -621,6 +622,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, const Vector& vColor, float f
 
 		matrix3x4_t *pBoneToWorld = SetUpBones( false );
 		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireframe );
+		free( pBoneToWorld );
 
 		m_origin = orgOrigin;
 		m_angles = orgAngles;
@@ -636,6 +638,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, const Vector& vColor, float f
 			return;
 		}
 		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireframe );
+		free( pBoneToWorld );
 
 		if ( Options.general.bShowCollisionModels )
 		{
@@ -697,6 +700,7 @@ void StudioModel::DrawModel2D( CRender2D *pRender, const Vector& vColor, float f
 	{
 		matrix3x4_t *pBoneToWorld = SetUpBones( false );
 		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireFrame );
+		free( pBoneToWorld );
 	}
 
 
