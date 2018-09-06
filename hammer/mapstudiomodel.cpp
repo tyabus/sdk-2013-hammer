@@ -19,6 +19,8 @@
 #include "Material.h"
 #include "Options.h"
 #include "camera.h"
+#include "optimize.h"
+#include "filesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -774,6 +776,141 @@ void CMapStudioModel::DoTransform(const VMatrix &matrix)
 
 	SetAngles( angles );
 }
+
+const vertexFileHeader_t* mstudiomodel_t::CacheVertexData( void *pModelData )
+{
+	studiohdr_t *pActiveStudioHdr = static_cast<studiohdr_t *>(pModelData);
+	Assert( pActiveStudioHdr );
+
+	if ( pActiveStudioHdr->pVertexBase )
+	{
+		return (vertexFileHeader_t *)pActiveStudioHdr->pVertexBase;
+	}
+
+	// mandatory callback to make requested data resident
+	// load and persist the vertex file
+	char fileName[MAX_PATH];
+	strcpy( fileName, "models/" );
+	strcat( fileName, pActiveStudioHdr->pszName() );
+	Q_StripExtension( fileName, fileName, sizeof( fileName ) );
+	strcat( fileName, ".vvd" );
+
+	// load the model
+	FileHandle_t fileHandle = g_pFileSystem->Open( fileName, "rb" );
+	if ( !fileHandle )
+	{
+		Error( "Unable to load vertex data \"%s\"\n", fileName );
+	}
+
+	// Get the file size
+	int vvdSize = g_pFileSystem->Size( fileHandle );
+	if ( vvdSize == 0 )
+	{
+		g_pFileSystem->Close( fileHandle );
+		Error( "Bad size for vertex data \"%s\"\n", fileName );
+	}
+
+	vertexFileHeader_t *pVvdHdr = (vertexFileHeader_t *)malloc( vvdSize );
+	g_pFileSystem->Read( pVvdHdr, vvdSize, fileHandle );
+	g_pFileSystem->Close( fileHandle );
+
+	// check header
+	if ( pVvdHdr->id != MODEL_VERTEX_FILE_ID )
+	{
+		Error("Error Vertex File %s id %d should be %d\n", fileName, pVvdHdr->id, MODEL_VERTEX_FILE_ID);
+	}
+	if ( pVvdHdr->version != MODEL_VERTEX_FILE_VERSION )
+	{
+		Error("Error Vertex File %s version %d should be %d\n", fileName, pVvdHdr->version, MODEL_VERTEX_FILE_VERSION);
+	}
+	if ( pVvdHdr->checksum != pActiveStudioHdr->checksum )
+	{
+		Error("Error Vertex File %s checksum %d should be %d\n", fileName, pVvdHdr->checksum, pActiveStudioHdr->checksum);
+	}
+
+	// need to perform mesh relocation fixups
+	// allocate a new copy
+	vertexFileHeader_t *pNewVvdHdr = (vertexFileHeader_t *)malloc( vvdSize );
+	if ( !pNewVvdHdr )
+	{
+		Error( "Error allocating %d bytes for Vertex File '%s'\n", vvdSize, fileName );
+	}
+
+	// load vertexes and run fixups
+	Studio_LoadVertexes( pVvdHdr, pNewVvdHdr, 0, true );
+
+	// discard original
+	free( pVvdHdr );
+	pVvdHdr = pNewVvdHdr;
+
+	pActiveStudioHdr->pVertexBase = (void*)pVvdHdr;
+	return pVvdHdr;
+}
+
+void CMapStudioModel::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
+{
+	if ( m_pStudioModel != NULL )
+	{
+		Vector origin;
+		QAngle angles;
+		GetOrigin( origin );
+		GetAngles( angles );
+		VMatrix transform;
+		transform.SetupMatrixOrgAngles( origin, angles );
+		const studiohdr_t* pHdr = m_pStudioModel->GetStudioHdr()->GetRenderHdr();
+		studiomeshdata_t *pStudioMeshes = m_pStudioModel->GetHardwareData()->m_pLODs[0].m_pMeshData;
+		for ( int i = 0; i < pHdr->numbodyparts; ++i )
+		{
+			mstudiobodyparts_t* pBodypart = pHdr->pBodypart( i );
+			for ( int j = 0; j < pBodypart->nummodels; ++j )
+			{
+				const mstudiomodel_t* pModel = pBodypart->pModel( j );
+				for ( int k = 0; k < pModel->nummeshes; ++k )
+				{
+					mstudiomesh_t *pMesh = pModel->pMesh( k );
+					const mstudio_meshvertexdata_t* vertData = pMesh->GetVertexData( const_cast<studiohdr_t*>( pHdr ) );
+					studiomeshdata_t *pMeshData = &pStudioMeshes[pMesh->meshid];
+					if ( pMeshData->m_NumGroup == 0 )
+						continue;
+
+					for ( int stripGroupID = 0; stripGroupID < pMeshData->m_NumGroup; stripGroupID++ )
+					{
+						studiomeshgroup_t *pMeshGroup = &pMeshData->m_pMeshGroup[stripGroupID];
+						for ( int stripID = 0; stripID < pMeshGroup->m_NumStrips; stripID++ )
+						{
+							OptimizedModel::StripHeader_t *pStripData = &pMeshGroup->m_pStripData[stripID];
+
+							if ( pStripData->flags & OptimizedModel::STRIP_IS_TRILIST )
+							{
+								for ( int i = 0; i < pStripData->numIndices; i += 3 )
+								{
+									int idx = pStripData->indexOffset + i;
+
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 1 ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 2 ) ) ) );
+								}
+							}
+							else
+							{
+								Assert( pStripData->flags & OptimizedModel::STRIP_IS_TRISTRIP );
+								for (int i = 0; i < pStripData->numIndices - 2; ++i)
+								{
+									int idx = pStripData->indexOffset + i;
+									bool ccw = (i & 0x1) == 0;
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 1 + ccw ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 2 - ccw ) ) ) );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose:
