@@ -334,13 +334,29 @@ void CMapSweptPlayerHull::Render3D(CRender3D *pRender)
 		pRender->SetDrawColor( 255,0,0 );
 	}
 
+	pRender->PushRenderMode( RENDER_MODE_WIREFRAME );
 	Vector vec1;
 	Vector vec2;
 	m_Point[0]->GetOrigin(vec1);
 	m_Point[1]->GetOrigin(vec2);
-
 	pRender->DrawLine(vec1, vec2);
+	pRender->PopRenderMode();
 
+	if (GetSelectionState() != SELECT_NONE)
+	{
+		pRender->SetDrawColor( 200,180,0 );
+		const EditorRenderMode_t renderMode = pRender->GetDefaultRenderMode();
+		pRender->SetDefaultRenderMode( RENDER_MODE_WIREFRAME );
+		pRender->PushRenderMode( RENDER_MODE_WIREFRAME );
+		Vector mins1, mins2, maxs1, maxs2;
+		m_Point[0]->GetRender2DBox( mins1, maxs1 );
+		m_Point[1]->GetRender2DBox( mins2, maxs2 );
+		mins1 = mins2.Min( mins1 );
+		maxs1 = maxs2.Max( maxs1 );
+		pRender->DrawBox( mins1, maxs1 );
+		pRender->PopRenderMode();
+		pRender->SetDefaultRenderMode( renderMode );
+	}
 }
 
 

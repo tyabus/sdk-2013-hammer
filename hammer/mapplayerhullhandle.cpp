@@ -254,7 +254,10 @@ void CMapPlayerHullHandle::Render3D(CRender3D *pRender)
 	m_Render2DBox.GetBounds( Mins, Maxs );
 
 	pRender->BeginRenderHitTarget(this);
-	pRender->RenderBox( Mins, Maxs, 200, 180, 0, SELECT_NONE );
+	if ( GetSelectionState() == SELECT_NONE )
+		pRender->RenderBox( Mins, Maxs, 200, 180, 0, SELECT_NONE );
+	else
+		pRender->RenderBox( Mins, Maxs, 255, 0, 0, GetSelectionState() );
 	pRender->EndRenderHitTarget();
 
 	if ((m_pParent != NULL) && (m_bDrawLineToParent))
