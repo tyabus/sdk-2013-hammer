@@ -345,7 +345,8 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 	// Load the options
 	// NOTE: Have to do this now, because we need it before Inits() are called
 	// NOTE: SetRegistryKey will cause hammer to look into the registry for its values
-	SetRegistryKey("Valve");
+	m_pszAppName = strdup( "Hammer 2K13" );
+	SetRegistryKey( "Valve" );
 	Options.Init();
 	return true;
 }
@@ -746,6 +747,7 @@ void UpdatePrefabs_Shutdown()
 //-----------------------------------------------------------------------------
 BOOL CHammer::InitInstance()
 {
+	SetRegistryKey( "Valve" );
 	return TRUE;
 }
 

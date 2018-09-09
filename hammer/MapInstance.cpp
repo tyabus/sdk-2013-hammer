@@ -20,17 +20,16 @@ CMapClass* CMapInstance::Create( CHelperInfo* pHelperInfo, CMapEntity* pParent )
 	return new CMapInstance( pParent );
 }
 
-CMapInstance::CMapInstance() : m_pTemplate( NULL )
+CMapInstance::CMapInstance() : m_pTemplate( static_cast<CMapDoc*>( CMapDoc::CreateObject() ) )
 {
 }
 
-CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( NULL )
+CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( static_cast<CMapDoc*>( CMapDoc::CreateObject() ) )
 {
 	m_matTransform.Identity();
 	m_strCurrentVMF = pParent->GetKeyValue( "file" );
 	if ( !m_strCurrentVMF.IsEmpty() )
 	{
-		m_pTemplate = static_cast<CMapDoc*>( CMapDoc::CreateObject() );
 		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 		if ( m_pTemplate->LoadVMF( m_strCurrentVMF, true ) )
 		{
@@ -76,14 +75,14 @@ void CMapInstance::OnNotifyDependent( CMapClass* pObject, Notify_Dependent_t eNo
 void CMapInstance::SetParent( CMapAtom* pParent )
 {
 	CMapHelper::SetParent( pParent );
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 		m_pTemplate->GetMapWorld()->SetPreferredPickObject( GetParent() );
 }
 
 SelectionState_t CMapInstance::SetSelectionState( SelectionState_t eSelectionState )
 {
 	const SelectionState_t old = CMapHelper::SetSelectionState( eSelectionState );
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 		m_pTemplate->GetMapWorld()->SetSelectionState( eSelectionState == SELECT_NONE ? SELECT_NONE : SELECT_NORMAL );
 	return old;
 }
@@ -95,7 +94,7 @@ void CMapInstance::SetOrigin( Vector& pfOrigin )
 
 void CMapInstance::SetCullBoxFromFaceList( CMapFaceList* pFaces )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 		m_pTemplate->GetMapWorld()->SetCullBoxFromFaceList( pFaces );
 	else
 		CMapHelper::SetCullBoxFromFaceList( pFaces );
@@ -103,7 +102,7 @@ void CMapInstance::SetCullBoxFromFaceList( CMapFaceList* pFaces )
 
 void CMapInstance::CalcBounds( BOOL bFullUpdate )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 		m_pTemplate->GetMapWorld()->CalcBounds( bFullUpdate );
 	else
 		CMapHelper::CalcBounds( bFullUpdate );
@@ -111,7 +110,7 @@ void CMapInstance::CalcBounds( BOOL bFullUpdate )
 
 void CMapInstance::GetCullBox( Vector& mins, Vector& maxs )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 		GetBounds( &CMapClass::m_CullBox, mins, maxs );
 	else
 		CMapHelper::GetCullBox( mins, maxs );
@@ -125,7 +124,7 @@ bool CMapInstance::GetCullBoxChild( Vector& mins, Vector& maxs )
 
 void CMapInstance::GetRender2DBox( Vector& mins, Vector& maxs )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
 	else
 		CMapHelper::GetRender2DBox( mins, maxs );
@@ -139,7 +138,7 @@ bool CMapInstance::GetRender2DBoxChild( Vector& mins, Vector& maxs )
 
 void CMapInstance::GetBoundsCenter( Vector& vecCenter )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		Vector mins, maxs;
 		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
@@ -157,7 +156,7 @@ bool CMapInstance::GetBoundsCenterChild( Vector & vecCenter )
 
 void CMapInstance::GetBoundsSize( Vector& vecSize )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		Vector mins, maxs;
 		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
@@ -184,12 +183,24 @@ void CMapInstance::DoTransform( const VMatrix& matrix )
 	DecompressMatrix( origin, angle );
 	FixAngles( angle );
 	ConstructMatrix( origin, angle );
+
+	while ( angle[YAW] < 0 )
+	{
+		angle[YAW] += 360;
+	}
+
+	if ( CMapEntity *pEntity = dynamic_cast<CMapEntity*>( m_pParent ) )
+	{
+		char szValue[80];
+		sprintf(szValue, "%g %g %g", angle[0], angle[1], angle[2]);
+		pEntity->NotifyChildKeyChanged( this, "angles", szValue );
+	}
 }
 #pragma float_control(pop)
 
 bool CMapInstance::PostloadVisGroups( bool bIsLoading )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 
@@ -201,14 +212,12 @@ bool CMapInstance::PostloadVisGroups( bool bIsLoading )
 
 bool CMapInstance::HitTest2D( CMapView2D* pView, const Vector2D& point, HitInfo_t& HitData )
 {
-	{
-		Vector world;
-		pView->ClientToWorld( world, point );
-		Vector2D transformed;
-		pView->WorldToClient( transformed, m_matTransform.InverseTR().VMul4x3( world ) );
-		if ( m_pTemplate && m_pTemplate->GetMapWorld() && m_pTemplate->GetMapWorld()->HitTest2D( pView, transformed, HitData ) )
-			return true;
-	}
+	Vector world;
+	pView->ClientToWorld( world, point );
+	Vector2D transformed;
+	pView->WorldToClient( transformed, m_matTransform.InverseTR().VMul4x3( world ) );
+	if ( m_pTemplate->GetMapWorld() && m_pTemplate->GetMapWorld()->HitTest2D( pView, transformed, HitData ) )
+		return true;
 	return CMapHelper::HitTest2D( pView, point, HitData );
 }
 
@@ -219,7 +228,7 @@ bool CMapInstance::IsCulledByCordon( const Vector& vecMins, const Vector& vecMax
 
 bool CMapInstance::IsInsideBox( Vector const& pfMins, Vector const& pfMaxs ) const
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		Vector bmins, bmaxs;
 		GetBounds( &CMapClass::m_Render2DBox, bmins, bmaxs );
@@ -241,7 +250,7 @@ bool CMapInstance::IsInsideBox( Vector const& pfMins, Vector const& pfMaxs ) con
 
 bool CMapInstance::IsIntersectingBox( const Vector& vecMins, const Vector& vecMaxs ) const
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		Vector bmins, bmaxs;
 		GetBounds( &CMapClass::m_Render2DBox, bmins, bmaxs );
@@ -263,11 +272,9 @@ bool CMapInstance::IsIntersectingBox( const Vector& vecMins, const Vector& vecMa
 
 void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 {
-	if ( !stricmp( key, "file" ) && ( !m_strCurrentVMF.IsEqual_CaseInsensitive( value ) || !m_pTemplate ) )
+	if ( !stricmp( key, "file" ) && ( !m_strCurrentVMF.IsEqual_CaseInsensitive( value ) || !m_pTemplate->GetMapWorld() ) )
 	{
-		if ( !m_pTemplate )
-			m_pTemplate = static_cast<CMapDoc*>( CMapDoc::CreateObject() );
-		else
+		if ( m_pTemplate->GetMapWorld() )
 			m_pTemplate->DeleteCurrentMap();
 		m_strCurrentVMF.Set( value );
 		if ( !m_strCurrentVMF.IsEmpty() )
@@ -282,7 +289,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		}
 		PostUpdate( Notify_Changed );
 	}
-	else if ( !stricmp( key, "angles" ) && m_pTemplate->GetMapWorld() )
+	else if ( !stricmp( key, "angles" ) )
 	{
 		QAngle angle;
 		Vector origin;
@@ -291,7 +298,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		ConstructMatrix( origin, angle );
 		PostUpdate( Notify_Changed );
 	}
-	else if ( !stricmp( key, "origin" ) && m_pTemplate->GetMapWorld() )
+	else if ( !stricmp( key, "origin" ) )
 	{
 		QAngle angle;
 		Vector origin;
@@ -323,7 +330,7 @@ void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
 
 void CMapInstance::Render2D( CRender2D* pRender )
 {
-	if ( !m_pTemplate || !m_pTemplate->GetMapWorld() )
+	if ( !m_pTemplate->GetMapWorld() )
 		return;
 
 	CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
@@ -424,7 +431,7 @@ void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt
 
 void CMapInstance::Render3D( CRender3D* pRender )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 		CAutoPushPop<bool> guard2( pRender->m_DeferRendering, false );
@@ -462,7 +469,7 @@ void CMapInstance::Render3D( CRender3D* pRender )
 
 bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 
@@ -474,7 +481,7 @@ bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 
 void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 		AddShadowingTrianglesChildren( tri_list, m_pTemplate->GetMapWorld() );
 }
 
@@ -508,7 +515,7 @@ void CMapInstance::RotateChild( const Vector& origin, const QAngle& angle, const
 #pragma float_control(precise, on, push)
 void CMapInstance::GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& maxs ) const
 {
-	if ( m_pTemplate && m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate->GetMapWorld() )
 	{
 		(m_pTemplate->GetMapWorld()->*type).GetBounds( mins, maxs );
 		Vector box[8];
