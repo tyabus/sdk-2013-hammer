@@ -21,11 +21,11 @@
 
 
 static CEntityReportDlg *s_pDlg = NULL;
-static char *pszIniSection = "EntityReportDlg";
+static const char *pszIniSection = "EntityReportDlg";
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Static function 
+// Purpose: Static function
 //-----------------------------------------------------------------------------
 void CEntityReportDlg::ShowEntityReport(CMapDoc *pDoc, CWnd *pwndParent)
 {
@@ -39,7 +39,7 @@ void CEntityReportDlg::ShowEntityReport(CMapDoc *pDoc, CWnd *pwndParent)
 	s_pDlg->GenerateReport();
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Purpose: Private constructor.
 //-----------------------------------------------------------------------------
@@ -143,7 +143,7 @@ void CEntityReportDlg::OnDelete(void)
 	}
 
 	GetHistory()->MarkUndoPosition(NULL, "Delete Objects");
-		
+
 	int iSel = m_cEntities.GetCurSel();
 
 	//
@@ -176,13 +176,13 @@ void CEntityReportDlg::OnDelete(void)
 }
 
 
-void CEntityReportDlg::OnFilterbyhidden() 
+void CEntityReportDlg::OnFilterbyhidden()
 {
 	m_bFilterByHidden = m_cFilterByHidden.GetCheck();
 	UpdateEntityList();
 }
 
-void CEntityReportDlg::OnFilterbykeyvalue() 
+void CEntityReportDlg::OnFilterbykeyvalue()
 {
 	m_bFilterByKeyvalue = m_cFilterByKeyvalue.GetCheck();
 	UpdateEntityList();
@@ -192,7 +192,7 @@ void CEntityReportDlg::OnFilterbykeyvalue()
 	m_cExact.EnableWindow(m_bFilterByKeyvalue);
 }
 
-void CEntityReportDlg::OnFilterbytype() 
+void CEntityReportDlg::OnFilterbytype()
 {
 	// walk all children in group
 	int iButton = 0;
@@ -209,7 +209,7 @@ void CEntityReportDlg::OnFilterbytype()
 	UpdateEntityList();
 }
 
-void CEntityReportDlg::OnChangeFilterkey() 
+void CEntityReportDlg::OnChangeFilterkey()
 {
 	m_cFilterKey.GetWindowText(m_szFilterKey);
 	m_szFilterKey.MakeUpper();
@@ -217,7 +217,7 @@ void CEntityReportDlg::OnChangeFilterkey()
 	m_bFilterTextChanged = TRUE;
 }
 
-void CEntityReportDlg::OnChangeFiltervalue() 
+void CEntityReportDlg::OnChangeFiltervalue()
 {
 	m_cFilterValue.GetWindowText(m_szFilterValue);
 	m_szFilterValue.MakeUpper();
@@ -229,7 +229,7 @@ void CEntityReportDlg::OnChangeFiltervalue()
 //-----------------------------------------------------------------------------
 // Purpose: Centers the 2D and 3D views on the selected entities.
 //-----------------------------------------------------------------------------
-void CEntityReportDlg::OnGoto() 
+void CEntityReportDlg::OnGoto()
 {
 	MarkSelectedEntities();
 	m_pDoc->CenterViewsOnSelection();
@@ -237,9 +237,9 @@ void CEntityReportDlg::OnGoto()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
-void CEntityReportDlg::MarkSelectedEntities() 
+void CEntityReportDlg::MarkSelectedEntities()
 {
 	m_pDoc->SelectObject(NULL, scClear|scSaveChanges);
 
@@ -252,13 +252,13 @@ void CEntityReportDlg::MarkSelectedEntities()
 	}
 }
 
-void CEntityReportDlg::OnProperties() 
+void CEntityReportDlg::OnProperties()
 {
 	MarkSelectedEntities();
 	GetMainWnd()->pObjectProperties->ShowWindow(SW_SHOW);
 }
 
-void CEntityReportDlg::OnTimer(UINT nIDEvent) 
+void CEntityReportDlg::OnTimer(UINT nIDEvent)
 {
 	CDialog::OnTimer(nIDEvent);
 
@@ -277,7 +277,7 @@ void CEntityReportDlg::OnTimer(UINT nIDEvent)
 BOOL AddEntityToList(CMapEntity *pEntity, CEntityReportDlg *pDlg)
 {
 	char szString[256];
-	
+
 	// nope.
 	if (!pDlg->m_bFilterByHidden && !pEntity->IsVisible())
 	{
@@ -302,7 +302,7 @@ BOOL AddEntityToList(CMapEntity *pEntity, CEntityReportDlg *pDlg)
 			return TRUE;
 		}
 	}
-		
+
 	const char* pszClassName = pEntity->GetClassName();
 
 	if (pDlg->m_bFilterByClass)
@@ -354,7 +354,7 @@ BOOL AddEntityToList(CMapEntity *pEntity, CEntityReportDlg *pDlg)
 		}
 
 		const char* pszName = pEntity->GetKey(i);
-		
+
 		GDclass *pClass = pEntity->GetClass();
 		if (pClass != NULL)
 		{
@@ -373,7 +373,7 @@ BOOL AddEntityToList(CMapEntity *pEntity, CEntityReportDlg *pDlg)
 			break;	// just do first if no class
 		}
 	}
-	
+
 	if(bAdd)
 	{
 		int iIndex = pDlg->m_cEntities.AddString(szString);
@@ -385,7 +385,7 @@ BOOL AddEntityToList(CMapEntity *pEntity, CEntityReportDlg *pDlg)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityReportDlg::UpdateEntityList(void)
 {
@@ -411,7 +411,7 @@ void CEntityReportDlg::UpdateEntityList(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityReportDlg::GenerateReport()
 {
@@ -435,7 +435,7 @@ void CEntityReportDlg::GenerateReport()
 	OnFilterbyclass();
 }
 
-void CEntityReportDlg::OnEditchangeFilterclass() 
+void CEntityReportDlg::OnEditchangeFilterclass()
 {
 	m_cFilterClass.GetWindowText(m_szFilterClass);
 	m_szFilterClass.MakeUpper();
@@ -443,7 +443,7 @@ void CEntityReportDlg::OnEditchangeFilterclass()
 	m_bFilterTextChanged = TRUE;
 }
 
-void CEntityReportDlg::OnFilterbyclass() 
+void CEntityReportDlg::OnFilterbyclass()
 {
 	m_bFilterByClass = m_cFilterByClass.GetCheck();
 	UpdateEntityList();
@@ -451,7 +451,7 @@ void CEntityReportDlg::OnFilterbyclass()
 	m_cFilterClass.EnableWindow(m_bFilterByClass);
 }
 
-void CEntityReportDlg::OnSelchangeFilterclass() 
+void CEntityReportDlg::OnSelchangeFilterclass()
 {
 	int iSel = m_cFilterClass.GetCurSel();
 	m_cFilterClass.GetLBText(iSel, m_szFilterClass);
@@ -461,7 +461,7 @@ void CEntityReportDlg::OnSelchangeFilterclass()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityReportDlg::OnSelChangeEntityList()
 {
@@ -470,7 +470,7 @@ void CEntityReportDlg::OnSelChangeEntityList()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityReportDlg::OnDblClkEntityList()
 {
@@ -479,9 +479,9 @@ void CEntityReportDlg::OnDblClkEntityList()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
-void CEntityReportDlg::OnExactvalue() 
+void CEntityReportDlg::OnExactvalue()
 {
 	m_bExact = m_cExact.GetCheck();
 	UpdateEntityList();
@@ -489,7 +489,7 @@ void CEntityReportDlg::OnExactvalue()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityReportDlg::OnOK()
 {
@@ -498,7 +498,7 @@ void CEntityReportDlg::OnOK()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityReportDlg::OnClose()
 {

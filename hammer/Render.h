@@ -122,7 +122,7 @@ public:
 
 	void BeginLocalTransfrom( const VMatrix &matrix );
 	void EndLocalTransfrom();
-	bool IsInLocalTransformMode();
+	bool IsInLocalTransformMode() const;
 	void GetLocalTranform( VMatrix &matrix );
 
 	void SetTextColor( unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255 );

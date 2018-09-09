@@ -14,7 +14,7 @@
 typedef struct
 {
 	GDIV_TYPE eType;		// The enumeration of this type.
-	char *pszName;			// The name of this type.
+	const char *pszName;			// The name of this type.
 	trtoken_t eStoreAs;		// How this type is stored (STRING, INTEGER, etc).
 } TypeMap_t;
 
@@ -58,7 +58,7 @@ static TypeMap_t TypeMap[] =
 };
 
 
-char *GDinputvariable::m_pszEmpty = "";
+const char *GDinputvariable::m_pszEmpty = "";
 
 
 //-----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ GDinputvariable &GDinputvariable::operator =(GDinputvariable &Other)
 	m_bReadOnly = Other.m_bReadOnly;
 
 	m_Items.RemoveAll();
-	
+
 	int nCount = Other.m_Items.Count();
 	for (int i = 0; i < nCount; i++)
 	{
@@ -202,8 +202,8 @@ const char *GDinputvariable::GetTypeText(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : tr - 
+// Purpose:
+// Input  : tr -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL GDinputvariable::InitFromTokens(TokenReader& tr)
@@ -474,7 +474,7 @@ BOOL GDinputvariable::InitFromTokens(TokenReader& tr)
 			// add item to array of items
 			m_Items.AddToTail(ivi);
 		}
-		
+
 		// Set the default value.
 		unsigned long nDefault = 0;
 		for (int i = 0; i < m_Items.Count(); i++)

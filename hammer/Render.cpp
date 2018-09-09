@@ -361,7 +361,7 @@ void CRender::EndLocalTransfrom()
 	m_bIsLocalTransform = false;
 }
 
-bool CRender::IsInLocalTransformMode()
+bool CRender::IsInLocalTransformMode() const
 {
 	return m_bIsLocalTransform;
 }
