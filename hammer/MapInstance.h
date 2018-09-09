@@ -18,12 +18,14 @@ public:
 	CMapInstance( CMapEntity* pParent );
 	~CMapInstance();
 
+	size_t GetSize() override { return sizeof(*this); }
+
 	CMapClass* Copy( bool bUpdateDependencies ) override;
 	CMapClass* CopyFrom( CMapClass* pFrom, bool bUpdateDependencies ) override;
 
-	void UpdateDependencies( CMapWorld* pWorld, CMapClass* pObject ) override;
+	void OnNotifyDependent( CMapClass* pObject, Notify_Dependent_t eNotifyType ) override;
 	void SetParent( CMapAtom *pParent ) override;
-	SelectionState_t SetSelectionState(SelectionState_t eSelectionState) override;
+	SelectionState_t SetSelectionState( SelectionState_t eSelectionState ) override;
 
 	void SetOrigin( Vector& pfOrigin ) override;
 	void SetCullBoxFromFaceList( CMapFaceList* pFaces ) override;
@@ -53,10 +55,18 @@ public:
 
 private:
 	void Render2DChildren( CRender2D* pRender, CMapClass* pEnt );
+	void Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt );
+	void Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt );
 	void AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt );
+	void RotateChild( const Vector& origin, const QAngle& angle, const Vector& translation, CMapClass* pEnt );
+	void GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& maxs ) const;
+	static void FixAngles( QAngle& angle );
+	void DecompressMatrix( Vector& origin, QAngle& angle ) const;
+	void ConstructMatrix( const Vector& origin, const QAngle& angle );
 
 	CMapDoc* m_pTemplate;
 	CUtlString m_strCurrentVMF;
+	VMatrix m_matTransform;
 };
 
 #endif // MAPINSTANCE_H
