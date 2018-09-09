@@ -520,13 +520,20 @@ void CMapInstance::GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& 
 		(m_pTemplate->GetMapWorld()->*type).GetBounds( mins, maxs );
 		Vector box[8];
 		PointsFromBox( mins, maxs, box );
-		mins.Init( FLT_MAX, FLT_MAX, FLT_MAX );
-		maxs.Init( FLT_MIN, FLT_MIN, FLT_MIN );
-		for ( const Vector& point : box )
+		for ( int i = 0; i < 8; ++i )
 		{
-			const Vector& transformed = m_matTransform.VMul4x3( point );
-			mins = mins.Min( transformed );
-			maxs = maxs.Max( transformed );
+			const Vector& transformed = m_matTransform.VMul4x3( box[i] );
+			for ( int j = 0; j < 3; ++j )
+			{
+				if ( i == 0 || transformed[j] < mins[j] )
+				{
+					mins[j] = transformed[j];
+				}
+				if ( i == 0 || transformed[j] > maxs[j] )
+				{
+					maxs[j] = transformed[j];
+				}
+			}
 		}
 		return;
 	}
