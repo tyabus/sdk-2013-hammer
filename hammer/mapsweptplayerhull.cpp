@@ -174,7 +174,7 @@ CBaseTool *CMapSweptPlayerHull::GetToolObject(int nHitData, bool bAttachObject)
 //-----------------------------------------------------------------------------
 bool CMapSweptPlayerHull::HitTest2D(CMapView2D *pView, const Vector2D &point, HitInfo_t &HitData)
 {
-	if (IsVisible())
+	if ( IsVisible() && ( !IsSelected() || !GetPreferredPickObject() ) )
 	{
 		for (unsigned int i = 0; i < 2; i++)
 		{
@@ -232,7 +232,7 @@ void CMapSweptPlayerHull::Render2D(CRender2D *pRender)
 	if ( dx == 0 && dy == 0 )
 		return;
 
-	if (eState == SELECT_MODIFY)
+	if (eState != SELECT_NONE)
 	{
 		pRender->PushRenderMode( RENDER_MODE_DOTTED );
 		pRender->SetDrawColor( GetRValue(Options.colors.clrSelection), GetGValue(Options.colors.clrSelection), GetBValue(Options.colors.clrSelection) );
@@ -327,7 +327,11 @@ void CMapSweptPlayerHull::Render3D(CRender3D *pRender)
 
 	if (GetSelectionState() == SELECT_NONE)
 	{
-		pRender->SetDrawColor( 200,180,0 );
+		const color32 color = GetRenderColor();
+		if ( color != color32{255, 255, 255, 0} )
+			pRender->SetDrawColor( color.r, color.g, color.b );
+		else
+			pRender->SetDrawColor( 200, 180, 0 );
 	}
 	else
 	{
