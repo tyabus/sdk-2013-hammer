@@ -15,6 +15,7 @@
 #define KEY_MOD_SHIFT				0x0001
 #define KEY_MOD_CONTROL				0x0002
 #define KEY_MOD_ALT					0x0004
+#define KEY_MOD_VIRT                0x0008
 
 
 //
@@ -241,6 +242,7 @@ class CKeyboard
 		~CKeyboard(void);
 
 		void AddKeyMap(unsigned int uChar, unsigned int uModifierKeys, unsigned int uLogicalKey);
+        void AddKeyMap(KeyMap_t &map);
 		void ClearImpulseFlags(void);
 		void ClearKeyStates(void);
 		float GetKeyScale(unsigned int uLogicalKey);

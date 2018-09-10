@@ -73,19 +73,19 @@ enum
 typedef Vector Extents_t[NUM_EXTENTS_DIMS];
 
 
-typedef struct
+struct PLANE
 {
 	Vector		normal;
 	float		dist;
 	Vector		planepts[3];
-} PLANE;
+};
 
 
-typedef struct
+struct winding_t
 {
 	int		numpoints;
 	Vector	*p;			// variable sized
-} winding_t;
+};
 
 
 enum FaceOrientation_t

@@ -55,6 +55,8 @@
 #include "inputsystem/iinputsystem.h"
 #include "datacache/idatacache.h"
 #include "datamodel/dmelementfactoryhelper.h"
+#include "KeyBinds.h"
+#include "fmtstr.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -214,6 +216,7 @@ class CHammerCmdLine : public CCommandLineInfo
 			m_bShowLogo = true;
 			m_bGame = false;
 			m_bConfigDir = false;
+            m_bSetCustomConfigDir = false;
 		}
 
 		void ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
@@ -252,6 +255,8 @@ class CHammerCmdLine : public CCommandLineInfo
 				if ( !bFlag )
 				{
 					Options.configs.m_strConfigDir = lpszParam;
+                    g_pFullFileSystem->AddSearchPath(lpszParam, "hammer_cfg", PATH_ADD_TO_HEAD);
+                    m_bSetCustomConfigDir = true;
 				}
 				m_bConfigDir = false;
 			}
@@ -265,6 +270,7 @@ class CHammerCmdLine : public CCommandLineInfo
 	bool m_bShowLogo;
 	bool m_bGame;			// Used to find and parse the "-game blah" parameter pair.
 	bool m_bConfigDir;		// Used to find and parse the "-configdir blah" parameter pair.
+    bool m_bSetCustomConfigDir; // Used with above
 	CString m_strGame;		// The name of the game to use for this session, ie "hl2" or "cstrike". This should match the mod dir, not the config name.
 };
 
@@ -290,6 +296,8 @@ CHammer::CHammer(void)
 	m_SuppressVideoAllocation = false;
 	m_bForceRenderNextFrame = false;
 	m_bClosing = false;
+
+    m_CmdLineInfo = new CHammerCmdLine();
 }
 
 
@@ -299,6 +307,9 @@ CHammer::CHammer(void)
 //-----------------------------------------------------------------------------
 CHammer::~CHammer(void)
 {
+    if (m_CmdLineInfo)
+        delete m_CmdLineInfo;
+    m_CmdLineInfo = nullptr;
 }
 
 
@@ -335,18 +346,22 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 	// This does NOT create the window itself. That happens later in CMainFrame::Create.
 	g_pwndMessage = CMessageWnd::CreateMessageWndObject();
 
-	// Default location for GameConfig.txt is the same directory as Hammer.exe but this may be overridden on the command line
-	char szGameConfigDir[MAX_PATH];
-	APP()->GetDirectory( DIR_PROGRAM, szGameConfigDir );
-	Options.configs.m_strConfigDir = szGameConfigDir;
-	CHammerCmdLine cmdInfo;
-	ParseCommandLine(cmdInfo);
+    ParseCommandLine(*m_CmdLineInfo);
+    if (!m_CmdLineInfo->m_bSetCustomConfigDir)
+    {
+        // Default location for GameConfig.txt is in ./hammer/cfg/ but this may be overridden on the command line
+        char szGameConfigDir[MAX_PATH];
+        APP()->GetDirectory(DIR_PROGRAM, szGameConfigDir);
+        CFmtStrN<MAX_PATH> dir("%s/hammer/cfg", szGameConfigDir);
+        g_pFullFileSystem->AddSearchPath(dir.Get(), "hammer_cfg", PATH_ADD_TO_HEAD);
+        Options.configs.m_strConfigDir = szGameConfigDir;
+    }
 
-	// Load the options
-	// NOTE: Have to do this now, because we need it before Inits() are called
-	// NOTE: SetRegistryKey will cause hammer to look into the registry for its values
-	SetRegistryKey("Valve");
-	Options.Init();
+    // Load the options
+    // NOTE: Have to do this now, because we need it before Inits() are called
+    // NOTE: SetRegistryKey will cause hammer to look into the registry for its values
+    SetRegistryKey("Valve");
+    Options.Init();
 	return true;
 }
 
@@ -910,13 +925,10 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	if (bMakeLib)
 		return INIT_FAILED;	// made library .. don't want to enter program
 
-	CHammerCmdLine cmdInfo;
-	ParseCommandLine(cmdInfo);
-
 	//
 	// Create and optionally display the splash screen.
 	//
-	CSplashWnd::EnableSplashScreen(cmdInfo.m_bShowLogo);
+	CSplashWnd::EnableSplashScreen(m_CmdLineInfo->m_bShowLogo);
 
 	LoadSequences();	// load cmd sequences - different from options because
 						//  users might want to share (darn registry)
@@ -996,6 +1008,12 @@ InitReturnVal_t CHammer::HammerInternalInit()
 
 	materials->ModInit();
 
+    // Initialize Keybinds
+    AssertMsg(g_pKeyBinds->Init(), "Failed to init keybinds!");
+
+    AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAINFRAME", pMainFrame->m_hAccelTable), "Failed to load custom keybinds for IDR_MAINFRAME!");
+    AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAPDOC", pMapDocTemplate->m_hAccelTable), "Failed to load custom keybinds for the IDR_MAPDOC!");
+
 	//
 	// Initialize the texture manager and load all textures.
 	//
@@ -1033,13 +1051,13 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	m_pMainWnd->FlashWindow(TRUE);
 
 	// Parse command line for standard shell commands, DDE, file open
-	if ( Q_stristr( cmdInfo.m_strFileName, ".vmf" ) )
+	if ( Q_stristr(m_CmdLineInfo->m_strFileName, ".vmf" ) )
 	{
 		// we don't want to make a new file (default behavior if no file
 		//  is specified on the commandline.)
 
 		// Dispatch commands specified on the command line
-		if (!ProcessShellCommand(cmdInfo))
+		if (!ProcessShellCommand(*m_CmdLineInfo))
 			return INIT_FAILED;
 	}
 
@@ -1136,6 +1154,8 @@ int CHammer::InternalMainLoop()
 //-----------------------------------------------------------------------------
 void CHammer::Shutdown()
 {
+    g_pKeyBinds->Shutdown();
+
 	if ( g_LPreviewThread )
 	{
 		MessageToLPreview StopMsg( LPREVIEW_MSG_EXIT );

@@ -15,6 +15,7 @@
 #include "resource.h"
 #include "ToolManager.h"
 #include "ToolDecal.h"
+#include "camera.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

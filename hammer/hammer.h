@@ -30,7 +30,7 @@ class IStudioRender;
 class IBaseFileSystem;
 class IMDLCache;
 class CGameConfig;
-
+class CHammerCmdLine;
 
 //
 // Values for retrieving specific directories using GetDirectory.
@@ -173,6 +173,8 @@ protected:
 
 	char m_szAppDir[MAX_PATH];
 	char m_szAutosaveDir[MAX_PATH];
+
+    CHammerCmdLine *m_CmdLineInfo;
 };
 
 
