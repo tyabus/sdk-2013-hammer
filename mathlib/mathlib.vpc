@@ -13,6 +13,7 @@ $Configuration
 	{
 		$AdditionalIncludeDirectories	"$BASE;..\public\mathlib"
 		$PreprocessorDefinitions		"$BASE;MATHLIB_LIB"
+		$AdditionalOptions			"$BASE /std:c++17"
 	}
 }
 

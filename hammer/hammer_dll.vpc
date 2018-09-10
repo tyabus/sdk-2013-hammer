@@ -16,7 +16,7 @@ $Configuration
 		$AdditionalIncludeDirectories		"$BASE;$SRCDIR\common\shaderdll,$SRCDIR\common\iostream;$SRCDIR\dx9sdk\include;$SRCDIR\engine;$SRCDIR\game\shared;$SRCDIR\utils\common"
 		$PreprocessorDefinitions			"$BASE;VALVE;PROTECTED_THINGS_DISABLE"
 		$Create/UsePrecompiledHeader		"Use Precompiled Header (/Yu)"
-		$AdditionalOptions					"/EHa"
+		$AdditionalOptions				"$BASE /EHa /std:c++17"
 	}
 
 	$Linker

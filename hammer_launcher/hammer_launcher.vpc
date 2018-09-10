@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalOptions					"/EHa"
+		$AdditionalOptions					"$BASE /EHa /std:c++17"
 	}
 }
 
