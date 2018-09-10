@@ -895,7 +895,10 @@ void CRender::DrawBoxExt( const Vector &vCenter, float extend, bool bFill)
 
 void CRender::DrawHandles( int nPoints, const Vector *Points )
 {
-	Assert(0);
+    for (int i = 0; i < nPoints; i++)
+    {
+        DrawHandle(Points[i]);
+    }
 }
 
 void CRender::DrawBox( const Vector &vMins, const Vector &vMaxs, bool bFill)

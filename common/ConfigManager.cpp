@@ -8,7 +8,6 @@
 #include "filesystem_tools.h"
 #include "KeyValues.h"
 #include "ConfigManager.h"
-#include <Windows.h>
 #include "fmtstr.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -32,12 +31,10 @@
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
-CGameConfigManager::CGameConfigManager(void) : m_pData(nullptr), m_LoadStatus(LOADSTATUS_NONE)
+CGameConfigManager::CGameConfigManager(void) : m_LoadStatus(LOADSTATUS_NONE), m_pData(nullptr)
 {
     // Start with default directory
-    GetModuleFileName((HINSTANCE) GetModuleHandle(nullptr), m_szBaseDirectory, sizeof(m_szBaseDirectory));
-    Q_StripLastDir(m_szBaseDirectory, sizeof(m_szBaseDirectory));	// Get rid of the filename.
-    Q_StripTrailingSlash(m_szBaseDirectory);
+    g_pFullFileSystem->GetSearchPath_safe("hammer_cfg", false, m_szBaseDirectory);
     m_eSDKEpoch = (eSDKEpochs) SDK_LAUNCHER_VERSION;
 }
 
@@ -91,10 +88,7 @@ bool CGameConfigManager::LoadConfigsInternal(const char *baseDir)
         SetBaseDirectory(baseDir);
     }
 
-    // Make a full path name
-    CFmtStrN<MAX_PATH> szPath("%s%s%s", m_szBaseDirectory, CORRECT_PATH_SEPARATOR_S, GAME_CONFIG_FILENAME);
-
-    if (!m_pData->LoadFromFile(g_pFullFileSystem, szPath.Get()))
+    if (!m_pData->LoadFromFile(g_pFullFileSystem, GAME_CONFIG_FILENAME, "hammer_cfg"))
     {
         // Attempt to re-create the config
         if (!CreateDefaultConfig())
@@ -223,11 +217,7 @@ bool CGameConfigManager::CreateDefaultConfig(void)
     gameBlock->AddSubKey(defaultConfig);
     configBlock->AddSubKey(gameBlock);
 
-
-    // Make a full path name
-    CFmtStrN<MAX_PATH> szPath("%s%s%s", m_szBaseDirectory, CORRECT_PATH_SEPARATOR_S, GAME_CONFIG_FILENAME);
-
-    configBlock->SaveToFile(g_pFullFileSystem, szPath.Get());
+    configBlock->SaveToFile(g_pFullFileSystem, GAME_CONFIG_FILENAME, "hammer_cfg");
 
     if (m_pData)
         m_pData->deleteThis();
@@ -259,10 +249,7 @@ bool CGameConfigManager::SaveConfigs(const char *baseDir)
         SetBaseDirectory(baseDir);
     }
 
-    // Make a full path name
-    CFmtStrN<MAX_PATH> szPath("%s%s%s", m_szBaseDirectory, CORRECT_PATH_SEPARATOR_S, GAME_CONFIG_FILENAME);
-
-    return m_pData->SaveToFile(g_pFullFileSystem, szPath.Get());
+    return m_pData->SaveToFile(g_pFullFileSystem, GAME_CONFIG_FILENAME, "hammer_cfg");
 }
 
 //-----------------------------------------------------------------------------
@@ -314,13 +301,9 @@ bool CGameConfigManager::ResetConfigs(const char *baseDir /*= NULL*/)
         SetBaseDirectory(baseDir);
     }
 
-    // Make a full path name
-    char szPath[MAX_PATH];
-    Q_snprintf(szPath, sizeof(szPath), "%s\\%s", GetBaseDirectory(), GAME_CONFIG_FILENAME);
-
     // Delete the file
-    g_pFullFileSystem->RemoveFile(szPath);
-    if (g_pFullFileSystem->FileExists(szPath))
+    g_pFullFileSystem->RemoveFile(GAME_CONFIG_FILENAME, "hammer_cfg");
+    if (g_pFullFileSystem->FileExists(GAME_CONFIG_FILENAME, "hammer_cfg"))
         return false;
 
     // Load the file again (causes defaults to be created)
@@ -354,6 +337,5 @@ void CGameConfigManager::SetBaseDirectory(const char *pDirectory)
 //-----------------------------------------------------------------------------
 bool CGameConfigManager::GetDefaultGameBlock(KeyValues *pIn)
 {
-    CFmtStrN<MAX_PATH> defaultPath("%s%s%s", m_szBaseDirectory, CORRECT_PATH_SEPARATOR_S, DEFAULT_GAME_CONFIG_FILENAME);
-    return pIn->LoadFromFile(g_pFullFileSystem, defaultPath.Get());
+    return pIn->LoadFromFile(g_pFullFileSystem, DEFAULT_GAME_CONFIG_FILENAME, "hammer_cfg");
 }

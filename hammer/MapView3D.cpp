@@ -38,6 +38,7 @@
 #include "MapOverlay.h"
 #include "vgui/Cursor.h"
 #include "ToolCamera.h"
+#include "KeyBinds.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -56,20 +57,6 @@ typedef struct
 int g_nClipPoints = 0;
 Vector g_ClipPoints[4];
 
-
-//
-// Defines the logical keys.
-//
-#define LOGICAL_KEY_FORWARD			0
-#define LOGICAL_KEY_BACK			1
-#define LOGICAL_KEY_LEFT			2
-#define LOGICAL_KEY_RIGHT			3
-#define LOGICAL_KEY_UP				4
-#define LOGICAL_KEY_DOWN			5
-#define LOGICAL_KEY_PITCH_UP		6
-#define LOGICAL_KEY_PITCH_DOWN		7
-#define LOGICAL_KEY_YAW_LEFT		8
-#define LOGICAL_KEY_YAW_RIGHT		9
 
 //
 // Rotation speeds, in degrees per second.
@@ -430,6 +417,7 @@ void CMapView3D::UpdateStatusBar(void)
 }
 
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Sets up key bindings for the 3D view.
 //-----------------------------------------------------------------------------
@@ -437,31 +425,43 @@ void CMapView3D::InitializeKeyMap(void)
 {
 	m_Keyboard.RemoveAllKeyMaps();
 
-	if (!Options.view2d.bNudge)
-	{
-		m_Keyboard.AddKeyMap(VK_LEFT, 0, LOGICAL_KEY_YAW_LEFT);
-		m_Keyboard.AddKeyMap(VK_RIGHT, 0, LOGICAL_KEY_YAW_RIGHT);
-		m_Keyboard.AddKeyMap(VK_DOWN, 0, LOGICAL_KEY_PITCH_DOWN);
-		m_Keyboard.AddKeyMap(VK_UP, 0, LOGICAL_KEY_PITCH_UP);
+    BEGIN_KEYMAP("MapView3D")
+    {
 
-		m_Keyboard.AddKeyMap(VK_LEFT, KEY_MOD_SHIFT, LOGICAL_KEY_LEFT);
-		m_Keyboard.AddKeyMap(VK_RIGHT, KEY_MOD_SHIFT, LOGICAL_KEY_RIGHT);
-		m_Keyboard.AddKeyMap(VK_DOWN, KEY_MOD_SHIFT, LOGICAL_KEY_DOWN);
-		m_Keyboard.AddKeyMap(VK_UP, KEY_MOD_SHIFT, LOGICAL_KEY_UP);
-	}
+        if (!Options.view2d.bNudge)
+        {
+            ADD_KEY(LOGICAL_KEY_YAW_LEFT);
+            ADD_KEY(LOGICAL_KEY_YAW_RIGHT);
+            ADD_KEY(LOGICAL_KEY_PITCH_DOWN);
+            ADD_KEY(LOGICAL_KEY_PITCH_UP);
 
-	if (Options.view3d.bUseMouseLook)
-	{
-		m_Keyboard.AddKeyMap('W', 0, LOGICAL_KEY_FORWARD);
-		m_Keyboard.AddKeyMap('A', 0, LOGICAL_KEY_LEFT);
-		m_Keyboard.AddKeyMap('D', 0, LOGICAL_KEY_RIGHT);
-		m_Keyboard.AddKeyMap('S', 0, LOGICAL_KEY_BACK);
-	}
-	else
-	{
-		m_Keyboard.AddKeyMap('D', 0, LOGICAL_KEY_FORWARD);
-		m_Keyboard.AddKeyMap('C', 0, LOGICAL_KEY_BACK);
-	}
+            _ADD_KEY("LOGICAL_KEY_LEFT_NN", LOGICAL_KEY_LEFT);
+            _ADD_KEY("LOGICAL_KEY_RIGHT_NN", LOGICAL_KEY_RIGHT);
+
+            ADD_KEY(LOGICAL_KEY_DOWN);
+            ADD_KEY(LOGICAL_KEY_UP);
+        }
+
+        
+        if (Options.view3d.bUseMouseLook)
+        {
+            ADD_KEY(LOGICAL_KEY_FORWARD);
+            ADD_KEY(LOGICAL_KEY_BACK);
+            ADD_KEY(LOGICAL_KEY_LEFT);
+            ADD_KEY(LOGICAL_KEY_RIGHT);
+        }
+        else
+        {
+            _ADD_KEY("LOGICAL_KEY_FORWARD_NML", LOGICAL_KEY_FORWARD);
+            _ADD_KEY("LOGICAL_KEY_BACK_NML", LOGICAL_KEY_BACK);
+        }
+
+
+        ADD_KEY(LOGICAL_KEY_TOGGLE_MOUSELOOK);
+        ADD_KEY(LOGICAL_KEY_BACKPLANE_INCR);
+        ADD_KEY(LOGICAL_KEY_BACKPLANE_DECR);
+        ADD_KEY(LOGICAL_KEY_TOGGLE_GRID);
+    }
 }
 
 
@@ -496,28 +496,6 @@ void CMapView3D::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		return;
 	}
 
-	//
-	// 'z' toggles mouselook.
-	//
-	if (((char)tolower(nChar) == 'z') && !(nFlags & 0x4000) && (Options.view3d.bUseMouseLook))
-	{
-		CMapDoc *pDoc = GetMapDoc();
-		if (pDoc != NULL)
-		{
-			EnableMouseLook(!m_bMouseLook);
-
-			//
-			// If we just stopped mouse looking, update the camera variables.
-			//
-			if (!m_bMouseLook)
-			{
-				UpdateCameraVariables();
-			}
-		}
-
-		return;
-	}
-
     // Got to check for m_pToolManager here because otherwise it can crash on startup if they have keys pressed.
     if ( m_pToolManager )
     {
@@ -536,8 +514,61 @@ void CMapView3D::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 	m_Keyboard.OnKeyDown(nChar, nRepCnt, nFlags);
 
+    //
+    // 'z' toggles mouselook.
+    //
+    if (CloseEnough(m_Keyboard.GetKeyScale(LOGICAL_KEY_TOGGLE_MOUSELOOK), 0.5f) && Options.view3d.bUseMouseLook)
+    {
+        EnableMouseLook(!m_bMouseLook);
+        //
+        // If we just stopped mouse looking, update the camera variables.
+        //
+        if (!m_bMouseLook)
+        {
+            UpdateCameraVariables();
+        }
+        return;
+    }
+
+    if (CloseEnough(m_Keyboard.GetKeyScale(LOGICAL_KEY_TOGGLE_GRID), 0.5f))
+    {
+        pDoc->OnToggle3DGrid();
+    }
+    // TODO: Should this be an else? Could allow people to hold multiple keys down...
+    else if (CloseEnough(m_Keyboard.GetKeyScale(LOGICAL_KEY_BACKPLANE_INCR), 0.5f))
+    {
+        float fBack = m_pCamera->GetFarClip();
+        if ((fBack <= 29000) && (fBack > 1000))
+        {
+            m_pCamera->SetFarClip(fBack + 1000);
+            Options.view3d.iBackPlane = fBack;
+        }
+        else if (fBack < 30000)
+        {
+            m_pCamera->SetFarClip(fBack + 250);
+            Options.view3d.iBackPlane = fBack;
+        }
+        m_bUpdateView = true;
+    }
+    else if (CloseEnough(m_Keyboard.GetKeyScale(LOGICAL_KEY_BACKPLANE_DECR), 0.5f))
+    {
+        float fBack = m_pCamera->GetFarClip();
+        if (fBack >= 2000)
+        {
+            m_pCamera->SetFarClip(fBack - 1000);
+            Options.view3d.iBackPlane = fBack;
+        }
+        else if (fBack > 500)
+        {
+            m_pCamera->SetFarClip(fBack - 250);
+            Options.view3d.iBackPlane = fBack;
+        }
+        m_bUpdateView = true;
+    }
+
 	switch (nChar)
 	{
+        // TODO: Should these be bound to something?
 		case VK_DELETE:
 		{
 			pDoc->OnCmdMsg(ID_EDIT_DELETE, CN_COMMAND, NULL, NULL);
@@ -556,64 +587,17 @@ void CMapView3D::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 		}
 
-		//
-		// Move the back clipping plane closer in.
-		//
-		case '1':
-		{
-			float fBack = m_pCamera->GetFarClip();
-			if (fBack >= 2000)
-			{
-				m_pCamera->SetFarClip(fBack - 1000);
-				Options.view3d.iBackPlane = fBack;
-			}
-			else if (fBack > 500)
-			{
-				m_pCamera->SetFarClip(fBack - 250);
-				Options.view3d.iBackPlane = fBack;
-			}
-			m_bUpdateView = true;
-			break;
-		}
-
-		//
-		// Move the back clipping plane farther away.
-		//
-		case '2':
-		{
-			float fBack = m_pCamera->GetFarClip();
-			if ((fBack <= 29000) && (fBack > 1000))
-			{
-				m_pCamera->SetFarClip(fBack + 1000);
-				Options.view3d.iBackPlane = fBack;
-			}
-			else if (fBack < 30000)
-			{
-				m_pCamera->SetFarClip(fBack + 250);
-				Options.view3d.iBackPlane = fBack;
-			}
-			m_bUpdateView = true;
-			break;
-		}
-
+        // TODO: Probably remove these
 		case 'O':
 		case 'o':
 		{
 			m_pRender->DebugHook1();
 			break;
 		}
-
 		case 'I':
 		case 'i':
 		{
 			m_pRender->DebugHook2();
-			break;
-		}
-
-		case 'P':
-		case 'p':
-		{
-			pDoc->OnToggle3DGrid();
 			break;
 		}
 
@@ -646,7 +630,7 @@ void CMapView3D::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 		}
 
-		m_Keyboard.OnKeyUp(nChar, nRepCnt, nFlags);
+        m_Keyboard.OnKeyUp(nChar, nRepCnt, nFlags);
 
 		UpdateCameraVariables();
 	}

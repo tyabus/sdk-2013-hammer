@@ -20,6 +20,7 @@
 #include "MapDisp.h"
 #include "camera.h"
 #include "ssolid.h"
+#include "TextureSystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -354,7 +355,17 @@ int CMapSolid::Split( PLANE *pPlane, CMapSolid **pFront, CMapSolid **pBack )
 	CMapFace *pFirstFace = GetFace(0);
 	if (pFirstFace != NULL)
 	{
-		face.SetTexture(pFirstFace->GetTexture());
+        // TODO: Consider making this a toggle
+        // Get the most recently used Texture
+        if (g_Textures.MRUGetCount())
+        {
+            face.SetTexture(g_Textures.MRUGet(0));
+        }
+        else
+        {
+            face.SetTexture(pFirstFace->GetTexture());
+        }
+
 	}
 
     //

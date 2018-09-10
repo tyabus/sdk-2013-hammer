@@ -14,7 +14,6 @@
 #include "Keyboard.h"
 #include "MapView.h"
 #include "Render3D.h"
-#include "camera.h"
 
 namespace vgui
 {
@@ -27,6 +26,29 @@ class CRender3D;
 class CCamera;
 class CTitleWnd;
 class CMapDecal;
+struct PLANE;
+
+//
+// Defines the logical keys.
+//
+typedef enum
+{
+    LOGICAL_KEY_FORWARD = 1,
+    LOGICAL_KEY_BACK,
+    LOGICAL_KEY_LEFT,
+    LOGICAL_KEY_RIGHT,
+    LOGICAL_KEY_UP,
+    LOGICAL_KEY_DOWN,
+    LOGICAL_KEY_PITCH_UP,
+    LOGICAL_KEY_PITCH_DOWN,
+    LOGICAL_KEY_YAW_LEFT,
+    LOGICAL_KEY_YAW_RIGHT,
+    LOGICAL_KEY_TOGGLE_MOUSELOOK,
+    LOGICAL_KEY_BACKPLANE_INCR,
+    LOGICAL_KEY_BACKPLANE_DECR,
+    LOGICAL_KEY_TOGGLE_GRID
+} CMapView3D_LogicalKeys_t; 
+
 
 class CMapView3D : public CView, public CMapView
 {

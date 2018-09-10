@@ -64,6 +64,12 @@ void CKeyboard::AddKeyMap(unsigned int uChar, unsigned int uModifierKeys, unsign
 	g_uKeyMaps++;
 }
 
+void CKeyboard::AddKeyMap(KeyMap_t& map)
+{
+    g_uKeyMap[g_uKeyMaps] = map;
+    g_uKeyMaps++;
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Clears the KEYSTATE_IMPULSE_UP and KEYSTATE_IMPULSE_DOWN flags from
@@ -224,13 +230,11 @@ float CKeyboard::GetKeyScale(unsigned int uLogicalKey)
 //-----------------------------------------------------------------------------
 unsigned int CKeyboard::GetModifierKeyBit(unsigned int uChar)
 {
-	for (int nKey = 0; nKey < sizeof(ModifierKeyTable) / sizeof(ModifierKeyTable[0]); nKey++)
-	{
-		if (ModifierKeyTable[nKey].uChar == uChar)
-		{
-			return(ModifierKeyTable[nKey].uModifierKeys);
-		}
-	}
+    for (KeyMap_t modifier : ModifierKeyTable)
+    {
+        if (modifier.uChar == uChar)
+            return modifier.uModifierKeys;
+    }
 
 	return(0);
 }
@@ -254,20 +258,22 @@ bool CKeyboard::IsKeyPressed(unsigned int uChar, unsigned int uModifierKeys)
 
 	bool bKeyPressed = true;
 
-	for (int nKey = 0; nKey < sizeof(ModifierKeyTable) / sizeof(ModifierKeyTable[0]); nKey++)
-	{
-		if (g_uPhysicalKeyState[ModifierKeyTable[nKey].uChar] & KEYSTATE_DOWN)
-		{
-			if (!(uModifierKeys & ModifierKeyTable[nKey].uModifierKeys))
-			{
-				bKeyPressed = false;
-			}
-		}
-		else if (uModifierKeys & ModifierKeyTable[nKey].uModifierKeys)
-		{
-			bKeyPressed = false;
-		}
-	}
+    for (KeyMap_t modifier : ModifierKeyTable)
+    {
+        if (g_uPhysicalKeyState[modifier.uChar] & KEYSTATE_DOWN)
+        {
+            if (!(uModifierKeys & modifier.uModifierKeys))
+            {
+                // The current "modifier" key is pressed, but the key in question doesn't use it, so the key's not pressed
+                bKeyPressed = false;
+            }
+        }
+        else if (uModifierKeys & modifier.uModifierKeys)
+        {
+            // Otherwise this key requires this current "modifier", but the "modifier" is not pressed, so the key isn't pressed
+            bKeyPressed = false;
+        }
+    }
 
 	return(bKeyPressed);
 }

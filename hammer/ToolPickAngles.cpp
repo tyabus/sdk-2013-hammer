@@ -9,6 +9,7 @@
 #include "ToolPickAngles.h"
 #include "MapView3D.h"
 #include "MapSolid.h"
+#include "camera.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

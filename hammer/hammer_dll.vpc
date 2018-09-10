@@ -342,6 +342,8 @@ $Project "hammer_dll"
 		$File	"VisGroup.cpp"
 		$File	"VisGroup.h"
 		$File	"wndTex.h"
+        $File "KeyBinds.cpp"
+        $File "KeyBinds.h"
 
 		$Folder	"Map classes"
 		{
