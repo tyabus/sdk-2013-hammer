@@ -1087,6 +1087,7 @@ void CRender3D::BuildLightList( CUtlVector<CLightingPreviewLightDescription> *pL
 {
 	CMapDoc *pDoc = m_pView->GetMapDoc();
 	CMapWorld *pWorld = pDoc->GetMapWorld();
+	s_bAddedLightEnvironmentAlready = false;
 
 	if ( !pWorld )
 		return;
@@ -1296,12 +1297,12 @@ void CRender3D::EndRenderFrame(void)
 				// now, add lights in priority order
 				for( int i = 0; i < lightList.Count(); i++ )
 				{
-					LightDesc_t *pLight = &lightList[i];
+					CLightingPreviewLightDescription *pLight = &lightList[i];
 					if (
 						( pLight->m_Type == MATERIAL_LIGHT_SPOT ) ||
-						( pLight->m_Type == MATERIAL_LIGHT_POINT ) )
+						( pLight->m_Type == MATERIAL_LIGHT_POINT ) ||
+						( pLight->m_Type == MATERIAL_LIGHT_DIRECTIONAL && ( pLight->m_nObjectID & 0x80000000 ) == 0 ) )
 					{
-						Vector lpnt;
 						CLightPreview_Light tmplight;
 						tmplight.m_Light = *pLight;
 						tmplight.m_flDistanceToEye = pLight->m_Position.DistTo( eye_pnt );
@@ -1361,7 +1362,7 @@ void CRender3D::EndRenderFrame(void)
 					SetNamedMaterialVar(src_mat,"$C1_Z", spot_dir.z );
 
 					// now, handle cone angle
-					if ( light.m_Type == MATERIAL_LIGHT_POINT )
+					if ( light.m_Type == MATERIAL_LIGHT_POINT || light.m_Type == MATERIAL_LIGHT_DIRECTIONAL )
 					{
 						// model point as a spot with infinite inner radius
 						SetNamedMaterialVar(src_mat, "$C0_W", 0.5 );
@@ -1543,7 +1544,7 @@ void CRender3D::Render(void)
 	//
 	// Deferred rendering lets us sort everything here by material.
 	//
-	if (!IsPicking())
+	if ( !IsPicking() && m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW2 && m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED )
 	{
 		m_DeferRendering = true;
 	}
@@ -1573,7 +1574,7 @@ void CRender3D::Render(void)
 		RenderMapClass(pDoc->GetMapWorld());
 	}
 
-	if (!IsPicking())
+	if ( !IsPicking() && m_DeferRendering )
 	{
 		m_DeferRendering = false;
 
@@ -2262,9 +2263,9 @@ void CRender3D::RenderMapClass(CMapClass *pMapClass)
 				}
 				else
 				{
-					if (
-						(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW2) &&
-						(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) )
+					//if (
+					//	(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW2) &&
+					//	(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) )
 					{
 						AddTranslucentDeferredRendering( pMapClass );
 					}

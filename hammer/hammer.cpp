@@ -216,7 +216,7 @@ class CHammerCmdLine : public CCommandLineInfo
 			m_bShowLogo = true;
 			m_bGame = false;
 			m_bConfigDir = false;
-            m_bSetCustomConfigDir = false;
+			m_bSetCustomConfigDir = false;
 		}
 
 		void ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
@@ -270,7 +270,7 @@ class CHammerCmdLine : public CCommandLineInfo
 	bool m_bShowLogo;
 	bool m_bGame;			// Used to find and parse the "-game blah" parameter pair.
 	bool m_bConfigDir;		// Used to find and parse the "-configdir blah" parameter pair.
-    bool m_bSetCustomConfigDir; // Used with above
+	bool m_bSetCustomConfigDir; // Used with above
 	CString m_strGame;		// The name of the game to use for this session, ie "hl2" or "cstrike". This should match the mod dir, not the config name.
 };
 
@@ -297,7 +297,7 @@ CHammer::CHammer(void)
 	m_bForceRenderNextFrame = false;
 	m_bClosing = false;
 
-    m_CmdLineInfo = new CHammerCmdLine();
+	m_CmdLineInfo = new CHammerCmdLine();
 }
 
 
@@ -346,16 +346,17 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 	// This does NOT create the window itself. That happens later in CMainFrame::Create.
 	g_pwndMessage = CMessageWnd::CreateMessageWndObject();
 
-    ParseCommandLine(*m_CmdLineInfo);
-    if (!m_CmdLineInfo->m_bSetCustomConfigDir)
-    {
-        // Default location for GameConfig.txt is in ./hammer/cfg/ but this may be overridden on the command line
-	char szGameConfigDir[MAX_PATH];
-	APP()->GetDirectory( DIR_PROGRAM, szGameConfigDir );
-        CFmtStrN<MAX_PATH> dir("%s/hammer/cfg", szGameConfigDir);
-        g_pFullFileSystem->AddSearchPath(dir.Get(), "hammer_cfg", PATH_ADD_TO_HEAD);
-	Options.configs.m_strConfigDir = szGameConfigDir;
-    }
+
+	ParseCommandLine(*m_CmdLineInfo);
+	if (!m_CmdLineInfo->m_bSetCustomConfigDir)
+	{
+		// Default location for GameConfig.txt is in ./hammer/cfg/ but this may be overridden on the command line
+		char szGameConfigDir[MAX_PATH];
+		APP()->GetDirectory( DIR_PROGRAM, szGameConfigDir );
+		CFmtStrN<MAX_PATH> dir("%s/hammer/cfg", szGameConfigDir);
+		g_pFullFileSystem->AddSearchPath(dir.Get(), "hammer_cfg", PATH_ADD_TO_HEAD);
+		Options.configs.m_strConfigDir = szGameConfigDir;
+	}
 
 	// Load the options
 	// NOTE: Have to do this now, because we need it before Inits() are called
@@ -674,16 +675,41 @@ void CHammer::Help(const char *pszTopic)
 }
 
 
-static SpewRetval_t HammerDbgOutput( SpewType_t spewType, char const *pMsg )
+static SpewRetval_t HammerDbgOutput( SpewType_t spewType, const char* pMsg )
 {
 	// FIXME: The messages we're getting from the material system
 	// are ones that we really don't care much about.
 	// I'm disabling this for now, we need to decide about what to do with this
 
+	if ( g_pwndMessage )
+	{
+		Color clr = *GetSpewOutputColor();
+		if ( clr.GetRawColor() == 0xFFFFFFFF )
+		{
+			switch( spewType )
+			{
+			case SPEW_WARNING:
+				clr.SetColor( 196, 80, 80 );
+				break;
+			case SPEW_ASSERT:
+				clr.SetColor( 0, 255, 0 );
+				break;
+			case SPEW_ERROR:
+				clr.SetColor( 255, 0, 0 );
+				break;
+			case SPEW_MESSAGE:
+			case SPEW_LOG:
+				clr.SetColor( 0, 0, 0 );
+				break;
+			}
+		}
+		g_pwndMessage->AddMsg( clr, pMsg );
+	}
+
 	switch( spewType )
 	{
 	case SPEW_ERROR:
-		MessageBox( NULL, (LPCTSTR)pMsg, "Fatal Error", MB_OK | MB_ICONINFORMATION );
+		MessageBox( NULL, pMsg, "Fatal Error", MB_OK | MB_ICONINFORMATION );
 #ifdef _DEBUG
 		return SPEW_DEBUGGER;
 #else
@@ -875,9 +901,10 @@ int CHammer::StaticHammerInternalInit( void *pParam )
 	return (int)((CHammer*)pParam)->HammerInternalInit();
 }
 
-
+static SpewOutputFunc_t oldSpewFunc = NULL;
 InitReturnVal_t CHammer::HammerInternalInit()
 {
+	oldSpewFunc = GetSpewOutputFunc();
 	SpewOutputFunc( HammerDbgOutput );
 	MathLib_Init( 2.2f, 2.2f, 0.0f, 2.0f, false, false, false, false );
 	InitReturnVal_t nRetVal = BaseClass::Init();
@@ -1010,11 +1037,11 @@ InitReturnVal_t CHammer::HammerInternalInit()
 
 	materials->ModInit();
 
-    // Initialize Keybinds
-    AssertMsg(g_pKeyBinds->Init(), "Failed to init keybinds!");
+	// Initialize Keybinds
+	AssertMsg(g_pKeyBinds->Init(), "Failed to init keybinds!");
 
-    AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAINFRAME", pMainFrame->m_hAccelTable), "Failed to load custom keybinds for IDR_MAINFRAME!");
-    AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAPDOC", pMapDocTemplate->m_hAccelTable), "Failed to load custom keybinds for the IDR_MAPDOC!");
+	AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAINFRAME", pMainFrame->m_hAccelTable), "Failed to load custom keybinds for IDR_MAINFRAME!");
+	AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAPDOC", pMapDocTemplate->m_hAccelTable), "Failed to load custom keybinds for the IDR_MAPDOC!");
 
 	//
 	// Initialize the texture manager and load all textures.
@@ -1259,7 +1286,7 @@ int CHammer::ExitInstance()
 
 	if ( GetSpewOutputFunc() == HammerDbgOutput )
 	{
-		SpewOutputFunc( NULL );
+		SpewOutputFunc( oldSpewFunc );
 	}
 
 	SaveStdProfileSettings();

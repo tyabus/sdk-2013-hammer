@@ -174,7 +174,7 @@ protected:
 	char m_szAppDir[MAX_PATH];
 	char m_szAutosaveDir[MAX_PATH];
 
-    CHammerCmdLine *m_CmdLineInfo;
+	CHammerCmdLine *m_CmdLineInfo;
 };
 
 
