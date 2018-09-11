@@ -90,6 +90,7 @@ BEGIN_MESSAGE_MAP( CFaceEditMaterialPage, CPropertyPage )
 	ON_CBN_SELCHANGE( IDC_TEXTUREGROUPS, OnChangeTextureGroup )
 	ON_BN_CLICKED( IDC_BROWSE, OnBrowse )
 	ON_BN_CLICKED( ID_BUTTON_SMOOTHING_GROUPS, OnButtonSmoothingGroups )
+    ON_BN_CLICKED(IDC_MARK_FACES, OnBnClickedMarkFaces)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1699,8 +1700,6 @@ void CFaceEditMaterialPage::OnButtonSmoothingGroups( void )
 
 	// Set the initial face edit tool state.
 	SetMaterialPageTool( MATERIALPAGETOOL_SMOOTHING_GROUP );
-
-	return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1728,3 +1727,12 @@ void CFaceEditMaterialPage::NotifyNewMaterial( IEditorTexture *pTex )
 	UpdateTexture();
 }
 
+void CFaceEditMaterialPage::OnBnClickedMarkFaces()
+{
+    // get active map doc
+    CMapDoc *pDoc = CMapDoc::GetActiveMapDoc();
+    if (!pDoc)
+        return;
+
+    pDoc->ReplaceTextures(g_Textures.MRUGet(0)->GetFileName(), "", TRUE, 0x100, FALSE, FALSE);
+}

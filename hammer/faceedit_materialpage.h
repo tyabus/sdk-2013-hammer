@@ -162,6 +162,7 @@ protected:
 	afx_msg void OnBrowse( void );
 	afx_msg void OnChangeTextureGroup( void );
 	afx_msg void OnButtonSmoothingGroups( void );
+    afx_msg void OnBnClickedMarkFaces();
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()
