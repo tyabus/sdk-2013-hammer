@@ -897,7 +897,7 @@ InitReturnVal_t CHammer::HammerInternalInit()
     wndcls.hInstance     = AfxGetInstanceHandle();
     wndcls.hIcon         = LoadIcon(IDR_MAINFRAME);
     wndcls.hCursor       = LoadCursor( IDC_ARROW );
-    wndcls.hbrBackground = (HBRUSH)0; //  (COLOR_WINDOW + 1);
+    wndcls.hbrBackground = (HBRUSH)0; //(COLOR_WINDOW + 1);
     wndcls.lpszMenuName  = "IDR_MAINFRAME";
 	wndcls.cbWndExtra    = 0;
 
@@ -1009,10 +1009,14 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	materials->ModInit();
 
     // Initialize Keybinds
-    AssertMsg(g_pKeyBinds->Init(), "Failed to init keybinds!");
+    if (!g_pKeyBinds->Init())
+        Error("Unable to load keybinds!");
 
-    AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAINFRAME", pMainFrame->m_hAccelTable), "Failed to load custom keybinds for IDR_MAINFRAME!");
-    AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAPDOC", pMapDocTemplate->m_hAccelTable), "Failed to load custom keybinds for the IDR_MAPDOC!");
+    if (!g_pKeyBinds->GetAccelTableFor("IDR_MAINFRAME", pMainFrame->m_hAccelTable))
+        Error("Failed to load custom keybinds for IDR_MAINFRAME!");
+
+    if (!g_pKeyBinds->GetAccelTableFor("IDR_MAPDOC", pMapDocTemplate->m_hAccelTable))
+        Error("Failed to load custom keybinds for the IDR_MAPDOC!");
 
 	//
 	// Initialize the texture manager and load all textures.
