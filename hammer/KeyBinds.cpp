@@ -6,6 +6,8 @@
 #include "fmtstr.h"
 #include "MapView3D.h"
 
+#include "tier0/memdbgon.h"
+
 #define KEYBINDS_CONFIG_FILE "HammerKeyConfig.cfg"
 #define KEYBINDS_CONFIG_DEFAULT_FILE "HammerKeyConfig_default.cfg"
 
