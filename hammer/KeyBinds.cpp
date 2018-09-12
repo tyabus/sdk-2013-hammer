@@ -6,6 +6,8 @@
 #include "fmtstr.h"
 #include "MapView3D.h"
 
+#include "tier0/memdbgon.h"
+
 #define KEYBINDS_CONFIG_FILE "HammerKeyConfig.cfg"
 #define KEYBINDS_CONFIG_DEFAULT_FILE "HammerKeyConfig_default.cfg"
 
@@ -161,7 +163,6 @@ typedef struct
 static CommandNames_t s_CommandNames[] =
 {
     // IDR_MAINFRAME
-    COM(ID_CONTEXT_HELP),
     COM(ID_CONTEXT_HELP),
     COM(ID_EDIT_CUT),
     COM(ID_EDIT_PASTE),
@@ -373,32 +374,37 @@ bool KeyBinds::GetAccelTableFor(const char *pMapping, HACCEL &out)
             CUtlVector<ACCEL> accelerators;
             FOR_EACH_TRUE_SUBKEY(pKvKeybinds, pKvKeybind)
             {
-                KeyValues *pKvModifiers = pKvKeybind->FindKey("modifiers");
-                if (pKvModifiers)
+                const char *pKey = pKvKeybind->GetString("key", nullptr);
+                if (!pKey || !pKey[0])
+                    Error("Invalid key for bind %s", pKvKeybind->GetName());
+
+                bool bVirt = pKvKeybind->GetBool("virtkey");
+
+                WORD potentialKey = bVirt ? GetKeyForStr(pKey) : pKey[0];
+                WORD potentialID = GetIDForCommandStr(pKvKeybind->GetName());
+
+                if (potentialKey && potentialID)
                 {
-                    const char *pKey = pKvKeybind->GetString("key", nullptr);
-                    if (pKey && pKey[0])
+                    ACCEL acc;
+
+                    acc.fVirt = FNOINVERT | // NOINVERT needed so nothing causes the menu to show up
+                        (bVirt * FVIRTKEY);
+
+                    // If it doesn't have any modifiers it'll still work
+                    KeyValues *pKvModifiers = pKvKeybind->FindKey("modifiers");
+                    if (pKvModifiers)
                     {
-                        bool bVirt = pKvKeybind->GetBool("virtkey");
-
-                        WORD potentialKey = bVirt ? GetKeyForStr(pKey) : (WORD) pKey[0];
-
-                        WORD potentialID = GetIDForCommandStr(pKvKeybind->GetName());
-
-                        if (potentialKey && potentialID)
-                        {
-                            ACCEL acc;
-                            acc.fVirt = FNOINVERT | // NOINVERT needed so nothing causes the menu to show up
-                                (bVirt * FVIRTKEY) |
-                                (pKvModifiers->GetBool("shift") * FSHIFT) |
-                                (pKvModifiers->GetBool("ctrl") * FCONTROL) |
-                                (pKvModifiers->GetBool("alt") * FALT);
-                            acc.cmd = potentialID;
-                            acc.key = potentialKey;
-                            accelerators.AddToTail(acc);
-                        }
+                        acc.fVirt |= (pKvModifiers->GetBool("shift") * FSHIFT) |
+                        (pKvModifiers->GetBool("ctrl") * FCONTROL) |
+                        (pKvModifiers->GetBool("alt") * FALT);
                     }
+
+                    acc.cmd = potentialID;
+                    acc.key = potentialKey;
+                    accelerators.AddToTail(acc);
                 }
+                else
+                    Error("Failed for key, %i %i for command %s", potentialKey, potentialID, pKvKeybind->GetName());
             }
 
             if (!accelerators.IsEmpty())

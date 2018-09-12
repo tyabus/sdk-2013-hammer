@@ -8,10 +8,6 @@
 #include <io.h>
 #include <stdlib.h>
 #include <direct.h>
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "BuildNum.h"
 #include "EditGameConfigs.h"
 #include "Splash.h"
@@ -57,6 +53,7 @@
 #include "datamodel/dmelementfactoryhelper.h"
 #include "KeyBinds.h"
 #include "fmtstr.h"
+#include "KeyValues.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -94,10 +91,6 @@ extern void MakePrefabLibrary(LPCTSTR pszName);
 
 
 static bool bMakeLib = false;
-
-static float fSequenceVersion = 0.2f;
-static const char pszSequenceHdr[] = "Worldcraft Command Sequences\r\n\x1a";
-
 
 CHammer theApp;
 COptions Options;
@@ -345,7 +338,6 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 	// Create the message window object for capturing errors and warnings.
 	// This does NOT create the window itself. That happens later in CMainFrame::Create.
 	g_pwndMessage = CMessageWnd::CreateMessageWndObject();
-
 
 	ParseCommandLine(*m_CmdLineInfo);
 	if (!m_CmdLineInfo->m_bSetCustomConfigDir)
@@ -1038,10 +1030,14 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	materials->ModInit();
 
 	// Initialize Keybinds
-	AssertMsg(g_pKeyBinds->Init(), "Failed to init keybinds!");
+    if (!g_pKeyBinds->Init())
+        Error("Unable to load keybinds!");
 
-	AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAINFRAME", pMainFrame->m_hAccelTable), "Failed to load custom keybinds for IDR_MAINFRAME!");
-	AssertMsg(g_pKeyBinds->GetAccelTableFor("IDR_MAPDOC", pMapDocTemplate->m_hAccelTable), "Failed to load custom keybinds for the IDR_MAPDOC!");
+    if (!g_pKeyBinds->GetAccelTableFor("IDR_MAINFRAME", pMainFrame->m_hAccelTable))
+        Error("Failed to load custom keybinds for IDR_MAINFRAME!");
+
+    if (!g_pKeyBinds->GetAccelTableFor("IDR_MAPDOC", pMapDocTemplate->m_hAccelTable))
+        Error("Failed to load custom keybinds for the IDR_MAPDOC!");
 
 	//
 	// Initialize the texture manager and load all textures.
@@ -1306,20 +1302,12 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAboutDlg)
 	enum { IDD = IDD_ABOUTBOX };
-	CStatic	m_cRedHerring;
-	CButton	m_Order;
 	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
 	//{{AFX_MSG(CAboutDlg)
-	afx_msg void OnOrder();
+    afx_msg void OnBnClickedReportIssue();
 	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
@@ -1336,100 +1324,12 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 }
 
 
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : pDX -
-//-----------------------------------------------------------------------------
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CAboutDlg)
-	DDX_Control(pDX, IDC_REDHERRING, m_cRedHerring);
-	DDX_Control(pDX, IDC_ORDER, m_Order);
-	//}}AFX_DATA_MAP
-}
 
-#include <process.h>
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CAboutDlg::OnOrder()
-{
-	char szBuf[MAX_PATH];
-	GetWindowsDirectory(szBuf, MAX_PATH);
-	strcat(szBuf, "\\notepad.exe");
-	_spawnl(_P_NOWAIT, szBuf, szBuf, "order.txt", NULL);
-}
-
-
-#define DEMO_VERSION	0
-
-// 1, 4, 8, 17, 0, 0 // Encodes "Valve"
-
-#if DEMO_VERSION
-
-char gVersion[] = {
-#if DEMO_VERSION==1
-	7, 38, 68, 32, 4, 77, 12, 1, 0 // Encodes "PC Gamer Demo"
-#elif DEMO_VERSION==2
-	7, 38, 68, 32, 4, 77, 12, 0, 0 // Encodes "PC Games Demo"
-#elif DEMO_VERSION==3
-	20, 10, 9, 23, 16, 84, 12, 1, 0, 38, 65, 25, 6, 1, 11, 119, 50, 11, 21, 9, 68, 0 // Encodes "Computer Gaming World Demo"
-#elif DEMO_VERSION==4
-	25, 0, 28, 19, 72, 103, 12, 29, 69, 19, 65, 0, 6, 0, 2, 0		// Encodes "Next-Generation Demo"
-#elif DEMO_VERSION==5
-	20, 10, 9, 23, 16, 84, 12, 1, 0, 38, 65, 25, 10, 79, 41, 57, 17, 1, 21, 17, 65, 0, 29, 77, 4, 78, 0, 0 // Encodes "Computer Game Entertainment"
-#elif DEMO_VERSION==6
-	20, 10, 9, 23, 16, 84, 12, 1, 0, 0, 78, 16, 79, 33, 9, 35, 69, 52, 11, 4, 89, 12, 1, 0 // Encodes "Computer and Net Player"
-#elif DEMO_VERSION==7
-	50, 72, 52, 43, 36, 121, 0 // Encodes "e-PLAY"
-#elif DEMO_VERSION==8
-	4, 17, 22, 6, 17, 69, 14, 10, 0, 49, 76, 1, 28, 0 // Encodes "Strategy Plus"
-#elif DEMO_VERSION==9
-	7, 38, 68, 42, 4, 71, 8, 9, 73, 15, 69, 0 // Encodes "PC Magazine"
-#elif DEMO_VERSION==10
-	5, 10, 8, 11, 12, 78, 14, 83, 115, 21, 79, 26, 10, 0 // Encodes "Rolling Stone"
-#elif DEMO_VERSION==11
-	16, 4, 9, 2, 22, 80, 6, 7, 0 // Encodes "Gamespot"
-#endif
-};
-
-static char gKey[] = "Wedge is a tool";	// Decrypt key
-
-// XOR a string with a key
-void Encode( char *pstring, char *pkey, int strLen )
-{
-	int i, len;
-	len = strlen( pkey );
-	for ( i = 0; i < strLen; i++ )
-		pstring[i] ^= pkey[ i % len ];
-}
-#endif // DEMO_VERSION
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL CAboutDlg::OnInitDialog(void)
 {
 	CDialog::OnInitDialog();
-
-	m_Order.SetRedraw(FALSE);
-
-#if DEMO_VERSION
-	static BOOL bFirst = TRUE;
-	if(bFirst)
-	{
-		Encode(gVersion, gKey, sizeof(gVersion)-1);
-		bFirst = FALSE;
-	}
-	CString str;
-	str.Format("%s Demo", gVersion);
-	m_cRedHerring.SetWindowText(str);
-#endif // DEMO_VERSION
 
 	//
 	// Display the build number.
@@ -1437,31 +1337,33 @@ BOOL CAboutDlg::OnInitDialog(void)
 	CWnd *pWnd = GetDlgItem(IDC_BUILD_NUMBER);
 	if (pWnd != NULL)
 	{
-		char szTemp1[MAX_PATH];
 		char szTemp2[MAX_PATH];
-		int nBuild = build_number();
-		pWnd->GetWindowText(szTemp1, sizeof(szTemp1));
-		sprintf(szTemp2, szTemp1, nBuild);
-		pWnd->SetWindowText(szTemp2);
-	}
-
+		const int nBuild = build_number();
+		sprintf(szTemp2, "Build %d%s", nBuild,
 	//
 	// For SDK builds, append "SDK" to the version number.
 	//
 #ifdef SDK_BUILD
-	char szTemp[MAX_PATH];
-	GetWindowText(szTemp, sizeof(szTemp));
-	strcat(szTemp, " SDK");
-	SetWindowText(szTemp);
-#endif // SDK_BUILD
+        " SDK"
+#else
+        ""
+#endif
+        );
+		pWnd->SetWindowText(szTemp2);
+	}
 
 	return TRUE;
+}
+
+void CAboutDlg::OnBnClickedReportIssue()
+{
+    APP()->OpenURL("https://github.com/Gocnak/sdk-2013-hammer/issues", m_hWnd);
 }
 
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 	//{{AFX_MSG_MAP(CAboutDlg)
-	ON_BN_CLICKED(IDC_ORDER, OnOrder)
+    ON_BN_CLICKED(IDC_REPORT_ISSUE, &CAboutDlg::OnBnClickedReportIssue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1619,53 +1521,42 @@ BOOL CHammer::PreTranslateMessage(MSG* pMsg)
 //-----------------------------------------------------------------------------
 void CHammer::LoadSequences(void)
 {
-	char szRootDir[MAX_PATH];
-	char szFullPath[MAX_PATH];
-	APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-	Q_MakeAbsolutePath( szFullPath, MAX_PATH, "CmdSeq.wc", szRootDir );
-	std::ifstream file(szFullPath, std::ios::in | std::ios::binary);
+    KeyValues *pKvSequences = new KeyValues("Command Sequences");
 
-	if(!file.is_open())
-		return;	// none to load
+    int bLoaded = 0;
 
-	// skip past header & version
-	float fThisVersion;
-
-	file.seekg(strlen(pszSequenceHdr));
-	file.read((char*)&fThisVersion, sizeof fThisVersion);
-
-	// read number of sequences
-	DWORD dwSize;
-	int nSeq;
-
-	file.read((char*)&dwSize, sizeof dwSize);
-	nSeq = dwSize;
-
-	for(int i = 0; i < nSeq; i++)
+    if (pKvSequences->LoadFromFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg"))
 	{
-		CCommandSequence *pSeq = new CCommandSequence;
-		file.read(pSeq->m_szName, 128);
+        bLoaded = 1;
+    }
+    else if (pKvSequences->LoadFromFile(g_pFullFileSystem, "CmdSeq_default.wc", "hammer_cfg"))
+    {
+        bLoaded = 2;
+    }
 
-		// read commands in sequence
-		file.read((char*)&dwSize, sizeof dwSize);
-		int nCmd = dwSize;
-		CCOMMAND cmd;
-		for(int iCmd = 0; iCmd < nCmd; iCmd++)
+    if (bLoaded)
 		{
-			if(fThisVersion < 0.2f)
+        FOR_EACH_TRUE_SUBKEY(pKvSequences, pKvSequence)
 			{
-				file.read((char*)&cmd, sizeof(CCOMMAND)-1);
-				cmd.bNoWait = FALSE;
-			}
-			else
+            CCommandSequence *pSeq = new CCommandSequence;
+            Q_strncpy(pSeq->m_szName, pKvSequence->GetName(), 128);
+            FOR_EACH_TRUE_SUBKEY(pKvSequence, pKvCmd)
 			{
-				file.read((char*)&cmd, sizeof(CCOMMAND));
-			}
+                CCOMMAND cmd;
+                Q_memset(&cmd, 0, sizeof(CCOMMAND));
+                cmd.Load(pKvCmd);
 			pSeq->m_Commands.Add(cmd);
 		}
 
 		m_CmdSequences.Add(pSeq);
 	}
+
+        // Save em out if defaults were loaded
+        if (bLoaded == 2)
+            pKvSequences->SaveToFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg", true);
+}
+
+    pKvSequences->deleteThis();
 }
 
 
@@ -1674,38 +1565,26 @@ void CHammer::LoadSequences(void)
 //-----------------------------------------------------------------------------
 void CHammer::SaveSequences(void)
 {
-	char szRootDir[MAX_PATH];
-	char szFullPath[MAX_PATH];
-	APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-	Q_MakeAbsolutePath( szFullPath, MAX_PATH, "CmdSeq.wc", szRootDir );
-	std::ofstream file( szFullPath, std::ios::out | std::ios::binary );
+    KeyValues *pKvSequences = new KeyValues("Command Sequences");
 
-	// write header
-	file.write(pszSequenceHdr, Q_strlen(pszSequenceHdr));
-	// write out version
-	file.write((char*)&fSequenceVersion, sizeof(float));
-
-	// write out each sequence..
-	int i, nSeq = m_CmdSequences.GetSize();
-	DWORD dwSize = nSeq;
-	file.write((char*)&dwSize, sizeof dwSize);
-	for(i = 0; i < nSeq; i++)
+    int numSeq = m_CmdSequences.GetSize();
+    for (int i = 0; i < numSeq; i++)
 	{
 		CCommandSequence *pSeq = m_CmdSequences[i];
+        KeyValues *pKvSequence = new KeyValues(pSeq->m_szName);
+        int numCmds = pSeq->m_Commands.GetSize();
+        for (int j = 0; j < numCmds; j++)
+        {
+            KeyValues *pKvCmd = pKvSequence->CreateNewKey();
 
-		// write name of sequence
-		file.write(pSeq->m_szName, 128);
-		// write number of commands
-		int nCmd = pSeq->m_Commands.GetSize();
-		dwSize = nCmd;
-		file.write((char*)&dwSize, sizeof dwSize);
-		// write commands ..
-		for(int iCmd = 0; iCmd < nCmd; iCmd++)
-		{
-			CCOMMAND &cmd = pSeq->m_Commands[iCmd];
-			file.write((char*)&cmd, sizeof cmd);
+            CCOMMAND cmd = pSeq->m_Commands[j];
+            cmd.Save(pKvCmd);
 		}
+        pKvSequences->AddSubKey(pKvSequence);
 	}
+
+    pKvSequences->SaveToFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg", true);
+    pKvSequences->deleteThis();
 }
 
 

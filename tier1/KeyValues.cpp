@@ -2827,6 +2827,14 @@ void *KeyValues::operator new( size_t iAllocSize )
 	return KeyValuesSystem()->AllocKeyValuesMemory( (int)iAllocSize );
 }
 
+void* KeyValues::operator new(size_t iAllocSize, const char* pFileName, int nLine)
+{
+    MemAlloc_PushAllocDbgInfo(pFileName, nLine);
+    void *p = KeyValuesSystem()->AllocKeyValuesMemory((int) iAllocSize);
+    MemAlloc_PopAllocDbgInfo();
+    return p;
+}
+
 void *KeyValues::operator new( size_t iAllocSize, int nBlockUse, const char *pFileName, int nLine )
 {
 	MemAlloc_PushAllocDbgInfo( pFileName, nLine );
@@ -2841,6 +2849,11 @@ void *KeyValues::operator new( size_t iAllocSize, int nBlockUse, const char *pFi
 void KeyValues::operator delete( void *pMem )
 {
 	KeyValuesSystem()->FreeKeyValuesMemory(pMem);
+}
+
+void KeyValues::operator delete(void* pMem, const char* pFileName, int nLine)
+{
+    KeyValuesSystem()->FreeKeyValuesMemory(pMem);
 }
 
 void KeyValues::operator delete( void *pMem, int nBlockUse, const char *pFileName, int nLine )

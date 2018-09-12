@@ -307,6 +307,7 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&Help Topics",                ID_HELP_TOPICS
+        MENUITEM "Report an Issue",             ID_HELP_REPORTANISSUE
         MENUITEM SEPARATOR
         MENUITEM "&About...",                   ID_APP_ABOUT
     END
@@ -619,130 +620,21 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Accelerator
-//
 
-IDR_MAINFRAME ACCELERATORS
-BEGIN
-    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
-    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
-    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
-    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
-    VK_F1,          ID_HELP_FINDER,         VIRTKEY, NOINVERT
-    VK_F7,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
-    VK_F7,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    VK_F2,          ID_VIEW_2DXY,           VIRTKEY, NOINVERT
-    VK_F3,          ID_VIEW_2DXZ,           VIRTKEY, NOINVERT
-    VK_F4,          ID_VIEW_2DYZ,           VIRTKEY, NOINVERT
-    VK_F5,          ID_VIEW_3DTEXTURED,     VIRTKEY, NOINVERT
-    VK_F5,          ID_VIEW_3DTEXTURED_SHADED, VIRTKEY, SHIFT, NOINVERT
-END
-
-IDR_FORGEMAPTYPE ACCELERATORS
-BEGIN
-    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
-    "C",            ID_CREATEOBJECT,        VIRTKEY, ALT, NOINVERT
-    "T",            ID_EDIT_APPLYTEXTURE,   VIRTKEY, SHIFT, NOINVERT
-    "Q",            ID_EDIT_CLEARSELECTION, VIRTKEY, SHIFT, NOINVERT
-    "C",            ID_EDIT_COPYWC,         VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_COPYWC,         VIRTKEY, CONTROL, NOINVERT
-    VK_DELETE,      ID_EDIT_CUTWC,          VIRTKEY, SHIFT, NOINVERT
-    "X",            ID_EDIT_CUTWC,          VIRTKEY, CONTROL, NOINVERT
-    "F",            ID_EDIT_FINDENTITIES,   VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTESPECIAL,   VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTEWC,        VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_PASTEWC,        VIRTKEY, SHIFT, NOINVERT
-    VK_RETURN,      ID_EDIT_PROPERTIES,     VIRTKEY, ALT, NOINVERT
-    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_EDIT_REPLACE,        VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "T",            ID_EDIT_TOENTITY,       VIRTKEY, CONTROL, NOINVERT
-    "W",            ID_EDIT_TOWORLD,        VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
-    "B",            ID_FILE_EXPORTAGAIN,    VIRTKEY, ALT, NOINVERT
-    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
-    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
-    VK_F9,          ID_FILE_RUNMAP,         VIRTKEY, NOINVERT
-    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
-    "L",            ID_FLIP_HORIZONTAL,     VIRTKEY, CONTROL, NOINVERT
-    "I",            ID_FLIP_VERTICAL,       VIRTKEY, CONTROL, NOINVERT
-    "G",            ID_GOTO_BRUSH,          VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_F1,          ID_HELP_TOPICS,         VIRTKEY, NOINVERT
-    "C",            ID_INSERTPREFAB_ORIGINAL, VIRTKEY, SHIFT, ALT, NOINVERT
-    "P",            ID_MAP_CHECK,           VIRTKEY, ALT, NOINVERT
-    "]",            ID_MAP_GRIDHIGHER,      ASCII,  NOINVERT
-    "S",            ID_MAP_GRIDHIGHER,      VIRTKEY, ALT, NOINVERT
-    "[",            ID_MAP_GRIDLOWER,       ASCII,  NOINVERT
-    "A",            ID_MAP_GRIDLOWER,       VIRTKEY, ALT, NOINVERT
-    "W",            ID_MAP_SNAPTOGRID,      VIRTKEY, SHIFT, NOINVERT
-    "A",            ID_MODE_APPLICATOR,     VIRTKEY, SHIFT, NOINVERT
-    VK_F7,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
-    VK_F7,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    "T",            ID_TEST,                VIRTKEY, SHIFT, ALT, NOINVERT
-    "W",            ID_TOGGLE_GROUPIGNORE,  VIRTKEY, CONTROL, NOINVERT
-    "D",            ID_TOOLS_APPLYDECALS,   VIRTKEY, SHIFT, NOINVERT
-    "B",            ID_TOOLS_BLOCK,         VIRTKEY, SHIFT, NOINVERT
-    "C",            ID_TOOLS_CAMERA,        VIRTKEY, SHIFT, NOINVERT
-    "X",            ID_TOOLS_CLIPPER,       VIRTKEY, SHIFT, NOINVERT
-    "R",            ID_TOOLS_CREATEPREFAB,  VIRTKEY, CONTROL, NOINVERT
-    "D",            ID_TOOLS_DISPLACE,      VIRTKEY, CONTROL, NOINVERT
-    "E",            ID_TOOLS_ENTITY,        VIRTKEY, SHIFT, NOINVERT
-    "G",            ID_TOOLS_GROUP,         VIRTKEY, CONTROL, NOINVERT
-    "N",            ID_TOOLS_HIDE_ENTITY_NAMES, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "G",            ID_TOOLS_MAGNIFY,       VIRTKEY, SHIFT, NOINVERT
-    "V",            ID_TOOLS_MORPH,         VIRTKEY, SHIFT, NOINVERT
-    "O",            ID_TOOLS_OVERLAY,       VIRTKEY, SHIFT, NOINVERT
-    "P",            ID_TOOLS_PATH,          VIRTKEY, SHIFT, NOINVERT
-    "S",            ID_TOOLS_POINTER,       VIRTKEY, SHIFT, NOINVERT
-    "h",            ID_TOOLS_QUICKHIDE_OBJECTS, ASCII, NOINVERT
-    "H",            ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL, VIRTKEY, CONTROL, NOINVERT
-    "u",            ID_TOOLS_QUICKHIDE_UNHIDE, ASCII, NOINVERT
-    "B",            ID_TOOLS_SNAP_SELECTED_TO_GRID_INDIVIDUALLY, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "B",            ID_TOOLS_SNAPSELECTEDTOGRID, VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_TOOLS_SOUND_BROWSER, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "F",            ID_TOOLS_SPLITFACE,     VIRTKEY, CONTROL, NOINVERT
-    "C",            ID_TOOLS_SUBTRACTSELECTION, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "L",            ID_TOOLS_TOGGLETEXLOCK, VIRTKEY, SHIFT, NOINVERT
-    "M",            ID_TOOLS_TRANSFORM,     VIRTKEY, CONTROL, NOINVERT
-    "U",            ID_TOOLS_UNGROUP,       VIRTKEY, CONTROL, NOINVERT
-    VK_HOME,        ID_VIEW3D_BRIGHTER,     VIRTKEY, CONTROL, NOINVERT
-    VK_END,         ID_VIEW3D_DARKER,       VIRTKEY, CONTROL, NOINVERT
-    "A",            ID_VIEW_AUTOSIZE4,      VIRTKEY, CONTROL, NOINVERT
-    "E",            ID_VIEW_CENTER3DVIEWSONSELECTION, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "E",            ID_VIEW_CENTERONSELECTION, VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_VIEW_GRID,           VIRTKEY, SHIFT, NOINVERT
-    "Z",            ID_VIEW_MAXIMIZERESTOREACTIVEVIEW, VIRTKEY, SHIFT, NOINVERT
-    "M",            ID_VIEW_SHOWMODELSIN2D, VIRTKEY, SHIFT, NOINVERT
-    VK_F8,          ID_VIEW_TEXTUREBROWSER, VIRTKEY, ALT, NOINVERT
-    "E",            ID_VSCALE_TOGGLE,       VIRTKEY, ALT, NOINVERT
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 246, 70
+IDD_ABOUTBOX DIALOGEX 0, 0, 261, 81
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Hammer 4.1"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "(disabled in this version)",IDC_ORDER,7,49,88,14
-    PUSHBUTTON      "Close",IDOK,189,49,50,14,WS_GROUP
-    ICON            IDR_MAINFRAME,IDC_STATIC,7,7,20,20
+    PUSHBUTTON      "Report an Issue",IDC_REPORT_ISSUE,7,60,67,14,WS_GROUP
+    PUSHBUTTON      "Close",IDOK,204,60,50,14,WS_GROUP
+    ICON            IDR_MAINFRAME,IDC_STATIC,7,7,21,20
     LTEXT           "Valve Hammer Editor is a trademark of Valve Corporation",IDC_STATIC,38,19,186,8
-    LTEXT           "Copyright © 1996-2006, Valve Corporation, All rights reserved.",IDC_STATIC,38,31,201,10
-    LTEXT           " ",IDC_REDHERRING,13,47,156,8
-    LTEXT           "Build %d",IDC_BUILD_NUMBER,38,7,69,8
+    LTEXT           "Copyright 1996-2018, Valve Corporation, All rights reserved.",IDC_STATIC,38,31,201,10    LTEXT           "Build %d",IDC_BUILD_NUMBER,38,7,69,8
+    LTEXT           "This version of Hammer was made with <3 by volunteers.",IDC_STATIC,38,43,201,10
 END
 
 CG_IDD_PROGRESS DIALOG 0, 0, 168, 28
@@ -2098,7 +1990,7 @@ BEGIN
             VALUE "FileDescription", "Hammer"
             VALUE "FileVersion", "4.0.0"
             VALUE "InternalName", "Hammer"
-            VALUE "LegalCopyright", "Copyright © 1996-2004 Valve Corporation"
+            VALUE "LegalCopyright", "Copyright Â© 1996-2004 Valve Corporation"
             VALUE "OriginalFilename", "WC.EXE"
             VALUE "ProductName", "Valve Hammer Editor (tm)"
             VALUE "ProductVersion", "4.0.0"
@@ -2122,9 +2014,9 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 239
+        RIGHTMARGIN, 254
         TOPMARGIN, 7
-        BOTTOMMARGIN, 63
+        BOTTOMMARGIN, 74
     END
 
     CG_IDD_PROGRESS, DIALOG
@@ -2709,6 +2601,17 @@ IDC_CROSSHAIR           CURSOR                  "res\\crosshair.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -2783,7 +2686,7 @@ BEGIN
     ID_EDIT_PASTEWC         "Insert Clipboard Contents\nPaste"
     ID_HELP_FIRST_TIME_SETUP 
                             "http://www.valve-erc.com/srcsdk/Hammer/html/Manually_Config_Hammer.html"
-    ID_HELP_TOPICS          "http://developer.valvesoftware.com/w/index.php?title=Hammer_Editor_Documentation"
+    ID_HELP_TOPICS          "https://developer.valvesoftware.com/wiki/Category:Hammer"
     ID_EDIT_CUTWC           "Cut the selection and put it on the Clipboard\nCut"
     ID_EDIT_COPYWC          "Copy the selection and put it on the Clipboard\nCopy"
     ID_HELP_WEBSITE         "Go to the Worldcraft website"
@@ -3231,6 +3134,11 @@ BEGIN
     ID_TOOLS_QUICKHIDE_UNHIDE 
                             "Restore temporarily hidden object(s)\nRestore Hidden"
     ID_TOOLS_QUICKHIDE_CONVERT "Convert QuickHide Objects to VisGroup"
+END
+
+STRINGTABLE
+BEGIN
+    ID_HELP_REPORTANISSUE   "https://github.com/Gocnak/sdk-2013-hammer/issues"
 END
 
 #endif    // English (United States) resources
