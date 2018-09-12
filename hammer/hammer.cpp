@@ -1281,20 +1281,12 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CAboutDlg)
 	enum { IDD = IDD_ABOUTBOX };
-	CStatic	m_cRedHerring;
-	CButton	m_Order;
 	//}}AFX_DATA
-
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	//}}AFX_VIRTUAL
 
 // Implementation
 protected:
 	//{{AFX_MSG(CAboutDlg)
-	afx_msg void OnOrder();
+    afx_msg void OnBnClickedReportIssue();
 	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
@@ -1311,78 +1303,6 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 }
 
 
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : pDX -
-//-----------------------------------------------------------------------------
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CAboutDlg)
-	DDX_Control(pDX, IDC_REDHERRING, m_cRedHerring);
-	DDX_Control(pDX, IDC_ORDER, m_Order);
-	//}}AFX_DATA_MAP
-}
-
-#include <process.h>
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CAboutDlg::OnOrder()
-{
-	char szBuf[MAX_PATH];
-	GetWindowsDirectory(szBuf, MAX_PATH);
-	strcat(szBuf, "\\notepad.exe");
-	_spawnl(_P_NOWAIT, szBuf, szBuf, "order.txt", NULL);
-}
-
-
-#define DEMO_VERSION	0
-
-// 1, 4, 8, 17, 0, 0 // Encodes "Valve"
-
-#if DEMO_VERSION
-
-char gVersion[] = {
-#if DEMO_VERSION==1
-	7, 38, 68, 32, 4, 77, 12, 1, 0 // Encodes "PC Gamer Demo"
-#elif DEMO_VERSION==2
-	7, 38, 68, 32, 4, 77, 12, 0, 0 // Encodes "PC Games Demo"
-#elif DEMO_VERSION==3
-	20, 10, 9, 23, 16, 84, 12, 1, 0, 38, 65, 25, 6, 1, 11, 119, 50, 11, 21, 9, 68, 0 // Encodes "Computer Gaming World Demo"
-#elif DEMO_VERSION==4
-	25, 0, 28, 19, 72, 103, 12, 29, 69, 19, 65, 0, 6, 0, 2, 0		// Encodes "Next-Generation Demo"
-#elif DEMO_VERSION==5
-	20, 10, 9, 23, 16, 84, 12, 1, 0, 38, 65, 25, 10, 79, 41, 57, 17, 1, 21, 17, 65, 0, 29, 77, 4, 78, 0, 0 // Encodes "Computer Game Entertainment"
-#elif DEMO_VERSION==6
-	20, 10, 9, 23, 16, 84, 12, 1, 0, 0, 78, 16, 79, 33, 9, 35, 69, 52, 11, 4, 89, 12, 1, 0 // Encodes "Computer and Net Player"
-#elif DEMO_VERSION==7
-	50, 72, 52, 43, 36, 121, 0 // Encodes "e-PLAY"
-#elif DEMO_VERSION==8
-	4, 17, 22, 6, 17, 69, 14, 10, 0, 49, 76, 1, 28, 0 // Encodes "Strategy Plus"
-#elif DEMO_VERSION==9
-	7, 38, 68, 42, 4, 71, 8, 9, 73, 15, 69, 0 // Encodes "PC Magazine"
-#elif DEMO_VERSION==10
-	5, 10, 8, 11, 12, 78, 14, 83, 115, 21, 79, 26, 10, 0 // Encodes "Rolling Stone"
-#elif DEMO_VERSION==11
-	16, 4, 9, 2, 22, 80, 6, 7, 0 // Encodes "Gamespot"
-#endif
-};
-
-static char gKey[] = "Wedge is a tool";	// Decrypt key
-
-// XOR a string with a key
-void Encode( char *pstring, char *pkey, int strLen )
-{
-	int i, len;
-	len = strlen( pkey );
-	for ( i = 0; i < strLen; i++ )
-		pstring[i] ^= pkey[ i % len ];
-}
-#endif // DEMO_VERSION
-
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -1392,51 +1312,39 @@ BOOL CAboutDlg::OnInitDialog(void)
 {
 	CDialog::OnInitDialog();
 
-	m_Order.SetRedraw(FALSE);
-
-#if DEMO_VERSION
-	static BOOL bFirst = TRUE;
-	if(bFirst)
-	{
-		Encode(gVersion, gKey, sizeof(gVersion)-1);
-		bFirst = FALSE;
-	}
-	CString str;
-	str.Format("%s Demo", gVersion);
-	m_cRedHerring.SetWindowText(str);
-#endif // DEMO_VERSION
-
 	//
 	// Display the build number.
 	//
 	CWnd *pWnd = GetDlgItem(IDC_BUILD_NUMBER);
 	if (pWnd != NULL)
 	{
-		char szTemp1[MAX_PATH];
 		char szTemp2[MAX_PATH];
-		int nBuild = build_number();
-		pWnd->GetWindowText(szTemp1, sizeof(szTemp1));
-		sprintf(szTemp2, szTemp1, nBuild);
+		const int nBuild = build_number();
+		sprintf(szTemp2, "Build %d%s", nBuild,
+        //
+        // For SDK builds, append "SDK" to the version number.
+        //
+#ifdef SDK_BUILD
+        " SDK"
+#else
+        ""
+#endif
+        );
 		pWnd->SetWindowText(szTemp2);
 	}
 
-	//
-	// For SDK builds, append "SDK" to the version number.
-	//
-#ifdef SDK_BUILD
-	char szTemp[MAX_PATH];
-	GetWindowText(szTemp, sizeof(szTemp));
-	strcat(szTemp, " SDK");
-	SetWindowText(szTemp);
-#endif // SDK_BUILD
-
 	return TRUE;
+}
+
+void CAboutDlg::OnBnClickedReportIssue()
+{
+    APP()->OpenURL("https://github.com/Gocnak/sdk-2013-hammer/issues", m_hWnd);
 }
 
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 	//{{AFX_MSG_MAP(CAboutDlg)
-	ON_BN_CLICKED(IDC_ORDER, OnOrder)
+    ON_BN_CLICKED(IDC_REPORT_ISSUE, &CAboutDlg::OnBnClickedReportIssue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 

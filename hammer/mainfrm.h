@@ -146,6 +146,7 @@ protected:
 	afx_msg BOOL OnChangeTool(UINT nID);
 	afx_msg void OnInitMenu( CMenu *pMenu );
 	afx_msg void OnHDR( void );
+    afx_msg void OnHelpReportanissue();
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()

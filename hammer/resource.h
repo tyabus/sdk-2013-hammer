@@ -528,6 +528,7 @@
 #define IDC_DESCRIPT                    1204
 #define IDC_EXPORTOBJECT                1205
 #define IDC_ORDER                       1206
+#define IDC_REPORT_ISSUE                1206
 #define IDC_CREATEINPROMPT              1207
 #define IDC_REMOVECONFIGURATION         1208
 #define IDC_DATAFILES                   1209
@@ -1187,6 +1188,7 @@
 #define ID_MAP_LOADPORTALFILE           33225
 #define ID_SHOW_NODRAW_BRUSHES          33226
 #define ID_MAP_UNLOADPORTALFILE         33227
+#define ID_HELP_REPORTANISSUE           33235
 #define IDS_NOPLAYERSTART               40000
 #define IDS_MIXEDFACES                  40001
 #define IDS_DUPLICATEPLANES             40002
@@ -1256,8 +1258,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        340
-#define _APS_NEXT_COMMAND_VALUE         33235
+#define _APS_NEXT_RESOURCE_VALUE        341
+#define _APS_NEXT_COMMAND_VALUE         33236
 #define _APS_NEXT_CONTROL_VALUE         1677
 #define _APS_NEXT_SYMED_VALUE           120
 #endif

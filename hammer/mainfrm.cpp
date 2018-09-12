@@ -138,6 +138,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_WM_HELPINFO()
 	ON_WM_SYSCOMMAND()
 	ON_WM_ENTERMENULOOP()
+    ON_COMMAND(ID_HELP_REPORTANISSUE, OnHelpReportanissue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1824,4 +1825,9 @@ void CMainFrame::WinHelp(DWORD dwData, UINT nCmd)
 {
 	// dvs: HACK: just punt them to the main help page
 	APP()->OpenURL(ID_HELP_TOPICS, m_hWnd);
+}
+
+void CMainFrame::OnHelpReportanissue()
+{
+   APP()->OpenURL(ID_HELP_REPORTANISSUE, m_hWnd);
 }
