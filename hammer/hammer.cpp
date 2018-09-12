@@ -8,10 +8,6 @@
 #include <io.h>
 #include <stdlib.h>
 #include <direct.h>
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "BuildNum.h"
 #include "EditGameConfigs.h"
 #include "Splash.h"
@@ -57,6 +53,7 @@
 #include "datamodel/dmelementfactoryhelper.h"
 #include "KeyBinds.h"
 #include "fmtstr.h"
+#include "KeyValues.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -94,9 +91,6 @@ extern void MakePrefabLibrary(LPCTSTR pszName);
 
 
 static bool bMakeLib = false;
-
-static float fSequenceVersion = 0.2f;
-static const char pszSequenceHdr[] = "Worldcraft Command Sequences\r\n\x1a";
 
 
 CHammer theApp;
@@ -1502,53 +1496,42 @@ BOOL CHammer::PreTranslateMessage(MSG* pMsg)
 //-----------------------------------------------------------------------------
 void CHammer::LoadSequences(void)
 {
-	char szRootDir[MAX_PATH];
-	char szFullPath[MAX_PATH];
-	APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-	Q_MakeAbsolutePath( szFullPath, MAX_PATH, "CmdSeq.wc", szRootDir );
-	std::ifstream file(szFullPath, std::ios::in | std::ios::binary);
+    KeyValues *pKvSequences = new KeyValues("Command Sequences");
 
-	if(!file.is_open())
-		return;	// none to load
+    int bLoaded = 0;
 
-	// skip past header & version
-	float fThisVersion;
+    if (pKvSequences->LoadFromFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg"))
+    {
+        bLoaded = 1;
+    }
+    else if (pKvSequences->LoadFromFile(g_pFullFileSystem, "CmdSeq_default.wc", "hammer_cfg"))
+    {
+        bLoaded = 2;
+    }
 
-	file.seekg(strlen(pszSequenceHdr));
-	file.read((char*)&fThisVersion, sizeof fThisVersion);
+    if (bLoaded)
+    {
+        FOR_EACH_TRUE_SUBKEY(pKvSequences, pKvSequence)
+        {
+            CCommandSequence *pSeq = new CCommandSequence;
+            Q_strncpy(pSeq->m_szName, pKvSequence->GetName(), 128);
+            FOR_EACH_TRUE_SUBKEY(pKvSequence, pKvCmd)
+            {
+                CCOMMAND cmd;
+                Q_memset(&cmd, 0, sizeof(CCOMMAND));
+                cmd.Load(pKvCmd);
+                pSeq->m_Commands.Add(cmd);
+            }
 
-	// read number of sequences
-	DWORD dwSize;
-	int nSeq;
+            m_CmdSequences.Add(pSeq);
+        }
 
-	file.read((char*)&dwSize, sizeof dwSize);
-	nSeq = dwSize;
+        // Save em out if defaults were loaded
+        if (bLoaded == 2)
+            pKvSequences->SaveToFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg", true);
+    }
 
-	for(int i = 0; i < nSeq; i++)
-	{
-		CCommandSequence *pSeq = new CCommandSequence;
-		file.read(pSeq->m_szName, 128);
-
-		// read commands in sequence
-		file.read((char*)&dwSize, sizeof dwSize);
-		int nCmd = dwSize;
-		CCOMMAND cmd;
-		for(int iCmd = 0; iCmd < nCmd; iCmd++)
-		{
-			if(fThisVersion < 0.2f)
-			{
-				file.read((char*)&cmd, sizeof(CCOMMAND)-1);
-				cmd.bNoWait = FALSE;
-			}
-			else
-			{
-				file.read((char*)&cmd, sizeof(CCOMMAND));
-			}
-			pSeq->m_Commands.Add(cmd);
-		}
-
-		m_CmdSequences.Add(pSeq);
-	}
+    pKvSequences->deleteThis();
 }
 
 
@@ -1557,38 +1540,26 @@ void CHammer::LoadSequences(void)
 //-----------------------------------------------------------------------------
 void CHammer::SaveSequences(void)
 {
-	char szRootDir[MAX_PATH];
-	char szFullPath[MAX_PATH];
-	APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-	Q_MakeAbsolutePath( szFullPath, MAX_PATH, "CmdSeq.wc", szRootDir );
-	std::ofstream file( szFullPath, std::ios::out | std::ios::binary );
+    KeyValues *pKvSequences = new KeyValues("Command Sequences");
 
-	// write header
-	file.write(pszSequenceHdr, Q_strlen(pszSequenceHdr));
-	// write out version
-	file.write((char*)&fSequenceVersion, sizeof(float));
+    int numSeq = m_CmdSequences.GetSize();
+    for (int i = 0; i < numSeq; i++)
+    {
+        CCommandSequence *pSeq = m_CmdSequences[i];
+        KeyValues *pKvSequence = new KeyValues(pSeq->m_szName);
+        int numCmds = pSeq->m_Commands.GetSize();
+        for (int j = 0; j < numCmds; j++)
+        {
+            KeyValues *pKvCmd = pKvSequence->CreateNewKey();
 
-	// write out each sequence..
-	int i, nSeq = m_CmdSequences.GetSize();
-	DWORD dwSize = nSeq;
-	file.write((char*)&dwSize, sizeof dwSize);
-	for(i = 0; i < nSeq; i++)
-	{
-		CCommandSequence *pSeq = m_CmdSequences[i];
+            CCOMMAND cmd = pSeq->m_Commands[j];
+            cmd.Save(pKvCmd);
+        }
+        pKvSequences->AddSubKey(pKvSequence);
+    }
 
-		// write name of sequence
-		file.write(pSeq->m_szName, 128);
-		// write number of commands
-		int nCmd = pSeq->m_Commands.GetSize();
-		dwSize = nCmd;
-		file.write((char*)&dwSize, sizeof dwSize);
-		// write commands ..
-		for(int iCmd = 0; iCmd < nCmd; iCmd++)
-		{
-			CCOMMAND &cmd = pSeq->m_Commands[iCmd];
-			file.write((char*)&cmd, sizeof cmd);
-		}
-	}
+    pKvSequences->SaveToFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg", true);
+    pKvSequences->deleteThis();
 }
 
 

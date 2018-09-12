@@ -21,6 +21,8 @@ enum
 	CCRenameFile
 };
 
+class KeyValues;
+
 // command:
 typedef struct
 {
@@ -34,6 +36,9 @@ typedef struct
 	char szEnsureFn[MAX_PATH];
 	BOOL bUseProcessWnd;
 	BOOL bNoWait;
+
+    void Save(KeyValues *pKv);
+    void Load(KeyValues *pKv);
 
 } CCOMMAND, *PCCOMMAND;
 

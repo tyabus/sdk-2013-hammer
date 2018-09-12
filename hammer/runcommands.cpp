@@ -15,6 +15,7 @@
 #include <direct.h>
 #include "GlobalFunctions.h"
 #include "hammer.h"
+#include "KeyValues.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -154,6 +155,30 @@ LPCTSTR GetErrorString()
 	char *p = strchr(szBuf, '\r');	// get rid of \r\n
 	if(p) p[0] = 0;
 	return szBuf;
+}
+
+void CCOMMAND::Load(KeyValues* pKvCmd)
+{
+    bEnable = pKvCmd->GetBool("enabled");
+    iSpecialCmd = pKvCmd->GetInt("special_cmd");
+    Q_strncpy(szRun, pKvCmd->GetString("run"), MAX_PATH);
+    Q_strncpy(szParms, pKvCmd->GetString("params"), MAX_PATH);
+    bEnsureCheck = pKvCmd->GetBool("ensure_check");
+    Q_strncpy(szEnsureFn, pKvCmd->GetString("ensure_fn"), MAX_PATH);
+    bUseProcessWnd = pKvCmd->GetBool("use_process_wnd");
+    bNoWait = pKvCmd->GetBool("no_wait");
+}
+
+void CCOMMAND::Save(KeyValues* pKvCmd)
+{
+    pKvCmd->SetBool("enabled", bEnable);
+    pKvCmd->SetInt("special_cmd", iSpecialCmd);
+    pKvCmd->SetString("run", szRun);
+    pKvCmd->SetString("params", szParms);
+    pKvCmd->SetBool("ensure_check", bEnsureCheck);
+    pKvCmd->SetString("ensure_fn", szEnsureFn);
+    pKvCmd->SetBool("use_process_wnd", bUseProcessWnd);
+    pKvCmd->SetBool("no_wait", bNoWait);
 }
 
 bool RunCommands(CCommandArray& Commands, LPCTSTR pszOrigDocName)
