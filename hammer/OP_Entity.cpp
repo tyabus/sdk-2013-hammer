@@ -3211,7 +3211,7 @@ void COP_Entity::OnBrowse(void)
 		case ivInstanceFile:
 		{
 			pDlg->AddFileMask( "*.vmf" );
-			//pDlg->SetInitialDir( pszInitialDir, pPathID );
+			pDlg->SetInitialDir( "maps", pPathID );
 			break;
 		}
 
