@@ -347,8 +347,12 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 		APP()->GetDirectory( DIR_PROGRAM, szGameConfigDir );
 		CFmtStrN<MAX_PATH> dir("%s/hammer/cfg", szGameConfigDir);
 		g_pFullFileSystem->AddSearchPath(dir.Get(), "hammer_cfg", PATH_ADD_TO_HEAD);
+		V_FixupPathName( szGameConfigDir, MAX_PATH, dir.Get() );
 		Options.configs.m_strConfigDir = szGameConfigDir;
 	}
+
+	m_pConfig = new KeyValues( "Config" );
+	m_pConfig->LoadFromFile( g_pFileSystem, "HammerConfig.vdf", "hammer_cfg" );
 
 	// Load the options
 	// NOTE: Have to do this now, because we need it before Inits() are called
@@ -545,56 +549,41 @@ void CHammer::SetDirectory(DirIndex_t dir, const char *p)
 	}
 }
 
+UINT CHammer::GetProfileIntA( LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	return data->GetInt( lpszEntry, nDefault );
+}
+
+CString CHammer::GetProfileStringA( LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	return data->GetString( lpszEntry, lpszDefault );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Returns a color from the application configuration storage.
 //-----------------------------------------------------------------------------
 COLORREF CHammer::GetProfileColor(const char *pszSection, const char *pszKey, int r, int g, int b)
 {
-	int newR, newG, newB;
-
-	CString strDefault;
-	CString strReturn;
-	char szBuff[128];
-	sprintf(szBuff, "%i %i %i", r, g, b);
-
-	strDefault = szBuff;
-
-	strReturn = GetProfileString(pszSection, pszKey, strDefault);
-
-	if (strReturn.IsEmpty())
-		return 0;
-
-	// Parse out colors.
-	char *pStart;
-	char *pCurrent;
-	pStart = szBuff;
-	pCurrent = pStart;
-
-	strcpy( szBuff, (char *)(LPCSTR)strReturn );
-
-	while (*pCurrent && *pCurrent != ' ')
-		pCurrent++;
-
-	*pCurrent++ = 0;
-	newR = atoi(pStart);
-
-	pStart = pCurrent;
-	while (*pCurrent && *pCurrent != ' ')
-		pCurrent++;
-
-	*pCurrent++ = 0;
-	newG = atoi(pStart);
-
-	pStart = pCurrent;
-	while (*pCurrent)
-		pCurrent++;
-
-	*pCurrent++ = 0;
-	newB = atoi(pStart);
-
-	return COLORREF(RGB(newR, newG, newB));
+	KeyValues* data = m_pConfig->FindKey( pszSection, true );
+	const Color& color = data->GetColor( pszKey, Color( r, g, b ) );
+	return COLORREF( RGB( color.r(), color.g(), color.b() ) );
 }
 
+BOOL CHammer::WriteProfileInt( LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	data->SetInt( lpszEntry, nValue );
+	return true;
+}
+
+BOOL CHammer::WriteProfileStringA( LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszValue )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	data->SetString( lpszEntry, lpszValue );
+	return true;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -1240,6 +1229,18 @@ int CHammer::ExitInstance()
 	}
 
 	SaveStdProfileSettings();
+
+	// Too bad filesystem doesn't exist at this point
+	CUtlBuffer buffer( 0, 0, CUtlBuffer::TEXT_BUFFER );
+	m_pConfig->RecursiveSaveToFile( buffer, 0, true, true );
+	m_pConfig->deleteThis();
+	m_pConfig = NULL;
+
+	FILE* file;
+	fopen_s( &file, CFmtStrN<MAX_PATH>( "%s" CORRECT_PATH_SEPARATOR_S "HammerConfig.vdf", (const char*)Options.configs.m_strConfigDir ), "w" );
+	fwrite( buffer.String(), sizeof( char ), buffer.TellPut(), file );
+	fflush( file );
+	fclose( file );
 
 	return CWinApp::ExitInstance();
 }

@@ -100,7 +100,12 @@ public:
 	void GetDirectory(DirIndex_t dir, char *p);
 	void SetDirectory(DirIndex_t dir, const char *p);
 
+	UINT GetProfileIntA(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault) override;
+	CString GetProfileStringA(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault = NULL) override;
 	COLORREF GetProfileColor(const char *pszSection, const char *pszKey, int r, int g, int b);
+
+	BOOL WriteProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue) override;
+	BOOL WriteProfileStringA(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszValue) override;
 
 	void OnActivateApp(bool bActive);
 	bool IsActiveApp();
@@ -139,7 +144,6 @@ public:
 	bool GetForceRenderNextFrame();
 
 	CMultiDocTemplate *pMapDocTemplate;
-	CMultiDocTemplate *pPakDocTemplate;
 
 	//{{AFX_MSG(CHammer)
 	afx_msg void OnAppAbout();
@@ -173,6 +177,7 @@ protected:
 	char m_szAutosaveDir[MAX_PATH];
 
 	CHammerCmdLine *m_CmdLineInfo;
+	KeyValues* m_pConfig;
 };
 
 
