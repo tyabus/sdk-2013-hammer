@@ -544,9 +544,6 @@ bool FindSteamUserDir(const char *szAppDir, const char *szSteamDir, char *szStea
 	return false;
 }
 
-// memdbgon must be the last include file in a .cpp file!!!
-#include "tier0/memdbgoff.h"
-
 //-----------------------------------------------------------------------------
 // Purpose: Loads the settings from <mod dir>\gameinfo.txt into data members.
 //-----------------------------------------------------------------------------
