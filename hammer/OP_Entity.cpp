@@ -35,6 +35,7 @@
 #include "Selection.h"
 #include "options.h"
 #include "op_flags.h"
+#include "fmtstr.h"
 
 extern GameData *pGD;		// current game data
 
@@ -3041,9 +3042,16 @@ void COP_Entity::OnEditInstance()
 
 	char szCurrentInstance[256];
 	m_pSmartControl->GetWindowText(szCurrentInstance, 256);
-	if ( !szCurrentInstance[0] )
+	if ( !szCurrentInstance[0] || !m_pObjectList )
 		return;
-	APP()->OpenDocumentFile( szCurrentInstance );
+	Assert( m_pObjectList->Count() > 0 );
+	CMapWorld* world = CMapClass::GetWorldObject( m_pObjectList->Element( 0 ) );
+	Assert( world );
+	char parentDir[MAX_PATH];
+	V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
+	const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, szCurrentInstance );
+	if ( g_pFullFileSystem->FileExists( instancePath ) )
+		APP()->OpenDocumentFile( instancePath );
 }
 
 

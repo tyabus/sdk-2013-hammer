@@ -9,6 +9,7 @@
 #include "mapview2d.h"
 
 #include "smartptr.h"
+#include "fmtstr.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -31,7 +32,12 @@ CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( static_cast<CMa
 	if ( !m_strCurrentVMF.IsEmpty() )
 	{
 		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
-		if ( m_pTemplate->LoadVMF( m_strCurrentVMF, true ) )
+		CMapWorld* world = GetWorldObject( pParent );
+		Assert( world );
+		char parentDir[MAX_PATH];
+		V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
+		const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, m_strCurrentVMF.Get() );
+		if ( g_pFullFileSystem->FileExists( instancePath ) && m_pTemplate->LoadVMF( instancePath, true ) )
 		{
 			m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
 			m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
@@ -280,7 +286,12 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		if ( !m_strCurrentVMF.IsEmpty() )
 		{
 			CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
-			if ( m_pTemplate->LoadVMF( value, true ) )
+			CMapWorld* world = GetWorldObject( GetParent() );
+			Assert( world );
+			char parentDir[MAX_PATH];
+			V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
+			const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, m_strCurrentVMF.Get() );
+			if ( g_pFullFileSystem->FileExists( instancePath ) && m_pTemplate->LoadVMF( instancePath, true ) )
 			{
 				m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
 				m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );

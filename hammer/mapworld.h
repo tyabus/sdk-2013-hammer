@@ -146,6 +146,9 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		CMapClass* GetPreferredPickObject() override { return m_pPreferredPickObject; }
 		void SetPreferredPickObject( CMapClass* pObject ) { m_pPreferredPickObject = pObject; }
 
+		void SetVMFPath( const char* pVMFPath );
+		const char* GetVMFPath() const;
+
 	protected:
 
 		//
@@ -189,6 +192,8 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		IWorldEditDispMgr	*m_pWorldDispMgr;	// world editable displacement manager
 
 		CMapClass* m_pPreferredPickObject;
+
+		CString m_strVMFPath;
 };
 
 

@@ -348,6 +348,15 @@ int CMapWorld::FindEntityBucket( CMapEntity *pEntity, int *pnIndex )
 	return -1;
 }
 
+void CMapWorld::SetVMFPath( const char* pVMFPath )
+{
+	m_strVMFPath = pVMFPath;
+}
+
+const char* CMapWorld::GetVMFPath() const
+{
+	return m_strVMFPath;
+}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

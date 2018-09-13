@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -28,7 +28,7 @@ public:
 		m_bHasUpdatedData = false;
 	}
 
-	CObjectPage(UINT nResourceID) : CPropertyPage(nResourceID) 
+	CObjectPage(UINT nResourceID) : CPropertyPage(nResourceID)
 	{
 		m_bMultiEdit = false;
 		m_bFirstTimeActive = false;
@@ -49,7 +49,7 @@ public:
 
 	// Called by the sheet to update the selected objects. pData points to the object being added to the selection.
 	virtual void UpdateData(int Mode, PVOID pData) {}
-	
+
 	// Called by the sheet to store this page's data into the objects being edited.
 	virtual bool SaveData(void) { return(true); }
 
@@ -80,7 +80,7 @@ protected:
 
 	CRuntimeClass *m_pEditObjectRuntimeClass;	// The type of object that this page can edit.
 
-	static char *VALUE_DIFFERENT_STRING;
+	static const char *VALUE_DIFFERENT_STRING;
 };
 
 

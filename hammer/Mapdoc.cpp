@@ -1389,6 +1389,8 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 		m_pWorld = new CMapWorld;
 	}
 
+	m_pWorld->SetVMFPath( pszFileName );
+
 	m_bLoadingInstance = bIsInstance;
 
 	if ( !m_bLoadingInstance )
@@ -6757,7 +6759,7 @@ BOOL CMapDoc::OnViewQuickHide(UINT nID)
     {
         m_QuickHideObjects.AddVectorToTail(*m_pSelection->GetList());
     }
-    else 
+    else
     {
         GetChildrenToHide(m_pWorld, false, m_QuickHideObjects);
     }
@@ -6814,7 +6816,7 @@ void CMapDoc::OnViewQuickHideConvert()
         AfxMessageBox(str);
         return;
     }
-    
+
     if (nFinalCount < nOriginalCount)
     {
         AfxMessageBox("Some objects could not put in the new Visible Group because\n"
