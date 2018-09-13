@@ -5,20 +5,9 @@
 //=============================================================================
 
 #include "stdafx.h"
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "hammer.h"
 #include "lprvwindow.h"
-#include "TextureBrowser.h"
-#include "CustomMessages.h"
-#include "IEditorTexture.h"
 #include "GameConfig.h"
-#include "GlobalFunctions.h"
-#include "TextureSystem.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialSYstem.h"
 #include "lpreview_thread.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

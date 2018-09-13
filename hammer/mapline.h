@@ -48,9 +48,6 @@ class CMapLine : public CMapHelper
 		void Render3D(CRender3D *pRender);
 		void Render2D(CRender2D *pRender);
 
-		int SerializeRMF(std::fstream &File, BOOL bRMF);
-		int SerializeMAP(std::fstream &File, BOOL bRMF);
-
 		bool IsVisualElement(void) { return(true); }
 		bool IsCulledByCordon(const Vector &vecMins, const Vector &vecMaxs) { return false; } // We don't hide unless our parent hides.
 

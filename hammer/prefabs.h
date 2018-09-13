@@ -11,11 +11,6 @@
 
 
 #include <afxtempl.h>
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
-
 
 class BoundBox;
 class CMapClass;
@@ -118,7 +113,6 @@ protected:
 	static BOOL bCacheEnabled;
 
 friend class CPrefabLibrary;
-friend class CPrefabLibraryRMF;
 friend class CPrefabLibraryVMF;
 };
 
@@ -130,7 +124,7 @@ class CPrefabLibrary
 {
 public:
 	CPrefabLibrary();
-	~CPrefabLibrary();
+	virtual ~CPrefabLibrary();
 
 	virtual int Load(LPCTSTR pszFilename) = 0;
 	virtual bool DeleteFile(void) = 0;
@@ -179,30 +173,6 @@ friend class CPrefab;
 friend class CPrefabRMF;
 friend class CPrefabVMF;
 };
-
-
-class CPrefabLibraryRMF : public CPrefabLibrary
-{
-public:
-	CPrefabLibraryRMF();
-	~CPrefabLibraryRMF();
-
-	bool IsFile(const char *szFile);
-	int Load(LPCTSTR pszFilename);
-	bool DeleteFile(void);
-	int Save(LPCTSTR pszFilename = NULL, BOOL bIndexOnly = FALSE);
-	int SetName(const char *pszName);
-
-	std::fstream m_file;
-
-protected:
-
-	DWORD m_dwDirOffset;			// dir offset in open file
-	CString m_strOpenFileName;		// open file name
-
-friend class CPrefab;
-};
-
 
 class CPrefabLibraryVMF : public CPrefabLibrary
 {

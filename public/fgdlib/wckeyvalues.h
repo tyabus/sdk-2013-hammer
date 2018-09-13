@@ -12,10 +12,6 @@
 #include <tier0/dbg.h>
 #include <utlvector.h>
 #include <utldict.h>
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 
 
 #define KEYVALUE_MAX_KEY_LENGTH			80
@@ -38,12 +34,6 @@ class MDkeyvalue
 		inline void Set(const char *pszKey, const char *pszValue);
 		inline const char *Key(void) const;
 		inline const char *Value(void) const;
-
-		//
-		// Serialization functions.
-		//
-		int SerializeRMF(std::fstream &f, BOOL bRMF);
-		int SerializeMAP(std::fstream &f, BOOL bRMF);
 
 		char szKey[KEYVALUE_MAX_KEY_LENGTH];			// The name of this key.
 		char szValue[KEYVALUE_MAX_VALUE_LENGTH];		// The value of this key, stored as a string.

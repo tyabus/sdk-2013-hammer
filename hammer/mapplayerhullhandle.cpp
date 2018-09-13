@@ -267,24 +267,6 @@ void CMapPlayerHullHandle::Render3D(CRender3D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CMapPlayerHullHandle::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CMapPlayerHullHandle::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Overridden because origin helpers don't take the color of their
 //			parent entity.
 // Input  : red, green, blue - 

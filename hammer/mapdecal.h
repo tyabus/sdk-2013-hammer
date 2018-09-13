@@ -61,9 +61,6 @@ class CMapDecal : public CMapHelper
 
 		virtual void Render3D(CRender3D *pRender);
 
-		int SerializeRMF(std::fstream &File, BOOL bRMF);
-		int SerializeMAP(std::fstream &File, BOOL bRMF);
-
 		bool IsVisualElement(void) { return(true); }
 		
 		const char* GetDescription() { return("Decal helper"); }

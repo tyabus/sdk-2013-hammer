@@ -232,15 +232,7 @@ class CHammerCmdLine : public CCommandLineInfo
 			{
 				m_bShowLogo = false;
 			}
-			else if (bFlag && !strcmpi(lpszParam, "makelib"))
-			{
-				bMakeLib = TRUE;
-			}
-			else if (!bFlag && bMakeLib)
-			{
-				MakePrefabLibrary(lpszParam);
-			}
-			else if ((!m_bConfigDir) && (bFlag && !stricmp(lpszParam, "configdir")))
+		    else if ((!m_bConfigDir) && (bFlag && !stricmp(lpszParam, "configdir")))
 			{
 				m_bConfigDir = true;
 			}
@@ -476,17 +468,20 @@ void CHammer::GetDirectory(DirIndex_t dir, char *p)
 
 		case DIR_PREFABS:
 		{
+                // TODO: Make this inside the hammer/ folder
 			strcpy(p, m_szAppDir);
 			EnsureTrailingBackslash(p);
 			strcat(p, "Prefabs");
-
 			//
 			// Make sure the prefabs directory exists.
 			//
-			if ((_access( p, 0 )) == -1)
-			{
-				CreateDirectory(p, NULL);
-			}
+                // if (!g_pFullFileSystem->FileExists("prefabs", "hammer"))
+                //     g_pFullFileSystem->CreateDirHierarchy("prefabs", "hammer");
+
+            if ((_access(p, 0)) == -1)
+            {
+                CreateDirectory(p, NULL);
+            }
 			break;
 		}
 
@@ -530,6 +525,8 @@ void CHammer::GetDirectory(DirIndex_t dir, char *p)
 			EnsureTrailingBackslash(p);
 			break;
 		}
+        default:
+        break;
 	}
 }
 

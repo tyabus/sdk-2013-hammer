@@ -7,11 +7,9 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <direct.h>
 #include <io.h>
-#include <mmsystem.h>
-#include <process.h>
 #include <direct.h>
+#include <mmsystem.h>
 #include "BuildNum.h"
 #include "CustomMessages.h"
 #include "EditPrefabDlg.h"
@@ -38,7 +36,6 @@
 #include "ObjectProperties.h"
 #include "OptionProperties.h"
 #include "Options.h"
-#include "ProcessWnd.h"
 #include "PasteSpecialDlg.h"
 #include "Prefabs.h"
 #include "Prefab3D.h"
@@ -69,7 +66,6 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
-#include ".\mapdoc.h"
 
 #define KeyInt( key, dest ) \
 	if (stricmp(szKey, key) != 0) \
@@ -97,7 +93,6 @@
 static int g_nFileFormatVersion = 0;
 
 
-extern BOOL bSaveVisiblesOnly;
 extern CShell g_Shell;
 
 
@@ -1849,158 +1844,6 @@ void CMapDoc::EditPrefab3D(DWORD dwPrefabID)
 }
 
 
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : file -
-//			fIsStoring -
-//			bRMF -
-// Output : Returns TRUE on success, FALSE on failure.
-//-----------------------------------------------------------------------------
-BOOL CMapDoc::Serialize(std::fstream& file, BOOL fIsStoring, BOOL bRMF)
-{
-	SetActiveMapDoc(this);
-
-	// check for editing prefab
-	if(m_bEditingPrefab)
-	{
-		// save prefab in library
-		CPrefabLibrary *pLibrary = CPrefabLibrary::FindID(m_dwPrefabLibraryID);
-		if(!pLibrary)
-		{
-			static int id = 1;
-
-			AfxMessageBox("The library this prefab object belongs to has been\n"
-				"deleted. This document will now behave as a regular file\n"
-				"document.");
-			m_bEditingPrefab = FALSE;
-
-			CString str;
-			str.Format("Prefab%d.rmf", id++);
-			SetPathName(str);
-			return 1;
-		}
-
-		CPrefab3D *pPrefab = (CPrefab3D *)CPrefab::FindID(m_dwPrefabID);
-		if (!pPrefab)
-		{
-			// Not found, create a new prefab.
-			pPrefab = new CPrefabRMF;
-		}
-
-		pPrefab->SetWorld(m_pWorld);
-		m_pWorld = NULL;
-
-		pLibrary->Add(pPrefab);
-		pLibrary->Save();
-
-		return 1;
-	}
-
-	GetHistory()->Pause();
-
-	if(bRMF)
-	{
-		if (m_pWorld->SerializeRMF(file, fIsStoring) < 0)
-		{
-			AfxMessageBox("There was a file error.", MB_OK | MB_ICONEXCLAMATION);
-			return FALSE;
-		}
-
-		Camera3D *pCamTool = dynamic_cast<Camera3D*>(m_pToolManager->GetToolForID(TOOL_CAMERA));
-
-		if ( pCamTool )
-		{
-			char sig[8] = "DOCINFO";
-
-			if(fIsStoring)
-			{
-				file.write(sig, sizeof sig);
-
-				pCamTool->SerializeRMF(file, fIsStoring);
-			}
-			else
-			{
-				char buf[sizeof sig];
-				memset(buf, 0, sizeof buf);
-				file.read(buf, sizeof buf);
-				if(memcmp(buf, sig, sizeof sig))
-					goto Done;
-
-				pCamTool->SerializeRMF(file, fIsStoring);
-			}
-		}
-
-Done:;
-	}
-	else
-	{
-		CMapObjectList CordonList;
-		CMapWorld *pCordonWorld = NULL;
-		BoundBox CordonBox(m_vCordonMins, m_vCordonMaxs);
-
-		if ( m_bIsCordoning )
-		{
-			//
-			// Create "cordon world", add its objects to our real world, create a list in
-			// CordonList so we can remove them again.
-			//
-			pCordonWorld = CordonCreateWorld();
-
-			const CMapObjectList *pChildren = pCordonWorld->GetChildren();
-			FOR_EACH_OBJ( *pChildren, pos )
-			{
-				CMapClass *pChild = pChildren->Element(pos);
-				pChild->SetTemporary(TRUE);
-				m_pWorld->AddObjectToWorld(pChild);
-
-				CordonList.AddToTail(pChild);
-			}
-
-			//
-			// HACK: (not mine) - make the cordon bounds bigger so that the cordon brushes
-			// overlap the cordon bounds during serialization.
-			CordonBox.bmins -= Vector(1,1,1);
-			CordonBox.bmaxs += Vector(1,1,1);
-		}
-
-		if (fIsStoring)
-		{
-			void SetMapFormat(MAPFORMAT mf);
-			SetMapFormat(m_pGame->mapformat);
-		}
-
-		if (m_pWorld->SerializeMAP(file, fIsStoring, m_bIsCordoning? &CordonBox : NULL) < 0)
-		{
-			AfxMessageBox("There was a file error.", MB_OK | MB_ICONEXCLAMATION);
-			return(FALSE);
-		}
-
-		//
-		// Remove cordon objects.
-		//
-		if ( m_bIsCordoning )
-		{
-			FOR_EACH_OBJ( CordonList, pos )
-			{
-				CMapClass *pobj = CordonList.Element(pos);
-				m_pWorld->RemoveChild(pobj);
-			}
-			delete pCordonWorld;
-		}
-	}
-
-	GetHistory()->Resume();
-
-	if (!fIsStoring)
-	{
-		UpdateVisibilityAll();
-		GetMainWnd()->GlobalNotify(WM_MAPDOC_CHANGED);
-	}
-
-	return TRUE;
-}
-
-
 #ifdef _DEBUG
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -2474,8 +2317,7 @@ BOOL CMapDoc::SaveModified(void)
 		{
 		case IDYES:
 			{
-			std::fstream file;
-			Serialize(file, 0, 0);
+			SerializePrefab();
 			return TRUE;
 			}
 		case IDNO:
@@ -2504,44 +2346,13 @@ BOOL CMapDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	}
 
 	//
-	// Look for either the RMF or MAP extension to indicate an old file format.
-	//
-	BOOL bRMF = FALSE;
-	BOOL bMAP = FALSE;
-
-	if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "rmf"))
-	{
-		bRMF = TRUE;
-	}
-	else if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "map"))
-	{
-		bMAP = TRUE;
-	}
-
-	//
 	// Call any per-class PreloadWorld functions here.
 	//
 	CMapSolid::PreloadWorld();
 
-	if ((bRMF) || (bMAP))
+	if (!LoadVMF(lpszPathName))
 	{
-		std::fstream file(lpszPathName, std::ios::in | std::ios::binary);
-		if (!file.is_open())
-		{
-			return(FALSE);
-		}
-
-		if (!Serialize(file, FALSE, bRMF))
-		{
-			return(FALSE);
-		}
-	}
-	else
-	{
-		if (!LoadVMF(lpszPathName))
-		{
-			return(FALSE);
-		}
+		return(FALSE);
 	}
 
 	SetModifiedFlag(FALSE);
@@ -2597,10 +2408,11 @@ BOOL CMapDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	// UNDONE: prefab serialization must be redone
 	if (m_bEditingPrefab)
 	{
-		std::fstream file;
-		Serialize(file, 0, 0);
-		SetModifiedFlag(FALSE);
-		OnCloseDocument();
+        SerializePrefab();
+
+        SetModifiedFlag(FALSE);
+        OnCloseDocument();
+
 		return(TRUE);
 	}
 
@@ -2624,60 +2436,52 @@ BOOL CMapDoc::OnSaveDocument(LPCTSTR lpszPathName)
 		}
 	}
 
-	//
-	// Use the file extension to determine how to save the file.
-	//
-	BOOL bRMF = FALSE;
-	BOOL bMAP = FALSE;
-	if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "rmf"))
-	{
-		bRMF = TRUE;
-	}
-	else if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "map"))
-	{
-		bMAP = TRUE;
-	}
-
-	//
-	// HalfLife 2 and beyond use heirarchical chunk files.
-	//
-	if ((m_pGame->mapformat == mfHalfLife2) && (!bRMF) && (!bMAP))
-	{
-		BOOL bSaved = FALSE;
-
-		BeginWaitCursor();
-		if (SaveVMF(lpszPathName, 0))
-		{
-			bSaved = TRUE;
-			SetModifiedFlag(FALSE);
-		}
-		EndWaitCursor();
-
-		return(bSaved);
-	}
-
-	//
-	// Half-Life used RMFs and MAPs.
-	//
-	std::fstream file(lpszPathName, std::ios::out | std::ios::binary);
-	if (!file.is_open())
-	{
-		char szError[_MAX_PATH];
-		wsprintf(szError, "Hammer was unable to open the file \"%s\" for writing. Please verify that the file is writable and that the path exists.", lpszPathName);
-		AfxMessageBox(szError);
-		return(FALSE);
-	}
+	BOOL bSaved = FALSE;
 
 	BeginWaitCursor();
-	if (!Serialize(file, TRUE, bRMF))
+	if (SaveVMF(lpszPathName, 0))
 	{
-		EndWaitCursor();
-		return(FALSE);
+		bSaved = TRUE;
+		SetModifiedFlag(FALSE);
 	}
 	EndWaitCursor();
 
-	SetModifiedFlag(FALSE);
-	return(TRUE);
+	return(bSaved);
+}
+
+void CMapDoc::SerializePrefab()
+{
+    SetActiveMapDoc(this);
+
+    // save prefab in library
+    CPrefabLibrary *pLibrary = CPrefabLibrary::FindID(m_dwPrefabLibraryID);
+    if (!pLibrary)
+    {
+        static int id = 1;
+
+        AfxMessageBox("The library this prefab object belongs to has been\n"
+                      "deleted. This document will now behave as a regular file\n"
+                      "document.");
+        m_bEditingPrefab = FALSE;
+
+        CString str;
+        str.Format("Prefab%d.rmf", id++);
+        SetPathName(str);
+        return;
+    }
+
+    CPrefab3D *pPrefab = (CPrefab3D *) CPrefab::FindID(m_dwPrefabID);
+    if (!pPrefab)
+    {
+        // Not found, create a new prefab.
+        pPrefab = new CPrefabVMF;
+    }
+
+    pPrefab->SetWorld(m_pWorld);
+    m_pWorld = NULL;
+
+    pLibrary->Add(pPrefab);
+    pLibrary->Save();
 }
 
 
@@ -4793,12 +4597,12 @@ void CMapDoc::OnFileExport(void)
 			}
 		}
 
-		bSaveVisiblesOnly = dlg.bVisibles;
+		m_bSaveVisiblesOnly = dlg.bVisibles;
 		m_strLastExportFileName = dlg.GetPathName();
 
 		OnSaveDocument(dlg.GetPathName());
 
-		bSaveVisiblesOnly = FALSE;
+		m_bSaveVisiblesOnly = false;
 
 		SetModifiedFlag(bModified);
 
@@ -4826,9 +4630,9 @@ void CMapDoc::OnFileExportAgain(void)
 
 	BOOL bModified = IsModified();
 
-	bSaveVisiblesOnly = bLastVis;
+	m_bSaveVisiblesOnly = bLastVis;
 	OnSaveDocument(strFile);
-	bSaveVisiblesOnly = FALSE;
+	m_bSaveVisiblesOnly = false;
 
 	SetModifiedFlag(bModified);
 }
@@ -4910,7 +4714,7 @@ void CMapDoc::OnFileRunmap(void)
 
 	bool bWasModified = (IsModified() == TRUE);
 
-	bSaveVisiblesOnly = FALSE;
+	m_bSaveVisiblesOnly = false;
 
 	// Make sure the .VMF or .RMF is saved first.
 	if (strFile.IsEmpty() || bWasModified)
@@ -9062,7 +8866,7 @@ bool CMapDoc::SaveVMF(const char *pszFileName, int saveFlags )
 
 		if (!m_bPrefab && !(saveFlags & SAVEFLAGS_LIGHTSONLY))
 		{
-			SaveInfo.SetVisiblesOnly(bSaveVisiblesOnly == TRUE);
+			SaveInfo.SetVisiblesOnly(m_bSaveVisiblesOnly);
 
 			//
 			// Add cordon objects.

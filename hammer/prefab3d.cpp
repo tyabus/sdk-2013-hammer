@@ -6,7 +6,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <sys\types.h>
 #include <sys\stat.h>
 #include "ChunkFile.h"
 #include "Prefab3D.h"
@@ -14,7 +13,6 @@
 #include "History.h"
 #include "MapGroup.h"
 #include "MapWorld.h"
-#include "GlobalFunctions.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -230,176 +228,6 @@ void CPrefab3D::CenterOnZero()
 bool CPrefab3D::IsLoaded(void)
 {
 	return (m_pWorld != NULL);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CPrefabRMF::CPrefabRMF()
-{
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CPrefabRMF::~CPrefabRMF()
-{
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : file - 
-//			dwFlags - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabRMF::DoLoad(std::fstream& file, DWORD dwFlags)
-{
-	int iRvl;
-
-	GetHistory()->Pause();
-
-	AddMRU(this);
-
-	if(m_pWorld)
-		delete m_pWorld;
-	m_pWorld = new CMapWorld;
-
-	// read data
-	if(dwFlags & lsMAP)
-		iRvl = m_pWorld->SerializeMAP(file, FALSE);
-	else
-		iRvl = m_pWorld->SerializeRMF(file, FALSE);
-
-	// error?
-	if(iRvl == -1)
-	{
-		GetHistory()->Resume();
-		return iRvl;
-	}
-
-	m_pWorld->CalcBounds(TRUE);
-
-	GetHistory()->Resume();
-
-	return 1;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : file - 
-//			dwFlags - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabRMF::DoSave(std::fstream& file, DWORD dwFlags)
-{
-	// save world
-	if(dwFlags & lsMAP)
-		return m_pWorld->SerializeMAP(file, TRUE);
-
-	return m_pWorld->SerializeRMF(file, TRUE);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : dwFlags - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabRMF::Load(DWORD dwFlags)
-{
-	//
-	// Get parent library's file handle.
-	//
-	CPrefabLibraryRMF *pLibrary = dynamic_cast <CPrefabLibraryRMF *>(CPrefabLibrary::FindID(dwLibID));
-	if (!pLibrary)
-	{
-		return -1;
-	}
-
-	std::fstream &file = pLibrary->m_file;
-	file.seekg(dwFileOffset);
-
-	return(DoLoad(file, dwFlags));
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszFilename - 
-//			bLoadNow - 
-//			dwFlags - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabRMF::Init(LPCTSTR pszFilename, BOOL bLoadNow, DWORD dwFlags)
-{
-	std::fstream file(pszFilename, std::ios::in | std::ios::binary);
-
-	// ensure we're named
-	memset(szName, 0, sizeof szName);
-	strncpy(szName, pszFilename, sizeof szName - 1);
-	return Init(file, bLoadNow, dwFlags);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : file - 
-//			bLoadNow - 
-//			dwFlags - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabRMF::Init(std::fstream &file, BOOL bLoadNow, DWORD dwFlags)
-{
-	int iRvl = 1;	// start off ok
-	
-	if(bLoadNow)
-	{
-		// do load now
-		iRvl = DoLoad(file, dwFlags);
-	}
-
-	if(!szName[0])
-	{
-		// ensure we're named
-		strcpy(szName, "Prefab");
-	}
-
-	return iRvl;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszFilename - 
-//			dwFlags - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabRMF::Save(LPCTSTR pszFilename, DWORD dwFlags)
-{
-	std::fstream file(pszFilename, std::ios::out | std::ios::binary);
-	return Save(file, dwFlags);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : file - 
-//			dwFlags - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabRMF::Save(std::fstream& file, DWORD dwFlags)
-{
-	if (!IsLoaded() && (Load() == -1))
-	{
-		AfxMessageBox("Couldn't Load prefab to Save it.");
-		return -1;
-	}
-
-	return DoSave(file, dwFlags);
 }
 
 

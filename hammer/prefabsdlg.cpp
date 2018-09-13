@@ -121,7 +121,7 @@ void CPrefabsDlg::OnAddobject()
 				continue;	// no.
 			}
 
-			case CPrefab::pftRMF:
+			/*case CPrefab::pftRMF:
 			{
 				CPrefabRMF *pNew = new CPrefabRMF;
 				pNew->Init(strFullPath, TRUE, CPrefab::lsRMF);
@@ -135,8 +135,9 @@ void CPrefabsDlg::OnAddobject()
 				pNew->Init(strFullPath, TRUE, CPrefab::lsMAP);
 				pPrefab = (CPrefab *)pNew;
 				break;
-			}
+			}*/
 
+            default:
 			case CPrefab::pftScript:
 			{
 				Assert(0);	// not supported yet
@@ -480,7 +481,7 @@ Again:
 		return;	// nevermind.
 	}
 	
-	CPrefabLibraryRMF *pLibrary = new CPrefabLibraryRMF;
+	CPrefabLibraryVMF *pLibrary = new CPrefabLibraryVMF;
 
 	pLibrary->SetName(dlg.m_strName);
 	pLibrary->SetNotes(dlg.m_strDescript);

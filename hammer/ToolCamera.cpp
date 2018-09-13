@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include "ToolCamera.h"
 #include "SaveInfo.h"
-#include "MainFrm.h"			// dvs: remove?
 #include "MapDefs.h"
 #include "MapDoc.h"
 #include "MapView2D.h"
@@ -400,55 +399,6 @@ void Camera3D::DeleteActiveCamera()
 	
 	if(m_iActiveCamera >= Cameras.Count() )
 		m_iActiveCamera = Cameras.Count()-1;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : file - 
-//			fIsStoring - 
-//-----------------------------------------------------------------------------
-void Camera3D::SerializeRMF(std::fstream& file, BOOL fIsStoring)
-{
-	float fVersion = 0.2f, fThisVersion;
-
-	int nCameras = Cameras.Count();
-
-	if(fIsStoring)
-	{
-		file.write((char*)&fVersion, sizeof(fVersion) );
-
-		file.write((char*)&m_iActiveCamera, sizeof(m_iActiveCamera) );
-		file.write((char*)&nCameras, sizeof(nCameras));
-		for(int i = 0; i < nCameras; i++)
-		{
-			file.write((char*)&Cameras[i], sizeof(CAMSTRUCT));
-		}
-	}
-	else
-	{
-		file.read((char*)&fThisVersion, sizeof(fThisVersion) );
-
-		if(fThisVersion >= 0.2f)
-		{
-			file.read((char*)&m_iActiveCamera, sizeof(m_iActiveCamera));
-		}
-
-		file.read((char*)&nCameras, sizeof (nCameras) );
-
-		Cameras.RemoveAll();
-		Cameras.EnsureCapacity(nCameras);
-
-		for(int i = 0; i < nCameras; i++)
-		{
-			CAMSTRUCT cam;
-			file.read((char*)&cam, sizeof(CAMSTRUCT));
-			Cameras.AddToTail( cam );
-		}
-		EnsureMaxCameras();
-
-		Assert( Cameras.Count() == nCameras );
-	}
 }
 
 

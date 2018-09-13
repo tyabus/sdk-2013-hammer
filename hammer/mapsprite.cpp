@@ -442,30 +442,6 @@ void CMapSprite::Render3D(CRender3D *pRender)
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-// Input  : &File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapSprite::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapSprite::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
 // Input  : pTransBox - 
 //-----------------------------------------------------------------------------
 void CMapSprite::DoTransform(const VMatrix &matrix)

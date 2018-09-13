@@ -49,9 +49,6 @@ class CMapQuadBounds : public CMapHelper
 		virtual CMapClass *Copy(bool bUpdateDependencies);
 		virtual CMapClass *CopyFrom(CMapClass *pFrom, bool bUpdateDependencies);
 
-		int SerializeRMF(std::fstream &File, BOOL bRMF) { return(0); }
-		int SerializeMAP(std::fstream &File, BOOL bRMF) { return(0); }
-
 		bool IsVisualElement(void) { return(false); } // Only visible when the parent entity is selected.
 		
 		const char* GetDescription() { return("Quad bounds helper"); }

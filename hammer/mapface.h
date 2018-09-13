@@ -11,18 +11,10 @@
 #pragma once
 #endif
 
-
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
-#include "hammer_mathlib.h"
 #include "MapAtom.h"
 #include "DispManager.h"
 #include "mathlib/Vector4d.h"
 #include "UtlVector.h"
-#include "Color.h"
-#include "smoothinggroupmgr.h"
 #include "detailobjects.h"
 
 class CCheckFaceInfo;
@@ -229,8 +221,6 @@ public:
 	//
 	ChunkFileResult_t LoadVMF(CChunkFile *pFile);
 	ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
-	int SerializeRMF(std::fstream&, BOOL);
-	int SerializeMAP(std::fstream&, BOOL);
 
 	BOOL CheckFace(CCheckFaceInfo* = NULL);
 	BOOL Fix(void);

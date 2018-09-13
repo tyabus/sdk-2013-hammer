@@ -70,11 +70,6 @@ class CMapPath
 
 		void EditInfo();
 
-		// save/load to/from RMF:
-		void SerializeRMF(std::fstream&, BOOL fIsStoring);
-		// save to map: (no load!!)
-		void SerializeMAP(std::fstream&, BOOL fIsStoring, BoundBox *pIntersecting = NULL);
-
 		//void SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
 		//void LoadVMF(CChunkFile *pFile);
 

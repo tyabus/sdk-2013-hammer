@@ -65,28 +65,7 @@ void CPrefab3D::SetWorld(CMapWorld *pWorld)
 {
 	FreeData();
 	m_pWorld = pWorld;
-}
-
-
-class CPrefabRMF : public CPrefab3D
-{
-	public:
-
-		CPrefabRMF();
-		~CPrefabRMF();
-
-		int Init(LPCTSTR pszFilename, BOOL bLoadNow = FALSE, DWORD = 0);
-		int Load(DWORD dwFlags = 0);
-		int Save(LPCTSTR pszFilename, DWORD = 0);
-
-		int Init(std::fstream &file, BOOL bLoadNow = FALSE, DWORD = 0);
-		int Save(std::fstream &file, DWORD = 0);
-
-	private:
-
-		int DoLoad(std::fstream&, DWORD = 0);
-		int DoSave(std::fstream&, DWORD = 0);
-}; 
+} 
 
 
 class CPrefabVMF : public CPrefab3D

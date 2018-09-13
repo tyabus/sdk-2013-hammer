@@ -400,9 +400,9 @@ class CMapDoc : public CDocument
 		virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 		//}}AFX_VIRTUAL
 
-		void DeleteCurrentMap();
+        void SerializePrefab();
 
-		BOOL Serialize(std::fstream &file, BOOL fIsStoring, BOOL bRMF);
+		void DeleteCurrentMap();
 
 		// Save a VMF file. saveFlags is a combination of SAVEFLAGS_ defines.
 		bool SaveVMF(const char *pszFileName, int saveFlags );
@@ -552,6 +552,8 @@ class CMapDoc : public CDocument
 
         // QuickHide objects
         CMapObjectList m_QuickHideObjects;
+
+        bool m_bSaveVisiblesOnly;
 
 		//
 		// Expands %i keyword in prefab targetnames to generate unique targetnames for this map.
