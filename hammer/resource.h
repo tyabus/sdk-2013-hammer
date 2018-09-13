@@ -30,6 +30,7 @@
 #define ID_TOOLS_QUICKHIDE_OBJECTS_UNSEL 117
 #define ID_TOOLS_QUICKHIDE_UNHIDE       118
 #define ID_TOOLS_QUICKHIDE_CONVERT      119
+#define IDC_EDIT_INSTANCE               120
 #define IDR_MAINFRAME                   128
 #define IDR_FORGEMAPTYPE                129
 #define IDR_MAPDOC                      129
@@ -1261,6 +1262,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        341
 #define _APS_NEXT_COMMAND_VALUE         33236
 #define _APS_NEXT_CONTROL_VALUE         1677
-#define _APS_NEXT_SYMED_VALUE           120
+#define _APS_NEXT_SYMED_VALUE           121
 #endif
 #endif

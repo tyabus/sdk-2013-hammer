@@ -339,6 +339,7 @@ BEGIN_MESSAGE_MAP(COP_Entity, CObjectPage)
 	ON_EN_CHANGE(IDC_SMARTCONTROL, OnChangeSmartcontrol)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_PLAY_SOUND, OnPlaySound)
+	ON_BN_CLICKED(IDC_EDIT_INSTANCE, OnEditInstance)
 	ON_BN_CLICKED(IDC_MARK, OnMark)
 	ON_BN_CLICKED(IDC_MARK_AND_ADD, OnMarkAndAdd)
 	ON_BN_CLICKED(IDC_PICK_FACES, OnPickFaces)
@@ -1742,16 +1743,16 @@ void COP_Entity::CreateSmartControls(GDinputvariable *pVar, CUtlVector<const cha
 		//
 		// Create a "Browse..." button for browsing for files.
 		//
-		if ((eType == ivStudioModel) || (eType == ivSprite) || (eType == ivSound) || (eType == ivDecal) ||
-			(eType == ivMaterial) || (eType == ivScene))
+		if (eType == ivStudioModel || eType == ivSprite || eType == ivSound || eType == ivDecal ||
+			eType == ivMaterial || eType == ivScene || eType == ivInstanceFile)
 		{
 			CreateSmartControls_BrowseAndPlayButtons( pVar, ctrlrect, hControlFont );
 		}
-		else if ((eType == ivTargetDest) || (eType == ivTargetNameOrClass) || (eType == ivTargetSrc) || (eType == ivNodeDest))
+		else if (eType == ivTargetDest || eType == ivTargetNameOrClass || eType == ivTargetSrc || eType == ivNodeDest)
 		{
 			CreateSmartControls_MarkAndEyedropperButtons( pVar, ctrlrect, hControlFont );
 		}
-		else if ((eType == ivSide) || (eType == ivSideList))
+		else if (eType == ivSide || eType == ivSideList)
 		{
 			CreateSmartControls_PickButton( pVar, ctrlrect, hControlFont );
 		}
@@ -2097,6 +2098,19 @@ void COP_Entity::CreateSmartControls_BrowseAndPlayButtons( GDinputvariable *pVar
 		pButton->CreateEx(0, "Button", "Play", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
 			ButtonRect.left, ButtonRect.top, ButtonRect.Width(), ButtonRect.Height(),
 			GetSafeHwnd(), (HMENU)IDC_PLAY_SOUND);
+		pButton->SendMessage(WM_SETFONT, (WPARAM)hControlFont);
+
+		m_SmartControls.AddToTail(pButton);
+	}
+	else if ( pVar->GetType() == ivInstanceFile )
+	{
+		ButtonRect.left = ButtonRect.right + 8;
+		ButtonRect.right = ButtonRect.left + 54;
+
+		CButton *pButton = new CButton;
+		pButton->CreateEx(0, "Button", "Edit", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
+						   ButtonRect.left, ButtonRect.top, ButtonRect.Width(), ButtonRect.Height(),
+						   GetSafeHwnd(), (HMENU)IDC_EDIT_INSTANCE);
 		pButton->SendMessage(WM_SETFONT, (WPARAM)hControlFont);
 
 		m_SmartControls.AddToTail(pButton);
@@ -3020,6 +3034,18 @@ void COP_Entity::OnPlaySound(void)
 		g_Sounds.Play( type, nIndex );
 }
 
+void COP_Entity::OnEditInstance()
+{
+	if ( m_eEditType != ivInstanceFile )
+		return;
+
+	char szCurrentInstance[256];
+	m_pSmartControl->GetWindowText(szCurrentInstance, 256);
+	if ( !szCurrentInstance[0] )
+		return;
+	APP()->OpenDocumentFile( szCurrentInstance );
+}
+
 
 // Filesystem dialog module wrappers.
 CSysModule *g_pFSDialogModule = 0;
@@ -3182,6 +3208,13 @@ void COP_Entity::OnBrowse(void)
 			goto Cleanup;
 		}
 
+		case ivInstanceFile:
+		{
+			pDlg->AddFileMask( "*.vmf" );
+			//pDlg->SetInitialDir( pszInitialDir, pPathID );
+			break;
+		}
+
 		default:
 		{
 			pDlg->AddFileMask( "*.*" );
@@ -3195,7 +3228,7 @@ void COP_Entity::OnBrowse(void)
 	// into the SmartEdit control. If there is no backslash, put the whole filename.
 	//
 	int ret;
-	if ( g_pFullFileSystem->IsSteam() || CommandLine()->FindParm( "-NewDialogs" ) )
+	if ( m_eEditType != ivInstanceFile )
 		ret = pDlg->DoModal();
 	else
 		ret = pDlg->DoModal_WindowsDialog();

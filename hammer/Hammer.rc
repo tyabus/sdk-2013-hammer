@@ -620,7 +620,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-
 // Dialog
 //
 
@@ -633,7 +632,8 @@ BEGIN
     PUSHBUTTON      "Close",IDOK,204,60,50,14,WS_GROUP
     ICON            IDR_MAINFRAME,IDC_STATIC,7,7,21,20
     LTEXT           "Valve Hammer Editor is a trademark of Valve Corporation",IDC_STATIC,38,19,186,8
-    LTEXT           "Copyright 1996-2018, Valve Corporation, All rights reserved.",IDC_STATIC,38,31,201,10    LTEXT           "Build %d",IDC_BUILD_NUMBER,38,7,69,8
+    LTEXT           "Copyright 1996-2018, Valve Corporation, All rights reserved.",IDC_STATIC,38,31,201,10
+    LTEXT           "Build %d",IDC_BUILD_NUMBER,38,7,69,8
     LTEXT           "This version of Hammer was made with <3 by volunteers.",IDC_STATIC,38,43,201,10
 END
 
