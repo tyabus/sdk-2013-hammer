@@ -1260,9 +1260,10 @@ void CMapEntity::DeleteKeyValue(LPCSTR pszKey)
 	  szOldValue[0] = '\0';
 	}
 
+	const CString key = pszKey;
 	CEditGameClass::DeleteKeyValue(pszKey);
 
-	OnKeyValueChanged(pszKey, szOldValue, "");
+	OnKeyValueChanged(key, szOldValue, "");
 	CalculateTypeFlags();
 	SignalChanged();
 }
