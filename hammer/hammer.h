@@ -118,8 +118,6 @@ public:
 	void SuppressVideoAllocation( bool bSuppress );
 	bool CanAllocateVideo() const;
 
-	void Help(const char *pszTopic);
-
 	CGameConfig *PromptForGameConfig();
 
 	void OpenURL(const char *pszURL, HWND hwnd);

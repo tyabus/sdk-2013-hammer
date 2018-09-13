@@ -14,14 +14,9 @@
 #include "GlobalFunctions.h"
 #include "CustomMessages.h"
 #include "OptionProperties.h"
-#include <process.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
-
-
-const char GAMECFG_SIG[] = "Game Configurations File\r\n\x1a";
-const float GAMECFG_VERSION = 1.4f;
 
 static const char *pszGeneral = "General";
 static const char *pszView2D = "2D Views";
@@ -29,9 +24,6 @@ static const char *pszView3D = "3D Views";
 static const char *g_szColors = "Custom2DColors";
 
 const int iThisVersion = 2;
-
-// So File | Open will be in the right directory.
-char *g_pMapDir = NULL;
 
 
 //-----------------------------------------------------------------------------
@@ -110,60 +102,6 @@ CGameConfig *COptionsConfigs::FindConfigForGame(const char *szGame)
 	return NULL;
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Output : Returns the number of game configurations successfully imported.
-//-----------------------------------------------------------------------------
-int COptionsConfigs::ImportOldGameConfigs(const char *pszFileName)
-{
-	int nConfigsRead = 0;
-
-	char szRootDir[MAX_PATH];
-	char szFullPath[MAX_PATH];
-	APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-	Q_MakeAbsolutePath( szFullPath, MAX_PATH, pszFileName, szRootDir );
-	std::fstream file( szFullPath, std::ios::in | std::ios::binary );
-	if (file.is_open())
-	{
-		// Read sig.
-		char szSig[sizeof(GAMECFG_SIG)];
-		file.read(szSig, sizeof szSig);
-		if (!memcmp(szSig, GAMECFG_SIG, sizeof szSig))
-		{
-			// Read version.
-			float fThisVersion;
-			file.read((char *)&fThisVersion, sizeof(fThisVersion));
-			if ((fThisVersion >= 1.0) && (fThisVersion <= GAMECFG_VERSION))
-			{
-				// Read number of configs.
-				int nTotalConfigs;
-				file.read((char *)&nTotalConfigs, sizeof(nTotalConfigs));
-
-				// Load each config.
-				for (int i = 0; i < nTotalConfigs; i++)
-				{
-					CGameConfig *pConfig = AddConfig();
-					pConfig->Import(file, fThisVersion);
-					nConfigsRead++;
-
-					if (!g_pMapDir)
-					{
-						g_pMapDir = (char *)pConfig->szMapDir;
-					}
-				}
-			}
-		}
-
-		file.close();
-	}
-
-	return(nConfigsRead);
-}
-
-// Our call to "new" will be hosed without this header
-#include "tier0/memdbgoff.h"
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Output : Returns true on success, false on failure.
@@ -234,31 +172,8 @@ int COptionsConfigs::LoadGameConfigsBlock( KeyValues *pBlock )
 //-----------------------------------------------------------------------------
 int COptionsConfigs::LoadGameConfigs()
 {
-	//
-	// Read game configs - this is from an external file so we can distribute it
-	// with the editor as a set of defaults.
-	//
-	// Older versions of the editor used a binary file. Try that first.
-	//
-	int nConfigsRead = ImportOldGameConfigs("GameCfg.wc");
-	if (nConfigsRead > 0)
-	{
-		// This will cause a double conversion, from .wc to .ini to .txt, but oh well...
-		char szRootDir[MAX_PATH];
-		char szFullPath[MAX_PATH];
-		APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-		Q_MakeAbsolutePath( szFullPath, MAX_PATH, "GameCfg.wc", szRootDir );
-		remove( szFullPath );
-		char szSaveName[MAX_PATH];
-		strcpy(szSaveName, m_strConfigDir);
-		Q_AppendSlash(szSaveName, sizeof(szSaveName));
-		Q_strcat(szSaveName, "GameCfg.ini", sizeof(szSaveName));
-		SaveGameConfigs();
-		return(nConfigsRead);
-	}
-
 	CGameConfigManager mgr;
-
+    
 	if ( !mgr.LoadConfigs( m_strConfigDir ) )
 		return 0;
 
@@ -270,9 +185,7 @@ int COptionsConfigs::LoadGameConfigs()
 	GDSetMessageFunc(Msg);
 
 	// Load from the blocks
-	nConfigsRead = LoadGameConfigsBlock( pGame );
-
-	return nConfigsRead;
+	return LoadGameConfigsBlock(pGame);
 }
 
 

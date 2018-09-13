@@ -620,52 +620,6 @@ void CHammer::OpenURL(UINT nID, HWND hwnd)
 }
 
 
-//-----------------------------------------------------------------------------
-// Purpose: Launches the help system for the specified help topic.
-// Input  : pszTopic - Topic to open.
-//-----------------------------------------------------------------------------
-void CHammer::Help(const char *pszTopic)
-{
-	//
-	// Get the directory that the help file should be in (our program directory).
-	//
-	/*char szHelpDir[MAX_PATH];
-	GetDirectory(DIR_PROGRAM, szHelpDir);
-
-	//
-	// Find the application that is associated with compiled HTML files.
-	//
-	char szHelpExe[MAX_PATH];
-	HINSTANCE hResult = FindExecutable("wc.chm", szHelpDir, szHelpExe);
-	if (hResult > (HINSTANCE)32)
-	{
-		//
-		// Build the full topic with which to launch the help application.
-		//
-		char szParam[2 * MAX_PATH];
-		strcpy(szParam, szHelpDir);
-		strcat(szParam, "wc.chm");
-		if (pszTopic != NULL)
-		{
-			strcat(szParam, "::/");
-			strcat(szParam, pszTopic);
-		}
-
-		//
-		// Launch the help application for the given topic.
-		//
-		hResult = ShellExecute(NULL, "open", szHelpExe, szParam, szHelpDir, SW_SHOW);
-	}
-
-	if (hResult <= (HINSTANCE)32)
-	{
-		char szError[MAX_PATH];
-		sprintf(szError, "The help system could not be launched. The the following error was returned:\n%s (0x%X)", GetErrorString(), hResult);
-		AfxMessageBox(szError);
-	}
-	*/
-}
-
 
 static SpewRetval_t HammerDbgOutput( SpewType_t spewType, const char* pMsg )
 {
@@ -918,7 +872,7 @@ InitReturnVal_t CHammer::HammerInternalInit()
     wndcls.hInstance     = AfxGetInstanceHandle();
     wndcls.hIcon         = LoadIcon(IDR_MAINFRAME);
     wndcls.hCursor       = LoadCursor( IDC_ARROW );
-    wndcls.hbrBackground = (HBRUSH)0; //  (COLOR_WINDOW + 1);
+    wndcls.hbrBackground = (HBRUSH) 0; //  (COLOR_WINDOW + 1);
     wndcls.lpszMenuName  = "IDR_MAINFRAME";
 	wndcls.cbWndExtra    = 0;
 

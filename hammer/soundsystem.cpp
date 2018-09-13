@@ -358,9 +358,6 @@ void CSoundSystem::AddGameSoundToList( const char *pGameSound, char const *pFile
 	AddSoundToList( SOUND_TYPE_GAMESOUND, pGameSound, temp, pSourceFile );
 }
 
-// memdbgon must be the last include file in a .cpp file!!!
-#include <tier0/memdbgoff.h>
-
 //-----------------------------------------------------------------------------
 // Load all game sounds from a particular file 
 //-----------------------------------------------------------------------------

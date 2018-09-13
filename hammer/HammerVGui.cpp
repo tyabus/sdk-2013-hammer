@@ -47,7 +47,7 @@ bool CHammerVGui::Init( HWND hWindow )
 		return false;
 
 	// configuration settings
-	vgui::system()->SetUserConfigFile("hammer.vdf", "EXECUTABLE_PATH");
+	vgui::system()->SetUserConfigFile("hammer.vdf", "hammer_cfg");
 
 	// Are we trapping input?
 	g_pMatSystemSurface->EnableWindowsMessages( true );
