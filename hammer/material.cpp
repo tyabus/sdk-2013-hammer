@@ -1273,11 +1273,11 @@ bool CMaterial::LoadMaterialImage( void )
 }
 
 
-static void InitMaterialSystemConfig(MaterialSystem_Config_t *pConfig)
+static void InitMaterialSystemConfig(MaterialSystem_Config_t& pConfig)
 {
-	pConfig->bEditMode = true;
-	pConfig->m_nAASamples = 0;
-	pConfig->SetFlag( MATSYS_VIDCFG_FLAGS_DISABLE_BUMPMAP, true);
+	pConfig.bEditMode = true;
+	pConfig.m_nAASamples = 0;
+	pConfig.SetFlag( MATSYS_VIDCFG_FLAGS_DISABLE_BUMPMAP, true);
 	// When I do this the model browser layout is horked...
 	// pConfig->SetFlag( MATSYS_VIDCFG_FLAGS_USING_MULTIPLE_WINDOWS, true );
 }
@@ -1301,7 +1301,7 @@ static CTextureReference sg_ExtraFP16Targets[NELEMS(s_rt_names)];
 void AllocateLightingPreviewtextures(void)
 {
 	static bool bHaveAllocated=false;
-	if (! bHaveAllocated )
+	if ( !bHaveAllocated )
 	{
 		bHaveAllocated = true;
 		MaterialSystemInterface()->BeginRenderTargetAllocation();
@@ -1329,14 +1329,14 @@ bool CMaterial::Initialize( HWND hwnd )
 {
 	// NOTE: This gets set to true later upon creating a 3d view.
 	g_materialSystemConfig = materials->GetCurrentConfigForVideoCard();
-	InitMaterialSystemConfig( &g_materialSystemConfig );
+	InitMaterialSystemConfig( g_materialSystemConfig );
 
 	// Create a cache for material images (for browsing and uploading to the driver).
 	if (g_pMaterialImageCache == NULL)
 	{
 		g_pMaterialImageCache = new CMaterialImageCache(500);
 		if (g_pMaterialImageCache == NULL)
-			return false ;
+			return false;
 	}
 
 	materials->OverrideConfig( g_materialSystemConfig, false );
@@ -1350,11 +1350,9 @@ bool CMaterial::Initialize( HWND hwnd )
 	g_materialSystemConfig.SetFlag( MATSYS_VIDCFG_FLAGS_WINDOWED, true );
 	g_materialSystemConfig.SetFlag( MATSYS_VIDCFG_FLAGS_RESIZING, true );
 
+	materials->SetMaterialProxyFactory( GetHammerMaterialProxyFactory() );
 
-	if (!MaterialSystemInterface()->SetMode( hwnd, g_materialSystemConfig ) )
-		return false;
-
-	return true;
+	return materials->SetMode( hwnd, g_materialSystemConfig );
 }
 
 
