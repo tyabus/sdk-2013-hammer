@@ -301,7 +301,6 @@ BEGIN
     END
     POPUP "&Tools"
     BEGIN
-        MENUITEM "&Prefab Factory...",          ID_TOOLS_PREFABFACTORY
         MENUITEM "&Options...",                 ID_TOOLS_OPTIONS
     END
     POPUP "&Help"

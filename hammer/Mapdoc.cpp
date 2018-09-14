@@ -12,7 +12,6 @@
 #include <mmsystem.h>
 #include "BuildNum.h"
 #include "CustomMessages.h"
-#include "EditPrefabDlg.h"
 #include "EntityReportDlg.h"
 #include "FaceEditSheet.h"
 #include "GlobalFunctions.h"

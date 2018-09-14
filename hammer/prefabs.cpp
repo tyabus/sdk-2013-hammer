@@ -29,24 +29,6 @@ CPrefabList CPrefab::MRU;
 CPrefabLibraryList CPrefabLibrary::PrefabLibraryList;
 
 
-typedef struct
-{
-	DWORD dwOffset;
-	DWORD dwSize;
-	char szName[31];
-	char szNotes[MAX_NOTES];
-	int iType;
-} PrefabHeader;
-
-
-typedef struct
-{
-	float fVersion;
-	DWORD dwDirOffset;
-	DWORD dwNumEntries;
-	char szNotes[MAX_NOTES];
-} PrefabLibraryHeader;
-
 
 //-----------------------------------------------------------------------------
 // Purpose: Creates a prefab library from a given path.
@@ -174,62 +156,6 @@ void CPrefab::FreeAllData()
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-// Input  : pszFilename - 
-// Output : CPrefab::pfiletype_t
-//-----------------------------------------------------------------------------
-CPrefab::pfiletype_t CPrefab::CheckFileType(LPCTSTR pszFilename)
-{
-	// first check extensions
-	const char *p = strrchr(pszFilename, '.');
-	if(p)
-	{
-		if(!strcmpi(p, ".rmf"))
-			return pftRMF;
-		else if(!strcmpi(p, ".map"))
-			return pftMAP;
-		else if(!strcmpi(p, ".os"))
-			return pftScript;
-	}
-
-	std::fstream file(pszFilename, std::ios::in | std::ios::binary);
-
-	// read first 16 bytes of file
-	char szBuf[255];
-	file.read(szBuf, 16);
-
-	// check 1: RMF
-	float f = ((float*) szBuf)[0];
-
-	// 0.8 was version at which RMF tag was started
-	if(f <= 0.7f || !strncmp(szBuf+sizeof(float), "RMF", 3))
-	{
-		return pftRMF;
-	}
-
-	// check 2: script
-	if(!strnicmp(szBuf, "[Script", 7))
-	{
-		return pftScript;
-	}
-
-	// check 3: MAP
-	int i = 500;
-	while(i--)
-	{
-		file >> std::ws;
-		file.getline(szBuf, 255);
-		if(szBuf[0] == '{')
-			return pftMAP;
-		if(file.eof())
-			break;
-	}
-
-	return pftUnknown;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
 //-----------------------------------------------------------------------------
 CPrefabLibrary::CPrefabLibrary()
 {
@@ -238,6 +164,7 @@ CPrefabLibrary::CPrefabLibrary()
 	dwID = dwRunningID++;
 	m_szName[0] = '\0';
 	szNotes[0] = '\0';
+    m_eType = LibType_HalfLife2;
 }
 
 

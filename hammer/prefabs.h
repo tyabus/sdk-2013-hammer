@@ -47,15 +47,6 @@ public:
 	CPrefab(void);
 	virtual ~CPrefab(void);
 
-	// load/save flags:
-	enum
-	{
-		lsRMF = 0x00,	// default
-		lsMAP = 0x01,
-		lsRaw = 0x02,
-		lsUpdateFilePos = 0x04
-	};
-
 	virtual int Save(LPCTSTR pszFilename, DWORD = 0) = 0;
 	virtual int Load(DWORD = 0) = 0;
 
@@ -80,17 +71,7 @@ public:
 	virtual void FreeData() = 0;
 	virtual bool IsLoaded() = 0;
 
-	// filetype determination:
-	typedef enum
-	{
-		pftUnknown,
-		pftRMF,
-		pftMAP,
-		pftScript
-	} pfiletype_t;
-
 	// static misc stuff:
-	static pfiletype_t CheckFileType(LPCTSTR pszFilename);
 	static CPrefab* FindID(DWORD dwID);
 
 	// caching:

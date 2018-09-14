@@ -6,7 +6,6 @@
 
 #include "stdafx.h"
 #include <afxadv.h>
-#include <oaidl.h>
 #include "hammer.h"
 #include "Box3D.h"				// For units
 #include "FaceEditSheet.h"
@@ -14,18 +13,13 @@
 #include "MessageWnd.h"
 #include "ControlBarIDs.h"
 #include "CustomMessages.h"
-#include "DynamicDialogWnd.h"
-#include "filesystem_tools.h"
 #include "GlobalFunctions.h"
 #include "Prefabs.h"
-#include "PrefabsDlg.h"
 #include "MapDoc.h"
 #include "StatusBarIDs.h"
-#include "Splash.h"
 #include "Options.h"
 #include "OptionProperties.h"
 #include "ObjectProperties.h"
-#include "OP_Groups.h"
 #include "MapView2D.h"
 #include "MapViewLogical.h"
 #include "MapView3D.h"
@@ -39,7 +33,6 @@
 #include "materialsystem/IMaterialSystem.h"
 #include "materialsystem/MaterialSystem_Config.h"
 #include "soundbrowser.h"
-#include "lprvwindow.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -62,7 +55,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_WM_PAINT()
 	ON_WM_TIMER()
 	ON_COMMAND(ID_TOOLS_OPTIONS, OnToolsOptions)
-	ON_COMMAND(ID_TOOLS_PREFABFACTORY, OnToolsPrefabfactory)
 	ON_COMMAND_EX(ID_HELP_TOPICS, OnHelpOpenURL)
 	ON_COMMAND_EX(ID_HELP_EDITINGSITE, OnHelpOpenURL)
 	ON_COMMAND_EX(ID_HELP_WORLDCRAFT_SUPPORT_MAIL, OnHelpOpenURL)
@@ -1102,18 +1094,6 @@ void CMainFrame::OnUpdateApplicatorUI(CCmdUI *pUI)
 		pUI->SetCheck(IsInFaceEditMode());
 		pUI->Enable(CMapDoc::GetActiveMapDoc() ? TRUE : FALSE);
 	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Invokes the prefab manager dialog.
-//-----------------------------------------------------------------------------
-void CMainFrame::OnToolsPrefabfactory(void)
-{
-	CPrefabsDlg dlg;
-	dlg.DoModal();
-	CPrefabLibrary::LoadAllLibraries();
-	m_ObjectBar.UpdateListForTool( ToolManager()->GetActiveToolID());
 }
 
 
