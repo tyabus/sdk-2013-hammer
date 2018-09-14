@@ -5,8 +5,7 @@
 
 version: '{branch}-{build}'
 
-# We only care about master and develop for our project.
-# CHANGEME if you want Appveyor to build other branches!
+# We only care about master for our project.
 branches:
   only:
     - master
@@ -24,8 +23,7 @@ image: Visual Studio 2017
 # You can change me, but make sure to change it for every other part of the build!
 clone_folder: c:\build
 
-# Clone to only the last 5 commits
-clone_depth: 5
+clone_depth: 1
 
 # Init script is called before the project is cloned. Not needed for our project, maybe for yours.
 # init:
@@ -42,10 +40,6 @@ install:
   
 # It's important to note that this is what is found inside of createallprojects.bat, but our script pauses
 # to help know if something went wrong with VPC, so we directly call it here instead.
-# Further note: Our builder builds everything, including tools, because we require them for our push to Steam.
-# It is advised to just only build your game projects (server/client DLLs). Replace this line with the commands found in
-# your "creategameprojects.bat" file in your repository.
-# CHANGEME
   - devtools\bin\vpc.exe +hammer /mksln hammer.sln
 
 # Another note: VPC is really lame and doesn't spit out the full solution file. The correct file is after you
@@ -70,8 +64,8 @@ test: off
 # After build scripts run... well, after the build, of course. Mainly here to clean some stuff up.
 after_build:
 # Gonna be deleting some PDB files, these things are nasty big and we won't want them for our build artifacts zip.
-# CHANGEME to be your correct game's name (not momentum I hope)
   - if exist c:\build\bin\*.pdb del /f c:\build\bin\*.pdb
+  - if exist C:\build\bin\hammer\bin\*.pdb del /f c:\build\bin\hammer\bin\*.pdb
 
 # This is trimming the commit hash to be only around 7 characters long, much more bearable when you have it
 # sent to a slack channel or something. Feel free to CHANGEME if you don't use/don't want to shorten it.
@@ -80,9 +74,7 @@ after_build:
 
 # Lastly, and certainly not leastly (it's the reason we're doing this!), Artifacts.
 artifacts:
-
 # First one is all of the tool binary files
-# CHANGEME if you don't build everything feel free to remove this
   - path: bin
     name: hammer_bin_$(APPVEYOR_REPO_COMMIT)
     type: zip
