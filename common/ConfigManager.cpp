@@ -209,12 +209,10 @@ bool CGameConfigManager::CreateDefaultConfig(void)
     // Start our new block
     KeyValues *configBlock = new KeyValues("Configs");
     KeyValues *gameBlock = new KeyValues("Games");
-    KeyValues *defaultConfig = new KeyValues("Default");
 
     // Get our defaults
-    GetDefaultGameBlock(defaultConfig);
+    GetDefaultGameBlock(gameBlock);
     // Add it to our parent
-    gameBlock->AddSubKey(defaultConfig);
     configBlock->AddSubKey(gameBlock);
 
     configBlock->SaveToFile(g_pFullFileSystem, GAME_CONFIG_FILENAME, "hammer_cfg");

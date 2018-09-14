@@ -565,30 +565,6 @@ void CMapCylinder::Render3D(CRender3D *pRender)
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapCylinder::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapCylinder::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
 // Input  : pTransBox - 
 //-----------------------------------------------------------------------------
 void CMapCylinder::DoTransform(const VMatrix &matrix)

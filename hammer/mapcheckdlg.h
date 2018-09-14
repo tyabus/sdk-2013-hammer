@@ -10,12 +10,10 @@
 #pragma once
 #endif
 
-#include "mapdoc.h"
 
-
+class UpdateBox;
 struct MapError;
 class CMapClass;
-
 
 class CMapCheckDlg : public CDialog
 {

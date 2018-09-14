@@ -31,7 +31,6 @@ public:
 	void SetUsed(BOOL);
 	void SaveAndExit();
 	void SetFilter(const char *pszFilter);
-	void SetTextureFormat(TEXTUREFORMAT eTextureFormat);
 
 	CTextureWindow m_cTextureWindow; // dvs: make protected
 

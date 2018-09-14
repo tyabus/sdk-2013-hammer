@@ -11,6 +11,7 @@
 #include "Material.h"			// FIXME: we need to work only with IEditorTexture!
 #include "materialsystem/IMaterial.h"
 #include "materialsystem/IMaterialSystem.h"
+#include "materialsystem/imaterialvar.h"
 #include "Render3d.h"
 #include "camera.h"
 #include "tier1/utldict.h"

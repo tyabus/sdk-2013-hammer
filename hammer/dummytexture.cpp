@@ -7,11 +7,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <process.h>
-#include <afxtempl.h>
-#include <io.h>
-#include <sys\stat.h>
-#include <fcntl.h>
 #include "DummyTexture.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -21,7 +16,7 @@
 //-----------------------------------------------------------------------------
 // Purpose: Constructor.
 //-----------------------------------------------------------------------------
-CDummyTexture::CDummyTexture(const char *pszName, TEXTUREFORMAT eFormat)
+CDummyTexture::CDummyTexture(const char *pszName)
 {
 	if (pszName != NULL)
 	{
@@ -31,8 +26,6 @@ CDummyTexture::CDummyTexture(const char *pszName, TEXTUREFORMAT eFormat)
 	{
 		strcpy(m_szName, "Missing texture");
 	}
-
-	m_eTextureFormat = eFormat;
 }
 
 
@@ -86,31 +79,7 @@ int CDummyTexture::GetShortName(char *pszName) const
 		pszName = szBuf;
 	}
 
-	if (m_eTextureFormat == tfWAL)
-	{
-		const char *psz = strstr(m_szName, "textures");
-		if (psz == NULL)
-		{
-			psz = m_szName;
-		}
-		else
-		{
-			psz += strlen("textures\\");
-		}
-
-		strcpy(pszName, psz);
-
-		// remove extension
-		char *pszExtension = strstr(pszName, ".wal");
-		if (pszExtension)
-		{
-			*pszExtension = 0;
-		}
-	}
-	else
-	{
-		strcpy(pszName, m_szName);
-	}
+	strcpy(pszName, m_szName);
 
 	return(strlen(pszName));
 }

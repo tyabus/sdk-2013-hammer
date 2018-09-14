@@ -287,7 +287,6 @@ class CMapDoc : public CDocument
 
 		void ReleaseVideoMemory( );
 
-		inline MAPFORMAT GetMapFormat(void);
 		inline CMapWorld *GetMapWorld(void);
 		inline CGameConfig *GetGame(void);
 		inline int GetGridSpacing(void) { return(max(m_nGridSpacing, 1)); }
@@ -311,9 +310,6 @@ class CMapDoc : public CDocument
 		void RenderAllViews(void);
 		BOOL SelectDocType(void);
 		BOOL SaveModified(void);
-
-		// Set edit prefab mode.
-		void EditPrefab3D(DWORD dwPrefabID);
 
 		//
 		// Call these when modifying the document contents.
@@ -401,8 +397,6 @@ class CMapDoc : public CDocument
 		//}}AFX_VIRTUAL
 
 		void DeleteCurrentMap();
-
-		BOOL Serialize(std::fstream &file, BOOL fIsStoring, BOOL bRMF);
 
 		// Save a VMF file. saveFlags is a combination of SAVEFLAGS_ defines.
 		bool SaveVMF(const char *pszFileName, int saveFlags );
@@ -520,9 +514,6 @@ class CMapDoc : public CDocument
 		int m_nNextNodeID;				// The ID that will be assigned to the next "info_node_xxx" object created in this document.
 
 		// Editing prefabs data.
-		DWORD m_dwPrefabID;
-		DWORD m_dwPrefabLibraryID;
-		BOOL m_bEditingPrefab;
 		bool m_bPrefab;					// true if this document IS a prefab, false if not.
 
 		// Game configuration.
@@ -552,6 +543,8 @@ class CMapDoc : public CDocument
 
         // QuickHide objects
         CMapObjectList m_QuickHideObjects;
+
+        bool m_bSaveVisiblesOnly;
 
 		//
 		// Expands %i keyword in prefab targetnames to generate unique targetnames for this map.
@@ -602,8 +595,6 @@ class CMapDoc : public CDocument
 		afx_msg void OnFileExport();
 		afx_msg void OnFileExportAgain();
 		afx_msg void OnEditMapproperties();
-		afx_msg void OnFileConvertWAD();
-		afx_msg void OnUpdateFileConvertWAD(CCmdUI* pCmdUI);
 		afx_msg void OnFileRunmap();
 		afx_msg void OnToolsHideitems();
 		afx_msg void OnViewHideUnconnectedEntities();
@@ -785,20 +776,6 @@ CGameConfig *CMapDoc::GetGame(void)
 CHistory *CMapDoc::GetDocHistory(void)
 {
 	return(m_pUndo);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Returns the map format of the game configuration for this document.
-//-----------------------------------------------------------------------------
-MAPFORMAT CMapDoc::GetMapFormat(void)
-{
-	if (m_pGame != NULL)
-	{
-		return(m_pGame->mapformat);
-	}
-
-	return(mfHalfLife2);
 }
 
 

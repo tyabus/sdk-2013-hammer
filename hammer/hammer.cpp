@@ -232,15 +232,7 @@ class CHammerCmdLine : public CCommandLineInfo
 			{
 				m_bShowLogo = false;
 			}
-			else if (bFlag && !strcmpi(lpszParam, "makelib"))
-			{
-				bMakeLib = TRUE;
-			}
-			else if (!bFlag && bMakeLib)
-			{
-				MakePrefabLibrary(lpszParam);
-			}
-			else if ((!m_bConfigDir) && (bFlag && !stricmp(lpszParam, "configdir")))
+		    else if ((!m_bConfigDir) && (bFlag && !stricmp(lpszParam, "configdir")))
 			{
 				m_bConfigDir = true;
 			}
@@ -281,8 +273,7 @@ END_MESSAGE_MAP()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Constructor. Initializes member variables and creates a scratch
-//			buffer for use when loading WAD files.
+// Purpose: Constructor.
 //-----------------------------------------------------------------------------
 CHammer::CHammer(void)
 {
@@ -327,14 +318,19 @@ bool CHammer::Connect( CreateInterfaceFn factory )
     InstallDmElementFactories();
 
 	// ensure we're in the same directory as the .EXE
-	char *p;
-	GetModuleFileName(NULL, m_szAppDir, MAX_PATH);
-	p = strrchr(m_szAppDir, '\\');
-	if(p)
-	{
-		// chop off \wc.exe
-		p[0] = 0;
-	}
+	char module[MAX_PATH];
+	GetModuleFileName(NULL, module, MAX_PATH);
+    V_ExtractFilePath(module, m_szAppDir, MAX_PATH);
+    V_StripTrailingSlash(m_szAppDir);
+
+    // Build hammer paths
+    char hammerDir[MAX_PATH];
+    V_ComposeFileName(m_szAppDir, "hammer", hammerDir, MAX_PATH);
+    g_pFullFileSystem->AddSearchPath(hammerDir, "hammer", PATH_ADD_TO_HEAD);
+    char hammerPrefabs[MAX_PATH];
+    V_ComposeFileName(hammerDir, "prefabs", hammerPrefabs, MAX_PATH);
+    g_pFullFileSystem->CreateDirHierarchy("prefabs", "hammer"); // Create the prefabs folder if it doesn't already exist
+    g_pFullFileSystem->AddSearchPath(hammerPrefabs, "hammer_prefabs", PATH_ADD_TO_HEAD);
 
 	// Create the message window object for capturing errors and warnings.
 	// This does NOT create the window itself. That happens later in CMainFrame::Create.
@@ -476,18 +472,8 @@ void CHammer::GetDirectory(DirIndex_t dir, char *p)
 
 		case DIR_PREFABS:
 		{
-			strcpy(p, m_szAppDir);
-			EnsureTrailingBackslash(p);
-			strcat(p, "Prefabs");
-
-			//
-			// Make sure the prefabs directory exists.
-			//
-			if ((_access( p, 0 )) == -1)
-			{
-				CreateDirectory(p, NULL);
-			}
-			break;
+                g_pFullFileSystem->GetSearchPath("hammer_prefabs", false, p, MAX_PATH);
+                break;
 		}
 
 		//
@@ -530,6 +516,8 @@ void CHammer::GetDirectory(DirIndex_t dir, char *p)
 			EnsureTrailingBackslash(p);
 			break;
 		}
+        default:
+        break;
 	}
 }
 
@@ -1338,8 +1326,7 @@ void CHammer::OnFileOpen(void)
 		strcpy(szInitialDir, g_pGameConfig->szMapDir);
 	}
 
-	// TODO: need to prevent (or handle) opening VMF files when using old map file formats
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_LONGNAMES | OFN_HIDEREADONLY | OFN_NOCHANGEDIR, "Valve Map Files (*.vmf)|*.vmf|Valve Map Files Autosave (*.vmf_autosave)|*.vmf_autosave|Worldcraft RMFs (*.rmf)|*.rmf|Worldcraft Maps (*.map)|*.map||");
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_LONGNAMES | OFN_HIDEREADONLY | OFN_NOCHANGEDIR, "Valve Map Files (*.vmf)|*.vmf|Valve Map Files Autosave (*.vmf_autosave)|*.vmf_autosave||");
 	dlg.m_ofn.lpstrInitialDir = szInitialDir;
 	int iRvl = dlg.DoModal();
 
@@ -1371,18 +1358,6 @@ void CHammer::OnFileOpen(void)
 			case 2:
 			{
 				str += ".vmf_autosave";
-				break;
-			}
-
-			case 3:
-			{
-				str += ".rmf";
-				break;
-			}
-
-			case 4:
-			{
-				str += ".map";
 				break;
 			}
 		}

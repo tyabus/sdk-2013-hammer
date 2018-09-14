@@ -53,37 +53,6 @@ BEGIN_MESSAGE_MAP( CFaceEditMaterialPage, CPropertyPage )
 	ON_NOTIFY( UDN_DELTAPOS, IDC_SPINSCALEY, OnDeltaPosFloatSpin )
 	ON_WM_SIZE()
 	ON_CBN_SELCHANGE( IDC_TEXTURES, OnSelChangeTexture )
-	ON_BN_CLICKED( IDC_Q2_LIGHT, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_SLICK, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_SKY, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_WARP, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_TRANS33, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_TRANS66, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_FLOWING, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_NODRAW, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_SOLID, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_WINDOW, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_AUX, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_LAVA, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_SLIME, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_WATER, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_MIST, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_CURRENT90, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_CURRENT180, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_CURRENT270, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_CURRENTUP, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_CURRENTDN, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_ORIGIN, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_MONSTER, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_CORPSE, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_DETAIL, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_TRANSLUCENT, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_LADDER, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_PLAYERCLIP, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_MONSTERCLIP, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_CURRENT0, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_HINT, OnCheckUnCheck )
-	ON_BN_CLICKED( IDC_Q2_SPLITTER, OnCheckUnCheck )
 	ON_COMMAND( IDC_TREAT_AS_ONE, OnTreatAsOne )
 	ON_BN_CLICKED( IDC_REPLACE, OnReplace )
 	ON_COMMAND_EX_RANGE( CFaceEditSheet::id_SwitchModeStart, CFaceEditSheet::id_SwitchModeEnd, OnSwitchMode )
@@ -117,36 +86,6 @@ END_MESSAGE_MAP()
 //=============================================================================
 
 const int NOT_INIT = -99999;
-
-unsigned int CFaceEditMaterialPage::m_FaceContents = 0;
-unsigned int CFaceEditMaterialPage::m_FaceSurface = 0;
-
-//=============================================================================
-
-//-----------------------------------------------------------------------------
-// This table defines the mapping of checkbox controls to flags which are set
-// in certain face attributes values.
-//-----------------------------------------------------------------------------
-CFaceEditMaterialPage::FaceAttributeInfo_t FaceAttributes[] =
-{
-	//
-	// Contents.
-	//
-	{ IDC_CONTENTS_AREAPORTAL,	&CFaceEditMaterialPage::m_FaceContents,	CONTENTS_AREAPORTAL },
-	{ IDC_CONTENTS_PLAYERCLIP,	&CFaceEditMaterialPage::m_FaceContents,	CONTENTS_PLAYERCLIP },
-	{ IDC_CONTENTS_MONSTERCLIP,	&CFaceEditMaterialPage::m_FaceContents,	CONTENTS_MONSTERCLIP },
-	{ IDC_CONTENTS_ORIGIN,		&CFaceEditMaterialPage::m_FaceContents,	CONTENTS_ORIGIN },
-	{ IDC_CONTENTS_DETAIL,		&CFaceEditMaterialPage::m_FaceContents,	CONTENTS_DETAIL },
-	{ IDC_CONTENTS_TRANSLUCENT,	&CFaceEditMaterialPage::m_FaceContents,	CONTENTS_TRANSLUCENT },
-	{ IDC_CONTENTS_LADDER,		&CFaceEditMaterialPage::m_FaceContents,	CONTENTS_LADDER },
-
-	//
-	// Surface attributes.
-	//
-	{ IDC_SURF_NODRAW,			&CFaceEditMaterialPage::m_FaceSurface,		SURF_NODRAW },
-	{ IDC_SURF_HINT,			&CFaceEditMaterialPage::m_FaceSurface,		SURF_HINT },
-	{ IDC_SURF_SKIP,			&CFaceEditMaterialPage::m_FaceSurface,		SURF_SKIP }
-};
 
 
 //=============================================================================
@@ -741,45 +680,6 @@ void CFaceEditMaterialPage::Apply( CMapFace *pOnlyFace, int flags )
 		//
 		pFace->CalcTextureCoords();
 
-		//
-		// Update the face flags.
-		//
-		if (flags & FACE_APPLY_CONTENTS_DATA)
-		{
-			//
-			// Copy the bits from this face into our variables.
-			//
-			m_FaceContents = pFace->texture.q2contents;
-			m_FaceSurface = pFace->texture.q2surface;
-
-			//
-			// Update our variables based on the state of the checkboxes.
-			//
-			for( int nItem = 0; nItem < sizeof( FaceAttributes ) / sizeof( FaceAttributes[0] ); nItem++ )
-			{
-				CButton *pButton = ( CButton* )GetDlgItem( FaceAttributes[nItem].uControlID );
-				if( pButton != NULL )
-				{
-					int nSet = pButton->GetCheck();
-
-					if (nSet == 0)
-					{
-						*FaceAttributes[nItem].puAttribute &= ~FaceAttributes[nItem].uFlag;
-					}
-					else if (nSet == 1)
-					{
-						*FaceAttributes[nItem].puAttribute |= FaceAttributes[nItem].uFlag;
-					}
-				}	
-			}
-
-			//
-			// Copy our variables back into this face.
-			//
-			pFace->texture.q2contents = m_FaceContents;
-			pFace->texture.q2surface = m_FaceSurface;
-		}
-
 		if( pOnlyFace )
 		{
 			break;
@@ -866,22 +766,6 @@ void CFaceEditMaterialPage::UpdateDialogData( CMapFace *pOnlyFace )
 			m_eOrientation = pFace->GetOrientation();
 			Assert(m_eOrientation != FACE_ORIENTATION_INVALID);
 
-			//
-			// Set the appropriate checkbox state for the face attributes.
-			//
-			m_FaceContents = t.q2contents;
-			m_FaceSurface = t.q2surface;
-
-			for (int nItem = 0; nItem < sizeof(FaceAttributes) / sizeof(FaceAttributes[0]); nItem++)
-			{
-				int nSet = ((*FaceAttributes[nItem].puAttribute & FaceAttributes[nItem].uFlag) != 0);
-				CButton *pButton = (CButton *)GetDlgItem(FaceAttributes[nItem].uControlID);
-				if (pButton != NULL)
-				{
-					pButton->SetCheck(nSet);
-				}
-			}
-
 			bFirst = FALSE;
 	
 			if (pOnlyFace)	// use one face - now break
@@ -930,28 +814,6 @@ void CFaceEditMaterialPage::UpdateDialogData( CMapFace *pOnlyFace )
 			if (!strTexture.IsEmpty() && strTexture != t.texture)
 			{
 				strTexture = "";
-			}
-
-			//
-			// Update the checkbox state for the face attributes. If any of this face's
-			// attributes are different from the current checkbox state, set the checkbox
-			// to the undefined state.
-			//
-			m_FaceContents = t.q2contents;
-			m_FaceSurface = t.q2surface;
-
-			for (int nItem = 0; nItem < sizeof(FaceAttributes) / sizeof(FaceAttributes[0]); nItem++)
-			{
-				int nSet = ((*FaceAttributes[nItem].puAttribute & FaceAttributes[nItem].uFlag) != 0);
-				CButton *pButton = (CButton *)GetDlgItem(FaceAttributes[nItem].uControlID);
-				if (pButton != NULL)
-				{
-					if (pButton->GetCheck() != nSet)
-					{
-						pButton->SetButtonStyle(BS_AUTO3STATE);
-						pButton->SetCheck(2);
-					}
-				}
 			}
 		}
 	}
@@ -1554,20 +1416,17 @@ void CFaceEditMaterialPage::NotifyGraphicsChanged( void )
 		for (int i = 1; i < nCount; i++)
 		{
 			CTextureGroup *pGroup = g_Textures.GroupsGet(i);
-			if (pGroup->GetTextureFormat() == g_pGameConfig->GetTextureFormat())
+			const char *p = strstr(pGroup->GetName(), "textures\\");
+			if (p)
 			{
-				const char *p = strstr(pGroup->GetName(), "textures\\");
-				if (p)
-				{
-					p += strlen("textures\\");
-				}
-				else
-				{
-					p = pGroup->GetName();
-				}
-
-				m_TextureGroupList.AddString(p);
+				p += strlen("textures\\");
 			}
+			else
+			{
+				p = pGroup->GetName();
+			}
+
+			m_TextureGroupList.AddString(p);
 		}
 	}
 	m_TextureGroupList.SetRedraw(TRUE);

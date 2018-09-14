@@ -31,8 +31,6 @@ public:
 	CEdit	m_cModDir;
 	CEdit	m_cCordonTexture;
 	CEdit	m_cDefaultTextureScale;
-	CComboBox	m_cMapFormat;
-	CComboBox	m_cTextureFormat;
 	CAutoSelComboBox m_cDefaultPoint;
 	CAutoSelComboBox m_cDefaultSolid;
 	CListBox	m_cGDFiles;

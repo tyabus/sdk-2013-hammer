@@ -108,9 +108,7 @@ public:
 	// Serialization.
 	//
 	ChunkFileResult_t LoadVMF(CChunkFile *pFile);
-	ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
-	int SerializeRMF(std::fstream&, BOOL);
-	int SerializeMAP(std::fstream&, BOOL);
+	ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo) OVERRIDE;
 	virtual void PostloadWorld(CMapWorld *pWorld);
 	virtual ChunkFileResult_t SaveEditorData(CChunkFile *pFile);
 

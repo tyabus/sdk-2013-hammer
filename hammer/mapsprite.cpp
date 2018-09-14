@@ -5,18 +5,13 @@
 //===========================================================================//
 
 #include "stdafx.h"
-#include "hammer_mathlib.h"
 #include "Box3D.h"
 #include "BSPFile.h"
 #include "const.h"
-#include "MapDefs.h"		// dvs: For COORD_NOTINIT
 #include "MapEntity.h"
 #include "MapSprite.h"
 #include "Render2D.h"
 #include "Render3D.h"
-#include "hammer.h"
-#include "Texture.h"
-#include "TextureSystem.h"
 #include "materialsystem/IMesh.h"
 #include "Material.h"
 #include "Options.h"
@@ -437,30 +432,6 @@ void CMapSprite::Render3D(CRender3D *pRender)
 		pRender->RenderBox(m_Render2DBox.bmins, m_Render2DBox.bmaxs, r, g, b, GetSelectionState());
 		pRender->EndRenderHitTarget();
 	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapSprite::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapSprite::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
 }
 
 

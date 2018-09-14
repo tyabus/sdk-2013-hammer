@@ -27,7 +27,6 @@ COPTTextures::COPTTextures() : CPropertyPage(COPTTextures::IDD)
 	//}}AFX_DATA_INIT
 
 	m_pMaterialConfig = NULL;
-	m_bDeleted = FALSE;
 }
 
 COPTTextures::~COPTTextures()
@@ -40,7 +39,6 @@ void COPTTextures::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(COPTTextures)
-	DDX_Control(pDX, IDC_TEXTUREFILES, m_TextureFiles);
 	DDX_Control(pDX, IDC_BRIGHTNESS, m_cBrightness);
 	//}}AFX_DATA_MAP
 }
@@ -48,12 +46,7 @@ void COPTTextures::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(COPTTextures, CPropertyPage)
 	//{{AFX_MSG_MAP(COPTTextures)
-	ON_BN_CLICKED(IDC_EXTRACT, OnExtract)
-	ON_BN_CLICKED(IDC_ADDTEXFILE, OnAddtexfile)
-	ON_BN_CLICKED(IDC_REMOVETEXFILE, OnRemovetexfile)
 	ON_WM_HSCROLL()
-	ON_BN_CLICKED(IDC_ADDTEXFILE2, OnAddtexfile2)
-
 	ON_BN_CLICKED( ID_MATERIALEXCLUDE_ADD, OnMaterialExcludeAdd )
 	ON_BN_CLICKED( ID_MATERIALEXCLUDE_REM, OnMaterialExcludeRemove )
 	//}}AFX_MSG_MAP
@@ -65,13 +58,6 @@ END_MESSAGE_MAP()
 BOOL COPTTextures::OnInitDialog() 
 {
 	CPropertyPage::OnInitDialog();
-	
-	// load texture file list with options
-	int i;
-	for(i = 0; i < Options.textures.nTextureFiles; i++)
-	{
-		m_TextureFiles.AddString(Options.textures.TextureFiles[i]);
-	}
 
 	// set brightness control & values
 	m_cBrightness.SetRange(1, 50); // 10 is default
@@ -84,76 +70,6 @@ BOOL COPTTextures::OnInitDialog()
 }
 
 
-void COPTTextures::OnExtract() 
-{
-	// redo listbox content
-	m_TextureFiles.ResetContent();
-	for(int i = 0; i < Options.textures.nTextureFiles; i++)
-	{
-		m_TextureFiles.AddString(Options.textures.TextureFiles[i]);
-	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : 
-//-----------------------------------------------------------------------------
-void COPTTextures::OnAddtexfile(void)
-{
-	static char szInitialDir[MAX_PATH] = "\0";
-
-	CFileDialog dlg(TRUE, "wad", NULL, OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST, "Texture files (*.wad;*.pak)|*.wad; *.pak||");
-
-	if (szInitialDir[0] == '\0')
-	{
-		Q_snprintf( szInitialDir, sizeof( szInitialDir ), "%s\\wads\\", g_pGameConfig->m_szModDir );
-	}
-
-	dlg.m_ofn.lpstrInitialDir = szInitialDir;
-
-	if (dlg.DoModal() != IDOK)
-	{
-		return;
-	}
-
-	//
-	// Get all the filenames from the open file dialog.
-	//
-	POSITION pos = dlg.GetStartPosition();
-	CString str;
-	while (pos != NULL)
-	{
-		str = dlg.GetNextPathName(pos);
-		str.MakeLower();
-		m_TextureFiles.AddString(str);
-		SetModified();
-	}
-
-	//
-	// Use this directory as the default directory for the next time.
-	//
-	int nBackslash = str.ReverseFind('\\');
-	if (nBackslash != -1)
-	{
-		lstrcpyn(szInitialDir, str, nBackslash + 1);
-	}
-}
-
-
-void COPTTextures::OnRemovetexfile() 
-{
-	int i = m_TextureFiles.GetCount();
-
-	for (i--; i >= 0; i--)
-	{
-		if (m_TextureFiles.GetSel(i))
-			m_TextureFiles.DeleteString(i);
-	}
-
-	m_bDeleted = TRUE;
-}
-
 void COPTTextures::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
 	if(pScrollBar == (CScrollBar*) &m_cBrightness)
@@ -165,26 +81,6 @@ void COPTTextures::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 BOOL COPTTextures::OnApply() 
 {
 	Options.textures.fBrightness = (float)m_cBrightness.GetPos() / 10.0f;
-
-	int iSize = m_TextureFiles.GetCount();
-	CString str;
-	Options.textures.nTextureFiles = iSize;
-	Options.textures.TextureFiles.RemoveAll();
-	for(int i = 0; i < iSize; i++)
-	{
-		m_TextureFiles.GetText(i, str);
-		Options.textures.TextureFiles.Add(str);
-	}
-	
-	if(m_bDeleted)
-	{
-		// inform them that deleted files will only be reapplied after
-		// they reload the editor
-		MessageBox("You have removed some texture files from the list. "
-			"These texture files will continue to be used during this "
-			"session, but will not be loaded the next time you run "
-			"Hammer.", "A Quick Note");
-	}
 
 	Options.PerformChanges(COptions::secTextures);
 
@@ -205,67 +101,6 @@ void GetDirectory(char *pDest, const char *pLongName)
 
 	return;
 }
-
-
-void COPTTextures::OnAddtexfile2() 
-{
-	BROWSEINFO bi;
-	char szDisplayName[MAX_PATH];
-
-	bi.hwndOwner = m_hWnd;
-	bi.pidlRoot = NULL;
-	bi.pszDisplayName = szDisplayName;
-	bi.lpszTitle = "Select your Quake II directory.";
-	bi.ulFlags = BIF_RETURNONLYFSDIRS;
-	bi.lpfn = NULL;
-	bi.lParam = 0;
-	
-	LPITEMIDLIST pidlNew = SHBrowseForFolder(&bi);
-
-	if(pidlNew)
-	{
-
-		// get path from the id list
-		char szPathName[MAX_PATH];
-		SHGetPathFromIDList(pidlNew, szPathName);
-		
-		
-		if (AfxMessageBox("Add all subdirectories as separate Texture Groups?", MB_YESNO) == IDYES)
-		//if (!strcmpi("\\textures", &szPathName[strlen(szPathName) - strlen("\\textures")]))
-		{
-			char szNewPath[MAX_PATH];
-			strcpy(szNewPath, szPathName);
-			strcat(szNewPath, "\\*.*");
-			WIN32_FIND_DATA FindData;
-			HANDLE hFile = FindFirstFile(szNewPath, &FindData);
-
-			if (hFile != INVALID_HANDLE_VALUE) do
-			{
-				if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-						&&(FindData.cFileName[0] != '.'))
-				{
-					sprintf(szNewPath, "%s\\%s", szPathName, FindData.cFileName);
-					strlwr(szNewPath);
-					if (m_TextureFiles.FindStringExact(-1, szNewPath) == CB_ERR)
-						m_TextureFiles.AddString(szNewPath);
-				}
-			} while (FindNextFile(hFile, &FindData));
-
-		}
-		else
-		{
-			strlwr(szPathName);
-			if (m_TextureFiles.FindStringExact(-1, szPathName) == CB_ERR)
-				m_TextureFiles.AddString(strlwr(szPathName));
-		}
-		SetModified();
-
-		// free the previous return value from SHBrowseForFolder
-		CoTaskMemFree(pidlNew);
-
-	}
-}
-
 
 static char s_szStartFolder[MAX_PATH];
 static int CALLBACK BrowseCallbackProc( HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData )
@@ -436,7 +271,7 @@ void COPTTextures::OnMaterialExcludeAdd( void )
 	// get the directory path to exclude
 	//
 	char szTmp[MAX_PATH];
-	if( !BrowseForFolder( "Select Game Executable Directory", szTmp ) )
+	if( !BrowseForFolder( "Select Material Exclude Directory", szTmp ) )
 		return;
 
 	// strip off the material directory

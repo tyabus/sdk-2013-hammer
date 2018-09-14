@@ -137,20 +137,17 @@ void CTextureBar::NotifyGraphicsChanged()
 		for (int i = 1; i < nCount; i++)
 		{
 			CTextureGroup *pGroup = g_Textures.GroupsGet(i);
-			if (pGroup->GetTextureFormat() == g_pGameConfig->GetTextureFormat())
+			const char *p = strstr(pGroup->GetName(), "textures\\");
+			if (p)
 			{
-				const char *p = strstr(pGroup->GetName(), "textures\\");
-				if (p)
-				{
-					p += strlen("textures\\");
-				}
-				else
-				{
-					p = pGroup->GetName();
-				}
-
-				m_TextureGroupList.AddString(p);
+				p += strlen("textures\\");
 			}
+			else
+			{
+				p = pGroup->GetName();
+			}
+
+			m_TextureGroupList.AddString(p);
 		}
 	}
 	m_TextureGroupList.SetRedraw(TRUE);
@@ -401,6 +398,10 @@ BEGIN_MESSAGE_MAP(wndTex, CStatic)
 END_MESSAGE_MAP()
 
 
+wndTex::wndTex(): m_pTexture(nullptr)
+{
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Sets the texture to render in the window.
 // Input  : pTex - Texture to render when painting this window.
@@ -409,6 +410,11 @@ void wndTex::SetTexture(IEditorTexture *pTex)
 {
 	m_pTexture = pTex;
 	Invalidate();	
+}
+
+IEditorTexture* wndTex::GetTexture()
+{
+    return m_pTexture;
 }
 
 

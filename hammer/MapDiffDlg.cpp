@@ -6,13 +6,9 @@
 #include "MainFrm.h"
 #include "MapDiffDlg.h"
 #include "MapDoc.h"
-#include "MapEntity.h"
-#include "MapSolid.h"
 #include "MapView2D.h"
 #include "MapWorld.h"
-#include "ObjectProperties.h"	// For ObjectProperties::RefreshData
 #include "Options.h"
-#include "ToolManager.h"
 #include "VisGroup.h"
 #include "hammer.h"
 #include "MapOverlay.h"
@@ -20,7 +16,6 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
-#include ".\mapdiffdlg.h"
 
 CMapDiffDlg *s_pDlg = NULL;
 CMapDoc *s_pCurrentMap = NULL;
@@ -65,7 +60,6 @@ void CMapDiffDlg::MapDiff(CWnd *pwndParent, CMapDoc *pCurrentMapDoc)
 
 void CMapDiffDlg::OnBnClickedSimilarcheck()
 {
-	// TODO: Add your control notification handler code here
 	m_bCheckSimilar = !m_bCheckSimilar;
 }
 
@@ -73,15 +67,13 @@ void CMapDiffDlg::OnBnClickedMapbrowse()
 {
 	CString	m_pszFilename;
 	
-	// TODO: Add your control notification handler code here
 	static char szInitialDir[MAX_PATH] = "";
 	if (szInitialDir[0] == '\0')
 	{
 		strcpy(szInitialDir, g_pGameConfig->szMapDir);
 	}
 
-	// TODO: need to prevent (or handle) opening VMF files when using old map file formats
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_LONGNAMES | OFN_HIDEREADONLY | OFN_NOCHANGEDIR, "Valve Map Files (*.vmf)|*.vmf|Valve Map Files Autosaves (*.vmf_autosave)|*.vmf_autosave|Worldcraft RMFs (*.rmf)|*.rmf|Worldcraft Maps (*.map)|*.map||");
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_LONGNAMES | OFN_HIDEREADONLY | OFN_NOCHANGEDIR, "Valve Map Files (*.vmf)|*.vmf|Valve Map Files Autosaves (*.vmf_autosave)|*.vmf_autosave||");
 	dlg.m_ofn.lpstrInitialDir = szInitialDir;
 	int iRvl = dlg.DoModal();
 
@@ -99,7 +91,6 @@ void CMapDiffDlg::OnBnClickedMapbrowse()
 
 void CMapDiffDlg::OnBnClickedOk()
 {
-	// TODO: Add your control notification handler code here
 	OnOK();
 }
 
@@ -166,6 +157,5 @@ void CMapDiffDlg::OnDestroy()
 
 void CMapDiffDlg::OnBnClickedCancel()
 {
-	// TODO: Add your control notification handler code here
 	DestroyWindow();
 }

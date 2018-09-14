@@ -33,22 +33,6 @@ class IMaterial;
 
 
 //
-// Texture formats. hack: MUST correlate with radio buttons in IDD_OPTIONS_CONFIGS.
-//
-enum TEXTUREFORMAT
-{
-	tfNone = -1,
-	tfWAD = 0,
-	tfWAL = 1,
-	tfWAD3 = 2,
-	tfWAD4 = 3,
-	tfWAD5 = 4,
-	tfVMT = 5,
-	tfSprite = 6	// dvs: not sure if I want to do it this way
-};
-
-
-//
 // Flags for DrawTexData_t.
 //
 #define drawCaption			0x01
@@ -92,7 +76,6 @@ class IEditorTexture
 		virtual int GetKeywords( char *szKeywords ) const = 0;
 		// FGDLIB:
 		//virtual void Draw(CDC *pDC, RECT &rect, int iFontHeight, int iIconHeight, DrawTexData_t &DrawTexData) = 0;
-		virtual TEXTUREFORMAT GetTextureFormat( void ) const = 0;
 		virtual int GetSurfaceAttributes( void ) const = 0;
 		virtual int GetSurfaceContents(void ) const = 0;
 		virtual int GetSurfaceValue( void ) const = 0;

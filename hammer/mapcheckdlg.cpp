@@ -39,7 +39,6 @@ typedef enum
 	ErrorUnusedKeyvalues,
 	ErrorEmptyEntity,
 	ErrorDuplicateKeys,
-	ErrorSolidContents,
 	ErrorInvalidTextureAxes,
 	ErrorDuplicateFaceIDs,
 	ErrorDuplicateNodeIDs,
@@ -116,7 +115,6 @@ static void FixInvalidTextureAxes(MapError *pError);
 static void FixUnusedKeyvalues(MapError *pError);
 static void FixEmptyEntity(MapError *pError);
 static void FixBadConnections(MapError *pError);
-static void FixInvalidContents(MapError *pError);
 static void FixDuplicateFaceIDs(MapError *pError);
 static void FixDuplicateNodeIDs(MapError *pError);
 static void FixMissingTarget(MapError *pError);
@@ -356,11 +354,6 @@ void CMapCheckDlg::Fix(MapError *pError, UpdateBox &ub)
 		case ErrorSolidStructure:
 		{
 			FixSolidStructure(pError);
-			break;
-		}
-		case ErrorSolidContents:
-		{
-			FixInvalidContents(pError);
 			break;
 		}
 		case ErrorInvalidTexture:
@@ -649,7 +642,6 @@ static void AddError(CListBox *pList, MapErrorType Type, DWORD dwExtra, ...)
 		case ErrorDuplicateFaceIDs:
 		case ErrorDuplicateNodeIDs:
 		case ErrorSolidStructure:
-		case ErrorSolidContents:
 		case ErrorInvalidTexture:
 		case ErrorUnusedKeyvalues:
 		case ErrorBadConnections:
@@ -681,7 +673,6 @@ static void AddError(CListBox *pList, MapErrorType Type, DWORD dwExtra, ...)
 	//
 	switch (Type)
 	{
-		case ErrorSolidContents:
 		case ErrorDuplicatePlanes:
 		case ErrorDuplicateFaceIDs:
 		case ErrorDuplicateNodeIDs:
@@ -1085,46 +1076,6 @@ static void CheckSolidIntegrity(CListBox *pList, CMapWorld *pWorld)
 	pWorld->EnumChildren((ENUMMAPCHILDRENPROC)_CheckSolidIntegrity, (DWORD)pList, MAPCLASS_TYPE(CMapSolid));
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pSolid - 
-//			pList - 
-// Output : 
-//-----------------------------------------------------------------------------
-static BOOL _CheckSolidContents(CMapSolid *pSolid, CListBox *pList)
-{
-	if ( !IsCheckVisible( pSolid ) )
-		return TRUE;
-
-	CCheckFaceInfo cfi;
-	int nFaces = pSolid->GetFaceCount();
-	CMapFace *pFace = pSolid->GetFace(0);
-	DWORD dwContents = pFace->texture.q2contents;
-
-	for (int i = 1; i < nFaces; i++)
-	{
-		pFace = pSolid->GetFace(i);
-		if (pFace->texture.q2contents == dwContents)
-		{
-			continue;
-		}
-		AddError(pList, ErrorSolidContents, 0, pSolid);
-		break;
-	}
-
-	return TRUE;
-}
-
-
-static void CheckSolidContents(CListBox *pList, CMapWorld *pWorld)
-{
-	if (CMapDoc::GetActiveMapDoc() && CMapDoc::GetActiveMapDoc()->GetGame() && CMapDoc::GetActiveMapDoc()->GetGame()->mapformat == mfQuake2)
-	{
-		pWorld->EnumChildren((ENUMMAPCHILDRENPROC)_CheckSolidContents, (DWORD)pList, MAPCLASS_TYPE(CMapSolid));
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: Determines if there are any invalid textures or texture axes on any
 //			face of this solid. Adds an error message to the list box for each
@@ -1512,22 +1463,6 @@ static void FixInvalidTextureAxes(MapError *pError)
 }
 
 
-static void FixInvalidContents(MapError *pError)
-{
-	CMapSolid *pSolid = (CMapSolid *)pError->pObjects[0];
-
-	CMapFace *pFace = pSolid->GetFace(0);
-	DWORD dwContents = pFace->texture.q2contents;
-
-	int nFaces = pSolid->GetFaceCount();
-	for (int i = 1; i < nFaces; i++)
-	{
-		CMapFace *pFace = pSolid->GetFace(i);
-		pFace->texture.q2contents = dwContents;
-	}
-}
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Fixes duplicate face IDs by assigning the face a unique ID within
 //			the world.
@@ -1720,7 +1655,6 @@ bool CMapCheckDlg::DoCheck(void)
 	CheckDuplicateFaceIDs(&m_Errors, pWorld);
 	CheckDuplicateNodeIDs(&m_Errors, pWorld);
 	CheckSolidIntegrity(&m_Errors, pWorld);
-	CheckSolidContents(&m_Errors, pWorld);
 	CheckInvalidTextures(&m_Errors, pWorld);
 
 	// Entity validation

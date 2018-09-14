@@ -10,17 +10,8 @@
 #pragma once
 #endif
 
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
-#include "fgdlib/HelperInfo.h"
-#include "TokenReader.h"
-#include "fgdlib/gamedata.h"
+#include "fgdlib/GameData.h"
 #include "GamePalette.h"
-#include "IEditorTexture.h"
-#include "UtlVector.h"
-
 
 class MDkeyvalue;
 class KeyValues;
@@ -29,27 +20,14 @@ class KeyValues;
 #define MAX_DIRECTORY_SIZE	32
 
 
-enum MAPFORMAT
-{
-	mfQuake = 0,
-	mfHexen2,
-	mfQuake2,
-	mfHalfLife,
-	mfHalfLife2,
-};
-
-
 class CGameConfig
 {
 public:
 
 	CGameConfig();
 
-		static CGameConfig *GetActiveGame(void);
-		static void SetActiveGame(CGameConfig *pGame);
-
-	inline TEXTUREFORMAT GetTextureFormat(void);
-	inline void SetTextureFormat(TEXTUREFORMAT eFormat);
+	static CGameConfig *GetActiveGame(void);
+	static void SetActiveGame(CGameConfig *pGame);
 
 	inline float GetDefaultTextureScale(void);
 	inline void SetDefaultTextureScale(float fScale);
@@ -60,18 +38,15 @@ public:
 	inline const char *GetCordonTexture(void);
 	inline void SetCordonTexture(const char *szCordonTexture);
 
-		inline void GetSteamExe(CString &str);
-		inline void GetSteamDir(CString &str);
-		inline void GetSteamUserDir(CString &str);
-		inline void GetSteamAppID(CString &str);
-
-		inline MAPFORMAT GetMapFormat();
+	inline void GetSteamExe(CString &str);
+	inline void GetSteamDir(CString &str);
+	inline void GetSteamUserDir(CString &str);
+	inline void GetSteamAppID(CString &str);
 
 	DWORD dwID;	// assigned on load
 
 	char szName[128];
 	int nGDFiles;
-	MAPFORMAT mapformat;
 
 	char szExecutable[128];
 	char szDefaultPoint[128];
@@ -88,15 +63,11 @@ public:
 
 	CStringArray GDFiles;
 	GameData GD;	// gamedata files loaded
-	CGamePalette Palette;
-
-	BOOL Import(std::fstream &, float fVersion);
+    CGamePalette Palette;
 
 	bool Load(KeyValues *pkv);
 	bool Save(KeyValues *pkv);
 
-	void Save(std::fstream &);
-	bool Save(const char *pszFileName, const char *pszSection);
 	void CopyFrom(CGameConfig *pConfig);
 	void LoadGDFiles(void);
 
@@ -107,7 +78,6 @@ public:
 	const char *GetGame();
 
 protected:
-	TEXTUREFORMAT textureformat;
 	float m_fDefaultTextureScale;
 	int m_nDefaultLightmapScale;
 	char m_szCordonTexture[MAX_PATH];
@@ -117,33 +87,6 @@ protected:
 		char m_szSteamUserDir[MAX_PATH];		// The full path to the users's directory under SteamApps
 		char m_szSteamAppID[32];				// The app id to add to the command line when launching the game via Steam.
 };
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-MAPFORMAT CGameConfig::GetMapFormat()
-{
-	return mapformat;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-TEXTUREFORMAT CGameConfig::GetTextureFormat(void)
-{
-	return(textureformat);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CGameConfig::SetTextureFormat(TEXTUREFORMAT eFormat)
-{
-	textureformat = eFormat;
-}
 
 
 //-----------------------------------------------------------------------------

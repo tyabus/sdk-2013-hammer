@@ -12,11 +12,9 @@
 
 
 #include "TextureBox.h"
-#include "IEditorTexture.h"
 #include "wndTex.h"
 #include "ControlBarIDs.h"
 #include "HammerBar.h"
-
 
 class IEditorTexture;
 

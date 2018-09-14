@@ -7,14 +7,11 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <direct.h>
 #include <io.h>
-#include <mmsystem.h>
-#include <process.h>
 #include <direct.h>
+#include <mmsystem.h>
 #include "BuildNum.h"
 #include "CustomMessages.h"
-#include "EditPrefabDlg.h"
 #include "EntityReportDlg.h"
 #include "FaceEditSheet.h"
 #include "GlobalFunctions.h"
@@ -38,10 +35,10 @@
 #include "ObjectProperties.h"
 #include "OptionProperties.h"
 #include "Options.h"
-#include "ProcessWnd.h"
 #include "PasteSpecialDlg.h"
 #include "Prefabs.h"
 #include "Prefab3D.h"
+#include "progdlg.h"
 #include "ReplaceTexDlg.h"
 #include "RunMap.h"
 #include "RunMapExpertDlg.h"
@@ -56,7 +53,6 @@
 #include "StatusBarIDs.h"
 #include "StrDlg.h"
 #include "TextureSystem.h"
-#include "TextureConverter.h"
 #include "TransformDlg.h"
 #include "VisGroup.h"
 #include "hammer.h"
@@ -67,9 +63,10 @@
 #include "ToolMorph.h"
 #include "ToolBlock.h"
 
+#include "utlbuffer.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
-#include ".\mapdoc.h"
 
 #define KeyInt( key, dest ) \
 	if (stricmp(szKey, key) != 0) \
@@ -97,7 +94,6 @@
 static int g_nFileFormatVersion = 0;
 
 
-extern BOOL bSaveVisiblesOnly;
 extern CShell g_Shell;
 
 
@@ -146,8 +142,6 @@ BEGIN_MESSAGE_MAP(CMapDoc, CDocument)
 	ON_COMMAND(ID_FILE_EXPORTAGAIN, OnFileExportAgain)
 	ON_COMMAND(ID_EDIT_MAPPROPERTIES, OnEditMapproperties)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_MAPPROPERTIES, OnUpdateEditFunction)
-	ON_COMMAND(ID_FILE_CONVERT_WAD, OnFileConvertWAD)
-	ON_UPDATE_COMMAND_UI(ID_FILE_CONVERT_WAD, OnUpdateFileConvertWAD)
 	ON_COMMAND(ID_FILE_RUNMAP, OnFileRunmap)
 	ON_COMMAND(ID_TOOLS_HIDEITEMS, OnToolsHideitems)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_HIDEITEMS, OnUpdateToolsHideitems)
@@ -396,7 +390,6 @@ CMapDoc::CMapDoc(void)
 
 	m_flAnimationTime = 0.0f;
 
-	m_bEditingPrefab = false;
 	m_bPrefab = false;
 
 	m_bIsAnimating = false;
@@ -1816,191 +1809,6 @@ BOOL CMapDoc::SelectDocType(void)
 }
 
 
-//-----------------------------------------------------------------------------
-// Purpose: set up this document to edit a prefab data .. when the object is saved,
-//			save it back to the library instead of to a file.
-// Input  : dwPrefabID -
-//-----------------------------------------------------------------------------
-void CMapDoc::EditPrefab3D(DWORD dwPrefabID)
-{
-	CPrefab3D *pPrefab = (CPrefab3D *)CPrefab::FindID(dwPrefabID);
-	Assert(pPrefab);
-
-	// set up local variables
-	m_dwPrefabID = dwPrefabID;
-	m_dwPrefabLibraryID = pPrefab->GetLibraryID();
-	m_bEditingPrefab = TRUE;
-
-	SetPathName(pPrefab->GetName(), FALSE);
-	SetTitle(pPrefab->GetName());
-
-	// copy prefab data to world
-	if (!pPrefab->IsLoaded())
-	{
-		pPrefab->Load();
-	}
-
-	//
-	// Copying into world, so we update the object dependencies to insure
-	// that any object references in the prefab get resolved.
-	//
-	m_pWorld->CopyFrom(pPrefab->GetWorld(), false);
-	m_pWorld->CopyChildrenFrom(pPrefab->GetWorld(), false);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : file -
-//			fIsStoring -
-//			bRMF -
-// Output : Returns TRUE on success, FALSE on failure.
-//-----------------------------------------------------------------------------
-BOOL CMapDoc::Serialize(std::fstream& file, BOOL fIsStoring, BOOL bRMF)
-{
-	SetActiveMapDoc(this);
-
-	// check for editing prefab
-	if(m_bEditingPrefab)
-	{
-		// save prefab in library
-		CPrefabLibrary *pLibrary = CPrefabLibrary::FindID(m_dwPrefabLibraryID);
-		if(!pLibrary)
-		{
-			static int id = 1;
-
-			AfxMessageBox("The library this prefab object belongs to has been\n"
-				"deleted. This document will now behave as a regular file\n"
-				"document.");
-			m_bEditingPrefab = FALSE;
-
-			CString str;
-			str.Format("Prefab%d.rmf", id++);
-			SetPathName(str);
-			return 1;
-		}
-
-		CPrefab3D *pPrefab = (CPrefab3D *)CPrefab::FindID(m_dwPrefabID);
-		if (!pPrefab)
-		{
-			// Not found, create a new prefab.
-			pPrefab = new CPrefabRMF;
-		}
-
-		pPrefab->SetWorld(m_pWorld);
-		m_pWorld = NULL;
-
-		pLibrary->Add(pPrefab);
-		pLibrary->Save();
-
-		return 1;
-	}
-
-	GetHistory()->Pause();
-
-	if(bRMF)
-	{
-		if (m_pWorld->SerializeRMF(file, fIsStoring) < 0)
-		{
-			AfxMessageBox("There was a file error.", MB_OK | MB_ICONEXCLAMATION);
-			return FALSE;
-		}
-
-		Camera3D *pCamTool = dynamic_cast<Camera3D*>(m_pToolManager->GetToolForID(TOOL_CAMERA));
-
-		if ( pCamTool )
-		{
-			char sig[8] = "DOCINFO";
-
-			if(fIsStoring)
-			{
-				file.write(sig, sizeof sig);
-
-				pCamTool->SerializeRMF(file, fIsStoring);
-			}
-			else
-			{
-				char buf[sizeof sig];
-				memset(buf, 0, sizeof buf);
-				file.read(buf, sizeof buf);
-				if(memcmp(buf, sig, sizeof sig))
-					goto Done;
-
-				pCamTool->SerializeRMF(file, fIsStoring);
-			}
-		}
-
-Done:;
-	}
-	else
-	{
-		CMapObjectList CordonList;
-		CMapWorld *pCordonWorld = NULL;
-		BoundBox CordonBox(m_vCordonMins, m_vCordonMaxs);
-
-		if ( m_bIsCordoning )
-		{
-			//
-			// Create "cordon world", add its objects to our real world, create a list in
-			// CordonList so we can remove them again.
-			//
-			pCordonWorld = CordonCreateWorld();
-
-			const CMapObjectList *pChildren = pCordonWorld->GetChildren();
-			FOR_EACH_OBJ( *pChildren, pos )
-			{
-				CMapClass *pChild = pChildren->Element(pos);
-				pChild->SetTemporary(TRUE);
-				m_pWorld->AddObjectToWorld(pChild);
-
-				CordonList.AddToTail(pChild);
-			}
-
-			//
-			// HACK: (not mine) - make the cordon bounds bigger so that the cordon brushes
-			// overlap the cordon bounds during serialization.
-			CordonBox.bmins -= Vector(1,1,1);
-			CordonBox.bmaxs += Vector(1,1,1);
-		}
-
-		if (fIsStoring)
-		{
-			void SetMapFormat(MAPFORMAT mf);
-			SetMapFormat(m_pGame->mapformat);
-		}
-
-		if (m_pWorld->SerializeMAP(file, fIsStoring, m_bIsCordoning? &CordonBox : NULL) < 0)
-		{
-			AfxMessageBox("There was a file error.", MB_OK | MB_ICONEXCLAMATION);
-			return(FALSE);
-		}
-
-		//
-		// Remove cordon objects.
-		//
-		if ( m_bIsCordoning )
-		{
-			FOR_EACH_OBJ( CordonList, pos )
-			{
-				CMapClass *pobj = CordonList.Element(pos);
-				m_pWorld->RemoveChild(pobj);
-			}
-			delete pCordonWorld;
-		}
-	}
-
-	GetHistory()->Resume();
-
-	if (!fIsStoring)
-	{
-		UpdateVisibilityAll();
-		GetMainWnd()->GlobalNotify(WM_MAPDOC_CHANGED);
-	}
-
-	return TRUE;
-}
-
-
 #ifdef _DEBUG
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -2467,24 +2275,6 @@ BOOL CMapDoc::SaveModified(void)
 	if (!IsModified())
 		return TRUE;        // ok to continue
 
-	// editing prefab and modified - update data?
-	if(m_bEditingPrefab)
-	{
-		switch(AfxMessageBox("Do you want to save the changes to this prefab object?", MB_YESNOCANCEL))
-		{
-		case IDYES:
-			{
-			std::fstream file;
-			Serialize(file, 0, 0);
-			return TRUE;
-			}
-		case IDNO:
-			return TRUE;	// no save
-		case IDCANCEL:
-			return FALSE;	// forget this cmd
-		}
-	}
-
 	return CDocument::SaveModified();
 }
 
@@ -2504,44 +2294,13 @@ BOOL CMapDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	}
 
 	//
-	// Look for either the RMF or MAP extension to indicate an old file format.
-	//
-	BOOL bRMF = FALSE;
-	BOOL bMAP = FALSE;
-
-	if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "rmf"))
-	{
-		bRMF = TRUE;
-	}
-	else if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "map"))
-	{
-		bMAP = TRUE;
-	}
-
-	//
 	// Call any per-class PreloadWorld functions here.
 	//
 	CMapSolid::PreloadWorld();
 
-	if ((bRMF) || (bMAP))
+	if (!LoadVMF(lpszPathName))
 	{
-		std::fstream file(lpszPathName, std::ios::in | std::ios::binary);
-		if (!file.is_open())
-		{
-			return(FALSE);
-		}
-
-		if (!Serialize(file, FALSE, bRMF))
-		{
-			return(FALSE);
-		}
-	}
-	else
-	{
-		if (!LoadVMF(lpszPathName))
-		{
-			return(FALSE);
-		}
+		return(FALSE);
 	}
 
 	SetModifiedFlag(FALSE);
@@ -2594,16 +2353,6 @@ BOOL CMapDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	if( m_pBSPLighting )
 		m_pBSPLighting->Serialize();
 
-	// UNDONE: prefab serialization must be redone
-	if (m_bEditingPrefab)
-	{
-		std::fstream file;
-		Serialize(file, 0, 0);
-		SetModifiedFlag(FALSE);
-		OnCloseDocument();
-		return(TRUE);
-	}
-
 	//
 	// If a file with the same name exists, back it up before saving the new one.
 	//
@@ -2624,60 +2373,17 @@ BOOL CMapDoc::OnSaveDocument(LPCTSTR lpszPathName)
 		}
 	}
 
-	//
-	// Use the file extension to determine how to save the file.
-	//
-	BOOL bRMF = FALSE;
-	BOOL bMAP = FALSE;
-	if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "rmf"))
-	{
-		bRMF = TRUE;
-	}
-	else if (!stricmp(lpszPathName + strlen(lpszPathName) - 3, "map"))
-	{
-		bMAP = TRUE;
-	}
-
-	//
-	// HalfLife 2 and beyond use heirarchical chunk files.
-	//
-	if ((m_pGame->mapformat == mfHalfLife2) && (!bRMF) && (!bMAP))
-	{
-		BOOL bSaved = FALSE;
-
-		BeginWaitCursor();
-		if (SaveVMF(lpszPathName, 0))
-		{
-			bSaved = TRUE;
-			SetModifiedFlag(FALSE);
-		}
-		EndWaitCursor();
-
-		return(bSaved);
-	}
-
-	//
-	// Half-Life used RMFs and MAPs.
-	//
-	std::fstream file(lpszPathName, std::ios::out | std::ios::binary);
-	if (!file.is_open())
-	{
-		char szError[_MAX_PATH];
-		wsprintf(szError, "Hammer was unable to open the file \"%s\" for writing. Please verify that the file is writable and that the path exists.", lpszPathName);
-		AfxMessageBox(szError);
-		return(FALSE);
-	}
+	BOOL bSaved = FALSE;
 
 	BeginWaitCursor();
-	if (!Serialize(file, TRUE, bRMF))
+	if (SaveVMF(lpszPathName, 0))
 	{
-		EndWaitCursor();
-		return(FALSE);
+		bSaved = TRUE;
+		SetModifiedFlag(FALSE);
 	}
 	EndWaitCursor();
 
-	SetModifiedFlag(FALSE);
-	return(TRUE);
+	return(bSaved);
 }
 
 
@@ -4550,15 +4256,7 @@ void CMapDoc::OnFileSaveAs(void)
 			strcpy(szBaseDir, m_pGame->szMapDir);
 		}
 
-		char *pszFilter;
-		if (m_pGame->mapformat == mfHalfLife2)
-		{
-			pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
-		}
-		else
-		{
-			pszFilter = "Worldcraft Maps (*.rmf)|*.rmf|Game Maps (*.map)|*.map||";
-		}
+		char *pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
 
 		CFileDialog dlg(FALSE, NULL, str, OFN_LONGNAMES | OFN_NOCHANGEDIR |	OFN_HIDEREADONLY, pszFilter);
 		dlg.m_ofn.lpstrInitialDir = szBaseDir;
@@ -4573,17 +4271,6 @@ void CMapDoc::OnFileSaveAs(void)
 
 		// Make sure we've got a .vmt extension, or else compile tools won't work.
 		CString wantedExtension = ".vmf";
-		if ( m_pGame->mapformat != mfHalfLife2 )
-		{
-			if ( dlg.m_ofn.nFilterIndex == 1 )
-			{
-				wantedExtension = ".rmf";
-			}
-			else if ( dlg.m_ofn.nFilterIndex == 2 )
-			{
-				wantedExtension = ".map";
-			}
-		}
 
 		CString extension = str.Right( 4 );
 		extension.MakeLower();
@@ -4656,7 +4343,7 @@ void CMapDoc::OnFileSave(void)
 //-----------------------------------------------------------------------------
 void CMapDoc::OnUpdateFileSave(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetText(m_bEditingPrefab ? "Update Prefab\tCtrl+S" : "&Save\tCtrl+S");
+	pCmdUI->SetText(m_bPrefab ? "Update Prefab\tCtrl+S" : "&Save\tCtrl+S");
 }
 
 
@@ -4751,27 +4438,9 @@ void CMapDoc::OnFileExport(void)
 	// Build a name for the exported file.
 	//
 	int iIndex = strFile.Find('.');
-
-	char *pszFilter;
-	char *pszExtension;
-	if (m_pGame->mapformat == mfHalfLife2)
-	{
-		strFile.SetAt(iIndex, '\0');
-
-		pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
-		pszExtension = "vmf";
-	}
-	else
-	{
-		//
-		// Use the same filename with a .map extension.
-		//
-		strcpy(strFile.GetBuffer(1) + iIndex, ".map");
-		strFile.ReleaseBuffer();
-
-		pszFilter = "Game Maps (*.map)|*.map||";
-		pszExtension = "map";
-	}
+    strFile.SetAt(iIndex, '\0');
+	char *pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
+	char *pszExtension = "vmf";
 
 	//
 	// Bring up a dialog to allow them to name the exported file.
@@ -4793,12 +4462,12 @@ void CMapDoc::OnFileExport(void)
 			}
 		}
 
-		bSaveVisiblesOnly = dlg.bVisibles;
+		m_bSaveVisiblesOnly = dlg.bVisibles;
 		m_strLastExportFileName = dlg.GetPathName();
 
 		OnSaveDocument(dlg.GetPathName());
 
-		bSaveVisiblesOnly = FALSE;
+		m_bSaveVisiblesOnly = false;
 
 		SetModifiedFlag(bModified);
 
@@ -4826,9 +4495,9 @@ void CMapDoc::OnFileExportAgain(void)
 
 	BOOL bModified = IsModified();
 
-	bSaveVisiblesOnly = bLastVis;
+	m_bSaveVisiblesOnly = bLastVis;
 	OnSaveDocument(strFile);
-	bSaveVisiblesOnly = FALSE;
+	m_bSaveVisiblesOnly = false;
 
 	SetModifiedFlag(bModified);
 }
@@ -4846,62 +4515,12 @@ void CMapDoc::OnEditMapproperties(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Converts a map's textures from WAD3 to VMT.
-//-----------------------------------------------------------------------------
-void CMapDoc::OnFileConvertWAD( void )
-{
-	CTextureConverter::ConvertWorldTextures( m_pWorld );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Manages the state of the File | Convert WAD -> VMT menu item.
-//-----------------------------------------------------------------------------
-void CMapDoc::OnUpdateFileConvertWAD( CCmdUI * pCmdUI )
-{
-	pCmdUI->Enable( ( m_pWorld != NULL ) && ( g_pGameConfig->GetTextureFormat() == tfVMT ) );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Gets the relevant file extensions for the given map format.
-// Input  : mf -
-//			strEditExtension - The extension of the edit file (eg. .VMF, .RMF)
-//			strCompileExtension - The extension of the file to compile (eg. .VMF, .MAP)
-//-----------------------------------------------------------------------------
-void GetFileExtensions(MAPFORMAT mf, CString &strEditExtension, CString &strCompileExtension)
-{
-	if (mf == mfHalfLife2)
-	{
-		strEditExtension = ".vmf";
-		strCompileExtension = ".vmf";
-	}
-	else
-	{
-		strEditExtension = ".rmf";
-		strCompileExtension = ".map";
-	}
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Does a normal map compile.
 //-----------------------------------------------------------------------------
 void CMapDoc::OnFileRunmap(void)
 {
-	//
-	// Check for texture wads first if the current game config uses them.
-	//
-	if ((g_pGameConfig->GetTextureFormat() == tfWAD) && !Options.textures.nTextureFiles)
-	{
-		AfxMessageBox("There are no texture files defined yet. Add some texture files before you run the map.");
-		GetMainWnd()->Configure();
-		return;
-	}
-
-	CString strEditExtension;
-	CString strCompileExtension;
-	GetFileExtensions(g_pGameConfig->GetMapFormat(), strEditExtension, strCompileExtension);
+	CString strEditExtension = ".vmf";
+	CString strCompileExtension = ".vmf";
 
 	CRunMap dlg;
 	CRunMapExpertDlg dlgExpert;
@@ -4910,9 +4529,9 @@ void CMapDoc::OnFileRunmap(void)
 
 	bool bWasModified = (IsModified() == TRUE);
 
-	bSaveVisiblesOnly = FALSE;
+	m_bSaveVisiblesOnly = false;
 
-	// Make sure the .VMF or .RMF is saved first.
+	// Make sure the .VMF is saved first.
 	if (strFile.IsEmpty() || bWasModified)
 	{
 		OnFileSave();
@@ -5024,14 +4643,6 @@ void CMapDoc::OnFileRunmap(void)
 	{
 		strcpy(cmd.szRun, "$bsp_exe");
 		sprintf(cmd.szParms, "-game $gamedir %s$path\\$file", dlg.m_iQBSP == 2 ? "-onlyents " : "");
-
-		// check for bsp existence only in quake maps, because
-		// we're using the editor's utilities
-		if (g_pGameConfig->mapformat == mfQuake)
-		{
-			cmd.bEnsureCheck = TRUE;
-			strcpy(cmd.szEnsureFn, "$path\\$file.bsp");
-		}
 
 		cmds.Add(cmd);
 
@@ -8373,7 +7984,7 @@ void CMapDoc::OnMapLoadpointfile(void)
 	if(m_strLastPointFile.IsEmpty())
 	{
 		m_strLastPointFile = GetPathName();
-		const char *pExt = (m_pGame->mapformat == mfHalfLife2) ? ".lin" : ".pts";
+		const char *pExt = ".lin";
 		SetFilenameExtension( m_strLastPointFile, pExt );
 	}
 
@@ -8406,7 +8017,6 @@ void CMapDoc::OnMapLoadpointfile(void)
 	{
 		char szLine[256];
 		file.getline(szLine, 256);
-
 		Vector v;
 		if(sscanf(szLine, "%f %f %f", &v.x, &v.y, &v.z) == 3)
 		{
@@ -9062,7 +8672,7 @@ bool CMapDoc::SaveVMF(const char *pszFileName, int saveFlags )
 
 		if (!m_bPrefab && !(saveFlags & SAVEFLAGS_LIGHTSONLY))
 		{
-			SaveInfo.SetVisiblesOnly(bSaveVisiblesOnly == TRUE);
+			SaveInfo.SetVisiblesOnly(m_bSaveVisiblesOnly);
 
 			//
 			// Add cordon objects.

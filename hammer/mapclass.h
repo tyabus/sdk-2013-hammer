@@ -18,10 +18,6 @@
 
 #include "tier0/basetypes.h"
 
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "BoundBox.h"
 #include "MapPoint.h"
 #include "UtlVector.h"
@@ -309,8 +305,6 @@ public:
 	virtual ChunkFileResult_t SaveEditorData(CChunkFile *pFile);
 
 	virtual bool ShouldSerialize(void) { return true; }
-	virtual int SerializeRMF(std::fstream &File, BOOL bRMF);
-	virtual int SerializeMAP(std::fstream &File, BOOL bRMF);
 	virtual void PostloadWorld(CMapWorld *pWorld);
 	virtual void PresaveWorld(void) {}
 	virtual bool PostloadVisGroups( bool bIsLoading );
