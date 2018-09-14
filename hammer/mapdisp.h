@@ -293,8 +293,6 @@ public:
 	//
 	ChunkFileResult_t LoadVMF(CChunkFile *pFile);
 	ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
-	bool SerializedLoadMAP( std::fstream &file, CMapFace *pFace, UINT version );
-	bool SerializedLoadRMF( std::fstream &file, CMapFace *pFace, float version );
 	bool SaveDXF(ExportDXFInfo_s *pInfo);
 
 	void PostLoad( void );

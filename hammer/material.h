@@ -11,9 +11,7 @@
 
 
 #include "IEditorTexture.h"
-#include "materialsystem/IMaterialVar.h"
 #include "materialsystem/IMaterial.h"
-
 
 class IMaterial;
 class CMaterialCache;

@@ -1116,15 +1116,6 @@ static BOOL _CheckSolidContents(CMapSolid *pSolid, CListBox *pList)
 	return TRUE;
 }
 
-
-static void CheckSolidContents(CListBox *pList, CMapWorld *pWorld)
-{
-	if (CMapDoc::GetActiveMapDoc() && CMapDoc::GetActiveMapDoc()->GetGame() && CMapDoc::GetActiveMapDoc()->GetGame()->mapformat == mfQuake2)
-	{
-		pWorld->EnumChildren((ENUMMAPCHILDRENPROC)_CheckSolidContents, (DWORD)pList, MAPCLASS_TYPE(CMapSolid));
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: Determines if there are any invalid textures or texture axes on any
 //			face of this solid. Adds an error message to the list box for each
@@ -1720,7 +1711,6 @@ bool CMapCheckDlg::DoCheck(void)
 	CheckDuplicateFaceIDs(&m_Errors, pWorld);
 	CheckDuplicateNodeIDs(&m_Errors, pWorld);
 	CheckSolidIntegrity(&m_Errors, pWorld);
-	CheckSolidContents(&m_Errors, pWorld);
 	CheckInvalidTextures(&m_Errors, pWorld);
 
 	// Entity validation

@@ -517,36 +517,6 @@ bool COptions::Read(void)
 	DWORD dwTime = APP()->GetProfileInt("Configured", "Installed", time(NULL));
 	CTimeSpan ts(time(NULL) - dwTime);
 	uDaysSinceInstalled = ts.GetDays();
-
-	int i, iSize;
-	CString str;
-
-	// read texture info - it's stored in the general section from
-	//  an old version, but this doesn't matter much.
-	iSize = APP()->GetProfileInt(pszGeneral, "TextureFileCount", 0);
-	if(iSize)
-	{
-		// make sure default is removed
-		textures.nTextureFiles = 0;
-		textures.TextureFiles.RemoveAll();
-		// read texture file names
-		for(i = 0; i < iSize; i++)
-		{
-			str.Format("TextureFile%d", i);
-			str = APP()->GetProfileString(pszGeneral, str);
-			if(GetFileAttributes(str) == 0xffffffff)
-			{
-				// can't find
-				continue;
-			}
-			textures.TextureFiles.Add(str);
-			textures.nTextureFiles++;
-		}
-	}
-	else
-	{
-		// SetDefaults() added 'textures.wad' to the list
-	}
 	textures.fBrightness = float(APP()->GetProfileInt(pszGeneral, "Brightness", 10)) / 10.0;
 
 	// load general info
@@ -763,17 +733,6 @@ void COptions::Write( BOOL fOverwrite, BOOL fSaveConfigs )
 {
 	APP()->WriteProfileInt("Configured", "Configured", iThisVersion);
 
-	int i, iSize;
-	CString str;
-
-	// write texture info - remember, it's stored in general
-	iSize = textures.nTextureFiles;
-	APP()->WriteProfileInt(pszGeneral, "TextureFileCount", iSize);
-	for(i = 0; i < iSize; i++)
-	{
-		str.Format("TextureFile%d", i);
-		APP()->WriteProfileString(pszGeneral, str, textures.TextureFiles[i]);
-	}
 	APP()->WriteProfileInt(pszGeneral, "Brightness", int(textures.fBrightness * 10));
 
 	// write general
@@ -873,8 +832,6 @@ void COptions::SetDefaults(void)
 	uDaysSinceInstalled = 0;
 
 	// textures
-	textures.nTextureFiles = 1;
-	textures.TextureFiles.Add("textures.wad");
 	textures.fBrightness = 1.0;
 
 	// general

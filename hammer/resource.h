@@ -260,7 +260,6 @@
 #define IDC_FILTER_LAYERS               1010
 #define IDC_EDITDEFAULTS                1010
 #define IDC_BROWSE                      1010
-#define IDC_TEXTUREFILES                1010
 #define IDC_CATEGORYLIST                1010
 #define IDC_FROMMINUTESPIN              1010
 #define IDC_GAMEDIR                     1010
@@ -468,7 +467,6 @@
 #define IDC_SCALEY                      1150
 #define IDC_ADDTEXFILE                  1151
 #define IDC_REMOVETEXFILE               1152
-#define IDC_ADDTEXFILE2                 1153
 #define IDC_CROSSHAIRS                  1154
 #define IDC_GROUPCARVE                  1156
 #define IDC_TEXTUREGROUPS               1158
@@ -548,7 +546,6 @@
 #define IDC_SHOWORDERFORM               1217
 #define ID_INSERTPREFAB_ORIGINAL        1219
 #define IDC_REVERSEY                    1221
-#define IDC_EXTRACT                     1224
 #define IDC_WHITEONBLACK                1225
 #define IDC_EXPERT                      1226
 #define IDC_NORMAL                      1227
@@ -728,7 +725,6 @@
 #define IDC_SEARCH_VISIBLE_BRUSHES_ONLY 1418
 #define IDC_UNIQUETEXTURES              1419
 #define IDC_TEXTUREMEMORY               1420
-#define IDC_WADSUSED                    1421
 #define IDC_FORWARD_SPEED               1424
 #define IDC_FORWARD_ACCELERATION        1425
 #define IDC_FORWARD_SPEED_TEXT          1426
@@ -1140,7 +1136,6 @@
 #define ID_MAP_UNITS_FEET_INCHES        33101
 #define ID_TOOLS_HIDE_ENTITY_NAMES      33102
 #define ID_VIEW_OPAQUE_MATERIALS        33103
-#define ID_FILE_CONVERT_WAD             33104
 #define ID_BUTTON_DISP_DRAW             33105
 #define ID_TOOLS_DISP_SOLIDDRAW         33106
 #define ID_TOOLS_OVERLAY                33107

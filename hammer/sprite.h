@@ -11,7 +11,6 @@
 #define SPRITE_H
 #pragma once
 
-#include "mathlib/mathlib.h"
 #include "materialsystem/imaterialsystem.h"
 
 class CTexture;

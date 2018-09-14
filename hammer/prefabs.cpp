@@ -18,8 +18,6 @@
 #include "Prefabs.h"
 #include "Prefab3D.h"
 #include "hammer.h"
-#include <io.h>
-#include <fcntl.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -29,10 +27,6 @@ BOOL CPrefab::bCacheEnabled = TRUE;
 CPrefabList CPrefab::PrefabList;
 CPrefabList CPrefab::MRU;
 CPrefabLibraryList CPrefabLibrary::PrefabLibraryList;
-
-
-static char *pLibHeader = "Worldcraft Prefab Library\r\n\x1a";
-static float fLibVersion = 0.1f;
 
 
 typedef struct

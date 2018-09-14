@@ -134,13 +134,6 @@ public:
 	void SetActiveConfig(CGameConfig *pConfig);
 
 	//
-	// Exposes a list of all texture (WAD) files.
-	//
-	inline int FilesGetCount(void) const;
-	inline void FilesGetInfo(GRAPHICSFILESTRUCT *pFileInfo, int nIndex) const;
-	bool FindGraphicsFile(GRAPHICSFILESTRUCT *pFileInfo, DWORD id, int *piIndex = NULL);
-
-	//
 	// Exposes a list of texture groups (sets of textures of a given format).
 	//
 	void SetActiveGroup(const char *pcszName);
@@ -152,7 +145,7 @@ public:
 	//
 	inline int GetActiveTextureCount(void) const;
 	inline IEditorTexture *GetActiveTexture(int nIndex) const;
-	IEditorTexture *EnumActiveTextures(int *piIndex, TEXTUREFORMAT eDesiredFormat) const;
+	IEditorTexture *EnumActiveTextures(int *piIndex, TEXTUREFORMAT eDesiredFormat = tfVMT) const;
 	IEditorTexture *FindActiveTexture(LPCSTR pszName, int *piIndex = NULL, BOOL bDummy = TRUE);
 	bool HasTexturesForConfig(CGameConfig *pConfig);
 
@@ -172,7 +165,7 @@ public:
 	//
 	// Holds a list of placeholder textures used when a map refers to missing textures.
 	//
-	IEditorTexture *AddDummy(LPCTSTR pszName, TEXTUREFORMAT eFormat);
+	IEditorTexture *AddDummy(LPCTSTR pszName, TEXTUREFORMAT eFormat = tfVMT);
 
 	//
 	// Load graphics files from options list.
@@ -229,16 +222,6 @@ protected:
 	int AddTexture(IEditorTexture *pTexture);
 
 	void LoadMaterials(CGameConfig *pConfig);
-	void LoadWADFiles(CGameConfig *pConfig);
-	
-
-	DWORD LoadGraphicsFile(const char *pFilename);
-	void LoadGraphicsFileWAD3(GRAPHICSFILESTRUCT *pFile, int fd, CTextureGroup *pGroup);
-
-	//
-	// Array of open graphics files.
-	//
-	CUtlVector<GRAPHICSFILESTRUCT> m_GraphicsFiles;
 
 	//
 	// Master array of textures.
@@ -267,29 +250,6 @@ protected:
 	// tools/toolsnodraw
 	IEditorTexture* m_pNoDrawTexture;
 };
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int CTextureSystem::FilesGetCount(void) const
-{
-	return(m_GraphicsFiles.Count());
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pFileInfo - 
-//			nIndex - 
-//-----------------------------------------------------------------------------
-void CTextureSystem::FilesGetInfo(GRAPHICSFILESTRUCT *pFileInfo, int nIndex) const
-{
-	if (pFileInfo != NULL)
-	{
-		*pFileInfo = m_GraphicsFiles[nIndex];
-	}
-}
 
 
 //-----------------------------------------------------------------------------

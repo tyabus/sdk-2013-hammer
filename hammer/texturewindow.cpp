@@ -55,7 +55,7 @@ CTextureWindow::CTextureWindow(void)
 	m_pSpecificList = NULL;
 	szCurTexture[0] = '\0';
 
-	m_eTextureFormat = g_pGameConfig->GetTextureFormat();
+	m_eTextureFormat = tfVMT;
 
 	m_bEnableUpdate = true;
 	m_nTypeFilter = ~0;

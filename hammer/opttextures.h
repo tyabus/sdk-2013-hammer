@@ -28,7 +28,6 @@ public:
 	//
 	//{{AFX_DATA(COPTTextures)
 	enum { IDD = IDD_OPTIONS_TEXTURES };
-	CListBox	m_TextureFiles;
 	CSliderCtrl	m_cBrightness;
 	CListBox    m_MaterialExclude;
 	//}}AFX_DATA
@@ -49,7 +48,6 @@ public:
 // Implementation
 protected:
 
-	BOOL			m_bDeleted;
 	CGameConfig		*m_pMaterialConfig;				// copy of the current gaming config
 
 	BOOL BrowseForFolder( char *pszTitle, char *pszDirectory );
@@ -61,11 +59,7 @@ protected:
 	//
 	//{{AFX_MSG(COPTTextures)
 	virtual BOOL OnInitDialog();
-	afx_msg void OnExtract();
-	afx_msg void OnAddtexfile();
-	afx_msg void OnRemovetexfile();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-	afx_msg void OnAddtexfile2();
 	afx_msg void OnMaterialExcludeAdd( void );
 	afx_msg void OnMaterialExcludeRemove( void );
 	//}}AFX_MSG

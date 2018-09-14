@@ -1554,7 +1554,7 @@ void CFaceEditMaterialPage::NotifyGraphicsChanged( void )
 		for (int i = 1; i < nCount; i++)
 		{
 			CTextureGroup *pGroup = g_Textures.GroupsGet(i);
-			if (pGroup->GetTextureFormat() == g_pGameConfig->GetTextureFormat())
+			if (pGroup->GetTextureFormat() == tfVMT)
 			{
 				const char *p = strstr(pGroup->GetName(), "textures\\");
 				if (p)

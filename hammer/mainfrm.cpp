@@ -1238,7 +1238,6 @@ void CMainFrame::GlobalNotify(int nCode)
 		//
 		case WM_GAME_CHANGED:
 		{
-			pTextureBrowser->SetTextureFormat(g_pGameConfig->GetTextureFormat());
 			m_TextureBar.NotifyGraphicsChanged();
 			m_pFaceEditSheet->NotifyGraphicsChanged();
 

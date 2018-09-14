@@ -324,32 +324,6 @@ void COPTConfigs::SaveInfo(CGameConfig *pConfig)
 		++pConfig->nGDFiles;
 	}
 
-	//
-	// Map file type.
-	//
-	int nIndex = m_cMapFormat.GetCurSel();
-	if (nIndex != CB_ERR)
-	{
-		pConfig->mapformat = (MAPFORMAT)m_cMapFormat.GetItemData(nIndex);
-	}
-	else
-	{
-		pConfig->mapformat = mfHalfLife2;
-	}
-
-	//
-	// WAD file type.
-	//
-	nIndex = m_cTextureFormat.GetCurSel();
-	if (nIndex != CB_ERR)
-	{
-		pConfig->SetTextureFormat((TEXTUREFORMAT)m_cTextureFormat.GetItemData(nIndex));
-	}
-	else
-	{
-		pConfig->SetTextureFormat(tfVMT);
-	}
-
 	m_cDefaultSolid.GetWindowText(pConfig->szDefaultSolid, sizeof pConfig->szDefaultSolid);
 	m_cDefaultPoint.GetWindowText(pConfig->szDefaultPoint, sizeof pConfig->szDefaultPoint);
 
@@ -425,34 +399,6 @@ void COPTConfigs::OnSelchangeConfigurations(void)
 		CString str(pConfig->GDFiles[i]);
 		EditorUtil_ConvertPath(str, false);
 		m_cGDFiles.AddString(str);
-	}
-
-	//
-	// Select the correct map format.
-	//
-	m_cMapFormat.SetCurSel(0);
-	int nItems = m_cMapFormat.GetCount();
-	for (int i = 0; i < nItems; i++)
-	{
-		if (pConfig->mapformat == (MAPFORMAT)m_cMapFormat.GetItemData(i))
-		{
-			m_cMapFormat.SetCurSel(i);
-			break;
-		}
-	}
-
-	//
-	// Select the correct texture format.
-	//
-	m_cTextureFormat.SetCurSel(0);
-	nItems = m_cTextureFormat.GetCount();
-	for (int i = 0; i < nItems; i++)
-	{
-		if (pConfig->GetTextureFormat() == (TEXTUREFORMAT)m_cTextureFormat.GetItemData(i))
-		{
-			m_cTextureFormat.SetCurSel(i);
-			break;
-		}
 	}
 
 	EditorUtil_TransferPath(this, IDC_GAMEEXEDIR, pConfig->m_szGameExeDir, false);
@@ -624,26 +570,6 @@ void COPTConfigs::UpdateConfigList()
 BOOL COPTConfigs::OnInitDialog(void)
 {
 	CPropertyPage::OnInitDialog();
-
-	int nIndex;
-
-	//
-	// Add map formats.
-	//
-	nIndex = m_cMapFormat.AddString("Half-Life 2");
-	m_cMapFormat.SetItemData(nIndex, mfHalfLife2);
-
-	nIndex = m_cMapFormat.AddString("Half-Life / TFC");
-	m_cMapFormat.SetItemData(nIndex, mfHalfLife);
-
-	//
-	// Add texture formats.
-	//
-	nIndex = m_cTextureFormat.AddString("Materials (Half-Life 2)");
-	m_cTextureFormat.SetItemData(nIndex, tfVMT);
-
-	nIndex = m_cTextureFormat.AddString("WAD3 (Half-Life / TFC)");
-	m_cTextureFormat.SetItemData(nIndex, tfWAD3);
 
 	UpdateConfigList();
 

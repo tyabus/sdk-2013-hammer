@@ -287,7 +287,6 @@ class CMapDoc : public CDocument
 
 		void ReleaseVideoMemory( );
 
-		inline MAPFORMAT GetMapFormat(void);
 		inline CMapWorld *GetMapWorld(void);
 		inline CGameConfig *GetGame(void);
 		inline int GetGridSpacing(void) { return(max(m_nGridSpacing, 1)); }
@@ -604,8 +603,6 @@ class CMapDoc : public CDocument
 		afx_msg void OnFileExport();
 		afx_msg void OnFileExportAgain();
 		afx_msg void OnEditMapproperties();
-		afx_msg void OnFileConvertWAD();
-		afx_msg void OnUpdateFileConvertWAD(CCmdUI* pCmdUI);
 		afx_msg void OnFileRunmap();
 		afx_msg void OnToolsHideitems();
 		afx_msg void OnViewHideUnconnectedEntities();
@@ -787,20 +784,6 @@ CGameConfig *CMapDoc::GetGame(void)
 CHistory *CMapDoc::GetDocHistory(void)
 {
 	return(m_pUndo);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Returns the map format of the game configuration for this document.
-//-----------------------------------------------------------------------------
-MAPFORMAT CMapDoc::GetMapFormat(void)
-{
-	if (m_pGame != NULL)
-	{
-		return(m_pGame->mapformat);
-	}
-
-	return(mfHalfLife2);
 }
 
 

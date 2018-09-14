@@ -3093,14 +3093,7 @@ void COP_Entity::OnBrowse(void)
 	// handle browsing for .fgd "decal" type
 	if(m_eEditType == ivDecal)
 	{
-		if (g_pGameConfig->GetTextureFormat() == tfVMT)
-		{
-			BrowseTextures("decals/");
-		}
-		else
-		{
-			BrowseTextures("{");
-		}
+		BrowseTextures("decals/");
 		return;
 	}
 

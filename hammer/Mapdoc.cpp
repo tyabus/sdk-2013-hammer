@@ -39,6 +39,7 @@
 #include "PasteSpecialDlg.h"
 #include "Prefabs.h"
 #include "Prefab3D.h"
+#include "progdlg.h"
 #include "ReplaceTexDlg.h"
 #include "RunMap.h"
 #include "RunMapExpertDlg.h"
@@ -53,7 +54,6 @@
 #include "StatusBarIDs.h"
 #include "StrDlg.h"
 #include "TextureSystem.h"
-#include "TextureConverter.h"
 #include "TransformDlg.h"
 #include "VisGroup.h"
 #include "hammer.h"
@@ -63,6 +63,8 @@
 #include "StockSolids.h"
 #include "ToolMorph.h"
 #include "ToolBlock.h"
+
+#include "utlbuffer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -141,8 +143,6 @@ BEGIN_MESSAGE_MAP(CMapDoc, CDocument)
 	ON_COMMAND(ID_FILE_EXPORTAGAIN, OnFileExportAgain)
 	ON_COMMAND(ID_EDIT_MAPPROPERTIES, OnEditMapproperties)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_MAPPROPERTIES, OnUpdateEditFunction)
-	ON_COMMAND(ID_FILE_CONVERT_WAD, OnFileConvertWAD)
-	ON_UPDATE_COMMAND_UI(ID_FILE_CONVERT_WAD, OnUpdateFileConvertWAD)
 	ON_COMMAND(ID_FILE_RUNMAP, OnFileRunmap)
 	ON_COMMAND(ID_TOOLS_HIDEITEMS, OnToolsHideitems)
 	ON_UPDATE_COMMAND_UI(ID_TOOLS_HIDEITEMS, OnUpdateToolsHideitems)
@@ -2465,7 +2465,7 @@ void CMapDoc::SerializePrefab()
         m_bEditingPrefab = FALSE;
 
         CString str;
-        str.Format("Prefab%d.rmf", id++);
+        str.Format("Prefab%d.vmf", id++);
         SetPathName(str);
         return;
     }
@@ -4354,15 +4354,7 @@ void CMapDoc::OnFileSaveAs(void)
 			strcpy(szBaseDir, m_pGame->szMapDir);
 		}
 
-		char *pszFilter;
-		if (m_pGame->mapformat == mfHalfLife2)
-		{
-			pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
-		}
-		else
-		{
-			pszFilter = "Worldcraft Maps (*.rmf)|*.rmf|Game Maps (*.map)|*.map||";
-		}
+		char *pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
 
 		CFileDialog dlg(FALSE, NULL, str, OFN_LONGNAMES | OFN_NOCHANGEDIR |	OFN_HIDEREADONLY, pszFilter);
 		dlg.m_ofn.lpstrInitialDir = szBaseDir;
@@ -4377,17 +4369,6 @@ void CMapDoc::OnFileSaveAs(void)
 
 		// Make sure we've got a .vmt extension, or else compile tools won't work.
 		CString wantedExtension = ".vmf";
-		if ( m_pGame->mapformat != mfHalfLife2 )
-		{
-			if ( dlg.m_ofn.nFilterIndex == 1 )
-			{
-				wantedExtension = ".rmf";
-			}
-			else if ( dlg.m_ofn.nFilterIndex == 2 )
-			{
-				wantedExtension = ".map";
-			}
-		}
 
 		CString extension = str.Right( 4 );
 		extension.MakeLower();
@@ -4555,27 +4536,9 @@ void CMapDoc::OnFileExport(void)
 	// Build a name for the exported file.
 	//
 	int iIndex = strFile.Find('.');
-
-	char *pszFilter;
-	char *pszExtension;
-	if (m_pGame->mapformat == mfHalfLife2)
-	{
-		strFile.SetAt(iIndex, '\0');
-
-		pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
-		pszExtension = "vmf";
-	}
-	else
-	{
-		//
-		// Use the same filename with a .map extension.
-		//
-		strcpy(strFile.GetBuffer(1) + iIndex, ".map");
-		strFile.ReleaseBuffer();
-
-		pszFilter = "Game Maps (*.map)|*.map||";
-		pszExtension = "map";
-	}
+    strFile.SetAt(iIndex, '\0');
+	char *pszFilter = "Valve Map Files (*.vmf)|*.vmf||";
+	char *pszExtension = "vmf";
 
 	//
 	// Bring up a dialog to allow them to name the exported file.
@@ -4650,62 +4613,12 @@ void CMapDoc::OnEditMapproperties(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Converts a map's textures from WAD3 to VMT.
-//-----------------------------------------------------------------------------
-void CMapDoc::OnFileConvertWAD( void )
-{
-	CTextureConverter::ConvertWorldTextures( m_pWorld );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Manages the state of the File | Convert WAD -> VMT menu item.
-//-----------------------------------------------------------------------------
-void CMapDoc::OnUpdateFileConvertWAD( CCmdUI * pCmdUI )
-{
-	pCmdUI->Enable( ( m_pWorld != NULL ) && ( g_pGameConfig->GetTextureFormat() == tfVMT ) );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Gets the relevant file extensions for the given map format.
-// Input  : mf -
-//			strEditExtension - The extension of the edit file (eg. .VMF, .RMF)
-//			strCompileExtension - The extension of the file to compile (eg. .VMF, .MAP)
-//-----------------------------------------------------------------------------
-void GetFileExtensions(MAPFORMAT mf, CString &strEditExtension, CString &strCompileExtension)
-{
-	if (mf == mfHalfLife2)
-	{
-		strEditExtension = ".vmf";
-		strCompileExtension = ".vmf";
-	}
-	else
-	{
-		strEditExtension = ".rmf";
-		strCompileExtension = ".map";
-	}
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Does a normal map compile.
 //-----------------------------------------------------------------------------
 void CMapDoc::OnFileRunmap(void)
 {
-	//
-	// Check for texture wads first if the current game config uses them.
-	//
-	if ((g_pGameConfig->GetTextureFormat() == tfWAD) && !Options.textures.nTextureFiles)
-	{
-		AfxMessageBox("There are no texture files defined yet. Add some texture files before you run the map.");
-		GetMainWnd()->Configure();
-		return;
-	}
-
-	CString strEditExtension;
-	CString strCompileExtension;
-	GetFileExtensions(g_pGameConfig->GetMapFormat(), strEditExtension, strCompileExtension);
+	CString strEditExtension = ".vmf";
+	CString strCompileExtension = ".vmf";
 
 	CRunMap dlg;
 	CRunMapExpertDlg dlgExpert;
@@ -4716,7 +4629,7 @@ void CMapDoc::OnFileRunmap(void)
 
 	m_bSaveVisiblesOnly = false;
 
-	// Make sure the .VMF or .RMF is saved first.
+	// Make sure the .VMF is saved first.
 	if (strFile.IsEmpty() || bWasModified)
 	{
 		OnFileSave();
@@ -4828,14 +4741,6 @@ void CMapDoc::OnFileRunmap(void)
 	{
 		strcpy(cmd.szRun, "$bsp_exe");
 		sprintf(cmd.szParms, "-game $gamedir %s$path\\$file", dlg.m_iQBSP == 2 ? "-onlyents " : "");
-
-		// check for bsp existence only in quake maps, because
-		// we're using the editor's utilities
-		if (g_pGameConfig->mapformat == mfQuake)
-		{
-			cmd.bEnsureCheck = TRUE;
-			strcpy(cmd.szEnsureFn, "$path\\$file.bsp");
-		}
 
 		cmds.Add(cmd);
 
@@ -8177,7 +8082,7 @@ void CMapDoc::OnMapLoadpointfile(void)
 	if(m_strLastPointFile.IsEmpty())
 	{
 		m_strLastPointFile = GetPathName();
-		const char *pExt = (m_pGame->mapformat == mfHalfLife2) ? ".lin" : ".pts";
+		const char *pExt = ".lin";
 		SetFilenameExtension( m_strLastPointFile, pExt );
 	}
 
@@ -8210,7 +8115,6 @@ void CMapDoc::OnMapLoadpointfile(void)
 	{
 		char szLine[256];
 		file.getline(szLine, 256);
-
 		Vector v;
 		if(sscanf(szLine, "%f %f %f", &v.x, &v.y, &v.z) == 3)
 		{

@@ -10,7 +10,6 @@
 #include <mmsystem.h>
 #include "Camera.h"
 #include "CullTreeNode.h"
-#include "MapDefs.h"
 #include "MapDoc.h"
 #include "MapEntity.h"
 #include "MapWorld.h"
@@ -24,21 +23,17 @@
 #include "ToolInterface.h"
 #include "StudioModel.h"
 #include "ibsplighting.h"
-#include "MapDisp.h"
 #include "ToolManager.h"
 #include "mapview.h"
 #include "hammer.h"
 #include "IStudioRender.h"
-#include <renderparm.h>
 #include "materialsystem/itexture.h"
-#include "maplightcone.h"
 #include "map_utils.h"
 #include "bitmap/float_bm.h"
 #include "lpreview_thread.h"
-#include "hammer.h"
 #include "mainfrm.h"
 #include "mathlib/halton.h"
-#include "materialsystem/materialsystemutil.h"
+#include "materialsystem/imaterialvar.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!

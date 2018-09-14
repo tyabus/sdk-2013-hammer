@@ -273,8 +273,7 @@ END_MESSAGE_MAP()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Constructor. Initializes member variables and creates a scratch
-//			buffer for use when loading WAD files.
+// Purpose: Constructor.
 //-----------------------------------------------------------------------------
 CHammer::CHammer(void)
 {
@@ -1335,8 +1334,7 @@ void CHammer::OnFileOpen(void)
 		strcpy(szInitialDir, g_pGameConfig->szMapDir);
 	}
 
-	// TODO: need to prevent (or handle) opening VMF files when using old map file formats
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_LONGNAMES | OFN_HIDEREADONLY | OFN_NOCHANGEDIR, "Valve Map Files (*.vmf)|*.vmf|Valve Map Files Autosave (*.vmf_autosave)|*.vmf_autosave|Worldcraft RMFs (*.rmf)|*.rmf|Worldcraft Maps (*.map)|*.map||");
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_LONGNAMES | OFN_HIDEREADONLY | OFN_NOCHANGEDIR, "Valve Map Files (*.vmf)|*.vmf|Valve Map Files Autosave (*.vmf_autosave)|*.vmf_autosave||");
 	dlg.m_ofn.lpstrInitialDir = szInitialDir;
 	int iRvl = dlg.DoModal();
 
@@ -1368,18 +1366,6 @@ void CHammer::OnFileOpen(void)
 			case 2:
 			{
 				str += ".vmf_autosave";
-				break;
-			}
-
-			case 3:
-			{
-				str += ".rmf";
-				break;
-			}
-
-			case 4:
-			{
-				str += ".map";
 				break;
 			}
 		}
