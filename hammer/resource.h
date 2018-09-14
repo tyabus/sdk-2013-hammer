@@ -693,8 +693,6 @@
 #define IDC_Q2_HINT                     1391
 #define IDC_Q2_SPLITTER                 1392
 #define IDC_BROWSEPALETTE               1394
-#define IDC_TEXTUREFORMAT               1395
-#define IDC_MAPFORMAT                   1396
 #define IDC_PICKCOLOR                   1396
 #define IDC_BROWSEMAPDIR                1397
 #define IDC_BROWSE_GAME                 1398

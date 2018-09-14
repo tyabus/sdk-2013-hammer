@@ -185,9 +185,7 @@ void COPTConfigs::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MAPDIR, m_cMapDir);
 	DDX_Control(pDX, IDC_GAMEEXEDIR, m_cGameExeDir);
 	DDX_Control(pDX, IDC_MODDIR, m_cModDir);
-	DDX_Control(pDX, IDC_MAPFORMAT, m_cMapFormat);
 	DDX_Control(pDX, IDC_CORDON_TEXTURE, m_cCordonTexture);
-	DDX_Control(pDX, IDC_TEXTUREFORMAT, m_cTextureFormat);
 	DDX_Control(pDX, IDC_DEFAULTPOINT, m_cDefaultPoint);
 	DDX_Control(pDX, IDC_DEFAULTENTITY, m_cDefaultSolid);
 	DDX_Control(pDX, IDC_DATAFILES, m_cGDFiles);
@@ -378,8 +376,6 @@ void COPTConfigs::OnSelchangeConfigurations(void)
 	m_cGDFiles.EnableWindow(!bKillFields);
 	m_cDefaultPoint.EnableWindow(!bKillFields);
 	m_cDefaultSolid.EnableWindow(!bKillFields);
-	m_cTextureFormat.EnableWindow(!bKillFields);
-	m_cMapFormat.EnableWindow(!bKillFields);
 	m_cGameExeDir.EnableWindow(!bKillFields);
 	m_cModDir.EnableWindow(!bKillFields);
 	m_cMapDir.EnableWindow(!bKillFields);
@@ -668,16 +664,7 @@ void COPTConfigs::OnBrowseCordonTexture(void)
 	CTextureBrowser *pBrowser = new CTextureBrowser(this);
 	if (pBrowser != NULL)
 	{
-		//
-		// Use the currently selected texture format for browsing.
-		//
-		TEXTUREFORMAT eTextureFormat = tfVMT;
-		int nIndex = m_cTextureFormat.GetCurSel();
-		if (nIndex != LB_ERR)
-		{
-			eTextureFormat = (TEXTUREFORMAT)m_cTextureFormat.GetItemData(nIndex);
-		}
-		pBrowser->SetTextureFormat(eTextureFormat);
+		pBrowser->SetTextureFormat(tfVMT);
 
 		//
 		// Select the current cordon texture in the texture browser.
