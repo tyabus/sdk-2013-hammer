@@ -333,7 +333,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Reload Sounds",              ID_FILE_RELOAD_SOUNDS
         MENUITEM SEPARATOR
-        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
@@ -483,6 +483,7 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&Help Topics",                ID_HELP_TOPICS
+        MENUITEM "Report an Issue",             ID_HELP_REPORTANISSUE
         MENUITEM SEPARATOR
         MENUITEM "&About...",                   ID_APP_ABOUT
     END
