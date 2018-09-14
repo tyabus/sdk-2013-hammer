@@ -10,12 +10,11 @@
 #pragma once
 #endif
 
-#include "resource.h"
-#include "TextureBox.h"
-#include "IEditorTexture.h"
 #include "wndTex.h"
 #include "MapFace.h"
+#include "TextureBox.h"
 #include "materialdlg.h"
+
 
 class CMapSolid;
 
@@ -84,20 +83,6 @@ public:
 	BOOL OnSetActive( void );
 	virtual BOOL PreTranslateMessage( MSG *pMsg );
 	//}}AFX_VIRTUAL
-
-	//=========================================================================
-	//
-	// Face Attributes
-	//
-	struct FaceAttributeInfo_t
-	{
-		unsigned int uControlID;		// Control ID of corresponding checkbox.
-		unsigned int *puAttribute;		// Pointer to bit flags attribute being modified.
-		unsigned int uFlag;				// Bit flag(s) to set in the above attribute.
-	};
-
-	static unsigned int m_FaceContents;
-	static unsigned int m_FaceSurface;
 
 protected:
 

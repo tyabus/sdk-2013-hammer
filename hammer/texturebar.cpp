@@ -398,6 +398,10 @@ BEGIN_MESSAGE_MAP(wndTex, CStatic)
 END_MESSAGE_MAP()
 
 
+wndTex::wndTex(): m_pTexture(nullptr)
+{
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Sets the texture to render in the window.
 // Input  : pTex - Texture to render when painting this window.
@@ -406,6 +410,11 @@ void wndTex::SetTexture(IEditorTexture *pTex)
 {
 	m_pTexture = pTex;
 	Invalidate();	
+}
+
+IEditorTexture* wndTex::GetTexture()
+{
+    return m_pTexture;
 }
 
 

@@ -82,8 +82,6 @@ bool CMapSolid::AddPlane(const CMapFace *p)
 	const CMapFace *pSolidFace = GetFace(0);
 
 	NewFace.SetTexture(pSolidFace->texture.texture);
-	NewFace.texture.q2contents = pSolidFace->texture.q2contents;
-	NewFace.texture.q2surface = pSolidFace->texture.q2surface;
 	NewFace.texture.nLightmapScale = pSolidFace->texture.nLightmapScale;
 
 	//

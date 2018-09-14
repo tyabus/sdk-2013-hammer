@@ -132,42 +132,6 @@ enum TextureJustification_t
 #define CREATE_FACE_PRESERVE_PLANE	0x0001		// Hack to prevent plane from being recalculated while building a solid from its planes.
 #define CREATE_FACE_CLIPPING		0x0002
 
-//
-// Serialized data structure. Do not modify!
-//
-struct TEXTURE_21
-{
-	char	texture[MAX_PATH];
-	float	rotate;
-	float	shift[2];
-	float	scale[2];
-	BYTE	smooth;
-	BYTE	material;
-	DWORD	q2surface;
-	DWORD	q2contents;
-	DWORD	q2value;
-};
-
-
-//
-// Post 2.1 explicit texture U/V axes were added.
-//
-// Serialized data structure. Do not modify!
-//
-struct TEXTURE_33
-{
-	char texture[MAX_PATH];
-	float UAxis[4];				// Must remain float[4] for RMF serialization.
-	float VAxis[4];				// Must remain float[4] for RMF serialization.
-	float rotate;
-	float scale[2];
-	BYTE smooth;
-	BYTE material;
-	DWORD q2surface;
-	DWORD q2contents;
-	int nLightmapScale;
-};
-
 
 struct TEXTURE
 {
@@ -178,8 +142,6 @@ struct TEXTURE
 	float scale[2];
 	BYTE smooth;
 	BYTE material;
-	DWORD q2surface;
-	DWORD q2contents;
 	int nLightmapScale;
 
 	TEXTURE& operator=( TEXTURE const& src )
