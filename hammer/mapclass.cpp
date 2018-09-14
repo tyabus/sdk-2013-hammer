@@ -19,6 +19,11 @@
 
 int CMapAtom::s_nObjectIDCtr = 1;
 
+struct MCMSTRUCT
+{
+	MAPCLASSTYPE Type;
+	CMapClass* (*pfnNew)();
+};
 static CUtlVector<MCMSTRUCT> s_Classes;
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -35,7 +40,6 @@ bool CMapClass::s_bLoadingVMF = false;
 //-----------------------------------------------------------------------------
 CMapClassManager::CMapClassManager(MAPCLASSTYPE Type, CMapClass *(*pfnNew)())
 {
-
 	MCMSTRUCT mcms;
 	mcms.Type = Type;
 	mcms.pfnNew = pfnNew;

@@ -454,7 +454,7 @@ class CMapDoc : public CDocument
 		bool m_bLoading; // Set to true while we are being loaded from VMF.
 		bool m_bLoadingInstance; // Set to true while we are being loaded from VMF instance.
 
-		static BOOL GetBrushNumberCallback(CMapClass *pObject, void *pFindInfo);
+		static BOOL GetBrushNumberCallback(CMapClass *pObject, class CFindBrushInfo *pFindInfo);
 
 		//
 		// Serialization.

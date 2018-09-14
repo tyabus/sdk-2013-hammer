@@ -560,8 +560,8 @@ void CMapWorld::UpdateChild(CMapClass *pChild)
 void CMapWorld::GetUsedTextures(CUsedTextureList &List)
 {
 	List.RemoveAll();
-	EnumChildren((ENUMMAPCHILDRENPROC)AddUsedTextures, (DWORD)&List, MAPCLASS_TYPE(CMapSolid));
-	EnumChildren((ENUMMAPCHILDRENPROC)AddOverlayTextures, (DWORD)&List, MAPCLASS_TYPE(CMapOverlay));
+	EnumChildren(AddUsedTextures, &List, MAPCLASS_TYPE(CMapSolid));
+	EnumChildren(AddOverlayTextures, &List, MAPCLASS_TYPE(CMapOverlay));
 }
 
 
@@ -1017,7 +1017,7 @@ ChunkFileResult_t CMapWorld::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo, in
 	// Sort the world objects into lists for saving into different chunks.
 	//
 	SaveLists_t SaveLists;
-	EnumChildrenRecurseGroupsOnly((ENUMMAPCHILDRENPROC)BuildSaveListsCallback, (DWORD)&SaveLists);
+	EnumChildrenRecurseGroupsOnly(BuildSaveListsCallback, &SaveLists);
 
 	//
 	// Begin the world chunk.

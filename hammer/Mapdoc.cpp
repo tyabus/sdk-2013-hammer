@@ -1019,7 +1019,7 @@ CMapEntity *CMapDoc::FindEntity(const char *pszClassName, float x, float y, floa
 		FindInfo.Pos[1] = rint(y);
 		FindInfo.Pos[2] = rint(z);
 
-		m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)FindEntityCallback, (DWORD)&FindInfo, MAPCLASS_TYPE(CMapEntity));
+		m_pWorld->EnumChildren(FindEntityCallback, &FindInfo, MAPCLASS_TYPE(CMapEntity));
 
 		if (FindInfo.pEntityFound != NULL)
 		{
@@ -1225,9 +1225,8 @@ public:
 };
 
 
-BOOL CMapDoc::GetBrushNumberCallback(CMapClass *pObject, void *pFindInfoVoid)
+BOOL CMapDoc::GetBrushNumberCallback(CMapClass *pObject, CFindBrushInfo *pFindInfo)
 {
-	CFindBrushInfo *pFindInfo = (CFindBrushInfo*)pFindInfoVoid;
 	if ( pObject->IsVisible() )
 	{
 		if ( pObject == pFindInfo->m_pBrush )
@@ -1271,8 +1270,7 @@ void CMapDoc::OnMapShowSelectedBrushNumber()
 	}
 
 	// Enumerate the visible brushes..
-	m_pWorld->EnumChildrenRecurseGroupsOnly(
-		(ENUMMAPCHILDRENPROC)&CMapDoc::GetBrushNumberCallback, (DWORD)&info, MAPCLASS_TYPE(CMapSolid));
+	m_pWorld->EnumChildrenRecurseGroupsOnly(GetBrushNumberCallback, &info, MAPCLASS_TYPE(CMapSolid));
 
 	CString str;
 	if ( info.m_bFound )
@@ -2818,9 +2816,9 @@ void CMapDoc::UpdateAllViews(int nFlags, UpdateBox *ub )
 //-----------------------------------------------------------------------------
 // Purpose: used during iteration, tells an map entity to
 //-----------------------------------------------------------------------------
-static BOOL _UpdateAnimation( CMapClass *mapClass, float animTime )
+static BOOL _UpdateAnimation( CMapClass *mapClass, float* animTime )
 {
-	mapClass->UpdateAnimation( animTime );
+	mapClass->UpdateAnimation( *animTime );
 	return TRUE;
 }
 
@@ -2844,16 +2842,9 @@ void CMapDoc::UpdateAnimation( void )
 	}
 
 	// get current animation time from animation toolbar
-	union {
-		float fl;
-		DWORD dw;
-	} animTime;
-
-	animTime.fl = GetAnimationTime();
-
+	float animTime = GetAnimationTime();
 	// iterate through all CMapEntity object and update their animation frame matrix
-	m_pWorld->EnumChildren( ENUMMAPCHILDRENPROC(_UpdateAnimation), animTime.dw, MAPCLASS_TYPE(CMapAnimator) );
-
+	m_pWorld->EnumChildren( _UpdateAnimation, &animTime, MAPCLASS_TYPE(CMapAnimator) );
 }
 
 
@@ -3029,7 +3020,7 @@ void CMapDoc::SelectRegion(BoundBox *pBox, bool bInsideOnly)
 
 	SelectObject(NULL, scSaveChanges);
 
-	m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)SelectInBox, (DWORD)&info);
+	m_pWorld->EnumChildren(SelectInBox, &info);
 }
 
 
@@ -3047,7 +3038,7 @@ void CMapDoc::SelectLogicalRegion( const Vector2D &vecMins, const Vector2D &vecM
 
 	SelectObject(NULL, scSaveChanges);
 
-	m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)SelectInLogicalBox, (DWORD)&info);
+	m_pWorld->EnumChildren(SelectInLogicalBox, &info);
 }
 
 bool CMapDoc::SelectObject(CMapClass *pObj, int cmd)
@@ -3487,7 +3478,7 @@ void CMapDoc::OnEditApplytexture(void)
 			((CMapSolid*)pobj)->SetTexture(GetDefaultTextureName());
 		}
 
-		pobj->EnumChildren((ENUMMAPCHILDRENPROC)ApplyTextureToSolid, (DWORD)GetDefaultTextureName(), MAPCLASS_TYPE(CMapSolid));
+		pobj->EnumChildren(ApplyTextureToSolid, GetDefaultTextureName(), MAPCLASS_TYPE(CMapSolid));
 	}
 
 	SetModifiedFlag();
@@ -3541,14 +3532,14 @@ void CMapDoc::OnEditToEntity(void)
 		//
 		else if (pObject->IsGroup())
 		{
-			pObject->EnumChildren(ENUMMAPCHILDRENPROC(CopyObjectsToList), DWORD(&newobjects), MAPCLASS_TYPE(CMapSolid));
+			pObject->EnumChildren(CopyObjectsToList, &newobjects, MAPCLASS_TYPE(CMapSolid));
 		}
 		//
 		// If the object is an entity, add any solid children of the entity to our list.
 		//
 		else if (pObject->IsMapClass(MAPCLASS_TYPE(CMapEntity)))
 		{
-			pObject->EnumChildren(ENUMMAPCHILDRENPROC(CopyObjectsToList), DWORD(&newobjects), MAPCLASS_TYPE(CMapSolid));
+			pObject->EnumChildren(CopyObjectsToList, &newobjects, MAPCLASS_TYPE(CMapSolid));
 
 			//
 			// See if there is more than one solid entity selected. If so, we'll need to prompt the user
@@ -5340,7 +5331,7 @@ void CMapDoc::UpdateForApplicator(BOOL bApplicator)
 				Solids.AddToTail(pSolid);
 			}
 
-			pObject->EnumChildren((ENUMMAPCHILDRENPROC)AddLeavesToListCallback, (DWORD)&Solids, MAPCLASS_TYPE(CMapSolid));
+			pObject->EnumChildren(AddLeavesToListCallback, &Solids, MAPCLASS_TYPE(CMapSolid));
 		}
 
 		//
@@ -7337,7 +7328,7 @@ void CMapDoc::ReplaceTextures(LPCTSTR pszFind, LPCTSTR pszReplace, BOOL bEveryth
 			SelectObject(NULL, scClear);
 		}
 
-		m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)ReplaceTexFunc, (DWORD)&info, MAPCLASS_TYPE(CMapSolid));
+		m_pWorld->EnumChildren(ReplaceTexFunc, &info, MAPCLASS_TYPE(CMapSolid));
 	}
 	else
 	{
@@ -7367,7 +7358,7 @@ void CMapDoc::ReplaceTextures(LPCTSTR pszFind, LPCTSTR pszReplace, BOOL bEveryth
 			{
 				ReplaceTexFunc((CMapSolid *)pobj, &info);
 			}
-			pobj->EnumChildren((ENUMMAPCHILDRENPROC)ReplaceTexFunc, (DWORD)&info, MAPCLASS_TYPE(CMapSolid));
+			pobj->EnumChildren(ReplaceTexFunc, &info, MAPCLASS_TYPE(CMapSolid));
 		}
 	}
 
@@ -7493,7 +7484,7 @@ void CMapDoc::BatchReplaceTextures( FileHandle_t fp )
 		}
 
 		// Search and replace all key textures with val.
-		m_pWorld->EnumChildren( ( ENUMMAPCHILDRENPROC )BatchReplaceTextureCallback, ( DWORD )&Info, MAPCLASS_TYPE( CMapSolid ) );
+		m_pWorld->EnumChildren( BatchReplaceTextureCallback, &Info, MAPCLASS_TYPE( CMapSolid ) );
 next_line:;
 	}
 }
@@ -8232,7 +8223,7 @@ void CMapDoc::OnFileExporttodxf(void)
 	info.pWorld = m_pWorld;
 	info.fp = fp;
 
-	m_pWorld->EnumChildren(ENUMMAPCHILDRENPROC(SaveDXF), DWORD(&info), MAPCLASS_TYPE(CMapSolid));
+	m_pWorld->EnumChildren(SaveDXF, &info, MAPCLASS_TYPE(CMapSolid));
 
 	EndWaitCursor();
 
@@ -9451,7 +9442,7 @@ BOOL CMapDoc::UpdateVisibilityCallback(CMapClass *pObject, CMapDoc *pDoc)
 		//
 		if ((dynamic_cast<CMapEntity *>(pObject)) != NULL)
 		{
-			pObject->EnumChildren((ENUMMAPCHILDRENPROC)UpdateVisibilityCallback, (DWORD)pDoc);
+			pObject->EnumChildren(UpdateVisibilityCallback, pDoc);
 		}
 	}
 
@@ -9468,7 +9459,7 @@ void CMapDoc::UpdateVisibility(CMapClass *pObject)
 	UpdateVisibilityCallback(pObject, this);
 	if (pObject->IsGroup())
 	{
-		pObject->EnumChildrenRecurseGroupsOnly((ENUMMAPCHILDRENPROC)UpdateVisibilityCallback, (DWORD)this);
+		pObject->EnumChildrenRecurseGroupsOnly(UpdateVisibilityCallback, this);
 	}
 }
 
@@ -9482,7 +9473,7 @@ void CMapDoc::UpdateVisibilityAll(void)
 	// Two stage recursion: first we recurse groups only, then from the callback we recurse
 	// solid children of entities.
 	//
-	m_pWorld->EnumChildrenRecurseGroupsOnly((ENUMMAPCHILDRENPROC)UpdateVisibilityCallback, (DWORD)this);
+	m_pWorld->EnumChildrenRecurseGroupsOnly(UpdateVisibilityCallback, this);
 	m_pSelection->RemoveInvisibles();
 
 	CMainFrame *pwndMain = GetMainWnd();

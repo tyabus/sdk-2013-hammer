@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -37,7 +37,7 @@
 //
 
 //-----------------------------------------------------------------------------
-// Purpose: This function creates a new clip group with the given solid as 
+// Purpose: This function creates a new clip group with the given solid as
 //          the original solid.
 //   Input: pSolid - the original solid to put in the clip list
 //          pClipper - the clipper tool
@@ -154,13 +154,13 @@ bool Clipper3D::UpdateTranslation( const Vector &vUpdate, UINT uFlags )
 	if ( m_ClipPoints[m_ClipPointHit] == vNewPos )
 		return false;
 
-    
+
     if( uFlags & constrainMoveAll )
     {
 		//
 		// calculate the point and delta - to move both clip points simultaneously
 		//
-		
+
 		Vector delta = vNewPos - m_ClipPoints[m_ClipPointHit];
 		m_ClipPoints[(m_ClipPointHit+1)%2] += delta;
     }
@@ -179,7 +179,7 @@ bool Clipper3D::UpdateTranslation( const Vector &vUpdate, UINT uFlags )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: (virtual imp) This function defines all finishing functionality 
+// Purpose: (virtual imp) This function defines all finishing functionality
 //          necessary at the end of a clipping action.  Nothing really!!!
 // Input  : bSave - passed along the the Tool finish translation call
 //-----------------------------------------------------------------------------
@@ -250,16 +250,16 @@ void Clipper3D::BuildClipPlane( void )
 {
 	// calculate the up vector
     Vector upVect = m_vPlaneNormal;
-    
+
 	// calculate the right vector
     Vector rightVect;
     VectorSubtract( m_ClipPoints[1], m_ClipPoints[0], rightVect );
-    
+
     // calculate the forward (normal) vector
     Vector forwardVect;
     CrossProduct( upVect, rightVect, forwardVect );
     VectorNormalize( forwardVect );
-    
+
     //
     // save the clip plane info
     //
@@ -269,9 +269,9 @@ void Clipper3D::BuildClipPlane( void )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: This functions sets up the list of objects to be clipped.  
-//          Initially the list is passed in (typically a Selection set).  On 
-//          subsequent "translation" updates the list is refreshed from the 
+// Purpose: This functions sets up the list of objects to be clipped.
+//          Initially the list is passed in (typically a Selection set).  On
+//          subsequent "translation" updates the list is refreshed from the
 //          m_pOrigObjects list.
 //   Input: pList - the list of objects (solids) to be clipped
 //-----------------------------------------------------------------------------
@@ -301,7 +301,7 @@ void Clipper3D::SetClipObjects( const CMapObjectList *pList )
             AddToClipList( ( CMapSolid* )pObject, this );
         }
 
-        pObject->EnumChildren( ENUMMAPCHILDRENPROC( AddToClipList ), DWORD( this ), MAPCLASS_TYPE( CMapSolid ) );
+        pObject->EnumChildren( AddToClipList, this, MAPCLASS_TYPE( CMapSolid ) );
     }
 
     // the clipping list is not empty anymore
@@ -376,7 +376,7 @@ void Clipper3D::RemoveOrigSolid( CMapSolid *pOrigSolid )
     // remove the solid from the selection set if in the seleciton set and
     // its parent is the world, or set the selection state to none parent is group
     // or entity in the selection set
-    //    
+    //
 
 	CSelection *pSelection = m_pDocument->GetSelection();
 
@@ -409,7 +409,7 @@ void Clipper3D::SaveClipSolid( CMapSolid *pSolid, CMapSolid *pOrigSolid )
     // Add the new solid to the original solid's parent (group, entity, world, etc.).
     //
 	m_pDocument->AddObjectToWorld(pSolid, pOrigSolid->GetParent());
-    
+
     //
     // handle linking solid into selection -- via selection set when parent is the world
     // and selected, or set the selection state if parent is group or entity in selection set
@@ -471,7 +471,7 @@ void Clipper3D::SaveClipResults( void )
             SaveClipSolid( pBackSolid, pOrigSolid );
             pClipGroup->SetClipSolid( NULL, CClipGroup::BACK );
         }
-     
+
 		// Send the notification that this solid as been clipped.
 		pOrigSolid->PostUpdate( Notify_Clipped );
 
@@ -483,16 +483,16 @@ void Clipper3D::SaveClipResults( void )
     ResetClipResults();
 
 	// update world and views
-	
+
     m_pDocument->SetModifiedFlag();
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: Draws the measurements of a brush in the 2D view.
-// Input  : pRender - 
-//			pSolid - 
-//			nFlags - 
+// Input  : pRender -
+//			pSolid -
+//			nFlags -
 //-----------------------------------------------------------------------------
 void Clipper3D::DrawBrushExtents( CRender2D *pRender, CMapSolid *pSolid, int nFlags )
 {
@@ -547,8 +547,8 @@ void Clipper3D::DrawBrushExtents( CRender2D *pRender, CMapSolid *pSolid, int nFl
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pRender - 
+// Purpose:
+// Input  : *pRender -
 //-----------------------------------------------------------------------------
 void Clipper3D::RenderTool2D(CRender2D *pRender)
 {
@@ -653,7 +653,7 @@ void Clipper3D::RenderTool3D( CRender3D *pRender )
     // setup the renderer
     //
     pRender->PushRenderMode( RENDER_MODE_WIREFRAME );
-    
+
     FOR_EACH_OBJ( m_ClipResults, pos )
     {
         CClipGroup *pClipGroup = m_ClipResults.Element( pos );
@@ -683,14 +683,14 @@ void Clipper3D::RenderTool3D( CRender3D *pRender )
 
 //-----------------------------------------------------------------------------
 // Purpose: (virtual imp)
-// Input  : pt - 
-//			BOOL - 
+// Input  : pt -
+//			BOOL -
 // Output : int
 //-----------------------------------------------------------------------------
 int Clipper3D::HitTest(CMapView *pView, const Vector2D &ptClient, bool bTestHandles)
 {
     // check points
-    
+
 	for ( int i=0; i<2;i++ )
 	{
 		if ( HitRect(pView, ptClient, m_ClipPoints[i], HANDLE_RADIUS) )
@@ -698,7 +698,7 @@ int Clipper3D::HitTest(CMapView *pView, const Vector2D &ptClient, bool bTestHand
 			return i+1; // return clip point index + 1
 		}
 	}
-    
+
     // neither point hit
     return 0;
 }
@@ -730,12 +730,12 @@ void Clipper3D::ResetClipResults( void )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nChar - 
-//			nRepCnt - 
-//			nFlags - 
+// Purpose:
+// Input  : nChar -
+//			nRepCnt -
+//			nFlags -
 //-----------------------------------------------------------------------------
-bool Clipper3D::OnKeyDown2D(CMapView2D *pView, UINT nChar, UINT nRepCnt, UINT nFlags) 
+bool Clipper3D::OnKeyDown2D(CMapView2D *pView, UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	switch (nChar)
 	{
@@ -767,7 +767,7 @@ bool Clipper3D::OnKeyDown2D(CMapView2D *pView, UINT nChar, UINT nRepCnt, UINT nF
 		}
 	}
 
-	return false;	
+	return false;
 }
 
 
@@ -795,8 +795,8 @@ bool Clipper3D::OnLMouseDown2D(CMapView2D *pView, UINT nFlags, const Vector2D &v
 	// snap starting position to grid
 	if ( uConstraints & constrainSnap )
 		m_pDocument->Snap(vecWorld, uConstraints);
-	
-	
+
+
 	bool bStarting = false;
 
 	// if the tool is not empty, and shift is not held down (to
@@ -845,7 +845,7 @@ bool Clipper3D::OnLMouseDown2D(CMapView2D *pView, UINT nFlags, const Vector2D &v
 
 		// set the initial clip points
 		m_ClipPointHit = 0;
-		m_ClipPoints[0] = vecWorld; 
+		m_ClipPoints[0] = vecWorld;
 		m_ClipPoints[1] = vecWorld;
 		m_vOrgPos = vecWorld;
 	}
@@ -869,7 +869,7 @@ bool Clipper3D::OnLMouseUp2D(CMapView2D *pView, UINT nFlags, const Vector2D &vPo
 	}
 
 	m_pDocument->UpdateStatusbar();
-	
+
 	return true;
 }
 
@@ -897,13 +897,13 @@ bool Clipper3D::OnMouseMove2D(CMapView2D *pView, UINT nFlags, const Vector2D &vP
 	unsigned int uConstraints = GetConstraints( nFlags );
 
 	Tool3D::OnMouseMove2D(pView, nFlags, vPoint);
-					    
+
 	//
 	// Convert to world coords.
 	//
 	Vector vecWorld;
 	pView->ClientToWorld(vecWorld, vPoint);
-	
+
 	//
 	// Update status bar position display.
 	//
@@ -914,7 +914,7 @@ bool Clipper3D::OnMouseMove2D(CMapView2D *pView, UINT nFlags, const Vector2D &vP
 
 	sprintf(szBuf, " @%.0f, %.0f ", vecWorld[pView->axHorz], vecWorld[pView->axVert]);
 	SetStatusText(SBI_COORDS, szBuf);
-	
+
 	if (IsTranslating())
 	{
 		// cursor is cross here

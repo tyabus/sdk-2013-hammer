@@ -403,7 +403,7 @@ void CEntityReportDlg::UpdateEntityList(void)
 
 	// add items to list
 	CMapWorld *pWorld = m_pDoc->GetMapWorld();
-	pWorld->EnumChildren(ENUMMAPCHILDRENPROC(AddEntityToList), DWORD(this), MAPCLASS_TYPE(CMapEntity));
+	pWorld->EnumChildren(AddEntityToList, this, MAPCLASS_TYPE(CMapEntity));
 
 	m_cEntities.SetRedraw(TRUE);
 	m_cEntities.Invalidate();

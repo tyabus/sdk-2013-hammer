@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -40,7 +40,7 @@ float g_MIN_MAP_COORD = -4096;
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CGameConfig *CGameConfig::GetActiveGame(void)
 {
@@ -49,8 +49,8 @@ CGameConfig *CGameConfig::GetActiveGame(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pGame - 
+// Purpose:
+// Input  : pGame -
 //-----------------------------------------------------------------------------
 void CGameConfig::SetActiveGame(CGameConfig *pGame)
 {
@@ -122,8 +122,8 @@ CGameConfig::CGameConfig(void)
 
 //-----------------------------------------------------------------------------
 // Purpose: Imports an old binary GameCfg.wc file.
-// Input  : file - 
-//			fVersion - 
+// Input  : file -
+//			fVersion -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL CGameConfig::Import(std::fstream& file, float fVersion)
@@ -176,7 +176,7 @@ BOOL CGameConfig::Import(std::fstream& file, float fVersion)
 		file.read(szTempCSG, sizeof(szTempCSG));
 
 		file.read(m_szModDir, sizeof(m_szModDir));
-		
+
 		// gamedir is gone now.
 		char tempGameDir[128];
 		file.read(tempGameDir, sizeof(tempGameDir));
@@ -191,7 +191,7 @@ BOOL CGameConfig::Import(std::fstream& file, float fVersion)
 	}
 
 	LoadGDFiles();
-	
+
 	return TRUE;
 }
 
@@ -263,12 +263,12 @@ bool CGameConfig::Load(KeyValues *pkv)
 	for (int i = 0; i < m_MaterialExcludeCount; i++)
 	{
 		sprintf(szExcludeDir, "-MaterialExcludeDir%d", i );
-		Q_strncpy(m_szMaterialExcludeDirs[i], pkvHammer->GetString(szExcludeDir), sizeof(m_szMaterialExcludeDirs[0])); 
+		Q_strncpy(m_szMaterialExcludeDirs[i], pkvHammer->GetString(szExcludeDir), sizeof(m_szMaterialExcludeDirs[0]));
 		Q_StripTrailingSlash(m_szMaterialExcludeDirs[i]);
 	}
 
 	LoadGDFiles();
-	
+
 	return(true);
 }
 
@@ -338,8 +338,8 @@ bool CGameConfig::Save(KeyValues *pkv)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : file - 
+// Purpose:
+// Input  : file -
 //-----------------------------------------------------------------------------
 void CGameConfig::Save(std::fstream &file)
 {
@@ -357,7 +357,7 @@ void CGameConfig::Save(std::fstream &file)
 	file.write(szVIS, sizeof szVIS);
 	file.write(m_szGameExeDir, sizeof(m_szGameExeDir));
 	file.write(szMapDir, sizeof szMapDir);
-	
+
 	// 1.3
 	file.write(szBSPDir, sizeof szBSPDir);
 
@@ -366,7 +366,7 @@ void CGameConfig::Save(std::fstream &file)
 	file.write(tempCSG, sizeof(tempCSG));
 
 	file.write(m_szModDir, sizeof(m_szModDir));
-	
+
 	char tempGameDir[128] = "";
 	file.write(tempGameDir, sizeof(tempGameDir));
 
@@ -381,8 +381,8 @@ void CGameConfig::Save(std::fstream &file)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pConfig - 
+// Purpose:
+// Input  : *pConfig -
 //-----------------------------------------------------------------------------
 void CGameConfig::CopyFrom(CGameConfig *pConfig)
 {
@@ -412,9 +412,9 @@ void CGameConfig::CopyFrom(CGameConfig *pConfig)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pEntity - 
-//			pGD - 
+// Purpose:
+// Input  : pEntity -
+//			pGD -
 // Output : Returns TRUE to keep enumerating.
 //-----------------------------------------------------------------------------
 static BOOL UpdateClassPointer(CMapEntity *pEntity, GameData *pGD)
@@ -426,12 +426,12 @@ static BOOL UpdateClassPointer(CMapEntity *pEntity, GameData *pGD)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CGameConfig::LoadGDFiles(void)
 {
 	GD.ClearData();
-	
+
 	// Save the old working directory
 	char szOldDir[MAX_PATH];
 	_getcwd( szOldDir, sizeof(szOldDir) );
@@ -450,7 +450,7 @@ void CGameConfig::LoadGDFiles(void)
 	_chdir( szOldDir );
 
 	// All the class pointers have changed - now we have to
-	// reset all the class pointers in each map doc that 
+	// reset all the class pointers in each map doc that
 	// uses this game.
 	for ( int i=0; i<CMapDoc::GetDocumentCount(); i++ )
 	{
@@ -460,7 +460,7 @@ void CGameConfig::LoadGDFiles(void)
 		{
 			CMapWorld *pWorld = pDoc->GetMapWorld();
 			pWorld->SetClass(GD.ClassForName(pWorld->GetClassName()));
-			pWorld->EnumChildren((ENUMMAPCHILDRENPROC)UpdateClassPointer, (DWORD)&GD, MAPCLASS_TYPE(CMapEntity));
+			pWorld->EnumChildren(UpdateClassPointer, &GD, MAPCLASS_TYPE(CMapEntity));
 		}
 	}
 }
@@ -506,10 +506,10 @@ bool FindFileInTree(const char *szFile, const char *szStartDir, char *szFoundPat
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *szDir - 
-//			*szSteamDir - 
-//			*szSteamUserDir - 
+// Purpose:
+// Input  : *szDir -
+//			*szSteamDir -
+//			*szSteamUserDir -
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool FindSteamUserDir(const char *szAppDir, const char *szSteamDir, char *szSteamUserDir)

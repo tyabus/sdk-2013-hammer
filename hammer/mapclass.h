@@ -112,13 +112,6 @@ struct EnumChildrenPos_t
 };
 
 
-typedef struct
-{
-	MAPCLASSTYPE Type;
-	CMapClass * (*pfnNew)();
-} MCMSTRUCT;
-
-
 // This is a reference-counted class that holds a pointer to an object.
 // When the object goes away, it can set the pointer in here to NULL
 // and anyone else who holds a reference to this can know that the
@@ -332,6 +325,21 @@ public:
 
 	virtual CMapClass* GetPreferredPickObject();
 
+	template <typename T, typename C = CMapClass>
+	FORCEINLINE BOOL EnumChildren( BOOL (*pfn)( C*, T* ), T* dwParam, MAPCLASSTYPE Type = NULL )
+	{
+		COMPILE_TIME_ASSERT( sizeof( unsigned int ) == sizeof( T* ) );
+		COMPILE_TIME_ASSERT( __is_base_of( CMapClass, C ) );
+		return EnumChildren( (ENUMMAPCHILDRENPROC)pfn, reinterpret_cast<unsigned int>( dwParam ), Type );
+	}
+
+	template <typename T>
+	FORCEINLINE BOOL EnumChildrenRecurseGroupsOnly( BOOL (*pfn)( CMapClass*, T* ), T* dwParam, MAPCLASSTYPE Type = NULL )
+	{
+		COMPILE_TIME_ASSERT( sizeof( unsigned int ) == sizeof( T* ) );
+		return EnumChildrenRecurseGroupsOnly( (ENUMMAPCHILDRENPROC)pfn, reinterpret_cast<unsigned int>( dwParam ), Type );
+	}
+
 	BOOL EnumChildren(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam = 0, MAPCLASSTYPE Type = NULL);
 	BOOL EnumChildrenRecurseGroupsOnly(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam, MAPCLASSTYPE Type = NULL);
 	BOOL IsChildOf(CMapAtom *pObject);
@@ -495,7 +503,7 @@ public:
 
 
 #define IMPLEMENT_MAPCLASS(class_name) \
-	char * class_name::__Type = #class_name; \
+	const char* class_name::__Type = #class_name; \
 	MAPCLASSTYPE class_name::GetType() { return __Type; }	\
 	BOOL class_name::IsMapClass(MAPCLASSTYPE Type) \
 		{ return (Type == __Type) ? TRUE : FALSE; } \
@@ -507,7 +515,7 @@ public:
 
 #define DECLARE_MAPCLASS(class_name,class_base) \
 	typedef class_base BaseClass; \
-	static char * __Type; \
+	static const char* __Type; \
 	virtual MAPCLASSTYPE GetType(); \
 	virtual BOOL IsMapClass(MAPCLASSTYPE Type);
 
