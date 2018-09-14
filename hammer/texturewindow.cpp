@@ -5,20 +5,14 @@
 //=============================================================================
 
 #include "stdafx.h"
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "hammer.h"
 #include "TextureWindow.h"
 #include "TextureBrowser.h"
 #include "CustomMessages.h"
 #include "IEditorTexture.h"
 #include "GameConfig.h"
-#include "GlobalFunctions.h"
 #include "TextureSystem.h"
 #include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialSYstem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -60,8 +54,6 @@ CTextureWindow::CTextureWindow(void)
 
 	m_pSpecificList = NULL;
 	szCurTexture[0] = '\0';
-
-	m_eTextureFormat = g_pGameConfig->GetTextureFormat();
 
 	m_bEnableUpdate = true;
 	m_nTypeFilter = ~0;
@@ -201,7 +193,7 @@ BOOL CTextureWindow::EnumTexturePositions(TWENUMPOS *pTE, BOOL bStart)
 	
 	do
 	{
-		pTE->pTex = g_Textures.EnumActiveTextures(&pTE->iTexIndex, m_eTextureFormat);
+		pTE->pTex = g_Textures.EnumActiveTextures(&pTE->iTexIndex);
 
 		if (pTE->pTex == NULL)
 			continue;
@@ -923,15 +915,3 @@ void CTextureWindow::SetSpecificList(TextureWindowTexList *pList)
 		RedrawWindow();
 	}
 }
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : eTextureFormat - 
-//-----------------------------------------------------------------------------
-void CTextureWindow::SetTextureFormat(TEXTUREFORMAT eTextureFormat)
-{
-	m_eTextureFormat = eTextureFormat;
-}
-
-

@@ -59,17 +59,8 @@ void CGameConfig::SetActiveGame(CGameConfig *pGame)
 		g_pGameConfig = pGame;
 		pGD = &pGame->GD;
 
-		if (pGame->mapformat == mfHalfLife)
-		{
-			g_MAX_MAP_COORD = 4096;
-			g_MIN_MAP_COORD = -4096;
-		}
-		else
-		{
-			g_MAX_MAP_COORD = pGD->GetMaxMapCoord();
-			g_MIN_MAP_COORD = pGD->GetMinMapCoord();
-		}
-	}
+		g_MAX_MAP_COORD = pGD->GetMaxMapCoord();
+		g_MIN_MAP_COORD = pGD->GetMinMapCoord();
 	else
 	{
 		g_pGameConfig = &g_DefaultGameConfig;
@@ -93,7 +84,6 @@ void CGameConfig::SetActiveGame(CGameConfig *pGame)
 CGameConfig::CGameConfig(void)
 {
 	nGDFiles = 0;
-	textureformat = tfNone;
 	m_fDefaultTextureScale = DEFAULT_TEXTURE_SCALE;
 	m_nDefaultLightmapScale = DEFAULT_LIGHTMAP_SCALE;
 	m_MaterialExcludeCount = 0;
@@ -117,82 +107,6 @@ CGameConfig::CGameConfig(void)
 
 	static DWORD __dwID = 0;
 	dwID = __dwID++;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Imports an old binary GameCfg.wc file.
-// Input  : file -
-//			fVersion -
-// Output : Returns TRUE on success, FALSE on failure.
-//-----------------------------------------------------------------------------
-BOOL CGameConfig::Import(std::fstream& file, float fVersion)
-{
-	file.read(szName, sizeof szName);
-	file.read((char*)&nGDFiles, sizeof nGDFiles);
-	file.read((char*)&textureformat, sizeof textureformat);
-
-	if (fVersion >= 1.1f)
-	{
-		file.read((char*)&mapformat, sizeof mapformat);
-	}
-	else
-	{
-		mapformat = mfQuake;
-	}
-
-	//
-	// If reading an old (pre 1.4) format file, skip past the obselete palette
-	// file path.
-	//
-	if (fVersion < 1.4f)
-	{
-		char szPalette[128];
-		file.read(szPalette, sizeof szPalette);
-	}
-
-	file.read(szExecutable, sizeof szExecutable);
-	file.read(szDefaultSolid, sizeof szDefaultSolid);
-	file.read(szDefaultPoint, sizeof szDefaultPoint);
-
-	if (fVersion >= 1.2f)
-	{
-		file.read(szBSP, sizeof szBSP);
-		file.read(szLIGHT, sizeof szLIGHT);
-		file.read(szVIS, sizeof szVIS);
-		file.read(m_szGameExeDir, sizeof m_szGameExeDir);
-		file.read(szMapDir, sizeof szMapDir);
-	}
-
-	if (fVersion >= 1.3f)
-	{
-		file.read(szBSPDir, sizeof(szBSPDir));
-	}
-
-	if (fVersion >= 1.4f)
-	{
-		// CSG setting is gone now.
-		char szTempCSG[128];
-		file.read(szTempCSG, sizeof(szTempCSG));
-
-		file.read(m_szModDir, sizeof(m_szModDir));
-
-		// gamedir is gone now.
-		char tempGameDir[128];
-		file.read(tempGameDir, sizeof(tempGameDir));
-	}
-
-	// read game data files
-	char szBuf[128];
-	for(int i = 0; i < nGDFiles; i++)
-	{
-		file.read(szBuf, sizeof szBuf);
-		GDFiles.Add(CString(szBuf));
-	}
-
-	LoadGDFiles();
-
-	return TRUE;
 }
 
 
@@ -233,9 +147,6 @@ bool CGameConfig::Load(KeyValues *pkv)
 		}
 
 	} while (bAdded);
-
-	textureformat = (TEXTUREFORMAT)pkvHammer->GetInt("TextureFormat", tfVMT);
-	mapformat = (MAPFORMAT)pkvHammer->GetInt("MapFormat", mfHalfLife2);
 
 	m_fDefaultTextureScale = pkvHammer->GetFloat("DefaultTextureScale", DEFAULT_TEXTURE_SCALE);
 	if (m_fDefaultTextureScale == 0)
@@ -307,8 +218,6 @@ bool CGameConfig::Save(KeyValues *pkv)
 		pkvHammer->SetString(szKey, GDFiles.GetAt(i));
 	}
 
-	pkvHammer->SetInt("TextureFormat", textureformat);
-	pkvHammer->SetInt("MapFormat", mapformat);
 	pkvHammer->SetFloat("DefaultTextureScale", m_fDefaultTextureScale);
 	pkvHammer->SetInt("DefaultLightmapScale", m_nDefaultLightmapScale);
 
@@ -334,49 +243,6 @@ bool CGameConfig::Save(KeyValues *pkv)
 	}
 
 	return true;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : file -
-//-----------------------------------------------------------------------------
-void CGameConfig::Save(std::fstream &file)
-{
-	file.write(szName, sizeof szName);
-	file.write((char*)&nGDFiles, sizeof nGDFiles);
-	file.write((char*)&textureformat, sizeof textureformat);
-	file.write((char*)&mapformat, sizeof mapformat);
-	file.write(szExecutable, sizeof szExecutable);
-	file.write(szDefaultSolid, sizeof szDefaultSolid);
-	file.write(szDefaultPoint, sizeof szDefaultPoint);
-
-	// 1.2
-	file.write(szBSP, sizeof szBSP);
-	file.write(szLIGHT, sizeof szLIGHT);
-	file.write(szVIS, sizeof szVIS);
-	file.write(m_szGameExeDir, sizeof(m_szGameExeDir));
-	file.write(szMapDir, sizeof szMapDir);
-
-	// 1.3
-	file.write(szBSPDir, sizeof szBSPDir);
-
-	// 1.4
-	char tempCSG[128] = "";
-	file.write(tempCSG, sizeof(tempCSG));
-
-	file.write(m_szModDir, sizeof(m_szModDir));
-
-	char tempGameDir[128] = "";
-	file.write(tempGameDir, sizeof(tempGameDir));
-
-	// write game data files
-	char szBuf[128];
-	for(int i = 0; i < nGDFiles; i++)
-	{
-		strcpy(szBuf, GDFiles[i]);
-		file.write(szBuf, sizeof szBuf);
-	}
 }
 
 

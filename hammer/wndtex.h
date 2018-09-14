@@ -15,30 +15,25 @@
 #define WNDTEX_H
 #pragma once
 
+class IEditorTexture;
 
 class wndTex : public CStatic
 {
-	public:
+public:
 
-		wndTex() : m_pTexture(NULL)
-		{
-		}
+    wndTex();
 
-		void SetTexture(IEditorTexture *pTex);
+	void SetTexture(IEditorTexture *pTex);
 
-		inline IEditorTexture *GetTexture(void)
-		{
-			return(m_pTexture);
-		}
+    IEditorTexture* GetTexture(void);
 
-	protected:
+protected:
 
-		IEditorTexture *m_pTexture;
+	IEditorTexture *m_pTexture;
 
-		afx_msg void OnPaint();
-		
-		DECLARE_MESSAGE_MAP();
+	afx_msg void OnPaint();
+	
+	DECLARE_MESSAGE_MAP();
 };
-
 
 #endif // WNDTEX_H

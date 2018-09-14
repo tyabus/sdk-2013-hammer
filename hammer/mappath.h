@@ -6,10 +6,6 @@
 
 #pragma once
 
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "fgdlib/WCKeyValues.h"
 #include "mathlib/vector.h"
 
@@ -69,11 +65,6 @@ class CMapPath
 		LPCTSTR GetClass() { return m_szClass; }
 
 		void EditInfo();
-
-		// save/load to/from RMF:
-		void SerializeRMF(std::fstream&, BOOL fIsStoring);
-		// save to map: (no load!!)
-		void SerializeMAP(std::fstream&, BOOL fIsStoring, BoundBox *pIntersecting = NULL);
 
 		//void SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
 		//void LoadVMF(CChunkFile *pFile);

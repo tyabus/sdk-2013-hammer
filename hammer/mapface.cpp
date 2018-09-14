@@ -1330,8 +1330,6 @@ void CMapFace::SetTexture(IEditorTexture *pTexture, bool bRescaleTextureCoordina
 
 	// Copy other things from m_pTexture.
 	m_pTexture->GetShortName(texture.texture);
-	texture.q2surface = m_pTexture->GetSurfaceAttributes();
-	texture.q2contents = m_pTexture->GetSurfaceContents();
 
 	BOOL bTexValid = FALSE;
 	if (m_pTexture != NULL)

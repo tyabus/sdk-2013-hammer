@@ -11,10 +11,6 @@
 #pragma once
 #endif
 
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "mathlib/vector.h"
 #include "MapFace.h"
 
@@ -27,7 +23,6 @@ class Vector;
 class StockSolid
 {
 	public:
-		void Serialize(std::fstream& file, BOOL bIsStoring);
 		int GetFieldCount() const;
 		void SetFieldData(int iIndex, int iData);
 		int GetFieldData(int iIndex, int *piData = NULL) const;

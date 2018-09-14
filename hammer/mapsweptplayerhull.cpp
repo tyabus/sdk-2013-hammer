@@ -365,24 +365,6 @@ void CMapSweptPlayerHull::Render3D(CRender3D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-int CMapSweptPlayerHull::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-int CMapSweptPlayerHull::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Overridden to chain down to our endpoints, which are not children.
 //-----------------------------------------------------------------------------
 void CMapSweptPlayerHull::SetOrigin(Vector &vecOrigin)

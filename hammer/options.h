@@ -15,9 +15,8 @@ class KeyValues;
 enum TextureAlignment_t;
 
 
-class COptionsGeneral
+struct COptionsGeneral
 {
-public:
 	int nMaxCameras;
 	int iUndoLevels;
 	BOOL bLockingTextures;
@@ -43,19 +42,14 @@ public:
 }; 
 
 
-class COptionsTextures
+struct COptionsTextures
 {
-public:
-	CStringArray TextureFiles;
-	int nTextureFiles;
 	float fBrightness;
 };
 
 
-class COptionsColors
+struct COptionsColors
 {
-public:
-
 	bool bUseCustom;			// Whether to use the custom colors or not.
 	bool bScaleAxisColor;		// Whether to use the intensity slider to scale the axis color in the 2D view.
 	bool bScaleGridColor;		// Whether to use the intensity slider to scale the grid color in the 2D view.
@@ -82,10 +76,8 @@ public:
 };
 
 
-class COptionsView2D
+struct COptionsView2D
 {
-public:
-
 	BOOL bCrosshairs;
 	BOOL bGroupCarve;
 	BOOL bScrollbars;
@@ -111,10 +103,8 @@ public:
 };
 
 
-class COptionsView3D
+struct COptionsView3D
 {
-public:
-
 	BOOL bHardware;			// Whether to use hardware acceleration (disabled for OpenGL).
 	BOOL bReverseY;			// Wether to reverse the mouse's Y axis when mouse looking.
 	BOOL bUseMouseLook;		// Whether to use the engine's default movement controls.
@@ -131,10 +121,8 @@ public:
 };
 
 
-class COptionsConfigs
+struct COptionsConfigs
 {
-public:
-
 	COptionsConfigs(void);
 	virtual ~COptionsConfigs(void);
 
@@ -176,10 +164,8 @@ CGameConfig *COptionsConfigs::GetGameConfig(int nIndex)
 }
 
 
-class COptions
+struct COptions
 {
-public:
-
 	COptions();
 
 	bool Init();

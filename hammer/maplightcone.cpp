@@ -617,30 +617,6 @@ void CMapLightCone::Render3D(CRender3D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapLightCone::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapLightCone::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Solves a quadratic equation with the given coefficients.
 // Input  : x - Receives solution.
 //			y - Root to solve for.

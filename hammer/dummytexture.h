@@ -13,18 +13,13 @@
 #endif
 
 
-#include <afxtempl.h>
 #include "IEditorTexture.h"
-
-
-enum TEXTUREFORMAT;
-
 
 class CDummyTexture : public IEditorTexture
 {
 	public:
 
-		CDummyTexture(const char *pszName, TEXTUREFORMAT eFormat);
+		CDummyTexture(const char *pszName);
 		virtual ~CDummyTexture();
 
 		inline const char *GetName() const
@@ -84,11 +79,6 @@ class CDummyTexture : public IEditorTexture
 			return(0);
 		}
 
-		inline TEXTUREFORMAT GetTextureFormat() const
-		{
-			return(m_eTextureFormat);
-		}
-
 		inline int GetSurfaceAttributes() const
 		{
 			return(0);
@@ -127,11 +117,6 @@ class CDummyTexture : public IEditorTexture
 			return true;
 		}
 
-		inline void SetTextureFormat(TEXTUREFORMAT eFormat)
-		{
-			m_eTextureFormat = eFormat;
-		}
-
 		inline void SetTextureID( int nTextureID )
 		{
 		}
@@ -145,8 +130,6 @@ class CDummyTexture : public IEditorTexture
 
 		char m_szName[MAX_PATH];
 		char m_szFileName[MAX_PATH];
-
-		TEXTUREFORMAT m_eTextureFormat;
 };
 
 

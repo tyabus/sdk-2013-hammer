@@ -8,34 +8,22 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <process.h>
 #include <afxtempl.h>
-#include <io.h>
-#include <sys\stat.h>
-#include <fcntl.h>
 #include "hammer.h"
 #include "MapDoc.h"
 #include "Material.h"
-#include "Options.h"
-#include "MainFrm.h"
 #include "GlobalFunctions.h"
-#include "WADTypes.h"
 #include "BSPFile.h"
 #include "materialsystem/IMaterialSystem.h"
-#include "materialsystem/IMaterialSystemHardwareConfig.h"
 #include "materialsystem/MaterialSystem_Config.h"
 #include "materialsystem/MaterialSystemUtil.h"
-#include "materialsystem/ITexture.h"
 #include "materialsystem/IMaterial.h"
+#include "materialsystem/imaterialvar.h"
 #include "bitmap/imageformat.h" // hack : don't want to include this just for ImageFormat
 #include "FileSystem.h"
-#include "StudioModel.h"
 #include "tier1/strtools.h"
 #include "tier0/dbg.h"
 #include "TextureSystem.h"
-#include "materialproxyfactory_wc.h"
-#include "vstdlib/cvar.h"
-#include "interface.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

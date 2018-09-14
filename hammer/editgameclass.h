@@ -8,10 +8,6 @@
 #define EDITGAMECLASS_H
 #pragma once
 
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include "BlockArray.h"
 #include "fgdlib/fgdlib.h"
 #include "fgdlib/WCKeyValues.h"
@@ -109,10 +105,7 @@ class CEditGameClass
 		static ChunkFileResult_t LoadConnectionsCallback(CChunkFile *pFile, CEditGameClass *pEditGameClass);
 		static ChunkFileResult_t LoadKeyCallback(const char *szKey, const char *szValue, CEditGameClass *pEditGameClass);
 
-		ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
-
-		int SerializeRMF(std::fstream&, BOOL);
-		int SerializeMAP(std::fstream&, BOOL);
+		virtual ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
 
 		virtual void SetClass(LPCTSTR pszClassname, bool bLoading = false);
 		CEditGameClass *CopyFrom(CEditGameClass *pFrom);

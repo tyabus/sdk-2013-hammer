@@ -663,30 +663,6 @@ void CMapStudioModel::Render3D(CRender3D *pRender)
 
 //-----------------------------------------------------------------------------
 // Purpose:
-// Input  : &File -
-//			bRMF -
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapStudioModel::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : &File -
-//			bRMF -
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapStudioModel::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
 // Input  : Angles -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::SetAngles(QAngle &Angles)

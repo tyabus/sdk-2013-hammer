@@ -45,11 +45,6 @@ void StockSolid::AllocateDataFields(int nFields)
 }
 
 
-void StockSolid::Serialize(std::fstream& file, BOOL bIsStoring)
-{
-}
-
-
 int StockSolid::GetFieldCount() const
 {
 	return nFields;

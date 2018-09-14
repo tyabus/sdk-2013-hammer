@@ -5,11 +5,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <oleauto.h>
-#include <oaidl.h>
-#if _MSC_VER < 1300
-#include <afxpriv.h>
-#endif
 #include "CustomMessages.h"
 #include "GlobalFunctions.h"
 #include "History.h"
@@ -706,17 +701,3 @@ void CTextureBrowser::OnReplace(void)
 		SetUsed(TRUE);
 	}
 }
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Sets the texture format for browsing. Only textures of the given
-//			format will be visible in the browse window. By default, this
-//			format will be the same as the current active texture format.
-// Input  : eTextureFormat - Texture format to use for browsing.
-//-----------------------------------------------------------------------------
-void CTextureBrowser::SetTextureFormat(TEXTUREFORMAT eTextureFormat)
-{
-	m_cTextureWindow.SetTextureFormat(eTextureFormat);
-}
-
-

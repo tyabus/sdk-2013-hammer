@@ -313,11 +313,6 @@ void CTextureBox::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct)
 //-----------------------------------------------------------------------------
 void CTextureBox::LoadGraphicList(void)
 {
-	if (g_pGameConfig->GetTextureFormat() == tfNone)
-	{
-		return;
-	}
-
 	SetRedraw(FALSE);
 	ResetContent();
 	InitStorage(g_Textures.GetActiveTextureCount() + 32, sizeof(PVOID));
@@ -354,7 +349,7 @@ void CTextureBox::LoadGraphicList(void)
 	// Add the rest of the textures to the list.
 	//
 	int nIndex = 0;
-	IEditorTexture *pTex = g_Textures.EnumActiveTextures(&nIndex, g_pGameConfig->GetTextureFormat());
+	IEditorTexture *pTex = g_Textures.EnumActiveTextures(&nIndex);
 	while (pTex != NULL)
 	{
 		char szStr[MAX_PATH];
@@ -364,7 +359,7 @@ void CTextureBox::LoadGraphicList(void)
 		SetItemDataPtr(nStrCount, (void *)pTex);
 		nStrCount++;
 
-		pTex = g_Textures.EnumActiveTextures(&nIndex, g_pGameConfig->GetTextureFormat());
+		pTex = g_Textures.EnumActiveTextures(&nIndex);
 	}
 
 	//

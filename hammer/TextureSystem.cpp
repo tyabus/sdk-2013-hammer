@@ -8,10 +8,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <process.h>
-#include <io.h>
-#include <sys\stat.h>
-#include <fcntl.h>
 #include "DummyTexture.h"		// Specific IEditorTexture implementation
 #include "GlobalFunctions.h"
 #include "MainFrm.h"
@@ -19,11 +15,10 @@
 #include "Material.h"			// Specific IEditorTexture implementation
 #include "Options.h"
 #include "TextureSystem.h"
-#include "WADTexture.h"			// Specific IEditorTexture implementation
-#include "WADTypes.h"
 #include "hammer.h"
 #include "filesystem.h"
 #include "materialsystem/ITexture.h"
+#include "materialsystem/imaterialvar.h"
 #include "tier1/utldict.h"
 #include "FaceEditSheet.h"
 
@@ -36,21 +31,6 @@
 
 #define _GraphicCacheAllocate(n)	malloc(n)
 #define IsSortChr(ch) ((ch == '-') || (ch == '+'))
-
-
-//-----------------------------------------------------------------------------
-// Stuff for loading WAD3 files.
-//-----------------------------------------------------------------------------
-typedef struct
-{
-	int			filepos;
-	int			disksize;
-	int			size;					// uncompressed
-	char		type;
-	char		compression;
-	char		pad1, pad2;
-	char		name[16];				// must be null terminated
-} WAD3lumpinfo_t;
 
 
 
@@ -218,7 +198,7 @@ const char *CTextureSystem::GetKeyword(int pos)
 //			bUseMRU -
 // Output :
 //-----------------------------------------------------------------------------
-IEditorTexture *CTextureSystem::EnumActiveTextures(int *piIndex, TEXTUREFORMAT eDesiredFormat) const
+IEditorTexture *CTextureSystem::EnumActiveTextures(int *piIndex) const
 {
 	Assert(piIndex != NULL);
 
@@ -235,10 +215,7 @@ IEditorTexture *CTextureSystem::EnumActiveTextures(int *piIndex, TEXTUREFORMAT e
 				{
 					(*piIndex)++;
 
-					if ((eDesiredFormat == tfNone) || (pTex->GetTextureFormat() == eDesiredFormat))
-					{
-						return(pTex);
-					}
+					return(pTex);
 				}
 			} while (pTex != NULL);
 		}
@@ -254,10 +231,7 @@ IEditorTexture *CTextureSystem::EnumActiveTextures(int *piIndex, TEXTUREFORMAT e
 //-----------------------------------------------------------------------------
 bool CTextureSystem::Initialize(HWND hwnd)
 {
-	bool bWAD = CWADTexture::Initialize();
-	bool bMaterial = CMaterial::Initialize(hwnd);
-
-	return(bWAD && bMaterial);
+	return CMaterial::Initialize(hwnd);
 }
 
 
@@ -266,7 +240,6 @@ bool CTextureSystem::Initialize(HWND hwnd)
 //-----------------------------------------------------------------------------
 void CTextureSystem::ShutDown(void)
 {
-	CWADTexture::ShutDown();
 	CMaterial::ShutDown();
 	FreeAllTextures();
 }
@@ -306,7 +279,7 @@ IEditorTexture *CTextureSystem::FindActiveTexture(LPCSTR pszInputName, int *piIn
 	// We're finding by name, so we don't care what the format is as long as the name matches.
 	if ( m_pActiveGroup )
 	{
-		pTex = m_pActiveGroup->FindTextureByName( pszName, &iIndex, tfNone );
+		pTex = m_pActiveGroup->FindTextureByName( pszName, &iIndex );
 		if ( pTex )
 		{
 			if ( piIndex )
@@ -339,7 +312,7 @@ IEditorTexture *CTextureSystem::FindActiveTexture(LPCSTR pszInputName, int *piIn
 
 		if ( m_pActiveGroup )
 		{
-			pTex = m_pActiveGroup->FindTextureByName( szBuf, &iIndex, tfNone );
+			pTex = m_pActiveGroup->FindTextureByName( szBuf, &iIndex);
 			if ( pTex )
 			{
 				if ( piIndex )
@@ -382,7 +355,7 @@ IEditorTexture *CTextureSystem::FindActiveTexture(LPCSTR pszInputName, int *piIn
 		//
 		// Not found; add a dummy as a placeholder for the missing texture.
 		//
-		pTex = AddDummy(pszName, g_pGameConfig->GetTextureFormat());
+		pTex = AddDummy(pszName);
 	}
 
 	if (pTex != NULL)
@@ -557,7 +530,7 @@ void CTextureSystem::LoadAllGraphicsFiles(void)
 		//CGameConfig *pConfig = Options.configs.GetGameConfig(nConfig);
 		CGameConfig *pConfig = g_pGameConfig;
 
-		// Create a new texture context with the WADs and materials for that config.
+		// Create a new texture context with the materials for that config.
 		TextureContext_t *pContext = AddTextureContext();
 
 		// Bind it to this config.
@@ -572,13 +545,6 @@ void CTextureSystem::LoadAllGraphicsFiles(void)
 		// Set the new context as the active context.
 		m_pActiveContext = pContext;
 
-		// Load the textures for all WAD files set in this config.
-		// Only do this for configs that use WAD textures.
-		if (pConfig->GetTextureFormat() == tfWAD3)
-		{
-			LoadWADFiles(pConfig);
-		}
-
 		// Load the materials for this config.
 		// Do this unconditionally so that we get necessary editor materials.
 		LoadMaterials(pConfig);
@@ -589,25 +555,11 @@ void CTextureSystem::LoadAllGraphicsFiles(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Loads all WAD files for the given game config.
-//-----------------------------------------------------------------------------
-void CTextureSystem::LoadWADFiles(CGameConfig *pConfig)
-{
-	// dvs: FIXME: WADs are not currently per-config
-	for (int i = 0; i < Options.textures.nTextureFiles; i++)
-	{
-		LoadGraphicsFile(Options.textures.TextureFiles[i]);
-	}
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Loads all the materials for the given game config.
 //-----------------------------------------------------------------------------
 void CTextureSystem::LoadMaterials(CGameConfig *pConfig)
 {
 	CTextureGroup *pGroup = new CTextureGroup("Materials");
-	pGroup->SetTextureFormat(tfVMT);
 	m_pActiveContext->Groups.AddToTail(pGroup);
 
 	// Add all the materials to the group.
@@ -786,12 +738,12 @@ void CTextureSystem::ReloadTextures( const char *pFilterName )
 // Input  : pszName - Name of missing texture.
 // Output : Returns a pointer to the new dummy texture.
 //-----------------------------------------------------------------------------
-IEditorTexture *CTextureSystem::AddDummy(LPCTSTR pszName, TEXTUREFORMAT eFormat)
+IEditorTexture *CTextureSystem::AddDummy(LPCTSTR pszName)
 {
 	if (!m_pActiveContext)
 		return NULL;
 
-	IEditorTexture *pTex = new CDummyTexture(pszName, eFormat);
+	IEditorTexture *pTex = new CDummyTexture(pszName);
 	m_pActiveContext->Dummies.AddToTail(pTex);
 
 	return(pTex);
@@ -916,198 +868,6 @@ void ScaleBitmap(CSize sizeSrc, CSize sizeDest, char *src, char *dest)
 
 
 //-----------------------------------------------------------------------------
-// Purpose:
-// Input  : id -
-//			*piIndex -
-// Output : GRAPHICSFILESTRUCT *
-//-----------------------------------------------------------------------------
-bool CTextureSystem::FindGraphicsFile(GRAPHICSFILESTRUCT *pFileInfo, DWORD id, int *piIndex)
-{
-	for (int i = 0; i < m_GraphicsFiles.Count(); i++)
-	{
-		if (m_GraphicsFiles[i].id == id)
-		{
-			if (piIndex)
-			{
-				piIndex[0] = i;
-			}
-
-			if (pFileInfo != NULL)
-			{
-				*pFileInfo = m_GraphicsFiles[i];
-			}
-
-			return(true);
-		}
-	}
-
-	return(false);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose:
-// Input  : pFile -
-//			fd -
-//			pGroup -
-//-----------------------------------------------------------------------------
-void CTextureSystem::LoadGraphicsFileWAD3(GRAPHICSFILESTRUCT *pFile, int fd, CTextureGroup *pGroup)
-{
-	// read wad header
-	wadinfo_t hdr;
-	_lseek(fd, 0, SEEK_SET);
-	_read(fd, (char*)&hdr, sizeof hdr);
-
-	_lseek(fd, hdr.infotableofs, SEEK_SET);
-
-	// allocate directory memory.
-	WAD3lumpinfo_t *dir = new WAD3lumpinfo_t[hdr.numlumps];
-
-	// read entries.
-	_read(fd, dir, sizeof(WAD3lumpinfo_t) * hdr.numlumps);
-
-	// load graphics!
-	for (int i = 0; i < hdr.numlumps; i++)
-	{
-		if (dir[i].type == TYP_MIPTEX)
-		{
-			_lseek(fd, dir[i].filepos, SEEK_SET);
-
-			CWADTexture *pNew = new CWADTexture;
-			if (pNew != NULL)
-			{
-				if (pNew->Init(fd, pFile->id, FALSE, dir[i].name))
-				{
-					pNew->SetTextureFormat(pFile->format);
-
-					//
-					// Add the texture to master list of textures.
-					//
-					AddTexture(pNew);
-
-					//
-					// Add the texture's index to the given group and to the "All" group.
-					//
-					pGroup->AddTexture(pNew);
-					if (pGroup != m_pActiveContext->pAllGroup)
-					{
-						m_pActiveContext->pAllGroup->AddTexture(pNew);
-					}
-				}
-				else
-				{
-					delete pNew;
-				}
-			}
-		}
-	}
-
-	// free memory
-	delete[] dir;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Loads all textures in a given graphics file and returns an ID for
-//			the file.
-// Input  : filename - Full path of graphics file to load.
-// Output : Returns the file ID.
-//-----------------------------------------------------------------------------
-DWORD CTextureSystem::LoadGraphicsFile(const char *pFilename)
-{
-	static DWORD __GraphFileID = 1;	// must start at 1.
-
-	//
-	// Make sure it's not already there.
-	//
-	int i = m_GraphicsFiles.Count() - 1;
-	while (i > -1)
-	{
-		if (!strcmp(m_GraphicsFiles[i].filename, pFilename))
-		{
-			return(m_GraphicsFiles[i].id);
-		}
-
-		i--;
-	}
-
-	//
-	// Is this a WAD file?
-	//
-	DWORD dwAttrib = GetFileAttributes(pFilename);
-	if (dwAttrib == 0xFFFFFFFF)
-	{
-		return(0);
-	}
-
-	GRAPHICSFILESTRUCT gf;
-
-	if (!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
-	{
-		// open the file, and add it to the GraphicFileList array
-		gf.fd = _open(pFilename, _O_BINARY | _O_RDONLY);
-		if (gf.fd == -1)
-		{
-			// todo: if errno is "out of handles", close some other
-			// graphics files.
-
-			// StatusMsg(IDS_ERROPENGRAPHFILE, errno);
-			return 0;	// could not open
-		}
-
-		char buf[4];
-		_read(gf.fd, buf, 4);
-
-		//
-		// Make sure the file is in a format that we can read.
-		//
-		if (!memcmp(buf, "WAD3", 4))
-		{
-			gf.format = tfWAD3;
-		}
-		else
-		{
-			char str[MAX_PATH*2];
-			Q_snprintf( str, sizeof(str), "The file \"%s\" is not a valid WAD3 file and will not be used.", pFilename);
-			AfxMessageBox(str, MB_ICONEXCLAMATION | MB_OK);
-			_close(gf.fd);
-			return(0);
-		}
-	}
-
-	// got it -- setup the rest of the gf structure
-	gf.id = __GraphFileID++;
-	Q_strncpy( gf.filename, pFilename, sizeof(gf.filename) );
-	gf.bLoaded = FALSE;
-
-	//
-	// Add file to list of texture files.
-	//
-	m_GraphicsFiles.AddToTail(gf);
-
-	//
-	// Create a new texture group for the file.
-	//
-	CTextureGroup *pGroup = new CTextureGroup(pFilename);
-	pGroup->SetTextureFormat(gf.format);
-	m_pActiveContext->Groups.AddToTail(pGroup);
-
-	//
-	// Load the textures from the file and place them in the texture group.
-	//
-	LoadGraphicsFileWAD3(&gf, gf.fd, pGroup);
-	gf.bLoaded = TRUE;
-
-	//
-	// Sort this group's list
-	//
-	pGroup->Sort();
-
-	return(gf.id);
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Determines whether or not there is at least one available texture
 //			group for a given texture format.
 // Input  : format - Texture format to look for.
@@ -1122,17 +882,7 @@ bool CTextureSystem::HasTexturesForConfig(CGameConfig *pConfig)
 	if (!pContext)
 		return false;
 
-	int nCount = pContext->Groups.Count();
-	for (int i = 0; i < nCount; i++)
-	{
-		CTextureGroup *pGroup = pContext->Groups.Element(i);
-		if (pGroup->GetTextureFormat() == pConfig->GetTextureFormat())
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return !pContext->Groups.IsEmpty();
 }
 
 
@@ -1253,7 +1003,6 @@ void CTextureSystem::OpenSource( const char *pMaterialName )
 CTextureGroup::CTextureGroup(const char *pszName)
 {
 	strcpy(m_szName, pszName);
-	m_eTextureFormat = tfNone;
 	m_nTextureToLoad = 0;
 }
 
@@ -1322,21 +1071,15 @@ IEditorTexture *CTextureGroup::GetTexture( char const* pName )
 //-----------------------------------------------------------------------------
 // Quickly find a texture by name.
 //-----------------------------------------------------------------------------
-IEditorTexture* CTextureGroup::FindTextureByName( const char *pName, int *piIndex, TEXTUREFORMAT eDesiredFormat )
+IEditorTexture* CTextureGroup::FindTextureByName( const char *pName, int *piIndex )
 {
 	int iMapEntry = m_TextureNameMap.Find( pName );
 	if ( iMapEntry == m_TextureNameMap.InvalidIndex() )
 	{
 		return NULL;
 	}
-	else
-	{
-		IEditorTexture *pTex = m_Textures[ m_TextureNameMap[iMapEntry] ];
-		if ((eDesiredFormat == tfNone) || (pTex->GetTextureFormat() == eDesiredFormat))
-			return pTex;
-		else
-			return NULL;
-	}
+    
+    return m_Textures[ m_TextureNameMap[iMapEntry] ];
 }
 
 

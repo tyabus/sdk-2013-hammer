@@ -999,7 +999,6 @@ void CObjectBar::UpdateListForTool( int iTool )
 		m_CreateList.SelectItem( m_PrevSel[iPrevSel].block.strItem );
 		OnTextChanged( m_PrevSel[iPrevSel].block.strItem );
 		iBlockSel = FindSolidType( m_PrevSel[iPrevSel].block.strItem );
-		Assert( iBlockSel >= 0 );
 		
 		// hide/show appropriate controls
 		DoHideControls();

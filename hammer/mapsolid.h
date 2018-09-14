@@ -62,8 +62,6 @@ public:
 	virtual void PostloadWorld(CMapWorld *pWorld);
 	ChunkFileResult_t LoadVMF( CChunkFile *pFile, bool &bValid );
 	ChunkFileResult_t SaveVMF( CChunkFile *pFile, CSaveInfo *pSaveInfo );
-	int SerializeRMF( std::fstream &, BOOL );
-	int SerializeMAP( std::fstream &, BOOL );
 
 	//
 	// Selection/Hit testing.

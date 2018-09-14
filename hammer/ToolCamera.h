@@ -13,17 +13,10 @@
 #include "Tool3D.h"
 #include "ToolInterface.h"
 #include "utlvector.h"
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
-
 
 
 class CChunkFile;
 class CSaveInfo;
-
-
 enum ChunkFileResult_t;
 
 
@@ -60,7 +53,6 @@ public:
 	const char *GetVMFChunkName() { return "cameras"; }
 	ChunkFileResult_t LoadVMF(CChunkFile *pFile);
 	ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
-	void SerializeRMF(std::fstream &file, BOOL fIsStoring);
 
 	//
 	// Tool3D implementation.

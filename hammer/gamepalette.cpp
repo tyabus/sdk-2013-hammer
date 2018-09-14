@@ -90,7 +90,7 @@ BOOL CGamePalette::Create(LPCTSTR pszFile)
 		pOriginalPalette->palPalEntry[i].peRed = file.get();
 		pOriginalPalette->palPalEntry[i].peGreen = file.get();
 		pOriginalPalette->palPalEntry[i].peBlue = file.get();
-		pOriginalPalette->palPalEntry[i].peFlags = D3DRMPALETTE_READONLY |
+		pOriginalPalette->palPalEntry[i].peFlags = /*D3DRMPALETTE_READONLY =*/ 1 |
 			PC_NOCOLLAPSE;
 	}
 

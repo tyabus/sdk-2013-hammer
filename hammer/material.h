@@ -11,9 +11,7 @@
 
 
 #include "IEditorTexture.h"
-#include "materialsystem/IMaterialVar.h"
 #include "materialsystem/IMaterial.h"
-
 
 class IMaterial;
 class CMaterialCache;
@@ -96,11 +94,6 @@ public:
 	inline int GetSurfaceValue(void) const
 	{
 		return(0);
-	}
-
-	inline TEXTUREFORMAT GetTextureFormat(void) const
-	{
-		return(tfVMT);
 	}
 
 	inline int GetTextureID(void) const

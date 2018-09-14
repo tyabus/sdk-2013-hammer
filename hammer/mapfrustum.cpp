@@ -372,30 +372,6 @@ void CMapFrustum::Render3D(CRender3D *pRender)
 }
 
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapFrustum::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapFrustum::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
 void CMapFrustum::GetAngles(QAngle& Angles)
 {
 	Angles = m_Angles;

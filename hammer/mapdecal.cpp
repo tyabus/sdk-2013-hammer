@@ -551,30 +551,6 @@ void CMapDecal::Render3D(CRender3D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapDecal::SerializeRMF(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : File - 
-//			bRMF - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CMapDecal::SerializeMAP(std::fstream &File, BOOL bRMF)
-{
-	return(0);
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Notifies us that a copy of ourselves was pasted.
 //-----------------------------------------------------------------------------
 void CMapDecal::OnPaste(CMapClass *pCopy, CMapWorld *pSourceWorld, CMapWorld *pDestWorld, const CMapObjectList &OriginalList, CMapObjectList &NewList)

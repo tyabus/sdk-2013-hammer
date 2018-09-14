@@ -17,10 +17,6 @@
 
 //=============================================================================
 
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
 #include <UtlVector.h>
 #include "MapAtom.h"
 #include "Render3D.h"
@@ -297,8 +293,6 @@ public:
 	//
 	ChunkFileResult_t LoadVMF(CChunkFile *pFile);
 	ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo);
-	bool SerializedLoadMAP( std::fstream &file, CMapFace *pFace, UINT version );
-	bool SerializedLoadRMF( std::fstream &file, CMapFace *pFace, float version );
 	bool SaveDXF(ExportDXFInfo_s *pInfo);
 
 	void PostLoad( void );

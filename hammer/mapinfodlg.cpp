@@ -146,18 +146,6 @@ void CMapInfoDlg::CountTexture(IEditorTexture *pTex)
 	short nHeight = pTex->GetHeight();
 
 	m_uTextureMemory += nWidth * nHeight * 3;
-
-	//
-	// Add the filename to the list box if it isn't already there.
-	//
-	const char *pszFileName = pTex->GetFileName();
-	if (pszFileName[0] != '\0')
-	{
-		if (m_WadsUsed.FindStringExact(0, pszFileName) == LB_ERR)
-		{
-			m_WadsUsed.AddString(pszFileName);
-		}
-	}
 }
 
 
@@ -175,7 +163,6 @@ void CMapInfoDlg::DoDataExchange(CDataExchange *pDX)
 	DDX_Control(pDX, IDC_POINTENTITIES, m_PointEntities);
 	DDX_Control(pDX, IDC_UNIQUETEXTURES, m_UniqueTextures);
 	DDX_Control(pDX, IDC_TEXTUREMEMORY, m_TextureMemory);
-	DDX_Control(pDX, IDC_WADSUSED, m_WadsUsed);
 	//}}AFX_DATA_MAP
 }
 
@@ -215,7 +202,7 @@ BOOL CMapInfoDlg::OnInitDialog(void)
 	m_UniqueTextures.SetWindowText(szBuf);
 
 	ultoa(m_uTextureMemory, szBuf, 10);
-	sprintf(szBuf, "%u bytes (%.2f MB)", m_uTextureMemory, (float)m_uTextureMemory / 1024000.0);
+	sprintf(szBuf, "%u bytes (%.2f MB)", m_uTextureMemory, (float)m_uTextureMemory / 1024000.0f);
 	m_TextureMemory.SetWindowText(szBuf);
 
 	return TRUE;
