@@ -23,27 +23,14 @@ CMapClass* CMapInstance::Create( CHelperInfo* pHelperInfo, CMapEntity* pParent )
 
 CMapInstance::CMapInstance() : m_pTemplate( static_cast<CMapDoc*>( CMapDoc::CreateObject() ) )
 {
+	m_matTransform.Identity();
 }
 
 CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( static_cast<CMapDoc*>( CMapDoc::CreateObject() ) )
 {
 	m_matTransform.Identity();
 	m_strCurrentVMF = pParent->GetKeyValue( "file" );
-	if ( !m_strCurrentVMF.IsEmpty() )
-	{
-		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
-		CMapWorld* world = GetWorldObject( pParent );
-		Assert( world );
-		char parentDir[MAX_PATH];
-		V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
-		const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, m_strCurrentVMF.Get() );
-		if ( g_pFullFileSystem->FileExists( instancePath ) && m_pTemplate->LoadVMF( instancePath, true ) )
-		{
-			m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
-			m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
-			m_pTemplate->GetMapWorld()->SetPreferredPickObject( pParent );
-		}
-	}
+	LoadVMF( pParent );
 }
 
 CMapInstance::~CMapInstance()
@@ -110,8 +97,9 @@ void CMapInstance::CalcBounds( BOOL bFullUpdate )
 {
 	if ( m_pTemplate->GetMapWorld() )
 		m_pTemplate->GetMapWorld()->CalcBounds( bFullUpdate );
-	else
-		CMapHelper::CalcBounds( bFullUpdate );
+
+	m_Render2DBox.bmins = m_CullBox.bmins = m_Origin - Vector( 8 );
+	m_Render2DBox.bmaxs = m_CullBox.bmaxs = m_Origin + Vector( 8 );
 }
 
 void CMapInstance::GetCullBox( Vector& mins, Vector& maxs )
@@ -283,21 +271,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		if ( m_pTemplate->GetMapWorld() )
 			m_pTemplate->DeleteCurrentMap();
 		m_strCurrentVMF.Set( value );
-		if ( !m_strCurrentVMF.IsEmpty() )
-		{
-			CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
-			CMapWorld* world = GetWorldObject( GetParent() );
-			Assert( world );
-			char parentDir[MAX_PATH];
-			V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
-			const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, m_strCurrentVMF.Get() );
-			if ( g_pFullFileSystem->FileExists( instancePath ) && m_pTemplate->LoadVMF( instancePath, true ) )
-			{
-				m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
-				m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
-				m_pTemplate->GetMapWorld()->SetPreferredPickObject( GetParent() );
-			}
-		}
+		LoadVMF();
 		PostUpdate( Notify_Changed );
 	}
 	else if ( !stricmp( key, "angles" ) )
@@ -420,7 +394,7 @@ void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt
 	pEnt->Render3D( pRender );
 
 	CMapObjectList& children = pEnt->m_Children;
-	for( CMapClass* pChild : children )
+	for ( CMapClass* pChild : children )
 	{
 		if ( pChild && pChild->IsVisible() )
 		{
@@ -496,6 +470,25 @@ void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 		AddShadowingTrianglesChildren( tri_list, m_pTemplate->GetMapWorld() );
 }
 
+void CMapInstance::LoadVMF( CMapClass* pParent )
+{
+	if ( !m_strCurrentVMF.IsEmpty() )
+	{
+		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
+		CMapWorld* world = GetWorldObject( pParent ? pParent : GetParent() );
+		Assert( world );
+		char parentDir[MAX_PATH];
+		V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
+		const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, m_strCurrentVMF.Get() );
+		if ( g_pFullFileSystem->FileExists( instancePath ) && m_pTemplate->LoadVMF( instancePath, true ) )
+		{
+			m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
+			m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
+			m_pTemplate->GetMapWorld()->SetPreferredPickObject( pParent ? pParent : GetParent() );
+		}
+	}
+}
+
 void CMapInstance::AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt )
 {
 	CMapObjectList& children = pEnt->m_Children;
@@ -505,20 +498,6 @@ void CMapInstance::AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, 
 		{
 			pChild->AddShadowingTriangles( tri_list );
 			AddShadowingTrianglesChildren( tri_list, pChild );
-		}
-	}
-}
-
-void CMapInstance::RotateChild( const Vector& origin, const QAngle& angle, const Vector& translation, CMapClass* pEnt )
-{
-	CMapObjectList& children = pEnt->m_Children;
-	for( CMapClass* pChild : children )
-	{
-		if ( pChild )
-		{
-			pChild->TransRotate( origin, angle );
-			pChild->TransMove( translation );
-			RotateChild( origin, angle, translation, pChild );
 		}
 	}
 }

@@ -54,11 +54,11 @@ public:
 	void AddShadowingTriangles(CUtlVector<Vector>& tri_list) override;
 
 private:
+	void LoadVMF( CMapClass* pParent = NULL );
 	void Render2DChildren( CRender2D* pRender, CMapClass* pEnt );
 	void Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt );
 	void Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt );
 	void AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt );
-	void RotateChild( const Vector& origin, const QAngle& angle, const Vector& translation, CMapClass* pEnt );
 	void GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& maxs ) const;
 	static void FixAngles( QAngle& angle );
 	void DecompressMatrix( Vector& origin, QAngle& angle ) const;
