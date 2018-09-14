@@ -61,6 +61,7 @@ void CGameConfig::SetActiveGame(CGameConfig *pGame)
 
 		g_MAX_MAP_COORD = pGD->GetMaxMapCoord();
 		g_MIN_MAP_COORD = pGD->GetMinMapCoord();
+	}
 	else
 	{
 		g_pGameConfig = &g_DefaultGameConfig;
