@@ -311,9 +311,6 @@ class CMapDoc : public CDocument
 		BOOL SelectDocType(void);
 		BOOL SaveModified(void);
 
-		// Set edit prefab mode.
-		void EditPrefab3D(DWORD dwPrefabID);
-
 		//
 		// Call these when modifying the document contents.
 		//
@@ -398,8 +395,6 @@ class CMapDoc : public CDocument
 		virtual void OnCloseDocument(void);
 		virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 		//}}AFX_VIRTUAL
-
-        void SerializePrefab();
 
 		void DeleteCurrentMap();
 
@@ -519,9 +514,6 @@ class CMapDoc : public CDocument
 		int m_nNextNodeID;				// The ID that will be assigned to the next "info_node_xxx" object created in this document.
 
 		// Editing prefabs data.
-		DWORD m_dwPrefabID;
-		DWORD m_dwPrefabLibraryID;
-		BOOL m_bEditingPrefab;
 		bool m_bPrefab;					// true if this document IS a prefab, false if not.
 
 		// Game configuration.

@@ -318,14 +318,19 @@ bool CHammer::Connect( CreateInterfaceFn factory )
     InstallDmElementFactories();
 
 	// ensure we're in the same directory as the .EXE
-	char *p;
-	GetModuleFileName(NULL, m_szAppDir, MAX_PATH);
-	p = strrchr(m_szAppDir, '\\');
-	if(p)
-	{
-		// chop off \wc.exe
-		p[0] = 0;
-	}
+	char module[MAX_PATH];
+	GetModuleFileName(NULL, module, MAX_PATH);
+    V_ExtractFilePath(module, m_szAppDir, MAX_PATH);
+    V_StripTrailingSlash(m_szAppDir);
+
+    // Build hammer paths
+    char hammerDir[MAX_PATH];
+    V_ComposeFileName(m_szAppDir, "hammer", hammerDir, MAX_PATH);
+    g_pFullFileSystem->AddSearchPath(hammerDir, "hammer", PATH_ADD_TO_HEAD);
+    char hammerPrefabs[MAX_PATH];
+    V_ComposeFileName(hammerDir, "prefabs", hammerPrefabs, MAX_PATH);
+    g_pFullFileSystem->CreateDirHierarchy("prefabs", "hammer"); // Create the prefabs folder if it doesn't already exist
+    g_pFullFileSystem->AddSearchPath(hammerPrefabs, "hammer_prefabs", PATH_ADD_TO_HEAD);
 
 	// Create the message window object for capturing errors and warnings.
 	// This does NOT create the window itself. That happens later in CMainFrame::Create.
@@ -467,21 +472,8 @@ void CHammer::GetDirectory(DirIndex_t dir, char *p)
 
 		case DIR_PREFABS:
 		{
-                // TODO: Make this inside the hammer/ folder
-			strcpy(p, m_szAppDir);
-			EnsureTrailingBackslash(p);
-			strcat(p, "Prefabs");
-			//
-			// Make sure the prefabs directory exists.
-			//
-                // if (!g_pFullFileSystem->FileExists("prefabs", "hammer"))
-                //     g_pFullFileSystem->CreateDirHierarchy("prefabs", "hammer");
-
-            if ((_access(p, 0)) == -1)
-            {
-                CreateDirectory(p, NULL);
-            }
-			break;
+                g_pFullFileSystem->GetSearchPath("hammer_prefabs", false, p, MAX_PATH);
+                break;
 		}
 
 		//

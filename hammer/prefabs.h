@@ -75,8 +75,6 @@ public:
 	static CPrefab* FindID(DWORD dwID);
 
 	// caching:
-	static void AddMRU(CPrefab *pPrefab);
-	static void EnableCaching(BOOL = TRUE);
 	static void FreeAllData();	// free ALL objects' data
 
 protected:
@@ -90,8 +88,6 @@ protected:
 	DWORD dwFileSize;	// size in file - for copying purposes
 
 	static CPrefabList PrefabList;
-	static CPrefabList MRU;
-	static BOOL bCacheEnabled;
 
 friend class CPrefabLibrary;
 friend class CPrefabLibraryVMF;
@@ -108,8 +104,6 @@ public:
 	virtual ~CPrefabLibrary();
 
 	virtual int Load(LPCTSTR pszFilename) = 0;
-	virtual bool DeleteFile(void) = 0;
-	virtual int Save(LPCTSTR pszFilename = NULL, BOOL bIndexOnly = FALSE) = 0;
 	virtual bool IsFile(const char *szFile) = 0;
 
 	void SetNameFromFilename(LPCTSTR pszFilename);
@@ -122,7 +116,6 @@ public:
 	// get info:
 	LPCTSTR GetName() { return m_szName; }
 	LPCTSTR GetNotes() { return szNotes; }
-	inline bool IsType(LibraryType_t eType);
 
 	// unique id assigned at creation time:
 	DWORD GetID() { return dwID; }
@@ -130,10 +123,9 @@ public:
 	CPrefab * EnumPrefabs(POSITION& p);
 	void Add(CPrefab *pPrefab);
 	void Remove(CPrefab *pPrefab);
-	void Sort();
 
 	static CPrefabLibrary *FindID(DWORD dwID);
-	static CPrefabLibrary *EnumLibraries(POSITION &p, LibraryType_t eType = LibType_None);
+	static CPrefabLibrary *EnumLibraries(POSITION &p);
 	static void LoadAllLibraries(void);
 	static void FreeAllLibraries(void);
 	static CPrefabLibrary *FindOpenLibrary(LPCTSTR pszFilename);
@@ -148,10 +140,8 @@ protected:
 	char m_szName[31];
 	char szNotes[MAX_NOTES];
 	DWORD dwID;
-	LibraryType_t m_eType;			// HalfLife or HalfLife2 library?
 
 friend class CPrefab;
-friend class CPrefabRMF;
 friend class CPrefabVMF;
 };
 
@@ -163,7 +153,6 @@ public:
 
 	bool IsFile(const char *szFile);
 	int Load(LPCTSTR pszFilename);
-	bool DeleteFile(void);
 	int Save(LPCTSTR pszFilename = NULL, BOOL bIndexOnly = FALSE);
 	int SetName(const char *pszName);
 
@@ -173,17 +162,6 @@ protected:
 
 friend class CPrefab;
 };
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Returns whether this library is of a given type. Half-Life used
-//			.ol files to represent prefab libraries, Half-Life 2 uses a folder
-//			of VMF files.
-//-----------------------------------------------------------------------------
-bool CPrefabLibrary::IsType(LibraryType_t eType)
-{
-	return(m_eType == eType);
-}
 
 
 #endif // PREFABS_H

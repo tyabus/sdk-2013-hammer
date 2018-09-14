@@ -390,7 +390,6 @@ CMapDoc::CMapDoc(void)
 
 	m_flAnimationTime = 0.0f;
 
-	m_bEditingPrefab = false;
 	m_bPrefab = false;
 
 	m_bIsAnimating = false;
@@ -1810,39 +1809,6 @@ BOOL CMapDoc::SelectDocType(void)
 }
 
 
-//-----------------------------------------------------------------------------
-// Purpose: set up this document to edit a prefab data .. when the object is saved,
-//			save it back to the library instead of to a file.
-// Input  : dwPrefabID -
-//-----------------------------------------------------------------------------
-void CMapDoc::EditPrefab3D(DWORD dwPrefabID)
-{
-	CPrefab3D *pPrefab = (CPrefab3D *)CPrefab::FindID(dwPrefabID);
-	Assert(pPrefab);
-
-	// set up local variables
-	m_dwPrefabID = dwPrefabID;
-	m_dwPrefabLibraryID = pPrefab->GetLibraryID();
-	m_bEditingPrefab = TRUE;
-
-	SetPathName(pPrefab->GetName(), FALSE);
-	SetTitle(pPrefab->GetName());
-
-	// copy prefab data to world
-	if (!pPrefab->IsLoaded())
-	{
-		pPrefab->Load();
-	}
-
-	//
-	// Copying into world, so we update the object dependencies to insure
-	// that any object references in the prefab get resolved.
-	//
-	m_pWorld->CopyFrom(pPrefab->GetWorld(), false);
-	m_pWorld->CopyChildrenFrom(pPrefab->GetWorld(), false);
-}
-
-
 #ifdef _DEBUG
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -2309,23 +2275,6 @@ BOOL CMapDoc::SaveModified(void)
 	if (!IsModified())
 		return TRUE;        // ok to continue
 
-	// editing prefab and modified - update data?
-	if(m_bEditingPrefab)
-	{
-		switch(AfxMessageBox("Do you want to save the changes to this prefab object?", MB_YESNOCANCEL))
-		{
-		case IDYES:
-			{
-			SerializePrefab();
-			return TRUE;
-			}
-		case IDNO:
-			return TRUE;	// no save
-		case IDCANCEL:
-			return FALSE;	// forget this cmd
-		}
-	}
-
 	return CDocument::SaveModified();
 }
 
@@ -2404,17 +2353,6 @@ BOOL CMapDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	if( m_pBSPLighting )
 		m_pBSPLighting->Serialize();
 
-	// UNDONE: prefab serialization must be redone
-	if (m_bEditingPrefab)
-	{
-        SerializePrefab();
-
-        SetModifiedFlag(FALSE);
-        OnCloseDocument();
-
-		return(TRUE);
-	}
-
 	//
 	// If a file with the same name exists, back it up before saving the new one.
 	//
@@ -2446,41 +2384,6 @@ BOOL CMapDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	EndWaitCursor();
 
 	return(bSaved);
-}
-
-void CMapDoc::SerializePrefab()
-{
-    SetActiveMapDoc(this);
-
-    // save prefab in library
-    CPrefabLibrary *pLibrary = CPrefabLibrary::FindID(m_dwPrefabLibraryID);
-    if (!pLibrary)
-    {
-        static int id = 1;
-
-        AfxMessageBox("The library this prefab object belongs to has been\n"
-                      "deleted. This document will now behave as a regular file\n"
-                      "document.");
-        m_bEditingPrefab = FALSE;
-
-        CString str;
-        str.Format("Prefab%d.vmf", id++);
-        SetPathName(str);
-        return;
-    }
-
-    CPrefab3D *pPrefab = (CPrefab3D *) CPrefab::FindID(m_dwPrefabID);
-    if (!pPrefab)
-    {
-        // Not found, create a new prefab.
-        pPrefab = new CPrefabVMF;
-    }
-
-    pPrefab->SetWorld(m_pWorld);
-    m_pWorld = NULL;
-
-    pLibrary->Add(pPrefab);
-    pLibrary->Save();
 }
 
 
@@ -4440,7 +4343,7 @@ void CMapDoc::OnFileSave(void)
 //-----------------------------------------------------------------------------
 void CMapDoc::OnUpdateFileSave(CCmdUI *pCmdUI)
 {
-	pCmdUI->SetText(m_bEditingPrefab ? "Update Prefab\tCtrl+S" : "&Save\tCtrl+S");
+	pCmdUI->SetText(m_bPrefab ? "Update Prefab\tCtrl+S" : "&Save\tCtrl+S");
 }
 
 

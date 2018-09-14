@@ -13,21 +13,17 @@
 //
 //=============================================================================//
 
-
 #include "stdafx.h"
 #include "Prefabs.h"
 #include "Prefab3D.h"
 #include "hammer.h"
+#include "filesystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-
-BOOL CPrefab::bCacheEnabled = TRUE;
 CPrefabList CPrefab::PrefabList;
-CPrefabList CPrefab::MRU;
 CPrefabLibraryList CPrefabLibrary::PrefabLibraryList;
-
 
 
 //-----------------------------------------------------------------------------
@@ -72,9 +68,6 @@ CPrefab::~CPrefab()
 	POSITION p = PrefabList.Find(this);
 	if(p)
 		PrefabList.RemoveAt(p);
-	p = MRU.Find(this);
-	if(p)
-		MRU.RemoveAt(p);
 }
 
 
@@ -94,48 +87,6 @@ CPrefab * CPrefab::FindID(DWORD dwID)
 	}
 
 	return NULL;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : b - 
-//-----------------------------------------------------------------------------
-void CPrefab::EnableCaching(BOOL b)
-{
-	bCacheEnabled = b;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pPrefab - 
-//-----------------------------------------------------------------------------
-void CPrefab::AddMRU(CPrefab *pPrefab)
-{
-	if(!bCacheEnabled)
-		return;
-
-	POSITION p = MRU.Find(pPrefab);
-	if(p)
-	{
-		// remove there and add to head
-		MRU.RemoveAt(p);
-	}
-	else if(MRU.GetCount() == 5)
-	{
-		// uncache tail object
-		p = MRU.GetTailPosition();
-		if(p)	// might not be any yet
-		{
-			CPrefab *pUncache = MRU.GetAt(p);
-			pUncache->FreeData();
-			MRU.RemoveAt(p);
-		}
-	}
-
-	// add to head
-	MRU.AddHead(pPrefab);
 }
 
 
@@ -164,7 +115,6 @@ CPrefabLibrary::CPrefabLibrary()
 	dwID = dwRunningID++;
 	m_szName[0] = '\0';
 	szNotes[0] = '\0';
-    m_eType = LibType_HalfLife2;
 }
 
 
@@ -189,61 +139,6 @@ void CPrefabLibrary::FreePrefabs()
 		CPrefab *pPrefab = Prefabs.GetNext(p);
 		delete pPrefab;
 	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *a - 
-//			*b - 
-// Output : static int
-//-----------------------------------------------------------------------------
-static int __cdecl SortPrefabs(CPrefab *a, CPrefab *b)
-{
-	return(strcmpi(a->GetName(), b->GetName()));
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CPrefabLibrary::Sort(void)
-{
-	int nPrefabs = Prefabs.GetCount();
-	if (nPrefabs < 2)
-	{
-		return;
-	}
-
-	CPrefab **TmpPrefabArray = new CPrefab *[nPrefabs];
-
-	//
-	// Make an array we can pass to qsort.
-	//
-	POSITION p = ENUM_START;
-	CPrefab *pPrefab = EnumPrefabs(p);
-	int iPrefab = 0;
-	while (pPrefab != NULL)
-	{
-		TmpPrefabArray[iPrefab++] = pPrefab;
-		pPrefab = EnumPrefabs(p);
-	}
-
-	//
-	// Sort the prefabs array by name.
-	//
-	qsort(TmpPrefabArray, nPrefabs, sizeof(CPrefab *), (int (__cdecl *)(const void *, const void *))SortPrefabs);
-
-	//
-	// Store back in list in sorted order.
-	//
-	Prefabs.RemoveAll();
-	for (int i = 0; i < nPrefabs; i++)
-	{
-		Prefabs.AddTail(TmpPrefabArray[i]);
-	}
-
-	delete[] TmpPrefabArray;
 }
 
 
@@ -288,8 +183,7 @@ void CPrefabLibrary::FreeAllLibraries(void)
 void CPrefabLibrary::LoadAllLibraries()
 {
 	char szDir[MAX_PATH];
-	char szFile[MAX_PATH];
-	((CHammer *)AfxGetApp())->GetDirectory(DIR_PREFABS, szDir);
+	APP()->GetDirectory(DIR_PREFABS, szDir);
 
 	//
 	// Add one prefab library for the root prefabs folder in case they put something there.
@@ -308,22 +202,20 @@ void CPrefabLibrary::LoadAllLibraries()
 		pLibrary->Load(szDir);
 	}
 
-	strcat(szDir, "\\*.*");
 
-	WIN32_FIND_DATA fd;
-	HANDLE hnd = FindFirstFile(szDir, &fd);
-	strrchr(szDir, '\\')[0] = 0;	// truncate that
+    FileFindHandle_t handle;
+    const char *pMatched = g_pFullFileSystem->FindFirstEx("*.*", "hammer_prefabs", &handle);
 
-	if (hnd == INVALID_HANDLE_VALUE)
-	{
-		return;	// no libraries
-	}
+    if (handle == FILESYSTEM_INVALID_FIND_HANDLE)
+        return; // No libraries
+
+    char szFile[MAX_PATH];
 
 	do
 	{
-		if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (fd.cFileName[0] != '.'))
+		if ((g_pFullFileSystem->FindIsDirectory(handle)) && (pMatched[0] != '.'))
 		{
-			sprintf(szFile, "%s\\%s", szDir, fd.cFileName);
+            V_ComposeFileName(szDir, pMatched, szFile, MAX_PATH);
 
 			pLibrary = FindOpenLibrary(szFile);
 			if (pLibrary == NULL)
@@ -339,9 +231,9 @@ void CPrefabLibrary::LoadAllLibraries()
 				pLibrary->Load(szDir);
 			}
 		}
-	} while (FindNextFile(hnd, &fd));
+	} while ((pMatched = g_pFullFileSystem->FindNext(handle)) != nullptr);
 
-	FindClose(hnd);
+	g_pFullFileSystem->FindClose(handle);
 }
 
 
@@ -435,30 +327,21 @@ CPrefabLibrary *CPrefabLibrary::FindOpenLibrary(LPCTSTR pszFilename)
 //				library types.
 // Output : Returns the next library of the given type.
 //-----------------------------------------------------------------------------
-CPrefabLibrary *CPrefabLibrary::EnumLibraries(POSITION &p, LibraryType_t eType)
+CPrefabLibrary *CPrefabLibrary::EnumLibraries(POSITION &p)
 {
 	if (p == ENUM_START)
 	{
 		p = PrefabLibraryList.GetHeadPosition();
 	}
 
-	while (p != NULL)
-	{
-		CPrefabLibrary *pLibrary = PrefabLibraryList.GetNext(p);
-		if ((eType == LibType_None) || pLibrary->IsType(eType))
-		{
-			return(pLibrary);
-		}
-	}
-
-	return(NULL);
+	return p ? PrefabLibraryList.GetNext(p) : nullptr;
 }
 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CPrefabLibraryVMF::CPrefabLibraryVMF()
+CPrefabLibraryVMF::CPrefabLibraryVMF(): m_szFolderName{'\0'}
 {
 }
 
@@ -490,73 +373,45 @@ int CPrefabLibraryVMF::Load(LPCTSTR pszFilename)
 {
 	FreePrefabs();
 
-	SetNameFromFilename(pszFilename);
-	strcpy(m_szFolderName, pszFilename);
-
-	m_eType = LibType_HalfLife2;
+    strcpy(m_szFolderName, pszFilename);
+    V_StripTrailingSlash(m_szFolderName);
+	SetNameFromFilename(m_szFolderName);
 
 	// dvs: new prefab libs have no notes! who cares?
 
 	//
 	// Read the prefabs - they are stored as individual VMF files.
 	//
-	char szDir[MAX_PATH];
-	strcpy(szDir, pszFilename);
-	strcat(szDir, "\\*.vmf");
+    char fullWildcard[MAX_PATH];
+    V_ComposeFileName(pszFilename, "*.vmf", fullWildcard, MAX_PATH);
 
-	WIN32_FIND_DATA fd;
-	HANDLE hnd = FindFirstFile(szDir, &fd);
-	if (hnd == INVALID_HANDLE_VALUE)
+    FileFindHandle_t handle;
+    const char *pMatched = g_pFullFileSystem->FindFirst(fullWildcard, &handle);
+    if (handle == FILESYSTEM_INVALID_FIND_HANDLE)
 	{
 		// No prefabs in this folder.
-		return(1);
+		return -1;
 	}
-
-	*strrchr(szDir, '*') = '\0';
 
 	do
 	{
-		if (fd.cFileName[0] != '.')
+		if (pMatched[0] != '.')
 		{
 			//
 			// Build the full path to the prefab file.
 			//
-			char szFile[MAX_PATH];
-			strcpy(szFile, szDir);
-			strcat(szFile, fd.cFileName);
+            char fullFile[MAX_PATH];
+            V_ComposeFileName(pszFilename, pMatched, fullFile, MAX_PATH);
 
 			CPrefabVMF *pPrefab = new CPrefabVMF;
-			pPrefab->SetFilename(szFile);
+			pPrefab->SetFilename(fullFile);
 
 			Add(pPrefab);
 		}
-	} while (FindNextFile(hnd, &fd));
+	} while ((pMatched = g_pFullFileSystem->FindNext(handle)) != nullptr);
 
-	FindClose(hnd);
+    g_pFullFileSystem->FindClose(handle);
 
-	return 1;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Removes this prefab library from disk.
-// Output : Returns true on success, false on failure.
-//-----------------------------------------------------------------------------
-bool CPrefabLibraryVMF::DeleteFile(void)
-{
-	// dvs: can't remove the prefab folder yet
-	return(false);
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszFilename - 
-//			bIndexOnly - 
-// Output : int
-//-----------------------------------------------------------------------------
-int CPrefabLibraryVMF::Save(LPCTSTR pszFilename, BOOL bIndexOnly)
-{
 	return 1;
 }
 
@@ -572,5 +427,3 @@ int CPrefabLibraryVMF::SetName(LPCTSTR pszName)
 	strcpy(m_szName, pszName);
 	return 1;
 }
-
-
