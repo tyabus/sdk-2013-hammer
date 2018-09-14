@@ -198,7 +198,7 @@ const char *CTextureSystem::GetKeyword(int pos)
 //			bUseMRU -
 // Output :
 //-----------------------------------------------------------------------------
-IEditorTexture *CTextureSystem::EnumActiveTextures(int *piIndex, TEXTUREFORMAT eDesiredFormat) const
+IEditorTexture *CTextureSystem::EnumActiveTextures(int *piIndex) const
 {
 	Assert(piIndex != NULL);
 
@@ -215,10 +215,7 @@ IEditorTexture *CTextureSystem::EnumActiveTextures(int *piIndex, TEXTUREFORMAT e
 				{
 					(*piIndex)++;
 
-					if ((eDesiredFormat == tfNone) || (pTex->GetTextureFormat() == eDesiredFormat))
-					{
-						return(pTex);
-					}
+					return(pTex);
 				}
 			} while (pTex != NULL);
 		}
@@ -282,7 +279,7 @@ IEditorTexture *CTextureSystem::FindActiveTexture(LPCSTR pszInputName, int *piIn
 	// We're finding by name, so we don't care what the format is as long as the name matches.
 	if ( m_pActiveGroup )
 	{
-		pTex = m_pActiveGroup->FindTextureByName( pszName, &iIndex, tfNone );
+		pTex = m_pActiveGroup->FindTextureByName( pszName, &iIndex );
 		if ( pTex )
 		{
 			if ( piIndex )
@@ -315,7 +312,7 @@ IEditorTexture *CTextureSystem::FindActiveTexture(LPCSTR pszInputName, int *piIn
 
 		if ( m_pActiveGroup )
 		{
-			pTex = m_pActiveGroup->FindTextureByName( szBuf, &iIndex, tfNone );
+			pTex = m_pActiveGroup->FindTextureByName( szBuf, &iIndex);
 			if ( pTex )
 			{
 				if ( piIndex )
@@ -563,7 +560,6 @@ void CTextureSystem::LoadAllGraphicsFiles(void)
 void CTextureSystem::LoadMaterials(CGameConfig *pConfig)
 {
 	CTextureGroup *pGroup = new CTextureGroup("Materials");
-	pGroup->SetTextureFormat(tfVMT);
 	m_pActiveContext->Groups.AddToTail(pGroup);
 
 	// Add all the materials to the group.
@@ -742,12 +738,12 @@ void CTextureSystem::ReloadTextures( const char *pFilterName )
 // Input  : pszName - Name of missing texture.
 // Output : Returns a pointer to the new dummy texture.
 //-----------------------------------------------------------------------------
-IEditorTexture *CTextureSystem::AddDummy(LPCTSTR pszName, TEXTUREFORMAT eFormat)
+IEditorTexture *CTextureSystem::AddDummy(LPCTSTR pszName)
 {
 	if (!m_pActiveContext)
 		return NULL;
 
-	IEditorTexture *pTex = new CDummyTexture(pszName, eFormat);
+	IEditorTexture *pTex = new CDummyTexture(pszName);
 	m_pActiveContext->Dummies.AddToTail(pTex);
 
 	return(pTex);
@@ -1007,7 +1003,6 @@ void CTextureSystem::OpenSource( const char *pMaterialName )
 CTextureGroup::CTextureGroup(const char *pszName)
 {
 	strcpy(m_szName, pszName);
-	m_eTextureFormat = tfNone;
 	m_nTextureToLoad = 0;
 }
 
@@ -1076,21 +1071,15 @@ IEditorTexture *CTextureGroup::GetTexture( char const* pName )
 //-----------------------------------------------------------------------------
 // Quickly find a texture by name.
 //-----------------------------------------------------------------------------
-IEditorTexture* CTextureGroup::FindTextureByName( const char *pName, int *piIndex, TEXTUREFORMAT eDesiredFormat )
+IEditorTexture* CTextureGroup::FindTextureByName( const char *pName, int *piIndex )
 {
 	int iMapEntry = m_TextureNameMap.Find( pName );
 	if ( iMapEntry == m_TextureNameMap.InvalidIndex() )
 	{
 		return NULL;
 	}
-	else
-	{
-		IEditorTexture *pTex = m_Textures[ m_TextureNameMap[iMapEntry] ];
-		if ((eDesiredFormat == tfNone) || (pTex->GetTextureFormat() == eDesiredFormat))
-			return pTex;
-		else
-			return NULL;
-	}
+    
+    return m_Textures[ m_TextureNameMap[iMapEntry] ];
 }
 
 

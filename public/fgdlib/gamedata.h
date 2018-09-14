@@ -19,8 +19,6 @@ class MDkeyvalue;
 class GameData;
 class KeyValues;
 
-enum TEXTUREFORMAT;
-
 
 typedef void (*GameDataMessageFunc_t)(int level, PRINTF_FORMAT_STRING const char *fmt, ...);
 

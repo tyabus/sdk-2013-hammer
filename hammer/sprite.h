@@ -13,7 +13,6 @@
 
 #include "materialsystem/imaterialsystem.h"
 
-class CTexture;
 class CMaterial;
 class IMaterialVar;
 class CRender;

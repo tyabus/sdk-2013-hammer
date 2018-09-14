@@ -461,8 +461,6 @@ $Project "hammer_dll"
 			$File	"IEditorTexture.h"
 			$File	"Material.cpp"
 			$File	"Material.h"
-			$File	"Texture.cpp"
-			$File	"Texture.h"
 			$File	"TextureSystem.cpp"
 		}
 

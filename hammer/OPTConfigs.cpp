@@ -664,8 +664,6 @@ void COPTConfigs::OnBrowseCordonTexture(void)
 	CTextureBrowser *pBrowser = new CTextureBrowser(this);
 	if (pBrowser != NULL)
 	{
-		pBrowser->SetTextureFormat(tfVMT);
-
 		//
 		// Select the current cordon texture in the texture browser.
 		//

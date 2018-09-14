@@ -1554,20 +1554,17 @@ void CFaceEditMaterialPage::NotifyGraphicsChanged( void )
 		for (int i = 1; i < nCount; i++)
 		{
 			CTextureGroup *pGroup = g_Textures.GroupsGet(i);
-			if (pGroup->GetTextureFormat() == tfVMT)
+			const char *p = strstr(pGroup->GetName(), "textures\\");
+			if (p)
 			{
-				const char *p = strstr(pGroup->GetName(), "textures\\");
-				if (p)
-				{
-					p += strlen("textures\\");
-				}
-				else
-				{
-					p = pGroup->GetName();
-				}
-
-				m_TextureGroupList.AddString(p);
+				p += strlen("textures\\");
 			}
+			else
+			{
+				p = pGroup->GetName();
+			}
+
+			m_TextureGroupList.AddString(p);
 		}
 	}
 	m_TextureGroupList.SetRedraw(TRUE);

@@ -5,18 +5,13 @@
 //===========================================================================//
 
 #include "stdafx.h"
-#include "hammer_mathlib.h"
 #include "Box3D.h"
 #include "BSPFile.h"
 #include "const.h"
-#include "MapDefs.h"		// dvs: For COORD_NOTINIT
 #include "MapEntity.h"
 #include "MapSprite.h"
 #include "Render2D.h"
 #include "Render3D.h"
-#include "hammer.h"
-#include "Texture.h"
-#include "TextureSystem.h"
 #include "materialsystem/IMesh.h"
 #include "Material.h"
 #include "Options.h"

@@ -76,7 +76,6 @@ public:
 	void HighlightCurTexture(CDC *pDC = NULL);
 	void SetNameFilter(LPCTSTR pszFilter);
 	void SetKeywords(const char *pszKeywords);
-	void SetTextureFormat(TEXTUREFORMAT eTextureFormat);
 	void SelectTexture(LPCTSTR pszTexture, BOOL bAllowRedraw = TRUE);
 	void SetSpecificList(TextureWindowTexList *pList);
 	void SetTypeFilter( int filter, bool enable );
@@ -112,8 +111,6 @@ protected:
 
 	bool m_bEnableUpdate;			// Locks GUI updates to control repaints.
 	bool m_bShowErrors;
-
-	TEXTUREFORMAT m_eTextureFormat;
 
 	//{{AFX_MSG(CTextureWindow)
 	afx_msg void OnPaint();

@@ -96,11 +96,6 @@ public:
 		return(0);
 	}
 
-	inline TEXTUREFORMAT GetTextureFormat(void) const
-	{
-		return(tfVMT);
-	}
-
 	inline int GetTextureID(void) const
 	{
 		return(m_nTextureID);

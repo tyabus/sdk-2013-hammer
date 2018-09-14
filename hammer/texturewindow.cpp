@@ -55,8 +55,6 @@ CTextureWindow::CTextureWindow(void)
 	m_pSpecificList = NULL;
 	szCurTexture[0] = '\0';
 
-	m_eTextureFormat = tfVMT;
-
 	m_bEnableUpdate = true;
 	m_nTypeFilter = ~0;
 	m_bShowErrors = true;
@@ -195,7 +193,7 @@ BOOL CTextureWindow::EnumTexturePositions(TWENUMPOS *pTE, BOOL bStart)
 	
 	do
 	{
-		pTE->pTex = g_Textures.EnumActiveTextures(&pTE->iTexIndex, m_eTextureFormat);
+		pTE->pTex = g_Textures.EnumActiveTextures(&pTE->iTexIndex);
 
 		if (pTE->pTex == NULL)
 			continue;
@@ -917,15 +915,3 @@ void CTextureWindow::SetSpecificList(TextureWindowTexList *pList)
 		RedrawWindow();
 	}
 }
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : eTextureFormat - 
-//-----------------------------------------------------------------------------
-void CTextureWindow::SetTextureFormat(TEXTUREFORMAT eTextureFormat)
-{
-	m_eTextureFormat = eTextureFormat;
-}
-
-

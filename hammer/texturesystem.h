@@ -41,16 +41,6 @@ public:
 		return m_Textures.Count();
 	}
 
-	inline TEXTUREFORMAT GetTextureFormat(void)
-	{
-		return(m_eTextureFormat);
-	}
-
-	inline void SetTextureFormat(TEXTUREFORMAT eTextureFormat)
-	{
-		m_eTextureFormat = eTextureFormat;
-	}
-
 	void AddTexture(IEditorTexture *pTexture);
 	void Sort(void);
 
@@ -58,7 +48,7 @@ public:
 	IEditorTexture* GetTexture( char const* pName );
 
 	// Fast find texture..
-	IEditorTexture* FindTextureByName( const char *pName, int *piIndex, TEXTUREFORMAT eDesiredFormat );
+	IEditorTexture* FindTextureByName( const char *pName, int *piIndex);
 
 	// Used to lazily load in all the textures
 	void LazyLoadTextures();
@@ -66,7 +56,6 @@ public:
 protected:
 
 	char m_szName[MAX_PATH];
-	TEXTUREFORMAT m_eTextureFormat;
 	CUtlVector<IEditorTexture *> m_Textures;
 	CUtlDict<int,int> m_TextureNameMap;	// Maps the texture name to an index into m_Textures (the key is IEditorTexture::GetName).
 
@@ -76,17 +65,6 @@ protected:
 
 
 typedef CUtlVector<CTextureGroup *> TextureGroupList_t;
-
-
-typedef struct tagGF
-{
-	char filename[MAX_PATH];
-	DWORD id;
-	int fd;
-	TEXTUREFORMAT format;
-	BOOL bLoaded;
-
-} GRAPHICSFILESTRUCT;
 
 
 //
@@ -145,7 +123,7 @@ public:
 	//
 	inline int GetActiveTextureCount(void) const;
 	inline IEditorTexture *GetActiveTexture(int nIndex) const;
-	IEditorTexture *EnumActiveTextures(int *piIndex, TEXTUREFORMAT eDesiredFormat = tfVMT) const;
+	IEditorTexture *EnumActiveTextures(int *piIndex) const;
 	IEditorTexture *FindActiveTexture(LPCSTR pszName, int *piIndex = NULL, BOOL bDummy = TRUE);
 	bool HasTexturesForConfig(CGameConfig *pConfig);
 
@@ -165,7 +143,7 @@ public:
 	//
 	// Holds a list of placeholder textures used when a map refers to missing textures.
 	//
-	IEditorTexture *AddDummy(LPCTSTR pszName, TEXTUREFORMAT eFormat = tfVMT);
+	IEditorTexture *AddDummy(LPCTSTR pszName);
 
 	//
 	// Load graphics files from options list.
