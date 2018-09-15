@@ -193,6 +193,7 @@ CMapEntity::CMapEntity(void) : flags(0)
 	m_pMoveParent = NULL;
 	m_pAnimatorChild = NULL;
 	m_vecLogicalPosition.Init( COORD_NOTINIT, COORD_NOTINIT );
+	m_bIsInstance = false;
 	CalculateTypeFlags();
 }
 
@@ -681,9 +682,12 @@ ChunkFileResult_t CMapEntity::LoadVMF(CChunkFile *pFile)
 	//
 	CChunkHandlerMap Handlers;
 	Handlers.AddHandler("solid", LoadSolidCallback, this);
-	Handlers.AddHandler("hidden", LoadHiddenCallback, this);
 	Handlers.AddHandler("editor", LoadEditorCallback, this);
-	Handlers.AddHandler("connections", LoadConnectionsCallback, this);
+	if ( !m_bIsInstance )
+	{
+		Handlers.AddHandler("hidden", LoadHiddenCallback, this);
+		Handlers.AddHandler("connections", LoadConnectionsCallback, this);
+	}
 
 	pFile->PushHandlers(&Handlers);
 	ChunkFileResult_t eResult = pFile->ReadChunk(LoadKeyCallback, this);

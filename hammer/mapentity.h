@@ -219,6 +219,8 @@ public:
 // 	{
 // 		return m_KeyValues.GetValue(symbol );
 // 	}
+
+	void SetInstance( bool instance ) { m_bIsInstance = instance; }
 private:
 
 	void EnsureUniqueNodeID(CMapWorld *pWorld);
@@ -255,6 +257,8 @@ private:
 	CMapEntity *m_pMoveParent;			// for entity movement hierarchy
 	CMapAnimator *m_pAnimatorChild;
 	Vector2D m_vecLogicalPosition;	// Position in logical space
+
+	bool m_bIsInstance;
 };
 
 

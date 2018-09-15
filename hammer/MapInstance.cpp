@@ -415,7 +415,7 @@ void CMapInstance::Render3D( CRender3D* pRender )
 {
 	if ( m_pTemplate )
 	{
-		CAutoPushPop<bool> guard2( pRender->m_DeferRendering, false );
+		CAutoPushPop guard2( pRender->m_DeferRendering, false );
 
 		VMatrix localTransform;
 		const bool inLocalTransform = pRender->IsInLocalTransformMode();
@@ -478,7 +478,7 @@ void CMapInstance::LoadVMF( CMapClass* pParent )
 		Assert( world );
 		char parentDir[MAX_PATH];
 		V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
-		const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, m_strCurrentVMF.Get() );
+		const CFmtStr instancePath( "%s%s", parentDir, m_strCurrentVMF.Get() );
 		if ( g_pFullFileSystem->FileExists( instancePath ) && LoadVMFInternal( instancePath ) )
 		{
 			m_pTemplate->SetRenderColor( 134, 130, 0 );
@@ -498,16 +498,19 @@ bool CMapInstance::LoadVMFInternal( const char* pVMFPath )
 	ChunkFileResult_t eResult = file.Open( pVMFPath, ChunkFile_Read );
 	if ( eResult == ChunkFile_Ok )
 	{
-		ChunkFileResult_t (*LoadWorldCallback)(CChunkFile*, CMapInstance*) = []( CChunkFile *pFile, CMapInstance *pDoc )
+		ChunkFileResult_t (*LoadWorldCallback)(CChunkFile*, CMapInstance*) = []( CChunkFile* pFile, CMapInstance* pDoc )
 		{
 			return pDoc->m_pTemplate->LoadVMF( pFile );
 		};
 
-		ChunkFileResult_t (*LoadEntityCallback)(CChunkFile*, CMapInstance*) = [](CChunkFile *pFile, CMapInstance *pDoc)
+		ChunkFileResult_t (*LoadEntityCallback)(CChunkFile*, CMapInstance*) = [](CChunkFile* pFile, CMapInstance* pDoc)
 		{
 			CMapEntity* pEntity = new CMapEntity;
+			pEntity->SetInstance( true );
 			if ( pEntity->LoadVMF( pFile ) == ChunkFile_Ok )
 				pDoc->m_pTemplate->AddChild( pEntity );
+			else
+				delete pEntity;
 			return ChunkFile_Ok;
 		};
 

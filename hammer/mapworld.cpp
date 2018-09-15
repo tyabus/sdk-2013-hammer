@@ -21,6 +21,7 @@
 #include "hammer.h"
 #include "Worldsize.h"
 #include "MapOverlay.h"
+#include "smartptr.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -823,50 +824,55 @@ int CMapWorld::GetGroupList(CUtlVector<CMapGroup *> &GroupList)
 //-----------------------------------------------------------------------------
 void CMapWorld::PostloadWorld(void)
 {
-	// This causes certain calculations to get delayed until the end.
-	CMapClass::s_bLoadingVMF = true;
-
-	//
-	// Set the class name from our "classname" key and discard the key.
-	//
-	int nIndex;
-	const char *pszValue = pszValue = m_KeyValues.GetValue("classname", &nIndex);
-	if (pszValue != NULL)
 	{
-		SetClass(pszValue);
-		RemoveKey(nIndex);
-	}
+		// This causes certain calculations to get delayed until the end.
+		CAutoPushPop loadingVMF( CMapClass::s_bLoadingVMF, true );
 
-	//
-	// Call PostLoadWorld on all our children and add any entities to the
-	// entity list.
-	//
-
-	FOR_EACH_OBJ( m_Children, pos )
-	{
-		CMapClass *pChild = m_Children[pos];
-		pChild->PostloadWorld(this);
-		EntityList_Add(pChild);
-	}
-
-	// Since s_bLoadingVMF was on before, a bunch of stuff got delayed. Now let's do that stuff.
-	CMapClass::s_bLoadingVMF = false;
-	FOR_EACH_OBJ( m_Children, pos )
-	{
-		CMapClass *pChild = m_Children[pos];
-		pChild->CalcBounds( TRUE );
 		//
-		// Relink the child in the culling tree.
+		// Set the class name from our "classname" key and discard the key.
 		//
-		if (m_pCullTree != NULL)
+		int nIndex;
+		const char *pszValue = pszValue = m_KeyValues.GetValue("classname", &nIndex);
+		if (pszValue != NULL)
 		{
-			m_pCullTree->UpdateCullTreeObjectRecurse(pChild);
+			SetClass(pszValue);
+			RemoveKey(nIndex);
 		}
 
-		pChild->PostUpdate(Notify_Changed);
-		pChild->SignalChanged();
+		//
+		// Call PostLoadWorld on all our children and add any entities to the
+		// entity list.
+		//
+
+		FOR_EACH_OBJ( m_Children, pos )
+		{
+			CMapClass *pChild = m_Children[pos];
+			pChild->PostloadWorld(this);
+			EntityList_Add(pChild);
+		}
 	}
-	CalcBounds( FALSE ); // Recalculate the world's bounds now that everyone else's bounds are upadted.
+
+	{
+		// Since s_bLoadingVMF was on before, a bunch of stuff got delayed. Now let's do that stuff.
+		CAutoPushPop loadingVMF( CMapClass::s_bLoadingVMF, false );
+
+		FOR_EACH_OBJ( m_Children, pos )
+		{
+			CMapClass *pChild = m_Children[pos];
+			pChild->CalcBounds( TRUE );
+			//
+			// Relink the child in the culling tree.
+			//
+			if (m_pCullTree != NULL)
+			{
+				m_pCullTree->UpdateCullTreeObjectRecurse(pChild);
+			}
+
+			pChild->PostUpdate(Notify_Changed);
+			pChild->SignalChanged();
+		}
+		CalcBounds( FALSE ); // Recalculate the world's bounds now that everyone else's bounds are upadted.
+	}
 }
 
 
