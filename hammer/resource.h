@@ -107,7 +107,6 @@
 #define IDD_ENTITYREPORT                234
 #define IDB_TREEROOTS                   235
 #define IDB_MAPEDITTOOLS                237
-#define IDD_NEWDOCTYPE                  238
 #define IDC_DECAL                       239
 #define IDR_TOOLBAR1                    241
 #define IDD_OBJPAGE_TIMELINE            243
@@ -510,7 +509,6 @@
 #define IDC_INMARKED                    1192
 #define IDC_LOOP                        1192
 #define IDC_FILTERBYTYPE                1192
-#define IDC_NEWTYPE                     1192
 #define ID_DISP_SELECTION               1192
 #define ID_DISP_PAINT_DIST_RAISELOWER   1192
 #define ID_DISP_PAINT_DATA_RAISELOWER   1192

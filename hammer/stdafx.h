@@ -47,13 +47,6 @@
 #ifndef _AFX_NO_AFXCMN_SUPPORT
 #include <afxcmn.h>			// MFC support for Windows 95 Common Controls
 #include <afxpriv.h>
-#pragma warning(push)
-#pragma warning(disable:4018)
-#pragma warning(push, 1)
-#pragma warning(disable:4701 4702 4530)
-#include <fstream>
-#pragma warning(pop)
-#pragma warning(pop)
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include "tier0/platform.h"

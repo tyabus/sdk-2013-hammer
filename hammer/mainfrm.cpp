@@ -24,7 +24,6 @@
 #include "MapViewLogical.h"
 #include "MapView3D.h"
 #include "ChildFrm.h"
-#include "NewDocType.h"
 #include "SearchReplaceDlg.h"
 #include "TextureBrowser.h"
 #include "TextureSystem.h"
@@ -33,6 +32,7 @@
 #include "materialsystem/IMaterialSystem.h"
 #include "materialsystem/MaterialSystem_Config.h"
 #include "soundbrowser.h"
+#include "KeyValues.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -149,12 +149,12 @@ static UINT indicators[] =
 const int NUMSTATUSPANES = 7;
 
 
-const char * WINSTATETAG = "WCWINSTATE";
-const int	 WINSTATEEND = -1;
-const int	 WINSTATE2DVIEW = 0;
-const int	 WINSTATE3DVIEW = 1;
-const int	 WINSTATELOGICALVIEW = 2;
-const float	 fVersion = 0.1f;
+enum WinStateViewTypes_t
+{
+    WINSTATE_VIEW_2D = 0,
+    WINSTATE_VIEW_3D,
+    WINSTATE_VIEW_LOGICAL
+};
 
 
 struct
@@ -1237,14 +1237,6 @@ void CMainFrame::GlobalNotify(int nCode)
 BOOL CMainFrame::OnFileNew(UINT)
 {
 	return FALSE;
-
-	CNewDocType dlg;
-	dlg.m_iNewType = 0;
-
-	if(dlg.DoModal() != IDOK)
-		return TRUE;
-
-	return FALSE;
 }
 
 
@@ -1253,87 +1245,85 @@ BOOL CMainFrame::OnFileNew(UINT)
 // dvs: This really needs to be a text file instead of a binary file!
 // Input  : *pFile - 
 //-----------------------------------------------------------------------------
-void CMainFrame::SaveWindowStates(std::fstream *pFile)
+void CMainFrame::SaveWindowStates()
 {
-	char szRootDir[MAX_PATH];
-	char szFullPath[MAX_PATH];
-	APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-	Q_MakeAbsolutePath( szFullPath, MAX_PATH, "winstate.wc", szRootDir ); 
-
-	std::fstream file(szFullPath, std::ios::out | std::ios::binary);
+    KeyValues *pKvWindowStates = new KeyValues("WindowState");
 
 	CMapDoc *pDoc = CMapDoc::GetActiveMapDoc();
-	if (pDoc == NULL)
-	{
-		return;
-	}
-
-	file.write(WINSTATETAG, sizeof WINSTATETAG);
-	file.write((char*) &fVersion, sizeof fVersion);
-
-	CRect rectClient;
-	::GetClientRect(m_hWndMDIClient, &rectClient);
-
-	// write out each view
-	POSITION p = pDoc->GetFirstViewPosition();
-	while (p != NULL)
-	{
-		CView *pView = pDoc->GetNextView(p);
-		
-		//
-		// Determine what type of view it is.
-		//
-		int iDrawType;
-		if (pView->IsKindOf(RUNTIME_CLASS(CMapView2D)))
-		{
-			file.write((char*) &WINSTATE2DVIEW, sizeof WINSTATE2DVIEW);
-			iDrawType = (int)((CMapView2D*)pView)->GetDrawType();
-		}
-		else if (pView->IsKindOf(RUNTIME_CLASS(CMapView3D)))
-		{
-			file.write((char*) &WINSTATE3DVIEW, sizeof WINSTATE3DVIEW);
-			iDrawType = (int)((CMapView3D*)pView)->GetDrawType();
-		}
-		else if (pView->IsKindOf(RUNTIME_CLASS(CMapViewLogical)))
-		{
-			file.write((char*) &WINSTATELOGICALVIEW, sizeof WINSTATELOGICALVIEW);
-			iDrawType = (int)((CMapViewLogical*)pView)->GetDrawType();
-		}
-		else
-		{
-			//
-			// It's a view type whose state we do not save - skip it.
-			//
-			continue;
-		}
-
-		//
-		// Write view's draw type.
-		//
-		file.write((char*) &iDrawType, sizeof iDrawType);
-
-		//
-		// Write position of view.
-		//
-		CRect rectView;
-		pView->GetParentFrame()->GetWindowRect(&rectView);
-		CPoint pt1 = rectView.TopLeft(), pt2 = rectView.BottomRight();
-		::ScreenToClient(m_hWndMDIClient, &pt1);
-		::ScreenToClient(m_hWndMDIClient, &pt2);
 	
-		double left, top, right, bottom;
-		left =		double(pt1.x) / double(rectClient.right);
-		top =		double(pt1.y) / double(rectClient.bottom);
-		right =		double(pt2.x) / double(rectClient.right);
-		bottom =	double(pt2.y) / double(rectClient.bottom);
+    if (pDoc)
+    {
+        CRect rectClient;
+        ::GetClientRect(m_hWndMDIClient, &rectClient);
 
-		file.write((char*) &left, sizeof left);
-		file.write((char*) &top, sizeof top);
-		file.write((char*) &right, sizeof right);
-		file.write((char*) &bottom, sizeof bottom);
-	}
+        bool bSavedView = false;
 
-	file.write((char *)&WINSTATEEND, sizeof WINSTATEEND);
+        // write out each view
+        POSITION p = pDoc->GetFirstViewPosition();
+        while (p)
+        {
+            CView *pView = pDoc->GetNextView(p);
+
+            //
+            // Determine what type of view it is.
+            //
+            DrawType_t iDrawType;
+            WinStateViewTypes_t iViewType;
+            if (pView->IsKindOf(RUNTIME_CLASS(CMapView2D)))
+            {
+                iViewType = WINSTATE_VIEW_2D;
+                iDrawType = ((CMapView2D*)pView)->GetDrawType();
+            }
+            else if (pView->IsKindOf(RUNTIME_CLASS(CMapView3D)))
+            {
+                iViewType = WINSTATE_VIEW_3D;
+                iDrawType = ((CMapView3D*)pView)->GetDrawType();
+            }
+            else if (pView->IsKindOf(RUNTIME_CLASS(CMapViewLogical)))
+            {
+                iViewType = WINSTATE_VIEW_LOGICAL;
+                iDrawType = ((CMapViewLogical*)pView)->GetDrawType();
+            }
+            else
+            {
+                //
+                // It's a view type whose state we do not save - skip it.
+                //
+                continue;
+            }
+
+            KeyValues *pKvView = pKvWindowStates->CreateNewKey();
+
+            pKvView->SetInt("view_type", iViewType);
+            pKvView->SetInt("draw_type", iDrawType);
+
+            //
+            // Write position of view.
+            //
+            CRect rectView;
+            pView->GetParentFrame()->GetWindowRect(&rectView);
+            CPoint pt1 = rectView.TopLeft(), pt2 = rectView.BottomRight();
+            ::ScreenToClient(m_hWndMDIClient, &pt1);
+            ::ScreenToClient(m_hWndMDIClient, &pt2);
+
+            float left = float(double(pt1.x) / double(rectClient.right));
+            float top = float(double(pt1.y) / double(rectClient.bottom));
+            float right = float(double(pt2.x) / double(rectClient.right));
+            float bottom = float(double(pt2.y) / double(rectClient.bottom));
+
+            pKvView->SetFloat("left", left);
+            pKvView->SetFloat("top", top);
+            pKvView->SetFloat("right", right);
+            pKvView->SetFloat("bottom", bottom);
+
+            bSavedView = true;
+        }
+
+        if (bSavedView)
+            pKvWindowStates->SaveToFile(g_pFullFileSystem, "WinState.wc", "hammer_cfg");
+    }
+
+	pKvWindowStates->deleteThis();
 }
 
 
@@ -1341,173 +1331,133 @@ void CMainFrame::SaveWindowStates(std::fstream *pFile)
 // Purpose: 
 // Input  : pFile - 
 //-----------------------------------------------------------------------------
-void CMainFrame::LoadWindowStates(std::fstream *pFile)
+void CMainFrame::LoadWindowStates()
 {
-	char szRootDir[MAX_PATH];
-	char szFullPath[MAX_PATH];
-	APP()->GetDirectory(DIR_PROGRAM, szRootDir);
-	Q_MakeAbsolutePath( szFullPath, MAX_PATH, "winstate.wc", szRootDir ); 
+    KeyValues *pKvWindowState = new KeyValues("WindowState");
+    if (pKvWindowState->LoadFromFile(g_pFullFileSystem, "WinState.wc", "hammer_cfg"))
+    {
+        CMapDoc *pDoc = CMapDoc::GetActiveMapDoc();
 
-	std::fstream file( szFullPath, std::ios::in | std::ios::binary );
+        if (!pDoc)
+            return;
 
-	if (!file.is_open())
-	{
-		return;
-	}
+        // get client rect of MDI CHILD for relative positioning information
+        CRect rectClient;
+        ::GetClientRect(m_hWndMDIClient, &rectClient);
 
-	char tag[sizeof(WINSTATETAG)];
-	file.read(tag, sizeof tag);
+        // keep list of views we've already modified, so if there
+        //  are other views, we have to create them. this prevents
+        //  us from having to delete all views and start over, 
+        //  which is a slower process than simply moving existing
+        //	views.
+        CTypedPtrList<CPtrList, CView*> UsedViews;
 
-	if(memcmp(tag, WINSTATETAG, sizeof tag))
-	{
-		file.seekg(-int(sizeof(tag)));
-		return;
-	}
+        SetDefaultChildType(FALSE);
 
-	float fThisVersion;
-	file.read((char*) &fThisVersion, sizeof fThisVersion);
+        FOR_EACH_TRUE_SUBKEY(pKvWindowState, pKvView)
+        {
+            int iViewType = pKvView->GetInt("view_type");
+            DrawType_t iDrawType = (DrawType_t) pKvView->GetInt("draw_type");
 
-	CMapDoc *pDoc = CMapDoc::GetActiveMapDoc();
+            CView *pView = nullptr;
 
-	if(!pDoc)
-		return;
+            // find a view we haven't used
+            POSITION p = pDoc->GetFirstViewPosition();
+            while (p)
+            {
+                CView *pThisView = pDoc->GetNextView(p);
 
-	// get client rect of MDI CHILD for relative positioning information
-	CRect rectClient;
-	::GetClientRect(m_hWndMDIClient, &rectClient);
+                // already used?
+                if (UsedViews.Find(pThisView))
+                    continue;
 
-	// keep list of views we've already modified, so if there
-	//  are other views, we have to create them. this prevents
-	//  us from having to delete all views and start over, 
-	//  which is a slower process than simply moving existing
-	//	views.
-	CTypedPtrList<CPtrList, CView*> UsedViews;
+                // make sure it's the right type ..
+                if (iViewType == WINSTATE_VIEW_2D && !pThisView->IsKindOf(RUNTIME_CLASS(CMapView2D)))
+                    continue;
 
-	SetDefaultChildType(FALSE);
+                if (iViewType == WINSTATE_VIEW_LOGICAL && !pThisView->IsKindOf(RUNTIME_CLASS(CMapViewLogical)))
+                    continue;
 
-	while (1)
-	{
-		int iViewType;
-		file.read((char *)&iViewType, sizeof iViewType);
-		if ((file.eof()) || (iViewType == WINSTATEEND))
-		{
-			break;
-		}
+                if (iViewType == WINSTATE_VIEW_3D && !pThisView->IsKindOf(RUNTIME_CLASS(CMapView3D)))
+                    continue;
 
-		int iDrawType;
-		file.read((char *)&iDrawType, sizeof iDrawType);
+                // yes! so modify this one.
+                pView = pThisView;
+                UsedViews.AddTail(pView);
+                break;
+            }
 
-		CView *pView = NULL;
+            CChildFrame *pFrame;
+            CDocTemplate *pTemplate = nullptr;
+            bool bNew = false;
 
-		// find a view we haven't used
-		POSITION p = pDoc->GetFirstViewPosition();
-		while (p != NULL)
-		{
-			CView *pThisView = pDoc->GetNextView(p);
+            if (!pView)
+            {
+                // if no view was created, we have to create a new one.
+                CMDIChildWnd* pActiveChild = MDIGetActive();
+                pTemplate = pDoc->GetDocTemplate();
+                pFrame = (CChildFrame*) pTemplate->CreateNewFrame(pDoc, pActiveChild);
+                pFrame->SetRedraw(FALSE);
+                pTemplate->InitialUpdateFrame(pFrame, pDoc, FALSE);
 
-			// already used?
-			if (UsedViews.Find(pThisView))
-				continue;
+                // find view in new frame
+                pView = pFrame->GetActiveView();
 
-			// make sure it's the right type ..
-			if (iViewType == WINSTATE2DVIEW && !pThisView->IsKindOf(RUNTIME_CLASS(CMapView2D)))
-				continue;
+                UsedViews.AddTail(pView);
+                bNew = TRUE;
+            }
+            else
+            {
+                // find frame based on this view
+                pFrame = (CChildFrame*) pView->GetParentFrame();
 
-			if (iViewType == WINSTATELOGICALVIEW && !pThisView->IsKindOf(RUNTIME_CLASS(CMapViewLogical)))
-				continue;
+                if (pFrame->bUsingSplitter)
+                    pFrame->SetSplitterMode(FALSE);
+            }
 
-			if (iViewType == WINSTATE3DVIEW && !pThisView->IsKindOf(RUNTIME_CLASS(CMapView3D)))
-				continue;
+            // no redraws right now, please.
+            pFrame->SetRedraw(FALSE);
 
-			// yes! so modify this one.
-			pView = pThisView;
-			UsedViews.AddTail(pView);
-			break;
-		}
+            if (iViewType == WINSTATE_VIEW_3D || iViewType == WINSTATE_VIEW_2D || iViewType == WINSTATE_VIEW_LOGICAL)
+            {
+                pFrame->SetViewType(iDrawType);
+            }
 
-		CChildFrame *pFrame = NULL;
-		BOOL bNew = FALSE;
-		CDocTemplate *pTemplate = NULL;
+            // read positioning info
+            float left = pKvView->GetFloat("left"), 
+            top = pKvView->GetFloat("top"), 
+            right = pKvView->GetFloat("right"), 
+            bottom = pKvView->GetFloat("bottom");
 
-		if(!pView)
-		{
-			// if no view was created, we have to create a new one.
-			CMDIChildWnd* pActiveChild = MDIGetActive();
-			pTemplate = pDoc->GetDocTemplate();
-			pFrame = (CChildFrame*) pTemplate->CreateNewFrame(pDoc, pActiveChild);
-			pFrame->SetRedraw(FALSE);
-			pTemplate->InitialUpdateFrame(pFrame, pDoc, FALSE);
-			
-			// find view in new frame
-			pView = pFrame->GetActiveView();
+            CRect r;
+            r.left = int(left * float(rectClient.right));
+            r.top = int(top * float(rectClient.bottom));
+            r.right = int(right * float(rectClient.right));
+            r.bottom = int(bottom * float(rectClient.bottom));
 
-			UsedViews.AddTail(pView);
-			bNew = TRUE;
-		}
-		else
-		{
-			// find frame based on this view
-			pFrame = (CChildFrame*) pView->GetParentFrame();
+            // Set the frame's position.
+            pFrame->MoveWindow(&r, FALSE);
 
-			if(pFrame->bUsingSplitter)
-				pFrame->SetSplitterMode(FALSE);
-		}
+            // Call OnInitialUpdate before any rendering takes place.
+            if (bNew)
+            {
+                pTemplate->InitialUpdateFrame(pFrame, pDoc, TRUE);
+            }
 
-		// no redraws right now, please.
-		pFrame->SetRedraw(FALSE);
+            // Enable WM_PAINT messages for the frame window.
+            pFrame->SetRedraw(TRUE);
 
-		if (iViewType == WINSTATE3DVIEW)
-		{
-			//
-			// Handle import of old WinState files before draw types were consolidated
-			// into a single enumeration.
-			//
-			if ((iDrawType >= VIEW2D_XY) && (iDrawType <= VIEW2D_XZ))
-			{
-				iDrawType += 3;
-			}
-			pFrame->SetViewType((DrawType_t)iDrawType);
-		}
-		else if (iViewType == WINSTATE2DVIEW)
-		{
-			pFrame->SetViewType((DrawType_t)iDrawType);
-		}
-		else if (iViewType == WINSTATELOGICALVIEW)
-		{
-			pFrame->SetViewType( (DrawType_t)iDrawType );
-		}
-		
-		// read positioning info
-		double left, top, right, bottom;
-		file.read((char*) &left, sizeof left);
-		file.read((char*) &top, sizeof top);
-		file.read((char*) &right, sizeof right);
-		file.read((char*) &bottom, sizeof bottom);
-		CRect r;
-		r.left		= int(left * double(rectClient.right));
-		r.top		= int(top * double(rectClient.bottom));
-		r.right		= int(right * double(rectClient.right));
-		r.bottom	= int(bottom * double(rectClient.bottom));
+            // Update the window.
+            pFrame->Invalidate();
+            pFrame->UpdateWindow();
+        }
 
-		// Set the frame's position.
-		pFrame->MoveWindow(&r, FALSE);
 
-		// Call OnInitialUpdate before any rendering takes place.
-		if (bNew)
-		{
-			pTemplate->InitialUpdateFrame(pFrame, pDoc, TRUE);
-		}
+        Invalidate();
+        UpdateWindow();
+    }
 
-		// Enable WM_PAINT messages for the frame window.
-		pFrame->SetRedraw(TRUE);
-
-		// Update the window.
-		pFrame->Invalidate();
-		pFrame->UpdateWindow();
-	}
-
-	Invalidate();
-	UpdateWindow();
+    pKvWindowState->deleteThis();
 }
 
 
