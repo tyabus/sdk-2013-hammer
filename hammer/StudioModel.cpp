@@ -581,7 +581,7 @@ void StudioModel::SetupModel ( int bodypart )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void StudioModel::DrawModel3D( CRender3D *pRender, const Vector& vColor, float flAlpha, bool bWireframe )
+void StudioModel::DrawModel3D( CRender3D *pRender, float flAlpha, bool bWireframe )
 {
 	studiohdr_t *pStudioHdr = GetStudioRenderHdr();
 	if (!pStudioHdr)
@@ -621,7 +621,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, const Vector& vColor, float f
 		MatrixAngles(fMatrixNew, m_angles);
 
 		matrix3x4_t *pBoneToWorld = SetUpBones( false );
-		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireframe );
+		pRender->DrawModel( &info, pBoneToWorld, m_origin, flAlpha, bWireframe );
 		free( pBoneToWorld );
 
 		m_origin = orgOrigin;
@@ -637,7 +637,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, const Vector& vColor, float f
 			pRender->DrawCollisionModel( m_MDLHandle, mViewMatrix );
 			return;
 		}
-		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireframe );
+		pRender->DrawModel( &info, pBoneToWorld, m_origin, flAlpha, bWireframe );
 		free( pBoneToWorld );
 
 		if ( Options.general.bShowCollisionModels )
@@ -648,7 +648,7 @@ void StudioModel::DrawModel3D( CRender3D *pRender, const Vector& vColor, float f
 	}
 }
 
-void StudioModel::DrawModel2D( CRender2D *pRender, const Vector& vColor, float flAlpha, bool bWireFrame  )
+void StudioModel::DrawModel2D( CRender2D *pRender, float flAlpha, bool bWireFrame  )
 {
 	studiohdr_t *pStudioHdr = GetStudioRenderHdr();
 	if (!pStudioHdr)
@@ -699,7 +699,7 @@ void StudioModel::DrawModel2D( CRender2D *pRender, const Vector& vColor, float f
 	else
 	{
 		matrix3x4_t *pBoneToWorld = SetUpBones( false );
-		pRender->DrawModel( &info, pBoneToWorld, m_origin, vColor, flAlpha, bWireFrame );
+		pRender->DrawModel( &info, pBoneToWorld, m_origin, flAlpha, bWireFrame );
 		free( pBoneToWorld );
 	}
 

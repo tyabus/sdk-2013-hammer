@@ -284,8 +284,6 @@ public:
 	void RemoveSmoothingGroup( int iGroup );
 	bool InSmoothingGroup( int iGroup );
 
-	void SetModulationColor(const Vector& clr);
-
 	// Indicates this guy should be unlit
 	void RenderUnlit( bool enable );
 

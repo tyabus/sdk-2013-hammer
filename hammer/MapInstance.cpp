@@ -7,10 +7,13 @@
 #include "render3dms.h"
 #include "toolinterface.h"
 #include "mapview2d.h"
+#include "camera.h"
 
 #include "smartptr.h"
 #include "fmtstr.h"
 #include "chunkfile.h"
+#include "KeyValues.h"
+#include "tier2/renderutils.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -77,8 +80,8 @@ void CMapInstance::SetParent( CMapAtom* pParent )
 SelectionState_t CMapInstance::SetSelectionState( SelectionState_t eSelectionState )
 {
 	const SelectionState_t old = CMapHelper::SetSelectionState( eSelectionState );
-	if ( m_pTemplate )
-		m_pTemplate->SetSelectionState( eSelectionState == SELECT_NONE ? SELECT_NONE : SELECT_NORMAL );
+	//if ( m_pTemplate )
+	//	m_pTemplate->SetSelectionState( eSelectionState == SELECT_NONE ? SELECT_NONE : SELECT_NORMAL );
 	return old;
 }
 
@@ -432,7 +435,31 @@ void CMapInstance::Render3D( CRender3D* pRender )
 			newTransform.SetupMatrixOrgAngles( origin, angle );
 			pRender->BeginLocalTransfrom( newTransform );
 		}
+
 		CUtlVector<CMapClass*> deferred;
+		Render3DChildren( pRender, deferred, m_pTemplate );
+
+		for ( CMapClass* def : deferred )
+			Render3DChildrenDeferred( pRender, def );
+
+		{
+			int width, height;
+			pRender->GetCamera()->GetViewPort( width, height );
+
+			CMatRenderContextPtr pRenderContext( materials );
+			pRenderContext->ClearBuffers( false, false, true );
+			pRenderContext->SetStencilEnable( true );
+			pRenderContext->ClearStencilBufferRectangle( 0, 0, width, height, 0xF );
+			pRenderContext->SetStencilReferenceValue( 1 );
+			pRenderContext->SetStencilTestMask( 0xF );
+			pRenderContext->SetStencilWriteMask( 0xF );
+			pRenderContext->SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_GREATEREQUAL );
+			pRenderContext->SetStencilPassOperation( STENCILOPERATION_KEEP );
+			pRenderContext->SetStencilFailOperation( STENCILOPERATION_ZERO );
+			pRenderContext->SetStencilZFailOperation( STENCILOPERATION_ZERO );
+		}
+
+		deferred.RemoveAll();
 		Render3DChildren( pRender, deferred, m_pTemplate );
 
 		for ( CMapClass* def : deferred )
@@ -445,7 +472,39 @@ void CMapInstance::Render3D( CRender3D* pRender )
 			pRender->EndLocalTransfrom();
 			pRender->BeginLocalTransfrom( localTransform );
 		}
+
+		{
+			int width, height;
+			pRender->GetCamera()->GetViewPort( width, height );
+
+			static IMaterial* mat = NULL;
+			if ( !mat )
+			{
+				KeyValues* kv = new KeyValues( "UnlitGeneric" );
+				kv->SetString( "$basetexture", "white" );
+				kv->SetString( "$color", "[1 0 0]" );
+				kv->SetFloat( "$alpha", 0.5f );
+				kv->SetBool( "$vertexcolor", true );
+				mat = materials->CreateMaterial( "__", kv );
+				mat->Refresh();
+			}
+
+			if ( GetSelectionState() == SELECT_NONE )
+				mat->ColorModulate( 134 / 255.f, 130 / 255.f, 0 );
+			else
+				mat->ColorModulate( 186 / 255.f, 126 / 255.f, 0 );
+			DrawScreenSpaceRectangle(
+				mat, 0, 0, width, height,
+				0,0,
+				width - 1, height -1,
+				width, height);
+
+			CMatRenderContextPtr pRenderContext( materials );
+			pRenderContext->SetStencilEnable( false );
+			pRenderContext->SetStencilReferenceValue( 0 );
+		}
 	}
+	pRender->RenderBox(m_Render2DBox.bmins, m_Render2DBox.bmaxs, 220, 220, 220, GetSelectionState());
 }
 
 bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
@@ -482,7 +541,6 @@ void CMapInstance::LoadVMF( CMapClass* pParent )
 		if ( g_pFullFileSystem->FileExists( instancePath ) && LoadVMFInternal( instancePath ) )
 		{
 			m_pTemplate->SetRenderColor( 134, 130, 0 );
-			m_pTemplate->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
 			m_pTemplate->SetPreferredPickObject( pParent ? pParent : GetParent() );
 		}
 	}

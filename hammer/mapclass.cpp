@@ -819,28 +819,6 @@ void CMapClass::SetRenderColor(unsigned char uchRed, unsigned char uchGreen, uns
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Sets the render color of this object and all its children.
-// Input  : uchRed, uchGreen, uchBlue - Color components.
-//-----------------------------------------------------------------------------
-void CMapClass::SetModulationColor(const Vector& clr)
-{
-	CMapAtom::SetModulationColor(clr);
-
-	//
-	// Set the render color of all our children.
-	//
-	FOR_EACH_OBJ( m_Children, pos )
-	{
-		CMapClass *pChild = m_Children.Element(pos);
-		if (pChild != NULL)
-		{
-			pChild->SetModulationColor(clr);
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Returns a pointer to the object that should be added to the selection
 //			list because this object was clicked on with a given selection mode.
 // Input  : eSelectMode -

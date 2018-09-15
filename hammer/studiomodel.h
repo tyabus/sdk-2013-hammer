@@ -78,8 +78,8 @@ public:
 	void					FreeModel ();
 	bool					LoadModel( const char *modelname );
 	bool					PostLoadModel ( const char *modelname );
-	void					DrawModel3D( CRender3D *pRender, const Vector& vColor, float flAlpha, bool bWireframe);
-	void					DrawModel2D( CRender2D *pRender, const Vector& vColor, float flAlpha, bool bWireFrame);
+	void					DrawModel3D( CRender3D *pRender, float flAlpha, bool bWireframe);
+	void					DrawModel2D( CRender2D *pRender, float flAlpha, bool bWireFrame);
 	void					AdvanceFrame( float dt );
 
 	void					ExtractBbox( Vector &mins, Vector &maxs );

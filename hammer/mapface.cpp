@@ -1347,12 +1347,7 @@ void CMapFace::SetTexture(IEditorTexture *pTexture, bool bRescaleTextureCoordina
 	}
 
 	if (bTexValid)
-	{
-		const Vector& color = GetModulationColor();
-		m_pTexture->GetMaterial()->ColorModulate( XYZ( color ) );
-		m_pTexture->GetMaterial()->SetMaterialVarFlag( MATERIAL_VAR_VERTEXCOLOR, color != Vector( 1.f ) );
 		CalcTextureCoords();
-	}
 
 	UpdateFaceFlags();
 }
@@ -1598,10 +1593,7 @@ void CMapFace::ComputeColor( CRender3D* pRender, bool bRenderAsSelected,
 	EditorRenderMode_t eCurrentRenderMode = pRender->GetCurrentRenderMode();
 
 	// White w/alpha by default
-	const Vector& clr = GetModulationColor();
-	pColor[0] = clr.x * 255.f;
-	pColor[1] = clr.y * 255.f;
-	pColor[2] = clr.z * 255.f;
+	pColor[0] = pColor[1] = pColor[2] = 255;
 	pColor[3] = m_uchAlpha;
 
 	float fShade;
@@ -3207,16 +3199,6 @@ void CMapFace::RemoveSmoothingGroup( int iGroup )
 bool CMapFace::InSmoothingGroup( int iGroup )
 {
 	return ( m_fSmoothingGroups & ( 1 << ( iGroup - 1 ) ) ) != 0;
-}
-
-void CMapFace::SetModulationColor( const Vector& clr )
-{
-	CMapAtom::SetModulationColor( clr );
-	if ( m_pTexture != NULL && m_pTexture->GetMaterial() )
-	{
-		m_pTexture->GetMaterial()->ColorModulate( clr.x, clr.y, clr.z );
-		m_pTexture->GetMaterial()->SetMaterialVarFlag( MATERIAL_VAR_VERTEXCOLOR, clr != Vector( 1.f ) );
-	}
 }
 
 //-----------------------------------------------------------------------------

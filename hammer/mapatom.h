@@ -121,16 +121,6 @@ public:
 		return rgbColor;
 	}
 
-	virtual void SetModulationColor( const Vector& clr )
-	{
-		modulationColor = clr;
-	}
-
-	virtual const Vector& GetModulationColor() const
-	{
-		return modulationColor;
-	}
-
 	//-----------------------------------------------------------------------------
 	// Purpose: Sets this object's parent.
 	// Input  : pParent -
@@ -278,7 +268,7 @@ protected:
 
 	static int s_nObjectIDCtr;
 
-	CMapAtom() : r( 255 ), g( 255 ), b( 255 ), modulationColor( 1.f )
+	CMapAtom() : r( 255 ), g( 255 ), b( 255 )
 	{
 		m_eSelectionState = SELECT_NONE;
 		m_pParent = NULL;
@@ -296,7 +286,6 @@ protected:
 	unsigned char r;					// Red color component.
 	unsigned char g;					// Green color component.
 	unsigned char b;					// Blue color component.
-	Vector modulationColor;
 };
 
 

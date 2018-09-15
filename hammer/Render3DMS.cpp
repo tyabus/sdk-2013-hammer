@@ -883,7 +883,7 @@ static bool LightForString( char const *pLight, Vector& intensity )
 }
 
 // ugly code copied from vrad and munged. Should move into a lib
-static bool LightForKey (CMapEntity *ent, char *key, Vector& intensity )
+static bool LightForKey (CMapEntity *ent, const char *key, Vector& intensity )
 {
 	char const *pLight = ent->GetKeyValue( key );
 
@@ -1204,8 +1204,6 @@ void CRender3D::EndRenderFrame(void)
 				view_changed = true;
 			if (m_pView->m_bUpdateView && (m_eCurrentRenderMode == RENDER_MODE_LIGHT_PREVIEW_RAYTRACED))
 			{
-
-				static bool did_dump=false;
 				static float Last_SendTime=0;
 				// now, lets create floatbms with the deferred rendering data, so we can pass it to the lpreview thread
 				float newtime=Plat_FloatTime();
@@ -1223,7 +1221,6 @@ void CRender3D::EndRenderFrame(void)
 						m_nLastLPreviewHeight = height;
 						m_nLastLPreviewWidth = width;
 
-
 						g_nBitmapGenerationCounter++;
 						Last_SendTime=newtime;
 						if (g_pLPreviewOutputBitmap)
@@ -1237,19 +1234,9 @@ void CRender3D::EndRenderFrame(void)
 							SetRenderTargetNamed(0,rts_to_transmit[i]);
 							FloatBitMap_t *fbm = new FloatBitMap_t( nTargetWidth, nTargetHeight );
 							Msg.m_pDefferedRenderingBMs[i]=fbm;
-							pRenderContext->ReadPixels(0, 0, nTargetWidth, nTargetHeight, (uint8 *) &(fbm->Pixel(0,0,0)),
-												  IMAGE_FORMAT_RGBA32323232F);
-							if ( (i==0) && (! did_dump) )
-							{
-								fbm->WriteTGAFile("albedo.tga");
-							}
-							if ( (i==1) && (! did_dump) )
-							{
-								fbm->WriteTGAFile("normal.tga");
-							}
+							pRenderContext->ReadPixels(0, 0, nTargetWidth, nTargetHeight, (uint8 *) &(fbm->Pixel(0,0,0)), IMAGE_FORMAT_RGBA32323232F);
 						}
 						pRenderContext->SetRenderTarget( NULL );
-						did_dump = true;
 						n_gbufs_queued++;
 						pCamera->GetViewPoint( Msg.m_EyePosition );
 						Msg.m_nBitmapGenerationCounter=g_nBitmapGenerationCounter;
@@ -1299,7 +1286,7 @@ void CRender3D::EndRenderFrame(void)
 						( pLight->m_Type == MATERIAL_LIGHT_DIRECTIONAL && ( pLight->m_nObjectID & 0x80000000 ) == 0 ) )
 					{
 						CLightPreview_Light tmplight;
-						tmplight.m_Light = *pLight;
+						tmplight.m_Light = static_cast<LightDesc_t&>(*pLight);
 						tmplight.m_flDistanceToEye = pLight->m_Position.DistTo( eye_pnt );
 						light_queue.Insert(tmplight);
 					}

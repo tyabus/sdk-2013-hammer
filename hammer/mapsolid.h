@@ -116,8 +116,6 @@ public:
 	virtual void SetRenderColor(unsigned char uchRed, unsigned char uchGreen, unsigned char uchBlue);
 	virtual void SetRenderColor(color32 rgbColor);
 
-	virtual void SetModulationColor(const Vector& col);
-
 	//
 	// face info
 	//
