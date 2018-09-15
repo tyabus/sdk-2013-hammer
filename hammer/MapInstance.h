@@ -23,8 +23,8 @@ public:
 	CMapClass* Copy( bool bUpdateDependencies ) override;
 	CMapClass* CopyFrom( CMapClass* pFrom, bool bUpdateDependencies ) override;
 
-	void OnNotifyDependent( CMapClass* pObject, Notify_Dependent_t eNotifyType ) override;
-	void SetParent( CMapAtom *pParent ) override;
+	void UpdateDependencies( CMapWorld* pWorld, CMapClass* pObject ) override;
+	void SetParent( CMapAtom* pParent ) override;
 	SelectionState_t SetSelectionState( SelectionState_t eSelectionState ) override;
 
 	void SetOrigin( Vector& pfOrigin ) override;
@@ -55,6 +55,7 @@ public:
 
 private:
 	void LoadVMF( CMapClass* pParent = NULL );
+	bool LoadVMFInternal( const char* pVMFPath );
 	void Render2DChildren( CRender2D* pRender, CMapClass* pEnt );
 	void Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt );
 	void Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt );
@@ -64,8 +65,9 @@ private:
 	void DecompressMatrix( Vector& origin, QAngle& angle ) const;
 	void ConstructMatrix( const Vector& origin, const QAngle& angle );
 
-	CMapDoc* m_pTemplate;
+	CMapWorld* m_pTemplate;
 	CUtlString m_strCurrentVMF;
+	CUtlString m_strPreviousVMF;
 	VMatrix m_matTransform;
 };
 

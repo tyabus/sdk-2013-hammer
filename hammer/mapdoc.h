@@ -401,7 +401,7 @@ class CMapDoc : public CDocument
 		// Save a VMF file. saveFlags is a combination of SAVEFLAGS_ defines.
 		bool SaveVMF(const char *pszFileName, int saveFlags );
 
-		bool LoadVMF(const char *pszFileName, bool bIsInstance = false);
+		bool LoadVMF(const char *pszFileName);
 		void Postload(void);
 		inline bool IsLoading(void);
 
@@ -446,7 +446,6 @@ class CMapDoc : public CDocument
 		bool m_bDispDrawRemovedVerts;
 
 		bool m_bLoading; // Set to true while we are being loaded from VMF.
-		bool m_bLoadingInstance; // Set to true while we are being loaded from VMF instance.
 
 		static BOOL GetBrushNumberCallback(CMapClass *pObject, class CFindBrushInfo *pFindInfo);
 
@@ -716,8 +715,6 @@ class CMapDoc : public CDocument
 		//}}AFX_MSG
 
 		DECLARE_MESSAGE_MAP()
-
-	friend class CMapInstance;
 };
 
 

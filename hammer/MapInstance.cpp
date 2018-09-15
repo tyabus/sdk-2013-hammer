@@ -4,12 +4,13 @@
 #include "mapdoc.h"
 #include "mapworld.h"
 #include "render2d.h"
-#include "Render3DMS.h"
-#include "ToolInterface.h"
+#include "render3dms.h"
+#include "toolinterface.h"
 #include "mapview2d.h"
 
 #include "smartptr.h"
 #include "fmtstr.h"
+#include "chunkfile.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -21,12 +22,12 @@ CMapClass* CMapInstance::Create( CHelperInfo* pHelperInfo, CMapEntity* pParent )
 	return new CMapInstance( pParent );
 }
 
-CMapInstance::CMapInstance() : m_pTemplate( static_cast<CMapDoc*>( CMapDoc::CreateObject() ) )
+CMapInstance::CMapInstance() : m_pTemplate( NULL )
 {
 	m_matTransform.Identity();
 }
 
-CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( static_cast<CMapDoc*>( CMapDoc::CreateObject() ) )
+CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( NULL )
 {
 	m_matTransform.Identity();
 	m_strCurrentVMF = pParent->GetKeyValue( "file" );
@@ -35,8 +36,7 @@ CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( static_cast<CMa
 
 CMapInstance::~CMapInstance()
 {
-	if ( m_pTemplate )
-		m_pTemplate->OnCloseDocument();
+	delete m_pTemplate;
 }
 
 CMapClass* CMapInstance::Copy( bool bUpdateDependencies )
@@ -55,28 +55,30 @@ CMapClass* CMapInstance::CopyFrom( CMapClass* pFrom, bool bUpdateDependencies )
 	CMapHelper::CopyFrom( pObject, bUpdateDependencies );
 
 	m_strCurrentVMF = pObject->m_strCurrentVMF;
+	m_strPreviousVMF = pObject->m_strPreviousVMF;
 	m_matTransform = pObject->m_matTransform;
 
 	return this;
 }
 
-void CMapInstance::OnNotifyDependent( CMapClass* pObject, Notify_Dependent_t eNotifyType )
+void CMapInstance::UpdateDependencies( CMapWorld* pWorld, CMapClass* pObject )
 {
-	CMapHelper::OnNotifyDependent( pObject, eNotifyType );
+	if ( m_strCurrentVMF != m_strPreviousVMF )
+		LoadVMF();
 }
 
 void CMapInstance::SetParent( CMapAtom* pParent )
 {
 	CMapHelper::SetParent( pParent );
-	if ( m_pTemplate->GetMapWorld() )
-		m_pTemplate->GetMapWorld()->SetPreferredPickObject( GetParent() );
+	if ( m_pTemplate )
+		m_pTemplate->SetPreferredPickObject( GetParent() );
 }
 
 SelectionState_t CMapInstance::SetSelectionState( SelectionState_t eSelectionState )
 {
 	const SelectionState_t old = CMapHelper::SetSelectionState( eSelectionState );
-	if ( m_pTemplate->GetMapWorld() )
-		m_pTemplate->GetMapWorld()->SetSelectionState( eSelectionState == SELECT_NONE ? SELECT_NONE : SELECT_NORMAL );
+	if ( m_pTemplate )
+		m_pTemplate->SetSelectionState( eSelectionState == SELECT_NONE ? SELECT_NONE : SELECT_NORMAL );
 	return old;
 }
 
@@ -87,16 +89,16 @@ void CMapInstance::SetOrigin( Vector& pfOrigin )
 
 void CMapInstance::SetCullBoxFromFaceList( CMapFaceList* pFaces )
 {
-	if ( m_pTemplate->GetMapWorld() )
-		m_pTemplate->GetMapWorld()->SetCullBoxFromFaceList( pFaces );
+	if ( m_pTemplate )
+		m_pTemplate->SetCullBoxFromFaceList( pFaces );
 	else
 		CMapHelper::SetCullBoxFromFaceList( pFaces );
 }
 
 void CMapInstance::CalcBounds( BOOL bFullUpdate )
 {
-	if ( m_pTemplate->GetMapWorld() )
-		m_pTemplate->GetMapWorld()->CalcBounds( bFullUpdate );
+	if ( m_pTemplate )
+		m_pTemplate->CalcBounds( bFullUpdate );
 
 	m_Render2DBox.bmins = m_CullBox.bmins = m_Origin - Vector( 8 );
 	m_Render2DBox.bmaxs = m_CullBox.bmaxs = m_Origin + Vector( 8 );
@@ -104,7 +106,7 @@ void CMapInstance::CalcBounds( BOOL bFullUpdate )
 
 void CMapInstance::GetCullBox( Vector& mins, Vector& maxs )
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 		GetBounds( &CMapClass::m_CullBox, mins, maxs );
 	else
 		CMapHelper::GetCullBox( mins, maxs );
@@ -118,7 +120,7 @@ bool CMapInstance::GetCullBoxChild( Vector& mins, Vector& maxs )
 
 void CMapInstance::GetRender2DBox( Vector& mins, Vector& maxs )
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
 	else
 		CMapHelper::GetRender2DBox( mins, maxs );
@@ -132,7 +134,7 @@ bool CMapInstance::GetRender2DBoxChild( Vector& mins, Vector& maxs )
 
 void CMapInstance::GetBoundsCenter( Vector& vecCenter )
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
 		Vector mins, maxs;
 		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
@@ -150,7 +152,7 @@ bool CMapInstance::GetBoundsCenterChild( Vector & vecCenter )
 
 void CMapInstance::GetBoundsSize( Vector& vecSize )
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
 		Vector mins, maxs;
 		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
@@ -194,11 +196,9 @@ void CMapInstance::DoTransform( const VMatrix& matrix )
 
 bool CMapInstance::PostloadVisGroups( bool bIsLoading )
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
-		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
-
-		m_pTemplate->GetMapWorld()->PostloadVisGroups();
+		m_pTemplate->PostloadVisGroups();
 	}
 
 	return CMapHelper::PostloadVisGroups( bIsLoading );
@@ -210,7 +210,7 @@ bool CMapInstance::HitTest2D( CMapView2D* pView, const Vector2D& point, HitInfo_
 	pView->ClientToWorld( world, point );
 	Vector2D transformed;
 	pView->WorldToClient( transformed, m_matTransform.InverseTR().VMul4x3( world ) );
-	if ( m_pTemplate->GetMapWorld() && m_pTemplate->GetMapWorld()->HitTest2D( pView, transformed, HitData ) )
+	if ( m_pTemplate && m_pTemplate->HitTest2D( pView, transformed, HitData ) )
 		return true;
 	return CMapHelper::HitTest2D( pView, point, HitData );
 }
@@ -222,7 +222,7 @@ bool CMapInstance::IsCulledByCordon( const Vector& vecMins, const Vector& vecMax
 
 bool CMapInstance::IsInsideBox( Vector const& pfMins, Vector const& pfMaxs ) const
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
 		Vector bmins, bmaxs;
 		GetBounds( &CMapClass::m_Render2DBox, bmins, bmaxs );
@@ -244,7 +244,7 @@ bool CMapInstance::IsInsideBox( Vector const& pfMins, Vector const& pfMaxs ) con
 
 bool CMapInstance::IsIntersectingBox( const Vector& vecMins, const Vector& vecMaxs ) const
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
 		Vector bmins, bmaxs;
 		GetBounds( &CMapClass::m_Render2DBox, bmins, bmaxs );
@@ -266,10 +266,9 @@ bool CMapInstance::IsIntersectingBox( const Vector& vecMins, const Vector& vecMa
 
 void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 {
-	if ( !stricmp( key, "file" ) && ( !m_strCurrentVMF.IsEqual_CaseInsensitive( value ) || !m_pTemplate->GetMapWorld() ) )
+	if ( !stricmp( key, "file" ) && ( !m_strCurrentVMF.IsEqual_CaseInsensitive( value ) || !m_pTemplate ) )
 	{
-		if ( m_pTemplate->GetMapWorld() )
-			m_pTemplate->DeleteCurrentMap();
+		m_strPreviousVMF = m_strCurrentVMF;
 		m_strCurrentVMF.Set( value );
 		LoadVMF();
 		PostUpdate( Notify_Changed );
@@ -315,10 +314,8 @@ void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
 
 void CMapInstance::Render2D( CRender2D* pRender )
 {
-	if ( !m_pTemplate->GetMapWorld() )
+	if ( !m_pTemplate )
 		return;
-
-	CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 
 	VMatrix localTransform;
 	const bool inLocalTransform = pRender->IsInLocalTransformMode();
@@ -333,7 +330,7 @@ void CMapInstance::Render2D( CRender2D* pRender )
 		pRender->BeginLocalTransfrom( newLocalTransform );
 	}
 
-	Render2DChildren( pRender, m_pTemplate->GetMapWorld() );
+	Render2DChildren( pRender, m_pTemplate );
 
 	if ( !inLocalTransform )
 		pRender->EndLocalTransfrom();
@@ -416,9 +413,8 @@ void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt
 
 void CMapInstance::Render3D( CRender3D* pRender )
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
-		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 		CAutoPushPop<bool> guard2( pRender->m_DeferRendering, false );
 
 		VMatrix localTransform;
@@ -437,7 +433,7 @@ void CMapInstance::Render3D( CRender3D* pRender )
 			pRender->BeginLocalTransfrom( newTransform );
 		}
 		CUtlVector<CMapClass*> deferred;
-		Render3DChildren( pRender, deferred, m_pTemplate->GetMapWorld() );
+		Render3DChildren( pRender, deferred, m_pTemplate );
 
 		for ( CMapClass* def : deferred )
 			Render3DChildrenDeferred( pRender, def );
@@ -454,11 +450,9 @@ void CMapInstance::Render3D( CRender3D* pRender )
 
 bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
-		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
-
-		return m_pTemplate->GetMapWorld()->RenderPreload( pRender, bNewContext );
+		return m_pTemplate->RenderPreload( pRender, bNewContext );
 	}
 	else
 		return CMapHelper::RenderPreload( pRender, bNewContext );
@@ -466,27 +460,82 @@ bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 
 void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 {
-	if ( m_pTemplate->GetMapWorld() )
-		AddShadowingTrianglesChildren( tri_list, m_pTemplate->GetMapWorld() );
+	if ( m_pTemplate )
+		AddShadowingTrianglesChildren( tri_list, m_pTemplate );
 }
 
 void CMapInstance::LoadVMF( CMapClass* pParent )
 {
+	if ( m_pTemplate )
+	{
+		delete m_pTemplate;
+		m_pTemplate = NULL;
+	}
+
 	if ( !m_strCurrentVMF.IsEmpty() )
 	{
-		CAutoPushPop<CMapDoc*> guard( CMapDoc::m_pMapDoc, m_pTemplate );
 		CMapWorld* world = GetWorldObject( pParent ? pParent : GetParent() );
 		Assert( world );
 		char parentDir[MAX_PATH];
 		V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
 		const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, m_strCurrentVMF.Get() );
-		if ( g_pFullFileSystem->FileExists( instancePath ) && m_pTemplate->LoadVMF( instancePath, true ) )
+		if ( g_pFullFileSystem->FileExists( instancePath ) && LoadVMFInternal( instancePath ) )
 		{
-			m_pTemplate->GetMapWorld()->SetRenderColor( 134, 130, 0 );
-			m_pTemplate->GetMapWorld()->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
-			m_pTemplate->GetMapWorld()->SetPreferredPickObject( pParent ? pParent : GetParent() );
+			m_pTemplate->SetRenderColor( 134, 130, 0 );
+			m_pTemplate->SetModulationColor( Vector( 134 / 255.f, 130 / 255.f, 0 ) );
+			m_pTemplate->SetPreferredPickObject( pParent ? pParent : GetParent() );
 		}
 	}
+}
+
+bool CMapInstance::LoadVMFInternal( const char* pVMFPath )
+{
+	if ( !m_pTemplate )
+		m_pTemplate = new CMapWorld;
+	m_pTemplate->SetVMFPath( pVMFPath );
+
+	CChunkFile file;
+	ChunkFileResult_t eResult = file.Open( pVMFPath, ChunkFile_Read );
+	if ( eResult == ChunkFile_Ok )
+	{
+		ChunkFileResult_t (*LoadWorldCallback)(CChunkFile*, CMapInstance*) = []( CChunkFile *pFile, CMapInstance *pDoc )
+		{
+			return pDoc->m_pTemplate->LoadVMF( pFile );
+		};
+
+		ChunkFileResult_t (*LoadEntityCallback)(CChunkFile*, CMapInstance*) = [](CChunkFile *pFile, CMapInstance *pDoc)
+		{
+			CMapEntity* pEntity = new CMapEntity;
+			if ( pEntity->LoadVMF( pFile ) == ChunkFile_Ok )
+				pDoc->m_pTemplate->AddChild( pEntity );
+			return ChunkFile_Ok;
+		};
+
+		CChunkHandlerMap handlers;
+		handlers.AddHandler( "world", LoadWorldCallback, this );
+		handlers.AddHandler( "entity", LoadEntityCallback, this );
+		handlers.SetErrorHandler( []( CChunkFile*, const char*, void* ) { return false; }, NULL );
+
+		file.PushHandlers( &handlers );
+
+		while ( eResult == ChunkFile_Ok )
+			eResult = file.ReadChunk();
+
+		if ( eResult == ChunkFile_EOF )
+			eResult = ChunkFile_Ok;
+
+		file.PopHandlers();
+	}
+
+	if ( eResult == ChunkFile_Ok )
+		m_pTemplate->PostloadWorld();
+	else
+	{
+		delete m_pTemplate;
+		m_pTemplate = NULL;
+	}
+
+	return eResult == ChunkFile_Ok;
 }
 
 void CMapInstance::AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt )
@@ -505,9 +554,9 @@ void CMapInstance::AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, 
 #pragma float_control(precise, on, push)
 void CMapInstance::GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& maxs ) const
 {
-	if ( m_pTemplate->GetMapWorld() )
+	if ( m_pTemplate )
 	{
-		(m_pTemplate->GetMapWorld()->*type).GetBounds( mins, maxs );
+		(m_pTemplate->*type).GetBounds( mins, maxs );
 		Vector box[8];
 		PointsFromBox( mins, maxs, box );
 		for ( int i = 0; i < 8; ++i )
