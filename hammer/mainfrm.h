@@ -51,7 +51,7 @@ public:
 	void GlobalNotify(int nCode);
 	void OnDeleteActiveDocument(void);
 
-	void LoadWindowStates(std::fstream *pFile = NULL);
+	void LoadWindowStates();
 
 	inline CFaceEditSheet *GetFaceEditSheet( void ) { return m_pFaceEditSheet; }
 	inline CStatusBar *GetStatusBar() { return &m_wndStatusBar; }
@@ -154,7 +154,7 @@ private:
 
 	void DockControlBarLeftOf(CControlBar *Bar, CControlBar *LeftOf);
 
-	void SaveWindowStates(std::fstream *pFile = NULL);
+	void SaveWindowStates();
 
 	CChildFrame *GetNextMDIChildWnd(CChildFrame *pCurChild);
 	CChildFrame *GetNextMDIChildWndRecursive(CWnd *pCurChild);
