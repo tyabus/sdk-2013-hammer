@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -87,8 +87,8 @@ void CToolDisplace::OnActivate()
 	CMapDisp::SetSelectMask( m_bSelectMaskTool );
 	CMapDisp::SetGridMask( m_bGridMaskTool );
 }
- 
-   
+
+
 //-----------------------------------------------------------------------------
 // Purpose: Called when the tool is deactivated.
 // Input  : eNewTool - The ID of the tool that is being activated.
@@ -100,7 +100,7 @@ void CToolDisplace::OnDeactivate()
 	//
 	CMapDisp::SetSelectMask( false );
 	CMapDisp::SetGridMask( false );
-	
+
 	if ( m_pDocument->GetTools()->GetActiveToolID() != TOOL_FACEEDIT_MATERIAL )
 	{
 		// Clear the selected faces when we are deactivated.
@@ -221,7 +221,7 @@ bool CToolDisplace::OnLMouseDown3D( CMapView3D *pView, UINT nFlags, const Vector
 			// setup for undo - modifying the displacement (painting)
 			pDispMgr->Undo( handle, true );
 			pDisp = EditDispMgr()->GetDisp( handle );
-			ApplyPaintTool( nFlags, vPoint, pDisp );    
+			ApplyPaintTool( nFlags, vPoint, pDisp );
 		}
 
 		// update
@@ -323,7 +323,7 @@ bool CToolDisplace::OnRMouseDown3D( CMapView3D *pView, UINT nFlags, const Vector
 			// setup for undo
 			pDispMgr->Undo( handle, true );
 			pDisp = EditDispMgr()->GetDisp( handle );
-			ApplyPaintTool( nFlags, vPoint, pDisp );    
+			ApplyPaintTool( nFlags, vPoint, pDisp );
 		}
 
 		// update
@@ -357,7 +357,7 @@ bool CToolDisplace::OnMouseMove3D( CMapView3D *pView, UINT nFlags, const Vector2
 {
 
 	// nudging
-	if ( ( m_uiTool == DISPTOOL_PAINT ) && ( GetAsyncKeyState( VK_SHIFT ) & 0x8000 ) && 
+	if ( ( m_uiTool == DISPTOOL_PAINT ) && ( GetAsyncKeyState( VK_SHIFT ) & 0x8000 ) &&
 		m_bLMBDown && m_bNudge )
 	{
 		Nudge_Do();
@@ -384,7 +384,7 @@ bool CToolDisplace::OnMouseMove3D( CMapView3D *pView, UINT nFlags, const Vector2
 		//
 		if( ( m_bLMBDown || m_bRMBDown ) && !( GetAsyncKeyState( VK_CONTROL ) & 0x8000 ) &&
 			( m_uiTool == DISPTOOL_PAINT ) )
-		{	
+		{
 			if ( m_bSpatial )
 			{
 				ApplySpatialPaintTool( nFlags, vPoint, pDisp );
@@ -520,7 +520,7 @@ void CToolDisplace::Nudge_Do( void )
 	//
 	// find the greatest delta and "nudge"
 	//
-	// NOTE: using get cursor position, because it is different than the 
+	// NOTE: using get cursor position, because it is different than the
 	//       "point" incoming into mouse move????
 	//
 	CPoint nudgePos;
@@ -546,11 +546,11 @@ void CToolDisplace::Nudge_Do( void )
 		CDispMapImageFilter *pFilter = m_FilterRaiseLowerMgr.GetActiveFilter();
 		if( !pFilter )
 			return;
-		
+
 		// set the dynamic filter data
 		pFilter->m_DataType = DISPPAINT_CHANNEL_POSITION;
 		pFilter->m_Scale = ( delta * 0.25 ) * ( float )( ( int )( m_flPaintValueGeo / 10.0f ) + 1 ) ;
-		
+
 		// apply the filter to the displacement surface(s)
 		m_FilterRaiseLowerMgr.Apply( pFilter, pNudgeDisp, m_iPaintAxis, m_vecPaintAxis, m_bAutoSew );
 	}
@@ -570,7 +570,7 @@ void CToolDisplace::Nudge_Do( void )
 			spatialData.m_bNudgeInit = m_bNudgeInit;
 			pNudgeDisp->GetVert( iHit, spatialData.m_vCenter );
 			VectorCopy( m_vecPaintAxis, spatialData.m_vPaintAxis );
-			
+
 			m_DispPaintMgr.Paint( spatialData, m_bAutoSew );
 
 			// Done with the init.
@@ -588,7 +588,7 @@ void CToolDisplace::Nudge_Do( void )
 void CToolDisplace::ApplyPaintTool( UINT nFlags, const Vector2D &vPoint, CMapDisp *pDisp )
 {
 	switch( m_uiEffect )
-	{ 
+	{
 	case DISPPAINT_EFFECT_RAISELOWER:
 		{
 			CDispMapImageFilter *pFilter = m_FilterRaiseLowerMgr.GetActiveFilter();
@@ -608,7 +608,7 @@ void CToolDisplace::ApplyPaintTool( UINT nFlags, const Vector2D &vPoint, CMapDis
 				{
 					pFilter->m_Scale = -pFilter->m_Scale;
 				}
-				
+
 				// apply the filter to the displacement surface(s)
 				m_FilterRaiseLowerMgr.Apply( pFilter, pDisp, m_iPaintAxis, m_vecPaintAxis, m_bAutoSew );
 			}
@@ -626,7 +626,7 @@ void CToolDisplace::ApplyPaintTool( UINT nFlags, const Vector2D &vPoint, CMapDis
 			{
 				pFilter->m_DataType = m_iPaintChannel;
 				pFilter->m_Scale = 1.0f;
-				
+
 				int areaValue = 3;
 				if ( m_iPaintChannel == DISPPAINT_CHANNEL_POSITION )
 				{
@@ -635,10 +635,10 @@ void CToolDisplace::ApplyPaintTool( UINT nFlags, const Vector2D &vPoint, CMapDis
 				else if ( m_iPaintChannel == DISPPAINT_CHANNEL_ALPHA )
 				{
 					areaValue = ( m_flPaintValueData * 2 ) + 1;
-				}				
+				}
 				if( areaValue < 3 ) { areaValue = 3; }
 				if( areaValue > 7 ) { areaValue = 7; }
-				
+
 				pFilter->m_AreaHeight = areaValue;
 				pFilter->m_AreaWidth = areaValue;
 
@@ -777,10 +777,10 @@ void CToolDisplace::HandleSelection( CMapView3D *pView, const Vector2D &vPoint )
 		{
 			// get the solid
 			CMapSolid *pSolid = ( CMapSolid* )pObject;
-			
+
 			// setup initial command state
 			int cmd = scToggle | scClear;
-			
+
 			//
 			// don't "clear" if CTRL is pressed
 			//
@@ -788,11 +788,11 @@ void CToolDisplace::HandleSelection( CMapView3D *pView, const Vector2D &vPoint )
 			{
 				cmd &= ~scClear;
 			}
-			
+
 			CMapDoc *pDoc = pView->GetMapDoc();
 			if( !pDoc )
 				return;
-			
+
 			// If they are holding down SHIFT, select the entire solid.
 			if ( bShift )
 			{
@@ -943,7 +943,7 @@ EditDispHandle_t CToolDisplace::GetHitPos( CMapView3D *pView, const Vector2D &vP
 		return NULL;
 
 	// collide against all "active" displacements and set texel hit data
-	return CollideWithSelectedDisps( rayStart, rayEnd );	
+	return CollideWithSelectedDisps( rayStart, rayEnd );
 }
 
 //-----------------------------------------------------------------------------
@@ -1203,7 +1203,7 @@ bool CToolDisplace::LoadFilters( const char *filename )
 	//
 	CChunkFile File;
 	ChunkFileResult_t eResult = File.Open( filename, ChunkFile_Read );
-	
+
 	if( eResult != ChunkFile_Ok )
 	{
 		Msg( mwError, "Couldn't load filter file %s!\n", filename );
@@ -1218,7 +1218,7 @@ bool CToolDisplace::LoadFilters( const char *filename )
 		// Set up handlers for the subchunks that we are interested in.
 		//
 		CChunkHandlerMap Handlers;
-		Handlers.AddHandler( "Filter", ( ChunkHandler_t )CToolDisplace::LoadFiltersCallback, this );
+		Handlers.AddHandler( "Filter", LoadFiltersCallback, this );
 		File.PushHandlers( &Handlers );
 
 		//
@@ -1255,21 +1255,21 @@ ChunkFileResult_t CToolDisplace::LoadFiltersCallback( CChunkFile *pFile, CToolDi
 
 	// load the filter data
 	ChunkFileResult_t eResult = pFilter->LoadFilter( pFile );
-	return( eResult );	
+	return( eResult );
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pRender - 
-//			*pTool - 
+// Purpose:
+// Input  : *pRender -
+//			*pTool -
 //-----------------------------------------------------------------------------
 void CToolDisplace::RenderPaintSphere( CRender3D *pRender )
 {
 	CMapDisp *pDisp = GetEditDisp();
 	if (pDisp == NULL)
 		return;
-	
+
 	// Get the sphere center.
 	int iHit = pDisp->GetTexelHitIndex();
 	if ( iHit == -1 )
@@ -1317,9 +1317,9 @@ void CToolDisplace::RenderPaintSphere( CRender3D *pRender )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pRender - 
-//			bNudge - 
+// Purpose:
+// Input  : pRender -
+//			bNudge -
 //-----------------------------------------------------------------------------
 void CToolDisplace::RenderHitBox( CRender3D *pRender )
 {
@@ -1351,7 +1351,7 @@ void CToolDisplace::RenderHitBox( CRender3D *pRender )
 
 	VectorAdd( seg[0], seg[1], seg[0] );
 	VectorScale( seg[0], 0.5f, seg[0] );
-    
+
     //
     // determine a good size to make the "box" surrounding the selected point
     //
@@ -1406,26 +1406,26 @@ void CToolDisplace::RenderHitBox( CRender3D *pRender )
 #if 0
 	CMeshBuilder meshBuilder;
 	IMesh *pMesh = MaterialSystemInterface()->GetDynamicMesh();
-	
+
 	meshBuilder.Begin( pMesh, MATERIAL_LINES, 1 );
 	meshBuilder.Position3f( hbOrigin.x, hbOrigin.y, hbOrigin.z );
 	meshBuilder.Color3ub( 255, 255, 0 );
 	meshBuilder.AdvanceVertex();
-	meshBuilder.Position3f( hbOrigin.x + ( normal.x * length4 ), 
-		                    hbOrigin.y + ( normal.y * length4 ), 
+	meshBuilder.Position3f( hbOrigin.x + ( normal.x * length4 ),
+		                    hbOrigin.y + ( normal.y * length4 ),
 							hbOrigin.z + ( normal.z * length4 ) );
 	meshBuilder.Color3ub( 255, 255, 0 );
 	meshBuilder.AdvanceVertex();
 	meshBuilder.End();
-	
+
 	pMesh->Draw();
 #endif
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pRender - 
+// Purpose:
+// Input  : *pRender -
 //-----------------------------------------------------------------------------
 void CToolDisplace::RenderTool3D(CRender3D *pRender)
 {

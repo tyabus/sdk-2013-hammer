@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -28,7 +28,7 @@ struct LoadVisGroupData_t
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CVisGroup::CVisGroup(void)
 {
@@ -40,7 +40,7 @@ CVisGroup::CVisGroup(void)
 	m_rgbColor.a = 0;
 
 	m_pParent = NULL;
-	
+
 	m_eVisible = VISGROUP_HIDDEN;
 	m_szName[0] = '\0';
 	m_bIsAuto = false;
@@ -60,9 +60,9 @@ bool CVisGroup::IsConvertingOldVisGroups()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pFile - 
-//			pData - 
+// Purpose:
+// Input  : pFile -
+//			pData -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CVisGroup::LoadKeyCallback(const char *szKey, const char *szValue, CVisGroup *pGroup)
@@ -101,9 +101,9 @@ ChunkFileResult_t CVisGroup::LoadKeyCallback(const char *szKey, const char *szVa
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pFile - 
-// Output : 
+// Purpose:
+// Input  : pFile -
+// Output :
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CVisGroup::LoadVMF(CChunkFile *pFile, CMapDoc *pDoc)
 {
@@ -113,10 +113,10 @@ ChunkFileResult_t CVisGroup::LoadVMF(CChunkFile *pFile, CMapDoc *pDoc)
 	LoadData.pParent = this;
 
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("visgroup", (ChunkHandler_t)LoadVisGroupCallback, &LoadData);
+	Handlers.AddHandler("visgroup", LoadVisGroupCallback, &LoadData);
 	pFile->PushHandlers(&Handlers);
 
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadKeyCallback, this);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadKeyCallback, this);
 	pFile->PopHandlers();
 
 	return(eResult);
@@ -124,9 +124,9 @@ ChunkFileResult_t CVisGroup::LoadVMF(CChunkFile *pFile, CMapDoc *pDoc)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pFile - 
-//			pData - 
+// Purpose:
+// Input  : pFile -
+//			pData -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CVisGroup::LoadVisGroupCallback(CChunkFile *pFile, LoadVisGroupData_t *pLoadData)
@@ -152,9 +152,9 @@ ChunkFileResult_t CVisGroup::LoadVisGroupCallback(CChunkFile *pFile, LoadVisGrou
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pFile - 
-//			pData - 
+// Purpose:
+// Input  : pFile -
+//			pData -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CVisGroup::LoadVisGroupsCallback(CChunkFile *pFile, CMapDoc *pDoc)
@@ -170,8 +170,8 @@ ChunkFileResult_t CVisGroup::LoadVisGroupsCallback(CChunkFile *pFile, CMapDoc *p
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("visgroup", (ChunkHandler_t)LoadVisGroupCallback, &LoadData);
-	
+	Handlers.AddHandler("visgroup", LoadVisGroupCallback, &LoadData);
+
 	pFile->PushHandlers(&Handlers);
 	ChunkFileResult_t eResult = pFile->ReadChunk();
 	pFile->PopHandlers();
@@ -181,8 +181,8 @@ ChunkFileResult_t CVisGroup::LoadVisGroupsCallback(CChunkFile *pFile, CMapDoc *p
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pChild - 
+// Purpose:
+// Input  : pChild -
 //-----------------------------------------------------------------------------
 void CVisGroup::MoveUp(CVisGroup *pChild)
 {
@@ -196,8 +196,8 @@ void CVisGroup::MoveUp(CVisGroup *pChild)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pChild - 
+// Purpose:
+// Input  : pChild -
 //-----------------------------------------------------------------------------
 void CVisGroup::MoveDown(CVisGroup *pChild)
 {
@@ -248,7 +248,7 @@ ChunkFileResult_t CVisGroup::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 		DWORD dwID = GetID();
 		eResult = pFile->WriteKeyValueInt("visgroupid", dwID);
 	}
-	
+
 	if (eResult == ChunkFile_Ok)
 	{
 		color32 rgbColor = GetColor();
@@ -277,7 +277,7 @@ ChunkFileResult_t CVisGroup::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Overrides normal visgroup visibility, making all visgroups visible. 
+// Purpose: Overrides normal visgroup visibility, making all visgroups visible.
 //-----------------------------------------------------------------------------
 void CVisGroup::ShowAllVisGroups(bool bShow)
 {
@@ -286,7 +286,7 @@ void CVisGroup::ShowAllVisGroups(bool bShow)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CVisGroup::AddChild(CVisGroup *pChild)
 {
@@ -299,8 +299,8 @@ void CVisGroup::AddChild(CVisGroup *pChild)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pChild - 
+// Purpose:
+// Input  : pChild -
 //-----------------------------------------------------------------------------
 bool CVisGroup::CanMoveUp(CVisGroup *pChild)
 {
@@ -309,8 +309,8 @@ bool CVisGroup::CanMoveUp(CVisGroup *pChild)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pChild - 
+// Purpose:
+// Input  : pChild -
 //-----------------------------------------------------------------------------
 bool CVisGroup::CanMoveDown(CVisGroup *pChild)
 {
@@ -320,7 +320,7 @@ bool CVisGroup::CanMoveDown(CVisGroup *pChild)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CVisGroup::RemoveChild(CVisGroup *pChild)
 {
@@ -351,7 +351,7 @@ bool CVisGroup::FindDescendent(CVisGroup *pGroup)
 
 bool CVisGroup::IsAutoVisGroup()
 {
-	return m_bIsAuto;	
+	return m_bIsAuto;
 }
 
 void CVisGroup::SetAuto( bool bAuto )

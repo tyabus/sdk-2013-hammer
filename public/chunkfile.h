@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //===========================================================================//
@@ -14,7 +14,6 @@
 
 #include <stdio.h>
 #include "tokenreader.h"
-
 
 #define MAX_INDENT_DEPTH		80
 #define MAX_KEYVALUE_LEN		1024
@@ -101,8 +100,22 @@ class CChunkHandlerMap
 		CChunkHandlerMap(void);
 		~CChunkHandlerMap(void);
 
+		template <typename T1, typename T2>
+		FORCEINLINE void AddHandler( const char* pszChunkName, ChunkFileResult_t (*pfnHandler)( CChunkFile*, T1* ), T2* pData )
+		{
+			static_assert( __is_base_of( T1, T2 ) );
+			AddHandler( pszChunkName, (ChunkHandler_t)pfnHandler, (void*)pData );
+		}
+
 		void AddHandler(const char *pszChunkName, ChunkHandler_t pfnHandler, void *pData);
 		ChunkHandler_t GetHandler(const char *pszChunkName, void **pData);
+
+		template <typename T1, typename T2>
+		FORCEINLINE void SetErrorHandler( bool (*pfnHandler)( CChunkFile*, const char*, T1* ), T2* pData )
+		{
+			static_assert( __is_base_of( T1, T2 ) );
+			SetErrorHandler( (ChunkErrorHandler_t)pfnHandler, (void*)pData );
+		}
 
 		void SetErrorHandler(ChunkErrorHandler_t pfnHandler, void *pData);
 		ChunkErrorHandler_t GetErrorHandler(void **pData);
@@ -147,6 +160,13 @@ class CChunkFile
 		//
 		// Functions for reading chunk files.
 		//
+		template <typename T1, typename T2>
+		FORCEINLINE ChunkFileResult_t ReadChunk( ChunkFileResult_t (*pfnKeyHandler)( const char*, const char*, T1* ), T2* pData )
+		{
+			static_assert( __is_base_of( T1, T2 ) );
+			return ReadChunk( (KeyHandler_t)pfnKeyHandler, (void*)pData );
+		}
+
 		ChunkFileResult_t ReadChunk(KeyHandler_t pfnKeyHandler = NULL, void *pData = NULL);
 		ChunkFileResult_t ReadNext(char *szKey, char *szValue, int nValueSize, ChunkType_t &eChunkType);
 		ChunkFileResult_t HandleChunk(const char *szChunkName);
@@ -170,6 +190,13 @@ class CChunkFile
 		//
 		// If you pass NULL in here, then it disables the default chunk handler.
 		void SetDefaultChunkHandler( DefaultChunkHandler_t pHandler, void *pData );
+
+		template <typename T1, typename T2>
+		FORCEINLINE void SetDefaultChunkHandler( ChunkFileResult_t (*pHandler)( CChunkFile*, T1*, char const* ), T2* pData )
+		{
+			static_assert( __is_base_of( T1, T2 ) );
+			SetDefaultChunkHandler( (DefaultChunkHandler_t)pHandler, (void*)pData );
+		}
 
 		void PushHandlers(CChunkHandlerMap *pHandlerMap);
 		void PopHandlers(void);

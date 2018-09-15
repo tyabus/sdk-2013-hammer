@@ -680,13 +680,13 @@ ChunkFileResult_t CMapEntity::LoadVMF(CChunkFile *pFile)
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("solid", (ChunkHandler_t)LoadSolidCallback, this);
-	Handlers.AddHandler("hidden", (ChunkHandler_t)LoadHiddenCallback, this);
-	Handlers.AddHandler("editor", (ChunkHandler_t)LoadEditorCallback, this);
-	Handlers.AddHandler("connections", (ChunkHandler_t)LoadConnectionsCallback, (CEditGameClass *)this);
+	Handlers.AddHandler("solid", LoadSolidCallback, this);
+	Handlers.AddHandler("hidden", LoadHiddenCallback, this);
+	Handlers.AddHandler("editor", LoadEditorCallback, this);
+	Handlers.AddHandler("connections", LoadConnectionsCallback, this);
 
 	pFile->PushHandlers(&Handlers);
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadKeyCallback, this);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadKeyCallback, this);
 	pFile->PopHandlers();
 
 	return(eResult);
@@ -732,8 +732,8 @@ ChunkFileResult_t CMapEntity::LoadHiddenCallback(CChunkFile *pFile, CMapEntity *
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("solid", (ChunkHandler_t)LoadSolidCallback, pEntity);
-	Handlers.AddHandler("editor", (ChunkHandler_t)LoadEditorCallback, pEntity);
+	Handlers.AddHandler("solid", LoadSolidCallback, pEntity);
+	Handlers.AddHandler("editor", LoadEditorCallback, pEntity);
 
 	pFile->PushHandlers(&Handlers);
 	ChunkFileResult_t eResult = pFile->ReadChunk();
@@ -760,7 +760,7 @@ ChunkFileResult_t CMapEntity::LoadEditorKeyCallback( const char *szKey, const ch
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapEntity::LoadEditorCallback(CChunkFile *pFile, CMapEntity *pObject)
 {
-	return pFile->ReadChunk( (KeyHandler_t)LoadEditorKeyCallback, pObject );
+	return pFile->ReadChunk( LoadEditorKeyCallback, pObject );
 }
 
 

@@ -2571,7 +2571,7 @@ ChunkFileResult_t CMapFace::LoadPointDataCallback(CChunkFile* pFile, CMapFace* p
 {
     SignalUpdate(EVTYPE_FACE_CHANGED);
 
-    ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadPointDataKeyCallback, pFace);
+    ChunkFileResult_t eResult = pFile->ReadChunk(LoadPointDataKeyCallback, pFace);
 
     return eResult;
 }
@@ -2685,8 +2685,8 @@ ChunkFileResult_t CMapFace::LoadVMF(CChunkFile *pFile)
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("dispinfo", (ChunkHandler_t)LoadDispInfoCallback, this);
-    Handlers.AddHandler("point_data", (ChunkHandler_t) LoadPointDataCallback, this);
+	Handlers.AddHandler("dispinfo", LoadDispInfoCallback, this);
+    Handlers.AddHandler("point_data", LoadPointDataCallback, this);
 
 	//
 	// Read the keys and sub-chunks.
@@ -2696,7 +2696,7 @@ ChunkFileResult_t CMapFace::LoadVMF(CChunkFile *pFile)
 	LoadFace.pFace = this;
 
 	pFile->PushHandlers(&Handlers);
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadKeyCallback, &LoadFace);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadKeyCallback, &LoadFace);
 	pFile->PopHandlers();
 
 	if (eResult == ChunkFile_Ok)

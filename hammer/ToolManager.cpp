@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //			TODO: add an autoregistration system for tools a la LINK_ENTITY_TO_CLASS
 //=============================================================================//
@@ -53,14 +53,14 @@ CToolManager* ToolManager()
 //-----------------------------------------------------------------------------
 bool CToolManager::Init( CMapDoc *pDocument )
 {
-	
+
 	// add default tools
 
 	//
 	// Create the tools that are held by the tool manager and add them
 	// to the internal tools list.
 	//
-	
+
 	RemoveAllTools();
 
 	m_pDocument = pDocument;
@@ -84,7 +84,7 @@ bool CToolManager::Init( CMapDoc *pDocument )
 	AddTool( new Clipper3D );
 	AddTool( new Cordon3D );
 	AddTool( new CToolOverlay );
-	
+
 
 	return true;
 }
@@ -121,7 +121,7 @@ CToolManager::~CToolManager()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CToolManager::AddTool(CBaseTool *pTool)
 {
@@ -139,7 +139,7 @@ void CToolManager::AddTool(CBaseTool *pTool)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CBaseTool *CToolManager::GetActiveTool()
 {
@@ -232,7 +232,7 @@ void CToolManager::SetTool(ToolID_t eNewTool)
 	}
 
 	// set active tool to new tool already so old tool can peek whats coming next
-	m_pActiveTool = pNewTool; 
+	m_pActiveTool = pNewTool;
 
 	// deactivate the old tool if different.
 	if ( pOldTool && (pOldTool != pNewTool) )
@@ -259,7 +259,7 @@ void CToolManager::SetTool(ToolID_t eNewTool)
 		m_pDocument->UpdateAllViews( MAPVIEW_UPDATE_TOOL );
 }
 
-ChunkFileResult_t CToolManager::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo) 
+ChunkFileResult_t CToolManager::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 {
 	for (int i=0;i<m_Tools.Count(); i++)
 	{
@@ -285,12 +285,12 @@ void CToolManager::AddToolHandlers( CChunkHandlerMap *pHandlersMap )
 	{
 		if ( m_Tools[i]->GetVMFChunkName() != NULL  )
 		{
-			pHandlersMap->AddHandler( m_Tools[i]->GetVMFChunkName(), (ChunkHandler_t)LoadCallback, m_Tools[i] );
+			pHandlersMap->AddHandler( m_Tools[i]->GetVMFChunkName(), LoadCallback, m_Tools[i] );
 		}
 	}
 }
 
-	 
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Removes all the document-created tools from the tools list.
