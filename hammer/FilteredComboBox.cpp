@@ -7,7 +7,9 @@
 
 #include "stdafx.h"
 #include "FilteredComboBox.h"
+#include "Hammer.h"
 
+#include "tier0/memdbgon.h"
 
 BEGIN_MESSAGE_MAP(CFilteredComboBox, CComboBox)
 	//{{AFX_MSG_MAP(CFilteredComboBox)
@@ -63,7 +65,7 @@ CFilteredComboBox::CFilteredComboBox( CFilteredComboBox::ICallbacks *pCallbacks 
 	m_hQueuedFont = NULL;
 	m_bInSelChange = false;
 	m_bNotifyParent = true;
-	m_dwTextColor = RGB(0, 0, 0);
+	m_dwTextColor = APP()->GetTextColor();
 	m_bOnlyProvideSuggestions = true;
 	m_hEditControlFont = NULL;
 	m_bInEnterKeyPressedHandler = false;

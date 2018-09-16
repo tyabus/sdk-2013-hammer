@@ -77,6 +77,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnClose();
+    afx_msg BOOL OnEraseBkgnd(CDC *pDC);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

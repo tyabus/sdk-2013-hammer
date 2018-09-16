@@ -41,11 +41,8 @@ CMDIClientWnd::~CMDIClientWnd()
 //-----------------------------------------------------------------------------
 BOOL CMDIClientWnd::OnEraseBkgnd(CDC *pDC)
 {
-	// Set brush to desired background color
-	CBrush backBrush(RGB(141, 136, 130)); // This color blends with the splash image!
-
 	// Save old brush
-	CBrush *pOldBrush = pDC->SelectObject(&backBrush);
+	CBrush *pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
 
 	CRect rect;
 	pDC->GetClipBox(&rect);     // Erase the area needed

@@ -23,6 +23,8 @@
 
 BEGIN_MESSAGE_MAP(CHammerBar, CDialogBar)
 	ON_WM_SETCURSOR()
+    ON_WM_ERASEBKGND()
+    ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -52,6 +54,28 @@ BOOL CHammerBar::OnSetCursor(CWnd *pWnd, UINT nHitTest, UINT message)
 
 	//this wasn't being called and fixes some minor cursor problems.
 	return CWnd::OnSetCursor( pWnd, nHitTest, message );
+}
+
+BOOL CHammerBar::OnEraseBkgnd(CDC* pDC)
+{
+    // Save old brush
+    CBrush *pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+    CRect rect;
+    pDC->GetClipBox(&rect);     // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
+}
+
+HBRUSH CHammerBar::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtrlColor)
+{
+    pDC->SetTextColor(APP()->GetTextColor());
+    pDC->SetBkColor(APP()->GetBackgroundColor());
+
+    return (HBRUSH)APP()->GetBackgroundBrush()->GetSafeHandle();
 }
 
 //-----------------------------------------------------------------------------

@@ -27,6 +27,7 @@ BEGIN_MESSAGE_MAP(CMessageWnd, CMDIChildWnd)
 	ON_WM_SIZE()
 	ON_WM_KEYDOWN()
 	ON_WM_CLOSE()
+    ON_WM_ERASEBKGND()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -78,7 +79,7 @@ void CMessageWnd::CreateMessageWindow( CMDIFrameWnd *pwndParent, CRect &rect )
 			bErrors = true;
 		}		
 	}
-	
+
 	if ( bErrors )
 	{
 		ShowWindow( SW_SHOW );
@@ -269,7 +270,7 @@ void CMessageWnd::OnPaint()
 			dc.SetTextColor(RGB(255, 60, 60));
 			break;
 		case mwStatus:
-			dc.SetTextColor(RGB(0, 0, 0));
+			dc.SetTextColor(APP()->GetTextColor());
 			break;
 		}
 
@@ -419,4 +420,18 @@ void CMessageWnd::OnClose()
 {
 	// just hide the window
 	ShowWindow(SW_HIDE);
+}
+
+BOOL CMessageWnd::OnEraseBkgnd(CDC* pDC)
+{
+    // Save old brush
+    CBrush *pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+    CRect rect;
+    pDC->GetClipBox(&rect);     // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
 }

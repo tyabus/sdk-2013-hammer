@@ -295,6 +295,10 @@ CHammer::~CHammer(void)
     if (m_CmdLineInfo)
         delete m_CmdLineInfo;
     m_CmdLineInfo = nullptr;
+
+    if (m_brBkgrnd)
+        delete m_brBkgrnd;
+    m_brBkgrnd = nullptr;
 }
 
 
@@ -850,6 +854,12 @@ InitReturnVal_t CHammer::HammerInternalInit()
 
 	WriteProfileString("General", "Directory", m_szAppDir);
 
+    // Load theme stuff
+    m_clrBkgrnd = GetProfileColor("Theme", "Background", 32, 32, 32);
+    m_clrText = GetProfileColor("Theme", "Text", 255, 255, 255);
+
+    m_brBkgrnd = new CBrush(m_clrBkgrnd);
+
 	//
 	// Create a window to receive shell commands from the engine, and attach it
 	// to our shell processor.
@@ -1172,6 +1182,21 @@ RequestRetval_t CHammer::RequestNewConfig()
 bool CHammer::IsClosing()
 {
 	return m_bClosing;
+}
+
+COLORREF CHammer::GetBackgroundColor()
+{
+    return m_clrBkgrnd;
+}
+
+COLORREF CHammer::GetTextColor()
+{
+    return m_clrText;
+}
+
+CBrush* CHammer::GetBackgroundBrush()
+{
+    return m_brBkgrnd;
 }
 
 

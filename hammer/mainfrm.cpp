@@ -37,9 +37,112 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
+BEGIN_MESSAGE_MAP(CHammerStatusBar, CStatusBar)
+    ON_WM_ERASEBKGND()
+    ON_WM_CTLCOLOR()
+END_MESSAGE_MAP()
+
+void CHammerStatusBar::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
+{
+    CDC oDC;
+    oDC.Attach(lpDrawItemStruct->hDC);
+    // Save old brush
+    CBrush *pOldBrush = oDC.SelectObject(APP()->GetBackgroundBrush());
+    CRect rect;
+    oDC.GetClipBox(&rect);     // Erase the area needed
+
+    oDC.PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+    oDC.SelectObject(pOldBrush);
+    oDC.SetTextColor(APP()->GetTextColor());
+    oDC.SetBkColor(APP()->GetBackgroundColor());
+    lpDrawItemStruct->rcItem.left += 2;
+    const CString str = GetPaneText(lpDrawItemStruct->itemID);
+    oDC.DrawText(str, &lpDrawItemStruct->rcItem, DT_LEFT);
+    oDC.Detach();
+}
+
+BOOL CHammerStatusBar::OnEraseBkgnd(CDC* pDC)
+{
+    // Save old brush
+    CBrush* pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+    CRect rect;
+    pDC->GetClipBox(&rect); // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
+}
+
+HBRUSH CHammerStatusBar::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+    pDC->SetTextColor(APP()->GetTextColor());
+    pDC->SetBkColor(APP()->GetBackgroundColor());
+
+    return (HBRUSH) APP()->GetBackgroundBrush()->GetSafeHandle();
+}
+
+
+BEGIN_MESSAGE_MAP(CHammerDockBar, CDockBar)
+    ON_WM_ERASEBKGND()
+    ON_WM_CTLCOLOR()
+END_MESSAGE_MAP()
+
+BOOL CHammerDockBar::OnEraseBkgnd(CDC* pDC)
+{
+    // Save old brush
+    CBrush *pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+    CRect rect;
+    pDC->GetClipBox(&rect);     // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
+}
+
+HBRUSH CHammerDockBar::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+    pDC->SetTextColor(APP()->GetTextColor());
+    pDC->SetBkColor(APP()->GetBackgroundColor());
+
+    return (HBRUSH) APP()->GetBackgroundBrush()->GetSafeHandle();
+}
+
+
+BEGIN_MESSAGE_MAP(CHammerToolBar, CToolBar)
+    ON_WM_ERASEBKGND()
+    ON_WM_CTLCOLOR()
+END_MESSAGE_MAP()
+
+BOOL CHammerToolBar::OnEraseBkgnd(CDC* pDC)
+{
+    // Save old brush
+    CBrush *pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+    CRect rect;
+    pDC->GetClipBox(&rect);     // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
+}
+
+
+HBRUSH CHammerToolBar::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+    pDC->SetTextColor(APP()->GetTextColor());
+    pDC->SetBkColor(APP()->GetBackgroundColor());
+
+    return (HBRUSH) APP()->GetBackgroundBrush()->GetSafeHandle();
+}
+
+
 
 IMPLEMENT_DYNAMIC(CMainFrame, CMDIFrameWnd)
-
 
 BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	//{{AFX_MSG_MAP(CMainFrame)
@@ -130,20 +233,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
 	ON_WM_HELPINFO()
 	ON_WM_SYSCOMMAND()
 	ON_WM_ENTERMENULOOP()
+    ON_WM_ERASEBKGND()
     ON_COMMAND(ID_HELP_REPORTANISSUE, OnHelpReportanissue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
-
-
-static UINT indicators[] =
-{
-	ID_SEPARATOR,           // status line indicator
-	ID_INDICATOR_SELECTION,
-	ID_INDICATOR_COORDS,
-	ID_INDICATOR_SIZE,
-	ID_INDICATOR_GRIDZOOM,
-	ID_INDICATOR_SNAP
-};
 
 
 const int NUMSTATUSPANES = 7;
@@ -165,13 +258,13 @@ struct
 	int cxWidth;
 } paneinfo[NUMSTATUSPANES] = 
 {
-	{ SBI_PROMPT,		ID_SEPARATOR,				SBPS_STRETCH | SBPS_NOBORDERS, 0 },
-	{ SBI_SELECTION,	ID_INDICATOR_SELECTION,		SBPS_NORMAL, 300 },
-	{ SBI_COORDS,		ID_INDICATOR_COORDS,		SBPS_NORMAL, 100 },
-	{ SBI_SIZE,			ID_INDICATOR_SIZE,			SBPS_NORMAL, 180 },
-	{ SBI_GRIDZOOM,		ID_INDICATOR_GRIDZOOM,		SBPS_NORMAL, 80 },
-	{ SBI_SNAP,			ID_INDICATOR_SNAP,			SBPS_NORMAL, 135 },
-	{ SBI_LIGHTPROGRESS,ID_INDICATOR_LIGHTPROGRESS,	SBPS_NORMAL, 50 }
+	{ SBI_PROMPT,		ID_SEPARATOR,				SBPS_STRETCH | SBPS_NOBORDERS | SBPS_OWNERDRAW, 0 },
+	{ SBI_SELECTION,	ID_INDICATOR_SELECTION,		SBPS_NORMAL | SBPS_OWNERDRAW, 300 },
+	{ SBI_COORDS,		ID_INDICATOR_COORDS,		SBPS_NORMAL | SBPS_OWNERDRAW, 100 },
+	{ SBI_SIZE,			ID_INDICATOR_SIZE,			SBPS_NORMAL | SBPS_OWNERDRAW, 180 },
+	{ SBI_GRIDZOOM,		ID_INDICATOR_GRIDZOOM,		SBPS_NORMAL | SBPS_OWNERDRAW, 80 },
+	{ SBI_SNAP,			ID_INDICATOR_SNAP,			SBPS_NORMAL | SBPS_OWNERDRAW, 135 },
+	{ SBI_LIGHTPROGRESS,ID_INDICATOR_LIGHTPROGRESS,	SBPS_NORMAL | SBPS_OWNERDRAW, 50 }
 };
 
 
@@ -307,7 +400,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("Failed to create toolbar\n");
 		return -1;      // fail to create
 	}
-	m_wndMapToolBar.ModifyStyle(0, TBSTYLE_FLAT); 
+	m_wndMapToolBar.ModifyStyle(0, TBSTYLE_FLAT);
 
 	//
 	// Undo redo toolbar.
@@ -317,17 +410,17 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("Failed to create toolbar\n");
 		return -1;      // fail to create
 	}
-	m_wndUndoRedoToolBar.ModifyStyle(0, TBSTYLE_FLAT); 
+	m_wndUndoRedoToolBar.ModifyStyle(0, TBSTYLE_FLAT);
 
 	//
 	// Map editing toolbar.
 	//
 	m_wndMapEditToolBar.Create(this, dwDefStyles, IDCB_MAPTOOLSBAR);
-	m_wndMapEditToolBar.ModifyStyle(0, TBSTYLE_FLAT); 
+	m_wndMapEditToolBar.ModifyStyle(0, TBSTYLE_FLAT);
 	m_wndMapEditToolBar.LoadToolBar(IDR_MAPEDITTOOLS_VALVE);
     m_bmMapEditTools256.LoadBitmap(IDB_MAPEDITTOOLS_256);
     m_wndMapEditToolBar.SetBitmap((HBITMAP)m_bmMapEditTools256);
-
+    
 	//
 	// Map operations toolbar.
 	//
@@ -336,7 +429,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("Failed to create toolbar\n");
 		return -1;      // fail to create
 	}
-	m_wndMapOps.ModifyStyle(0, TBSTYLE_FLAT); 
+	m_wndMapOps.ModifyStyle(0, TBSTYLE_FLAT);
 
 	//
 	// Status bar.
@@ -352,7 +445,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndStatusBar.SetPaneInfo(paneinfo[i].nIndex, paneinfo[i].nID,	paneinfo[i].nStyle, paneinfo[i].cxWidth);
 	}
 
-	EnableDocking(CBRS_ALIGN_ANY);
+	EnableDockingEx(CBRS_ALIGN_ANY);
 
 	m_wndMapToolBar.SetBarStyle(m_wndMapToolBar.GetBarStyle() |
 		CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC);
@@ -1759,4 +1852,48 @@ void CMainFrame::WinHelp(DWORD dwData, UINT nCmd)
 void CMainFrame::OnHelpReportanissue()
 {
    APP()->OpenURL(ID_HELP_REPORTANISSUE, m_hWnd);
+}
+
+BOOL CMainFrame::OnEraseBkgnd(CDC* pDC)
+{
+    // Set brush to desired background color
+    //CBrush backBrush(RGB(141, 136, 130)); // This color blends with the splash image!
+    CBrush backBrush(RGB(64, 64, 64));
+
+    // Save old brush
+    CBrush *pOldBrush = pDC->SelectObject(&backBrush);
+
+    CRect rect;
+    pDC->GetClipBox(&rect);     // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
+}
+
+
+void CMainFrame::EnableDockingEx(DWORD dwDockStyle)
+{
+    // must be CBRS_ALIGN_XXX or CBRS_FLOAT_MULTI only
+    ASSERT((dwDockStyle & ~(CBRS_ALIGN_ANY | CBRS_FLOAT_MULTI)) == 0);
+
+    // define class that will be used to hold floating 
+    //  toolbars or dialogbars
+    m_pFloatingFrameClass = RUNTIME_CLASS(CMiniDockFrameWnd);
+
+    // define style that every docking bar will have
+    CDockBar *pDock;
+    DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
+        WS_CLIPCHILDREN;
+    
+    // create docking bars in the correct order
+    pDock = new CHammerDockBar();
+    pDock->Create(this, dwStyle | CBRS_TOP, AFX_IDW_DOCKBAR_TOP);
+    pDock = new CHammerDockBar();
+    pDock->Create(this, dwStyle | CBRS_BOTTOM, AFX_IDW_DOCKBAR_BOTTOM);
+    pDock = new CHammerDockBar();
+    pDock->Create(this, dwStyle | CBRS_LEFT, AFX_IDW_DOCKBAR_LEFT);
+    pDock = new CHammerDockBar();
+    pDock->Create(this, dwStyle | CBRS_RIGHT, AFX_IDW_DOCKBAR_RIGHT);
 }

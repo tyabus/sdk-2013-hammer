@@ -59,7 +59,9 @@ class CHammerBar : public CDialogBar
 
 	protected:
 
-		afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);		
+		afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+    afx_msg BOOL OnEraseBkgnd(CDC *pDC);
+    afx_msg HBRUSH OnCtlColor(CDC *pDC, CWnd *pWnd, UINT nCtrlColor);
 
 		DECLARE_MESSAGE_MAP() 
 };

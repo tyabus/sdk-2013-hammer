@@ -112,6 +112,10 @@ public:
 	void BeginClosing();
 	bool IsClosing();
 
+    COLORREF GetBackgroundColor();
+    COLORREF GetTextColor();
+    CBrush *GetBackgroundBrush();
+
 	void Enable3DRender(bool bEnable);
 
 	void ReleaseVideoMemory();
@@ -173,6 +177,9 @@ protected:
 	char m_szAutosaveDir[MAX_PATH];
 
     CHammerCmdLine *m_CmdLineInfo;
+
+    CBrush *m_brBkgrnd;
+    COLORREF m_clrBkgrnd, m_clrText;
 };
 
 

@@ -26,6 +26,31 @@ class CFaceEditSheet;
 class CMessageWnd;
 class CLightingPreviewResultsWindow;
 
+class CHammerStatusBar : public CStatusBar
+{
+    void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) override;
+
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+
+    DECLARE_MESSAGE_MAP()
+};
+
+class CHammerDockBar : public CDockBar
+{
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+
+    DECLARE_MESSAGE_MAP()
+};
+
+class CHammerToolBar : public CToolBar
+{
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+
+    DECLARE_MESSAGE_MAP()
+};
 
 class CMainFrame : public CMDIFrameWnd
 {
@@ -146,11 +171,14 @@ protected:
 	afx_msg void OnInitMenu( CMenu *pMenu );
 	afx_msg void OnHDR( void );
     afx_msg void OnHelpReportanissue();
+    afx_msg BOOL OnEraseBkgnd(CDC *pDC);
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()
 
 private:
+
+    void CMainFrame::EnableDockingEx(DWORD dwDockStyle);
 
 	void DockControlBarLeftOf(CControlBar *Bar, CControlBar *LeftOf);
 
@@ -169,11 +197,11 @@ private:
 
 	BOOL					m_bUndoActive;
 
-	CStatusBar				m_wndStatusBar;
-	CToolBar				m_wndMapToolBar;
-	CToolBar				m_wndUndoRedoToolBar;
-	CToolBar				m_wndMapEditToolBar;
-	CToolBar				m_wndMapOps;
+	CHammerStatusBar				m_wndStatusBar;
+	CHammerToolBar				m_wndMapToolBar;
+	CHammerToolBar				m_wndUndoRedoToolBar;
+	CHammerToolBar				m_wndMapEditToolBar;
+	CHammerToolBar				m_wndMapOps;
 
 	CSelectModeDlgBar		m_SelectModeDlg;
 
