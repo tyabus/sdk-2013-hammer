@@ -851,6 +851,21 @@ void CMySplitterWnd::ToggleMax(CWnd *pWnd)
 	RecalcLayout();
 }
 
+void CMySplitterWnd::OnDrawSplitter(CDC* pDC, ESplitType nType, const CRect& rect)
+{
+    CSplitterWnd::OnDrawSplitter(pDC, nType, rect);
+
+    // Save old brush
+    if (nType != splitBox && pDC)
+    {
+        CBrush* pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+        pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+        pDC->SelectObject(pOldBrush);
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 

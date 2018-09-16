@@ -22,6 +22,8 @@ public:
 	CWnd *pMaxPrev;
 
 	void ToggleMax(CWnd *pWnd);
+
+    void OnDrawSplitter(CDC* pDC, ESplitType nType, const CRect& rect) override;
 };
 
 
