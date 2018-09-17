@@ -210,7 +210,7 @@ private:
 	bool					m_bMinimized;
 	bool					m_bShellSessionActive;		// Whether a client has initiated a remote shell editing session.
 	CBitmap					m_bmMapEditTools256;
-    CBitmap m_bmForgeMapTools256;
+    CBitmap m_bmForgeMapTools256, m_bmUndoRedo256, m_bmMapOps256;
 
 	enum
 	{

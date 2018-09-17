@@ -413,14 +413,19 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 	m_wndUndoRedoToolBar.ModifyStyle(0, TBSTYLE_FLAT);
+    m_bmUndoRedo256.LoadBitmap(IDR_UNDOREDO);
+    m_wndUndoRedoToolBar.SetBitmap((HBITMAP)m_bmUndoRedo256);
 
 	//
 	// Map editing toolbar.
 	//
-	m_wndMapEditToolBar.Create(this, dwDefStyles, IDCB_MAPTOOLSBAR);
+	if (!m_wndMapEditToolBar.Create(this, dwDefStyles, IDCB_MAPTOOLSBAR) || !m_wndMapEditToolBar.LoadToolBar(IDR_MAPEDITTOOLS_VALVE))
+	{
+        TRACE0("Failed to create toolbar\n");
+        return -1;      // fail to create
+	}
 	m_wndMapEditToolBar.ModifyStyle(0, TBSTYLE_FLAT);
-	m_wndMapEditToolBar.LoadToolBar(IDR_MAPEDITTOOLS_VALVE);
-    m_bmMapEditTools256.LoadBitmap(IDB_MAPEDITTOOLS_256);
+    m_bmMapEditTools256.LoadBitmap(IDR_MAPEDITTOOLS_VALVE);
     m_wndMapEditToolBar.SetBitmap((HBITMAP)m_bmMapEditTools256);
     
 	//
@@ -432,6 +437,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 	m_wndMapOps.ModifyStyle(0, TBSTYLE_FLAT);
+    m_bmMapOps256.LoadBitmap(IDR_MAPOPERATIONS_VALVE);
+    m_wndMapOps.SetBitmap((HBITMAP)m_bmMapOps256);
 
 	//
 	// Status bar.

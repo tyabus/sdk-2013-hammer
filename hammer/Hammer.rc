@@ -66,13 +66,7 @@ IDR_MAINFRAME           ICON                    "res\\Forge.ico"
 
 IDR_FORGEMAPTYPE        ICON                    "res\\ForgeDoc.ico"
 
-IDR_FORGEPAKTYPE        ICON                    "res\\icon1.ico"
-
 IDI_TEXTUREWINDOW       ICON                    "res\\texturew.ico"
-
-IDI_BRUSHEDITOR         ICON                    "res\\ico00001.ico"
-
-BMI_SETTINGS            ICON                    "res\\ico00002.ico"
 
 AFX_IDI_STD_FRAME       ICON                    "res\\afx_idi_.ico"
 
@@ -94,9 +88,9 @@ IDI_INPUTBAD_GREY       ICON                    "res\\inputbad_grey.ico"
 
 IDI_EYEDROPPER          ICON                    "res\\eyedropper.ico"
 
-IDI_MOVE_UP             ICON                    "res\\ico00003.ico"
+IDI_MOVE_UP             ICON                    "res\\move_up.ico"
 
-IDI_MOVE_DOWN           ICON                    "res\\ico00004.ico"
+IDI_MOVE_DOWN           ICON                    "res\\move_down.ico"
 
 IDI_CROSSHAIR           ICON                    "res\\crosshair.ico"
 
@@ -110,31 +104,17 @@ IDI_CAMERA              ICON                    "res\\camera.ico"
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
-IDB_PAKENTRYTYPES       BITMAP                  "res\\paktypes.bmp"
-
-IDR_SELECTIONTOOLS      BITMAP                  "res\\seltools.bmp"
-
-BMB_SETTINGS            BITMAP                  "res\\set_u.bmp"
-
-IDB_PREFABS             BITMAP                  "res\\bitmap1.bmp"
-
-IDB_CUBE                BITMAP                  "res\\cube.bmp"
-
-IDB_CUBECHECK           BITMAP                  "res\\cubechec.bmp"
-
 IDB_VISGROUPSTATUS      BITMAP                  "res\\visgroup.bmp"
 
 IDB_TREEROOTS           BITMAP                  "res\\treeroot.bmp"
 
-IDB_SPLASH              BITMAP                  "res\\newsplash.BMP"
+IDB_SPLASH              BITMAP                  "res\\newsplash2.bmp"
 
 IDR_MAPOPERATIONS_VALVE BITMAP                  "res\\toolbar1.bmp"
 
-IDR_MAPEDITTOOLS_VALVE  BITMAP                  "res\\mapedit.bmp"
+IDR_MAPEDITTOOLS_VALVE  BITMAP                  "res\\mapedit256.bmp"
 
 IDR_MAPDOC_VALVE        BITMAP                  "res\\forgemap.bmp"
-
-IDB_MAPEDITTOOLS_256    BITMAP                  "res\\mapedit256.bmp"
 
 IDB_GIZMO_AXIS          BITMAP                  "res\\gizmoaxis.bmp"
 
@@ -144,10 +124,6 @@ IDB_GIZMO_SCALE_HANDLE  BITMAP                  "res\\gizmoscale.bmp"
 
 IDB_GIZMO_ROTATE_HANDLE BITMAP                  "res\\gizmorotate.bmp"
 
-IDR_DISPEDIT_TOOLBAR    BITMAP                  "res\\dispedit.bmp"
-
-IDB_BITMAP1             BITMAP                  "res\\bmp00001.bmp"
-
 IDR_UNDOREDO            BITMAP                  "res\\undoredo.bmp"
 
 
@@ -156,7 +132,7 @@ IDR_UNDOREDO            BITMAP                  "res\\undoredo.bmp"
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR 16, 15
+IDR_MAINFRAME TOOLBAR 32, 30
 BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_OPEN
@@ -200,22 +176,7 @@ BEGIN
     BUTTON      ID_TOOLS_MORPH
 END
 
-IDR_SELECTIONTOOLS TOOLBAR 24, 24
-BEGIN
-    BUTTON      ID_EDIT_PROPERTIES
-    SEPARATOR
-    BUTTON      ID_SELECTION_ROTATE
-    BUTTON      ID_SELECTION_MOVE
-    BUTTON      ID_SELECTION_SHEAR
-    BUTTON      ID_SELECTION_SIZE
-    SEPARATOR
-    BUTTON      ID_SELECTION_ALIGNLEFT
-    BUTTON      ID_SELECTION_ALIGNRIGHT
-    BUTTON      ID_SELECTION_ALIGNBOTTOM
-    BUTTON      ID_SELECTION_ALIGNTOP
-END
-
-IDR_MAPOPERATIONS_VALVE TOOLBAR 16, 15
+IDR_MAPOPERATIONS_VALVE TOOLBAR 32, 30
 BEGIN
     BUTTON      ID_TOOLS_SUBTRACTSELECTION
     SEPARATOR
@@ -256,27 +217,7 @@ BEGIN
     BUTTON      ID_SHOW_NODRAW_BRUSHES
 END
 
-IDR_DISPEDIT_TOOLBAR TOOLBAR 16, 15
-BEGIN
-    BUTTON      ID_DISP_PULLPUSH
-    BUTTON      ID_DISP_FLATTEN
-    BUTTON      ID_DISP_SMOOTH
-    SEPARATOR
-    BUTTON      ID_DISP_BRUSHSIZE_1
-    BUTTON      ID_DISP_BRUSHSIZE_3
-    BUTTON      ID_DISP_BRUSHSIZE_5
-    BUTTON      ID_DISP_BRUSHSIZE_7
-    BUTTON      ID_DISP_BRUSHSIZE_9
-    SEPARATOR
-    BUTTON      ID_DISP_HEIGHT_1
-    BUTTON      ID_DISP_HEIGHT_2
-    BUTTON      ID_DISP_HEIGHT_4
-    BUTTON      ID_DISP_HEIGHT_8
-    BUTTON      ID_DISP_HEIGHT_16
-    BUTTON      ID_DISP_HEIGHT_32
-END
-
-IDR_UNDOREDO TOOLBAR 16, 15
+IDR_UNDOREDO TOOLBAR 32, 30
 BEGIN
     BUTTON      ID_EDIT_UNDO
     BUTTON      ID_EDIT_REDO
@@ -2538,13 +2479,11 @@ IDC_ENTITY              CURSOR                  "res\\entity.cur"
 
 IDC_MAGNIFY             CURSOR                  "res\\magnify.cur"
 
-IDC_DECAL               CURSOR                  "res\\cursor2.cur"
+IDC_DECAL               CURSOR                  "res\\decal.cur"
 
-IDC_NEWBOX              CURSOR                  "res\\cur00001.cur"
+IDC_FACEPAINT           CURSOR                  "res\\facepaint.cur"
 
-IDC_FACEPAINT           CURSOR                  "facepaint.cur"
-
-IDC_ROTATE              CURSOR                  "res\\cursor3.cur"
+IDC_ROTATE              CURSOR                  "res\\rotate.cur"
 
 IDC_EYEDROPPER          CURSOR                  "res\\eyedropper.cur"
 
@@ -2591,7 +2530,6 @@ STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Hammer"
     IDR_FORGEMAPTYPE        "\nvmf\nValve Map Files\nValve Map Files (*.vmf)\n.vmf"
-    IDR_FORGEPAKTYPE        "\npak\nQuake PAK archive\nQuake PAK archive (*.pak)\n.pak\nWorldcraft.Pak\nQuake PAK archive"
     IDS_NONE                "(none)"
 END
 
@@ -3114,26 +3052,6 @@ BEGIN
 END
 
 #endif    // English (United States) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (Canada) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
-#pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Cursor
-//
-
-IDC_HANDCURSOR          CURSOR                  "res\\handcurs.cur"
-
-IDC_HANDCLOSEDCURSOR    CURSOR                  "res\\handclos.cur"
-
-#endif    // English (Canada) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
