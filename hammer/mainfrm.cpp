@@ -401,7 +401,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 	m_wndMapToolBar.ModifyStyle(0, TBSTYLE_FLAT);
-
+    m_bmForgeMapTools256.LoadBitmap(IDR_MAPDOC_VALVE);
+    m_wndMapToolBar.SetBitmap((HBITMAP)m_bmForgeMapTools256);
+    
 	//
 	// Undo redo toolbar.
 	//
