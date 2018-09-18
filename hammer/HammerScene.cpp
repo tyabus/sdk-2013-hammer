@@ -5,6 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
+#include "tier0/platform.h"
 #include "scriplib.h"
 #include "choreoscene.h"
 #include "iscenetokenprocessor.h"

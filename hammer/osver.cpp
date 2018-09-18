@@ -6,6 +6,7 @@
 //
 //=============================================================================//
 #include "stdafx.h"
+#include "tier0/platform.h"
 #include "osver.h"
 
 static eOSVersion s_OS = eUninitialized;

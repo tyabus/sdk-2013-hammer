@@ -20,7 +20,6 @@
 #define NO_THREAD_LOCAL 1
 
 #include "tier0/wchartypes.h"
-#include "tier0/vprof.h"
 
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 
@@ -48,8 +47,6 @@
 #include <afxcmn.h>			// MFC support for Windows 95 Common Controls
 #include <afxpriv.h>
 #endif // _AFX_NO_AFXCMN_SUPPORT
-
-#include "tier0/platform.h"
 
 // Some VS header files provoke this warning
 #pragma warning(disable : 4201) // warning C4201: nonstandard extension used : nameless struct/union

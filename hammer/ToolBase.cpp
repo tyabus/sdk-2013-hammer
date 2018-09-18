@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "tier0/platform.h"
 #include "ToolInterface.h"
 #include "mapdoc.h"
 

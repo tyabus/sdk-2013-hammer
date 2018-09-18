@@ -13,6 +13,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "dbg.h"
 #include "Shell.h"
 #include "ShellMessageWnd.h"
 

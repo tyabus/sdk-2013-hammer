@@ -21,6 +21,7 @@ enum ScriptPathMode_t
 	SCRIPT_USE_RELATIVE_PATH
 };
 
+typedef int qboolean;
 
 // scriplib.h
 

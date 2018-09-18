@@ -9,6 +9,7 @@
 // CG: This file was added by the Progress Dialog component
 
 #include "stdafx.h"
+#include "dbg.h"
 #include "resource.h"
 #include "ProgDlg.h"
 

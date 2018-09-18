@@ -700,6 +700,8 @@ void UpdatePrefabs_Shutdown()
 //-----------------------------------------------------------------------------
 BOOL CHammer::InitInstance()
 {
+    InitCommonControls();
+
 	return TRUE;
 }
 

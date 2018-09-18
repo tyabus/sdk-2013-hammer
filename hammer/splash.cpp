@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "dbg.h"
 #include "resource.h"
 #include "Splash.h"
 #include "tier0/icommandline.h"

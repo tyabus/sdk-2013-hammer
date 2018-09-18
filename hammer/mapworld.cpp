@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "tier0/platform.h"
 #include "generichash.h"
 #include "CullTreeNode.h"
 #include "GlobalFunctions.h"
