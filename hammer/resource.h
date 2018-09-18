@@ -5,8 +5,6 @@
 #define IDB_SPLASHOLD                   1
 #define IDS_ERROR_PLAYING               1
 #define IDD_ABOUTBOX                    100
-#define IDC_PAKLISTFILES                101
-#define IDC_PAKLISTDIREC                102
 #define CG_IDD_PROGRESS                 103
 #define CG_IDS_PROGRESS_CAPTION         104
 #define IDC_FACEPAINT                   104
@@ -81,7 +79,6 @@
 #define IDD_UNDOWARNING                 203
 #define IDD_DIALOG1                     204
 #define IDD_PREFABS                     205
-#define IDD_EDITPREFAB                  206
 #define IDD_OPTIONS_CONFIGS             207
 #define IDD_TREETEST                    212
 #define IDD_PASTESPECIAL1               214
@@ -883,9 +880,6 @@
 #define IDI_OUTPUTBAD_GREY              31236
 #define IDI_INPUT_GREY                  31237
 #define IDI_INPUTBAD_GREY               31238
-#define ID_PAK_DELENTRY                 32772
-#define ID_BUTTON32773                  32773
-#define ID_PAK_ADDENTRY                 32774
 #define ID_VIEW_3DTEXTURED              32777
 #define ID_VIEW_3DWIREFRAME             32778
 #define ID_VIEW_2DXY                    32779
