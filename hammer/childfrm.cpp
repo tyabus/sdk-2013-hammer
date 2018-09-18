@@ -856,7 +856,7 @@ void CMySplitterWnd::OnDrawSplitter(CDC* pDC, ESplitType nType, const CRect& rec
     CSplitterWnd::OnDrawSplitter(pDC, nType, rect);
 
     // Save old brush
-    if (nType != splitBox && pDC)
+    if (pDC && nType == splitBar)
     {
         CBrush* pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
 
