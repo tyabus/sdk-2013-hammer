@@ -108,7 +108,7 @@ IDB_VISGROUPSTATUS      BITMAP                  "res\\visgroup.bmp"
 
 IDB_TREEROOTS           BITMAP                  "res\\treeroot.bmp"
 
-IDB_SPLASH              BITMAP                  "res\\newsplash2.bmp"
+IDB_SPLASH              BITMAP                  "res\\splash.bmp"
 
 IDR_MAPOPERATIONS_VALVE BITMAP                  "res\\toolbar1.bmp"
 
