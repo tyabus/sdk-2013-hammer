@@ -5,11 +5,14 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include <stdafx.h>
+#include "stdafx.h"
+#include <cassert>
 #include "IconComboBox.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
+
+#pragma warning(disable: 4100)
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor

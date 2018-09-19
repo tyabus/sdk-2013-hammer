@@ -55,11 +55,11 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CStrDlg message handlers
 
-void CStrDlg::SetRange(int iLow, int iHigh, int iIncrement)
+void CStrDlg::SetRange(short iLow, short iHigh, short incr)
 {
 	iRangeLow = iLow;
 	iRangeHigh = iHigh;
-	this->iIncrement = 1;
+	iIncrement = incr;
 }
 
 BOOL CStrDlg::OnInitDialog() 

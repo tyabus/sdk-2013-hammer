@@ -11,6 +11,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
+#pragma warning(disable: 4100) // unreferenced formal parameter
 
 //
 // Defines key state bit masks.

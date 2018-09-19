@@ -24,7 +24,7 @@ public:
 		Spin = 0x01
 	};
 
-	int iRangeLow, iRangeHigh, iIncrement;
+	short iRangeLow, iRangeHigh, iIncrement;
 	DWORD dwFlags;
 	CString	m_string;
 	CString m_strPrompt;
@@ -33,7 +33,7 @@ public:
 	CStatic	m_cPrompt;
 	CEdit	m_cEdit;
 
-	void SetRange(int iLow, int iHigh, int iIncrement = 1);
+	void SetRange(short iLow, short iHigh, short iIncrement = 1);
 
 
 // Overrides
