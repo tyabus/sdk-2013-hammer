@@ -6,6 +6,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "resource.h"
 #include "SelectModeDlgBar.h"
 #include "ControlBarIDs.h"
 #include "MapDoc.h"

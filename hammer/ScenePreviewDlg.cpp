@@ -5,7 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "ScenePreviewDlg.h"
 #include "choreoscene.h"
 #include "soundsystem.h"
@@ -25,7 +25,7 @@ END_MESSAGE_MAP()
 
 
 CScenePreviewDlg::CScenePreviewDlg( CChoreoScene *pScene, const char *pFilename, CWnd* pParent /*=NULL*/ )
-	: CDialog(CScenePreviewDlg::IDD, pParent)
+	: CDialog(IDD_SCENE_PREVIEW, pParent)
 {
 	//{{AFX_DATA_INIT(CScenePreviewDlg)
 	m_pScene = pScene;

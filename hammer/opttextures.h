@@ -8,6 +8,7 @@
 #define OPTTEXTURES_H
 #pragma once
 
+class CGameConfig;
 
 class COPTTextures : public CPropertyPage
 {

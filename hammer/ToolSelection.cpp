@@ -12,7 +12,6 @@
 #include "MapDoc.h"
 #include "MapDefs.h"
 #include "MapEntity.h"
-#include "MapPointHandle.h"
 #include "MapSolid.h"
 #include "MapView2D.h"
 #include "MapViewLogical.h"
@@ -22,11 +21,7 @@
 #include "Render2D.h"
 #include "ToolSelection.h"
 #include "StatusBarIDs.h"
-#include "ToolManager.h"
-#include "hammer.h"
 #include "vgui/Cursor.h"
-#include "mapdecal.h"
-#include "RenderUtils.h"
 #include "tier0/icommandline.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

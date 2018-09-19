@@ -7,7 +7,6 @@
 #define DISPSHORE_H
 #pragma once
 
-#include "MapHelper.h"
 #include "MapFace.h"
 #include "MapOverlay.h"
 #include "MapOverlayTrans.h"

@@ -6,11 +6,9 @@
 //
 //=============================================================================//
 
-#include <stdafx.h>
-#include <malloc.h>
+#include "stdafx.h"
 #include "FaceEditSheet.h"
 #include "MainFrm.h"
-#include "GlobalFunctions.h"
 #include "MapDisp.h"
 #include "MapFace.h"
 #include "UtlVector.h"

@@ -11,7 +11,6 @@
 #include "OPTTextures.h"
 #include "Options.h"
 #include "tier1/strtools.h"
-#include <shlobj.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

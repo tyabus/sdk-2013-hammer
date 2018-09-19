@@ -5,13 +5,12 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "FilterControl.h"
 #include "ControlBarIDs.h"
 #include "MapWorld.h"
+#include "mapdoc.h"
 #include "GlobalFunctions.h"
 #include "EditGroups.h"
-#include "CustomMessages.h"
 #include "VisGroup.h"
 #include "Selection.h"
 
@@ -65,7 +64,6 @@ END_MESSAGE_MAP()
 BOOL CFilterControl::Create(CWnd *pParentWnd)
 {
 	if (!CHammerBar::Create(pParentWnd, IDD_FILTERCONTROL, CBRS_RIGHT | CBRS_SIZE_DYNAMIC, IDCB_FILTERCONTROL, "Filter Control"))
-		
 	{
 		return FALSE;
 	}

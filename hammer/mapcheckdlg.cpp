@@ -17,7 +17,6 @@
 #include "Options.h"
 #include "ToolManager.h"
 #include "VisGroup.h"
-#include "hammer.h"
 #include "MapOverlay.h"
 #include "Selection.h"
 

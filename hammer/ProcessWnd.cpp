@@ -12,10 +12,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <wincon.h>
-#include "hammer.h"
 #include "ProcessWnd.h"
-#include "osver.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -82,30 +79,7 @@ void CProcessWnd::Clear()
 void CProcessWnd::Append(CString str)
 {
     m_EditText += str;
-	if (getOSVersion() >= eWinNT)
-	{
-		Edit.SetWindowText(m_EditText);
-	}
-	else
-	{
-		DWORD length = m_EditText.GetLength() / sizeof(TCHAR);
-
-		// Gracefully handle 64k edit control display on win9x (display last 64k of text)
-		// Copy to clipboard will work fine, as it copies the m_EditText contents
-		// in its entirety to the clipboard
-		if (length >= 0x0FFFF)
-		{
-			LPTSTR string = m_EditText.GetBuffer(length + 1);
-			LPTSTR offset;
-			offset = string + length - 0x0FFFF;
-			Edit.SetWindowText(offset);
-			m_EditText.ReleaseBuffer();
-		}
-		else
-		{
-			Edit.SetWindowText(m_EditText);
-		}
-	}
+	Edit.SetWindowText(m_EditText);
     Edit.LineScroll(Edit.GetLineCount());
 	Edit.RedrawWindow();
 }

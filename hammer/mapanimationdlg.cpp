@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include <stdafx.h>
+#include "stdafx.h"
 #include "GlobalFunctions.h"
 #include "History.h"
 #include "MainFrm.h"
@@ -15,8 +15,8 @@
 #include "MapDoc.h"
 #include "MapEntity.h"
 #include "MapWorld.h"
-#include "hammer.h"
 #include "Selection.h"
+#include "ControlBarIDs.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -54,7 +54,7 @@ bool CMapAnimationDlg::Create( CWnd *pParentWnd )
     //
     // create a modeless dialog toolbar
     //
-    if( !( CHammerBar::Create( pParentWnd, IDD, CBRS_RIGHT, IDCB_ANIMATIONBAR ) ) )
+    if( !( CHammerBar::Create( pParentWnd, IDD_ANIMATIONDLG, CBRS_RIGHT, IDCB_ANIMATIONBAR ) ) )
     {
         return false;
     }

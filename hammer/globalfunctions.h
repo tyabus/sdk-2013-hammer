@@ -11,8 +11,7 @@
 #pragma once
 #endif
 
-#include "MapClass.h"	// For CMapObjectList
-
+#include "utlvector.h"
 
 class CMapSolid;
 class CMainFrame;
@@ -20,17 +19,14 @@ class CMapWorld;
 class CMapDoc;
 class IWorldEditDispMgr;
 class CSubdivMesh;
+class CMapClass;
+class CMapAtom;
+typedef CUtlVector<CMapClass*> CMapObjectList;
 
 
 CMapWorld *GetActiveWorld(void);
 
 IWorldEditDispMgr *GetActiveWorldEditDispManager( void );
-
-//
-// misc.cpp:
-//
-void randomize();
-DWORD random();
 
 void NotifyDuplicates(CMapSolid *pSolid);
 void NotifyDuplicates(const CMapObjectList *pList);

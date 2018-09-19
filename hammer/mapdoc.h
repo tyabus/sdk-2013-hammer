@@ -10,13 +10,11 @@
 #pragma once
 #endif
 
-#include "MapClass.h"
+#include "Render3D.h"
 #include "Selection.h"
-#include "MapEntity.h"
-#include "GameConfig.h"
+#include "EntityConnection.h"
 #include "filesystem.h"
-#include "tier1/utlrbtree.h"
-#include "tier1/utlstack.h"
+
 
 class CToolManager;
 class CMapDoc;

@@ -5,10 +5,8 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "PasteSpecialDlg.h"
-
-#pragma warning(disable:4244)
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -18,7 +16,7 @@ static LPCTSTR pszIni = "Paste Special";
 
 
 CPasteSpecialDlg::CPasteSpecialDlg(CWnd* pParent /*=NULL*/, BoundBox* pBox)
-	: CDialog(CPasteSpecialDlg::IDD, pParent)
+	: CDialog(IDD_WC_PASTESPECIAL, pParent)
 {
 	//{{AFX_DATA_INIT(CPasteSpecialDlg)
 	m_iCopies = 1;

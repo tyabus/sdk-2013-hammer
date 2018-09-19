@@ -13,7 +13,6 @@
 #include "Material.h"
 #include "materialsystem/imesh.h"
 #include "datacache\imdlcache.h"
-#include "hammer.h"
 #include "hammer_mathlib.h"
 #include "vgui_controls/Controls.h"
 #include "vgui/IScheme.h"
@@ -21,12 +20,13 @@
 #include "IStudioRender.h"
 #include "builddisp.h"
 #include "mapview.h"
-#include "material.h"
 #include <renderparm.h>
 #include "materialsystem/IMaterialSystemHardwareConfig.h"
 #include "vphysics_interface.h"
 #include "materialsystem/MaterialSystem_Config.h"
 #include "VGuiWnd.h"
+
+#include "tier0/memdbgon.h"
 
 extern IMatSystemSurface *g_pMatSystemSurface;
 

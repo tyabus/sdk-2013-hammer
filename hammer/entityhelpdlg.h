@@ -11,9 +11,6 @@
 #pragma once
 #endif
 
-#include "Resource.h"
-
-
 class GDclass;
 class CRichEditCtrlEx;
 
@@ -27,7 +24,6 @@ class CEntityHelpDlg : public CDialog
 		~CEntityHelpDlg(void);
 
 		//{{AFX_DATA(CEntityHelpDlg)
-		enum { IDD = IDD_ENTITY_HELP };
 		CRichEditCtrlEx *m_pHelpText;
 		//}}AFX_DATA
 

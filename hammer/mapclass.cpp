@@ -16,6 +16,7 @@
 #include "VisGroup.h"
 #include "mapdefs.h"
 #include "tier0/minidump.h"
+#include "GameConfig.h"
 
 int CMapAtom::s_nObjectIDCtr = 1;
 

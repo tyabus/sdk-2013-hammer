@@ -11,9 +11,7 @@
 #pragma once
 #endif
 
-
 #include "resource.h"
-#include "IEditorTexture.h"
 #include "wndTex.h"
 
 

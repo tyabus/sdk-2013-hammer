@@ -37,7 +37,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CTorusDlg)
-	enum { IDD = IDD_TORUS };
 	CSpinButtonCtrl	m_cStartAngleSpin;
 	CSpinButtonCtrl	m_cWallWidthSpin;
 	CEdit	m_cWallWidth;

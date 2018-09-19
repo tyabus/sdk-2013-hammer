@@ -9,7 +9,8 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
+#include "Hammer.h"
 #include "RunMapCfgDlg.h"
 #include "StrDlg.h"
 
@@ -21,7 +22,7 @@
 
 
 CRunMapCfgDlg::CRunMapCfgDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CRunMapCfgDlg::IDD, pParent)
+	: CDialog(IDD_RUNMAPCONFIGS, pParent)
 {
 	//{{AFX_DATA_INIT(CRunMapCfgDlg)
 		// NOTE: the ClassWizard will add member initialization here

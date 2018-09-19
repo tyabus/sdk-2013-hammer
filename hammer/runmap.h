@@ -4,6 +4,8 @@
 //
 //=============================================================================//
 
+#pragma once
+
 class CRunMap : public CDialog
 {
 // Construction
@@ -13,7 +15,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CRunMap)
-	enum { IDD = IDD_RUNMAP };
 	int		m_iVis;
 	BOOL	m_bNoQuake;
 	CString	m_strQuakeParms;

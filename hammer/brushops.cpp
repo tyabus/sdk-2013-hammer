@@ -6,17 +6,10 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <stdio.h>
-#include <math.h>
-#include "hammer.h"
-#include "MapEntity.h"
-#include "MapDefs.h"
+#include "MessageWnd.h"
 #include "MapFace.h"
-#include "hammer_mathlib.h"
-#include "history.h"
+#include "WorldSize.h"
 #include "Error3d.h"
-#include "BrushOps.h"
-#include "GlobalFunctions.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

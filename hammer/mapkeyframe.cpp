@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
+#include "mapclass.h"
 #include "StockSolids.h"
 #include "GlobalFunctions.h"
 #include "hammer_mathlib.h"

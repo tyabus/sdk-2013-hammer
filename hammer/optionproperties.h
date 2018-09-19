@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // COptionProperties
 
+#pragma once
+
 #include "OPTGeneral.h"
 #include "OPTView2D.h"
 #include "OPTView3D.h"

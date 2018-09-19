@@ -11,7 +11,6 @@
 #include "hammer.h"
 #include "GroupList.h"
 #include "MapDoc.h"
-#include "MapSolid.h"
 #include "MapWorld.h"
 #include "VisGroup.h"
 

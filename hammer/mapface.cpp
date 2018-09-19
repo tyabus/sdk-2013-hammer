@@ -12,7 +12,7 @@
 #include "MapDisp.h"
 #include "MapWorld.h"
 #include "MapSolid.h"
-#include "fgdlib/WCKeyValues.h"
+#include "chunkfile.h"
 #include "GlobalFunctions.h"
 #include "Render3D.h"
 #include "Render2D.h"
@@ -26,6 +26,7 @@
 #include "camera.h"
 #include "options.h"
 #include "hammer.h"
+#include "GameConfig.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!

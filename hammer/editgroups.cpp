@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "mapdoc.h"
 #include "EditGroups.h"
 #include "MainFrm.h"
 #include "MapWorld.h"
@@ -36,7 +36,7 @@ END_MESSAGE_MAP()
 // Input  : pParent - Parent window.
 //-----------------------------------------------------------------------------
 CEditGroups::CEditGroups(CWnd* pParent /*=NULL*/)
-	: CDialog(CEditGroups::IDD, pParent)
+	: CDialog(IDD_GROUPS, pParent)
 {
 	//{{AFX_DATA_INIT(CEditGroups)
 		// NOTE: the ClassWizard will add member initialization here

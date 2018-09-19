@@ -10,9 +10,7 @@
 #pragma once
 #endif
 
-#include "AutoSelCombo.h"
 #include "ChunkFile.h"
-#include "ListBoxEx.h"
 #include "AngleBox.h"
 #include "fgdlib/WCKeyValues.h"
 #include "MapFace.h"
@@ -186,7 +184,6 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 		void OnUpdateSpawnFlags( unsigned long preserveMask, unsigned long newValues );
 		
 		//{{AFX_DATA(COP_Entity)
-		enum { IDD = IDD_OBJPAGE_ENTITYKV };
 		CAngleCombo m_AngleEdit;
 		CAngleCombo m_SmartAngleEdit;
 		CEdit m_cValue;

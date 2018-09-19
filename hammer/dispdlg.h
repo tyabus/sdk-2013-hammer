@@ -9,7 +9,6 @@
 #define DISPDLG_H
 #pragma once
 
-#include "resource.h"
 #include "IconComboBox.h"
 
 //=============================================================================

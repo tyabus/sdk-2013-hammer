@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "Axes2.h"
-#include "mathlib/vector.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

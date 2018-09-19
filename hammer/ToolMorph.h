@@ -14,7 +14,6 @@
 #include "MapClass.h"			// dvs: For CMapObjectList
 #include "Box3D.h"
 #include "SSolid.h"
-#include "Resource.h"
 #include "ScaleVerticesDlg.h"
 #include "ToolInterface.h"
 #include "mathlib/vector.h"

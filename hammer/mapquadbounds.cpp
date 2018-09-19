@@ -6,14 +6,10 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
+#include "mapclass.h"
 #include "fgdlib/HelperInfo.h"
 #include "MapQuadBounds.h"
-#include "mathlib/MathLib.h"
 #include "Render3D.h"
-#include "material.h"
-#include "materialsystem/imaterialsystem.h"
-#include "materialsystem/IMesh.h"
 #include "mapsolid.h"
 #include "mapentity.h"
 

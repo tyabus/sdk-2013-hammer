@@ -10,8 +10,6 @@
 #pragma once
 #endif
 
-#include "UtlVector.h"
-
 
 class CLightingPreviewResultsWindow : public CWnd
 {

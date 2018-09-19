@@ -13,7 +13,6 @@
 #include "vgui/KeyCode.h"
 #include "vgui/ISurface.h"
 #include "texturesystem.h"
-#include "utlntree.h"
 #include <istudiorender.h>
 
 static LPCTSTR pszIniSection = "Model Browser";

@@ -14,7 +14,6 @@
 #include "bsplighting.h"
 #include "interface.h"
 #include "filesystem.h"
-#include "hammer.h"
 #include "builddisp.h"
 #include "tier0/dbg.h"
 

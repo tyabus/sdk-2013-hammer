@@ -11,6 +11,7 @@
 #if _MSC_VER >= 1000
 #pragma once
 #endif // _MSC_VER >= 1000
+
 // EditPathDlg.h : header file
 //
 
@@ -25,7 +26,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CEditPathDlg)
-	enum { IDD = IDD_EDITPATH };
 	CComboBox	m_cClass;
 	CString	m_strClass;
 	int		m_iDirection;

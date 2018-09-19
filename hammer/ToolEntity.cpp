@@ -7,7 +7,7 @@
 #include "stdafx.h"
 #include "History.h"
 #include "MainFrm.h"
-#include "MapDefs.h"
+#include "MapEntity.h"
 #include "MapSolid.h"
 #include "MapDoc.h"
 #include "MapView2D.h"
@@ -17,14 +17,13 @@
 #include "Render2D.h"
 #include "Render3D.h"
 #include "StatusBarIDs.h"
-#include "TextureSystem.h"
 #include "ToolEntity.h"
 #include "ToolManager.h"
-#include "hammer.h"
 #include "vgui/Cursor.h"
 #include "Selection.h"
 #include "vstdlib/random.h"
 #include "camera.h"
+#include "GameConfig.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

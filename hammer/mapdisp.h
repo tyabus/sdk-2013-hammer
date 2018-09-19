@@ -20,8 +20,6 @@
 #include <UtlVector.h>
 #include "MapAtom.h"
 #include "Render3D.h"
-#include "mathlib/VMatrix.h"
-#include "DispMapImageFilter.h"
 #include "builddisp.h"
 #include "DispManager.h"
 

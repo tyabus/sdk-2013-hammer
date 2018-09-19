@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "OP_Flags.h"
 #include "OP_Entity.h"
 #include "ObjectProperties.h"
@@ -18,7 +18,7 @@
 
 IMPLEMENT_DYNCREATE(COP_Flags, CObjectPage)
 
-COP_Flags::COP_Flags() : CObjectPage(COP_Flags::IDD)
+COP_Flags::COP_Flags() : CObjectPage(IDD_OBJPAGE_FLAGS)
 {
 	//{{AFX_DATA_INIT(COP_Flags)
 		// NOTE: the ClassWizard will add member initialization here

@@ -6,16 +6,13 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
+#include "mapclass.h"
 #include "fgdlib/HelperInfo.h"
-#include "MapDefs.h"		// dvs: For COORD_NOTINIT
 #include "MapEntity.h"
 #include "MapFrustum.h"
 #include "Render3D.h"
 #include "Material.h"
 #include "materialsystem/IMaterialSystem.h"
-#include "TextureSystem.h"
-#include "hammer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

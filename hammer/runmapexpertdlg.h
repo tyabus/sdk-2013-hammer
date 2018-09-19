@@ -15,12 +15,10 @@
 #define RUNMAPEXPERTDLG_H
 #pragma once
 
-#include "RunCommands.h"
 #include "MyCheckListBox.h"
-
+#include "RunCommands.h"
 
 class CCommandSequence;
-
 
 class CRunMapExpertDlg : public CDialog
 {
@@ -30,7 +28,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CRunMapExpertDlg)
-	enum { IDD = IDD_RUNMAPEXPERT };
 	CButton	m_cUseProcessWnd;
 	CComboBox	m_cCmdSequences;
 	CButton	m_cMoveUp;

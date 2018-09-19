@@ -11,7 +11,6 @@
 #endif
 
 #include "GroupList.h"
-#include "mapdoc.h"
 
 
 class CVisGroup;
@@ -41,7 +40,6 @@ class CEditGroups : public CDialog
 
 	// Dialog Data
 		//{{AFX_DATA(CEditGroups)
-		enum { IDD = IDD_GROUPS };
 		CEdit	m_cName;
 		CGroupList m_cGroupList;
 		//}}AFX_DATA

@@ -25,7 +25,6 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CSoundBrowser)
 	DECLARE_MESSAGE_MAP()
-	enum { IDD = IDD_SCENE_PREVIEW };
 
 
 protected:

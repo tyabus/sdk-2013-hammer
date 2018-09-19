@@ -5,7 +5,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include <stdafx.h>
+#include "stdafx.h"
 #include "hammer.h"
 #include "ToolDisplace.h"
 #include "MainFrm.h"
@@ -14,7 +14,6 @@
 #include "MapAtom.h"
 #include "MapSolid.h"
 #include "MapView3D.h"
-#include "History.h"
 #include "Camera.h"
 #include "MapDoc.h"
 #include "ChunkFile.h"

@@ -9,7 +9,7 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "EditPathNodeDlg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -20,7 +20,7 @@
 
 
 CEditPathNodeDlg::CEditPathNodeDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CEditPathNodeDlg::IDD, pParent)
+	: CDialog(IDD_EDITPATHNODE, pParent)
 {
 	//{{AFX_DATA_INIT(CEditPathNodeDlg)
 	m_bRetrigger = FALSE;

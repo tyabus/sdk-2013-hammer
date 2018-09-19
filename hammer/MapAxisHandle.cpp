@@ -10,22 +10,20 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
 #include "GlobalFunctions.h"
 #include "fgdlib/HelperInfo.h"
 #include "materialsystem/IMaterialSystem.h"
 #include "materialsystem/IMesh.h"
-#include "MainFrm.h"			// For refreshing the object properties dialog
 #include "MapDoc.h"
 #include "MapAxisHandle.h"
 #include "MapPointHandle.h"
 #include "MapView2D.h"
-#include "Material.h"
 #include "Options.h"
 #include "Render2D.h"
 #include "Render3D.h"
 #include "ToolManager.h"
 #include "ToolAxisHandle.h"
+#include "mapentity.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

@@ -7,13 +7,11 @@
 
 
 #include "stdafx.h"
-#include "OPTGeneral.h"
 #include "Options.h"
 #include "hammer_mathlib.h"
 #include "MapFace.h"
 #include "MapGroup.h"
 #include "MapSolid.h"
-#include "hammer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

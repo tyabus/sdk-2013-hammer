@@ -4,8 +4,7 @@
 //
 //=============================================================================//
 
-#include <stdafx.h>
-#include "hammer.h"
+#include "stdafx.h"
 #include "IEditorTexture.h"
 #include "FaceEditSheet.h"
 #include "MapFace.h"
@@ -26,6 +25,7 @@
 #include "MapDisp.h"
 #include "ToolManager.h"
 #include "Selection.h"
+#include "GameConfig.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

@@ -12,8 +12,13 @@
 #pragma once
 #endif
 
-#include "mapclass.h"
+#include "BoundBox.h"
+#include "MapStudioModel.h"
 
+
+class Vector2D;
+class Vector;
+class CMapClass;
 class CMapDoc;
 
 enum

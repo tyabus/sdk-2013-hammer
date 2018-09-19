@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // CStrDlg dialog
 
+#pragma once
+
 class CStrDlg : public CDialog
 {
 // Construction
@@ -32,11 +34,6 @@ public:
 	CEdit	m_cEdit;
 
 	void SetRange(int iLow, int iHigh, int iIncrement = 1);
-
-// Dialog Data
-	//{{AFX_DATA(CStrDlg)
-	enum { IDD = IDD_STRINPUT };
-	//}}AFX_DATA
 
 
 // Overrides

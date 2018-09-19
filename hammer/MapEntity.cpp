@@ -24,10 +24,10 @@
 #include "Options.h"
 #include "Render2D.h"
 #include "SaveInfo.h"
-#include "VisGroup.h"
 #include "MapSprite.h"
 #include "camera.h"
 #include "hammer.h"
+#include "chunkfile.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

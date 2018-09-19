@@ -5,7 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "RunMap.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -16,7 +16,7 @@ static LPCTSTR pszSection = "Run Map";
 
 
 CRunMap::CRunMap(CWnd* pParent /*=NULL*/)
-	: CDialog(CRunMap::IDD, pParent)
+	: CDialog(IDD_RUNMAP, pParent)
 {
 	m_bSwitchMode = FALSE;
 

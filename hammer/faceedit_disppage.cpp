@@ -7,7 +7,6 @@
 
 #include <stdafx.h>
 #include <afxcmn.h>
-#include "hammer.h"
 #include "MainFrm.h"
 #include "GlobalFunctions.h"
 #include "MapDoc.h"
@@ -17,7 +16,6 @@
 #include "MapDisp.h"
 #include "FaceEditSheet.h"
 #include "MapView3D.h"
-#include "History.h"
 #include "ToolDisplace.h"
 #include "ToolManager.h"
 #include "DispSew.h"

@@ -6,16 +6,14 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "utlvector.h"
 #include "Box3D.h"
-#include "GlobalFunctions.h"
-#include "MainFrm.h"	// dvs: hack for tools migration code
 #include "MapDoc.h"
 #include "MapView2D.h"
 #include "Options.h"
 #include "Render2D.h"
 #include "Render3D.h"
 #include "RenderUtils.h"
-#include "resource.h"
 #include "StatusBarIDs.h"
 #include "hammer_mathlib.h"
 #include "vgui/Cursor.h"

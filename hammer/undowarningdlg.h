@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // CUndoWarningDlg dialog
 
+#pragma once
+
 class CUndoWarningDlg : public CDialog
 {
 // Construction
@@ -19,7 +21,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CUndoWarningDlg)
-	enum { IDD = IDD_UNDOWARNING };
 	BOOL	m_bNoShow;
 	//}}AFX_DATA
 

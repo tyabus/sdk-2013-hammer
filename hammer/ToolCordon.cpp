@@ -12,20 +12,15 @@
 #include "stdafx.h"
 #include "ChunkFile.h"
 #include "ToolCordon.h"
-#include "History.h"
-#include "GlobalFunctions.h"
-#include "MainFrm.h"
 #include "MapDoc.h"
 #include "MapDefs.h"
-#include "MapSolid.h"
 #include "MapView2D.h"
 #include "MapView3D.h"
 #include "MapWorld.h"
 #include "StatusBarIDs.h"
 #include "ToolManager.h"
-#include "Options.h"
-#include "WorldSize.h"
 #include "vgui/Cursor.h"
+#include "mathlib/vector.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

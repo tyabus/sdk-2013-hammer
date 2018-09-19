@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // CMapErrorsDlg dialog
 
+#pragma once
+
 class CMapErrorsDlg : public CDialog
 {
 // Construction
@@ -19,7 +21,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CMapErrorsDlg)
-	enum { IDD = IDD_MAPERRORS };
 	CListBox	m_cErrors;
 	//}}AFX_DATA
 

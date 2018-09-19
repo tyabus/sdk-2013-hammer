@@ -9,7 +9,7 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "MapErrorsDlg.h"
 #include "Error3d.h"
 
@@ -21,7 +21,7 @@
 
 
 CMapErrorsDlg::CMapErrorsDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CMapErrorsDlg::IDD, pParent)
+	: CDialog(IDD_MAPERRORS, pParent)
 {
 	//{{AFX_DATA_INIT(CMapErrorsDlg)
 		// NOTE: the ClassWizard will add member initialization here

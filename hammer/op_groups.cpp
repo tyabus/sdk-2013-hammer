@@ -6,12 +6,10 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "mapdoc.h"
 #include "MapWorld.h"
 #include "OP_Groups.h"
 #include "EditGroups.h"
-#include "GlobalFunctions.h"
-#include "CustomMessages.h"
 #include "ObjectProperties.h"
 #include "VisGroup.h"
 

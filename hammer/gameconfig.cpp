@@ -7,13 +7,9 @@
 #include "stdafx.h"
 #include <direct.h>
 #include <io.h>
-#include <WorldSize.h>
 #include "Gameconfig.h"
-#include "GlobalFunctions.h"
-#include "fgdlib/HelperInfo.h"
 #include "hammer.h"
 #include "KeyValues.h"
-#include "MapDoc.h"
 #include "MapDoc.h"
 #include "MapEntity.h"
 #include "MapWorld.h"

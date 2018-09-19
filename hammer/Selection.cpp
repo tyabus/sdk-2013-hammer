@@ -10,7 +10,7 @@
 #include "stdafx.h"
 #include "Selection.h"
 #include "mapdoc.h"
-#include "MapHelper.h"
+#include "mapentity.h"
 #include "MapSolid.h"
 #include "mapdefs.h"
 #include "globalfunctions.h"

@@ -9,6 +9,8 @@
 // defines ids of parts of the status bar
 //
 
+#pragma once
+
 enum
 {
 	ID_INDICATOR_FIRST = 0xE720,

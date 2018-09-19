@@ -12,18 +12,15 @@
 #include "EditGameConfigs.h"
 #include "Splash.h"
 #include "Options.h"
-#include "custommessages.h"
 #include "MainFrm.h"
 #include "MessageWnd.h"
 #include "ChildFrm.h"
 #include "MapDoc.h"
-#include "MapView3D.h"
 #include "MapView2D.h"
 #include "Prefabs.h"
 #include "GlobalFunctions.h"
 #include "Shell.h"
 #include "ShellMessageWnd.h"
-#include "Options.h"
 #include "TextureSystem.h"
 #include "ToolManager.h"
 #include "Hammer.h"
@@ -39,18 +36,17 @@
 #include "FileSystem.h"
 #include "filesystem_init.h"
 #include "utlmap.h"
-#include "progdlg.h"
 #include "MapWorld.h"
 #include "HammerVGui.h"
 #include "vgui_controls/Controls.h"
 #include "lpreview_thread.h"
-#include "steam/steam_api.h"
 #include "inputsystem/iinputsystem.h"
 #include "datacache/idatacache.h"
 #include "datamodel/dmelementfactoryhelper.h"
 #include "KeyBinds.h"
 #include "fmtstr.h"
 #include "KeyValues.h"
+#include "gameconfig.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -919,7 +915,7 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	m_pMainWnd = pMainFrame;
 
 	// try to init VGUI
-	HammerVGui()->Init( m_pMainWnd->GetSafeHwnd() );
+	HammerVGui()->Init( m_pMainWnd->GetSafeHwnd(), g_Factory );
 
 	// The main window has been initialized, so show and update it.
 	//

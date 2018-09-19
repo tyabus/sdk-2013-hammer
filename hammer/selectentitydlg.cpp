@@ -8,7 +8,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "SelectEntityDlg.h"
 #include "GlobalFunctions.h"
 #include "MapDoc.h"
@@ -20,7 +20,7 @@
 
 CSelectEntityDlg::CSelectEntityDlg(const CMapObjectList *pList,
 								   CWnd* pParent /*=NULL*/)
-	: CDialog(CSelectEntityDlg::IDD, pParent)
+	: CDialog(IDD_SELECTENTITY, pParent)
 {
 	//{{AFX_DATA_INIT(CSelectEntityDlg)
 		// NOTE: the ClassWizard will add member initialization here

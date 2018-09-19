@@ -9,7 +9,6 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "OptionProperties.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

@@ -18,7 +18,7 @@ public:
 	CHammerVGui(void);
 	~CHammerVGui(void);
 
-	bool Init( HWND hWindow );
+	bool Init( HWND hWindow, CreateInterfaceFn factory );
 	void Simulate();
 	void Shutdown();
 	bool HasFocus( CVGuiWnd *pWnd );

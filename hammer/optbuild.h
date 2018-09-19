@@ -22,7 +22,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(COPTBuild)
-	enum { IDD = IDD_OPTIONS_BUILD };
 	CEdit	m_cBSPDir;
 	CEdit	m_cVIS;
 	CEdit	m_cLIGHT;

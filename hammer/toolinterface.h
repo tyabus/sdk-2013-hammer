@@ -11,6 +11,7 @@
 #pragma once
 #endif
 
+#include "mathlib/vector.h"
 
 class CMapView2D;
 class CMapView3D;
@@ -19,7 +20,6 @@ class CRender2D;
 class CRender3D;
 class CMapDoc;
 class CMapClass;
-class Vector2D;
 class CChunkFile;
 class CSaveInfo;
 

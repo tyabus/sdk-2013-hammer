@@ -5,7 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "GameConfig.h"
 #include "OPTBuild.h"
 #include "Options.h"
@@ -38,7 +38,7 @@ void EditorUtil_TransferPath(CDialog *pDlg, int nIDC, char *szDest, bool bSave);
 
 
 COPTBuild::COPTBuild()
-	: CPropertyPage(COPTBuild::IDD)
+	: CPropertyPage(IDD_OPTIONS_BUILD)
 {
 	//{{AFX_DATA_INIT(COPTBuild)
 	//}}AFX_DATA_INIT

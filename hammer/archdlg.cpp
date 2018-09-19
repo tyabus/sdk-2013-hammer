@@ -5,7 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "hammer_mathlib.h"
 #include "ArchDlg.h"
 
@@ -20,7 +20,7 @@ extern void MakeArc(float x1, float y1, float x2, float y2, int npoints,
 
 
 CArchDlg::CArchDlg(Vector& boxmins, Vector& boxmaxs, CWnd* pParent /*=NULL*/)
-	: CDialog(CArchDlg::IDD, pParent)
+	: CDialog(IDD_ARCH, pParent)
 {
 	bmins = boxmins;
 	bmaxs = boxmaxs;

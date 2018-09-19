@@ -42,7 +42,6 @@ public:
 	GDclass *pObjClass;
 
 	//{{AFX_DATA(COP_Model)
-	enum { IDD = IDD_OBJPAGE_MODEL };
 	CFilteredComboBox m_ComboSequence;
 	CSliderCtrl m_ScrollBarFrame;
 	//    DO NOT EDIT what you see in these blocks of generated code !

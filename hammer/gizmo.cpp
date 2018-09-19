@@ -9,7 +9,6 @@
 #include "BoundBox.h"
 #include "Gizmo.h"
 #include "Render3D.h"
-#include "Resource.h"
 #include "materialsystem/IMesh.h"
 #include "TextureSystem.h"
 #include "camera.h"

@@ -12,12 +12,11 @@
 #include <vgui_controls/EditablePanel.h>
 #include "vgui/ISurface.h"
 #include "vgui/IVGui.h"
-#include "VGuiMatSurface/IMatSystemSurface.h"
 #include "HammerVGui.h"
 #include "material.h"
 #include "istudiorender.h"
-#include "hammer.h"
 
+#include "tier0/memdbgon.h"
 
 IMPLEMENT_DYNCREATE(CVGuiPanelWnd, CWnd)
 

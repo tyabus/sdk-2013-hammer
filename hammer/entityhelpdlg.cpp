@@ -5,13 +5,13 @@
 //=============================================================================
 
 #include "stdafx.h"
+#include "resource.h"
 #include "EntityHelpDlg.h"
 #include "fgdlib/GameData.h"
 #include "RichEditCtrlEx.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
-
 
 static CEntityHelpDlg *g_pHelpDlg = NULL;
 
@@ -59,7 +59,7 @@ void CEntityHelpDlg::SetEditGameClass(GDclass *pClass)
 // Purpose: Constructor.
 //-----------------------------------------------------------------------------
 CEntityHelpDlg::CEntityHelpDlg(CWnd *pwndParent)
-	: CDialog(CEntityHelpDlg::IDD, pwndParent)
+	: CDialog(IDD_ENTITY_HELP, pwndParent)
 {
 	m_pHelpText = NULL;
 }

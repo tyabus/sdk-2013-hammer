@@ -4,24 +4,21 @@
 //
 //=============================================================================//
 
-#include <stdafx.h>
+#include "stdafx.h"
 #include "MapOverlay.h"
 #include "MapFace.h"
 #include "MapSolid.h"
 #include "MapWorld.h"
-#include "MainFrm.h"
 #include "GlobalFunctions.h"
 #include "MapDoc.h"
 #include "TextureSystem.h"
 #include "Material.h"
 #include "materialsystem/IMesh.h"
 #include "Box3D.h"
-#include "MapDefs.h"
 #include "CollisionUtils.h"
 #include "MapSideList.h"
 #include "MapDisp.h"
 #include "ToolManager.h"
-#include "objectproperties.h"
 #include "ChunkFile.h"
 #include "mapview.h"
 #include "options.h"

@@ -20,10 +20,11 @@
 
 #include "BoundBox.h"
 #include "MapPoint.h"
-#include "UtlVector.h"
 #include "visgroup.h"
 #include "fgdlib/wckeyvalues.h"
 #include "tier1/smartptr.h"
+#include "SelectEntityDlg.h"
+#include "globalfunctions.h"
 
 
 class Box3D;
@@ -88,7 +89,6 @@ enum VisGroupSelection
 
 typedef const char * MAPCLASSTYPE;
 typedef BOOL (*ENUMMAPCHILDRENPROC)(CMapClass *, unsigned int dwParam);
-typedef CUtlVector<CMapClass*> CMapObjectList;
 
 
 #define MAX_ENUM_CHILD_DEPTH	16

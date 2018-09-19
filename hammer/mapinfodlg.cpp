@@ -5,7 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "IEditorTexture.h"
 #include "MapEntity.h"
 #include "MapFace.h"
@@ -59,7 +59,7 @@ static BOOL CountObject(CMapClass *pobj, unsigned int dwParam)
 //			pParent
 //-----------------------------------------------------------------------------
 CMapInfoDlg::CMapInfoDlg(CMapWorld *pWorld, CWnd* pParent /*=NULL*/)
-	: CDialog(CMapInfoDlg::IDD, pParent)
+	: CDialog(IDD_MAPINFO, pParent)
 {
 	//{{AFX_DATA_INIT(CMapInfoDlg)
 		// NOTE: the ClassWizard will add member initialization here

@@ -22,7 +22,6 @@
 #include "Options.h"
 #include "Render2D.h"
 #include "StatusBarIDs.h"
-#include "hammer.h"
 #include "mathlib/vmatrix.h"
 #include "vgui/Cursor.h"
 #include "Selection.h"

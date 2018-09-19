@@ -9,7 +9,7 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "NewKeyValue.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -20,7 +20,7 @@
 
 
 CNewKeyValue::CNewKeyValue(CWnd* pParent /*=NULL*/)
-	: CDialog(CNewKeyValue::IDD, pParent)
+	: CDialog(IDD_NEWKEYVALUE, pParent)
 {
 	//{{AFX_DATA_INIT(CNewKeyValue)
 	m_Key = _T("");

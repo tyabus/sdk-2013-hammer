@@ -5,16 +5,11 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include <afxtempl.h>
 #include "GameConfig.h"
 #include "RunCommands.h"
-#include "Options.h"
-#include <process.h>
 #include "ProcessWnd.h"
-#include <io.h>
 #include <direct.h>
 #include "GlobalFunctions.h"
-#include "hammer.h"
 #include "KeyValues.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

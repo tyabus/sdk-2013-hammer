@@ -7,16 +7,13 @@
 
 #include "stdafx.h"
 #include "History.h"
-#include "MainFrm.h"			// For ObjectProperties
 #include "MapDoc.h"
 #include "MapSweptPlayerHull.h"
-#include "MapPointHandle.h"
 #include "MapView2D.h"
 #include "Render2D.h"
 #include "StatusBarIDs.h"		// For SetStatusText
 #include "ToolManager.h"
 #include "ToolSweptHull.h"
-#include "ToolPointHandle.h"
 #include "Selection.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

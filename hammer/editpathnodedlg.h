@@ -11,8 +11,6 @@
 #pragma once
 #endif
 
-#include "resource.h"
-
 
 /////////////////////////////////////////////////////////////////////////////
 // CEditPathNodeDlg dialog
@@ -25,7 +23,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CEditPathNodeDlg)
-	enum { IDD = IDD_EDITPATHNODE };
 	BOOL	m_bRetrigger;
 	int		m_iSpeed;
 	int		m_iWait;

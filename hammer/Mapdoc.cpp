@@ -62,6 +62,8 @@
 #include "StockSolids.h"
 #include "ToolMorph.h"
 #include "ToolBlock.h"
+#include "chunkfile.h"
+#include "GameConfig.h"
 
 #include "utlbuffer.h"
 
@@ -3497,7 +3499,7 @@ void CMapDoc::OnEditToWorld(void)
 					RemoveFromAutoVisGroups( pChild );
 					AddToAutoVisGroup( pChild );
 
-					pChild->SetRenderColor(0, 100 + (random() % 156), 100 + (random() % 156));
+					pChild->SetRenderColor(0, 100 + (RandomInt(0, 255) % 156), 100 + (RandomInt(0, 255) % 156));
 					SelectObject(pChild, scSelect);
 
 				}
@@ -4059,7 +4061,7 @@ void CMapDoc::OnToolsGroup(void)
 	CMapGroup *pGroup = new CMapGroup;
 	AddObjectToWorld(pGroup);
 
-	pGroup->SetRenderColor(100 + (random() % 156), 100 + (random() % 156), 0);
+	pGroup->SetRenderColor(100 + (RandomInt(0, 255) % 156), 100 + (RandomInt(0, 255) % 156), 0);
 
 	for (int i = 0; i < pSelList->Count(); i++)
 	{
@@ -4147,7 +4149,7 @@ void CMapDoc::OnToolsUngroup(void)
 				pChild->AddVisGroup(pVisGroup);
 			}
 
-			pChild->SetRenderColor(0, 100 + (random() % 156), 100 + (random() % 156));
+			pChild->SetRenderColor(0, 100 + (RandomInt(0, 255) % 156), 100 + (RandomInt(0, 255) % 156));
 			SelectObject(pChild, scSelect);
 		}
 
@@ -9119,7 +9121,7 @@ CVisGroup *CMapDoc::VisGroups_AddGroup(LPCTSTR pszName, bool bAuto)
 	//
 	// Generate a random color for the group.
 	//
-	pGroup->SetColor(80 + (random() % 176), 80 + (random() % 176), 80 + (random() % 176));
+	pGroup->SetColor(80 + (RandomInt(0, 255) % 176), 80 + (RandomInt(0, 255) % 176), 80 + (RandomInt(0, 255) % 176));
 
 	//
 	// Generate a unique id for this visgroup.

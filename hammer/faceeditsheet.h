@@ -9,7 +9,6 @@
 #define FACEEDITSHEET_H
 #pragma once
 
-#include <afxtempl.h>
 #include "FaceEdit_MaterialPage.h"
 #include "FaceEdit_DispPage.h"
 

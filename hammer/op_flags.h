@@ -57,7 +57,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(COP_Flags)
-	enum { IDD = IDD_OBJPAGE_FLAGS };
 	CCheckListBox m_CheckList;
 
 		// NOTE - ClassWizard will add data members here.

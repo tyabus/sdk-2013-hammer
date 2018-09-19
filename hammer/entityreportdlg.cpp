@@ -5,6 +5,9 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "GameConfig.h"
+#include "ObjectProperties.h"
+#include "mapdoc.h"
 #include "EntityReportDlg.h"
 #include "fgdlib/GameData.h"
 #include "GlobalFunctions.h"
@@ -13,8 +16,6 @@
 #include "MapEntity.h"
 #include "MapView2D.h"
 #include "MapWorld.h"
-#include "ObjectProperties.h"
-#include "hammer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -32,7 +33,7 @@ void CEntityReportDlg::ShowEntityReport(CMapDoc *pDoc, CWnd *pwndParent)
 	if (!s_pDlg)
 	{
 		s_pDlg = new CEntityReportDlg(pDoc, pwndParent);
-		s_pDlg->Create(IDD, pwndParent);
+		s_pDlg->Create(IDD_ENTITYREPORT, pwndParent);
 	}
 
 	s_pDlg->ShowWindow(SW_SHOW);
@@ -44,7 +45,7 @@ void CEntityReportDlg::ShowEntityReport(CMapDoc *pDoc, CWnd *pwndParent)
 // Purpose: Private constructor.
 //-----------------------------------------------------------------------------
 CEntityReportDlg::CEntityReportDlg(CMapDoc *pDoc, CWnd* pParent /*=NULL*/)
-	: CDialog(CEntityReportDlg::IDD, pParent)
+	: CDialog(IDD_ENTITYREPORT, pParent)
 {
 	m_pDoc = pDoc;
 

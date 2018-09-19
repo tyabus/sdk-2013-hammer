@@ -9,7 +9,8 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
+#include "dbg.h"
 #include "ListBoxEx.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

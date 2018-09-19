@@ -5,16 +5,13 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include <stdafx.h>
-#include "hammer.h"
-#include "MainFrm.h"
+#include "stdafx.h"
 #include "FaceEditSheet.h"
-#include "GlobalFunctions.h"
 #include "DispDlg.h"
 #include "MapFace.h"
 #include "MapDisp.h"
 #include "ToolDisplace.h"
-#include "ToolManager.h"
+#include "hammer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

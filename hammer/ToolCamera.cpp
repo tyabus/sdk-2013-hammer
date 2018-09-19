@@ -16,14 +16,14 @@
 #include "Render2D.h"
 #include "StatusBarIDs.h"		// dvs: remove
 #include "ToolManager.h"
-#include "hammer_mathlib.h"
+#include "chunkfile.h"
 #include "vgui/Cursor.h"
 #include "Selection.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-#pragma warning(disable:4244)
+#define inrange(x, low, hi) ((x) >= (low) && (x) <= (hi))
 
 //-----------------------------------------------------------------------------
 // Purpose: 

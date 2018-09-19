@@ -11,16 +11,7 @@
 #pragma once
 #endif
 
-#ifndef byte
-typedef unsigned char byte;
-#endif // byte
-
-#include "hammer_mathlib.h"
 #include "studio.h"
-#include "UtlVector.h"
-#include "datacache/imdlcache.h"
-#include "FileChangeWatcher.h"
-
 
 class StudioModel;
 class CMaterial;

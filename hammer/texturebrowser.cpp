@@ -16,7 +16,6 @@
 #include "ReplaceTexDlg.h"
 #include "TextureBrowser.h"
 #include "TextureSystem.h"
-#include "hammer.h"
 #include "Selection.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

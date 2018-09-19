@@ -15,7 +15,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
+#include "mapclass.h"
 #include "MapEntity.h"
 #include "MapLine.h"
 #include "MapWorld.h"

@@ -9,6 +9,7 @@
 //
 
 #include "stdafx.h"
+#include "resource.h"
 #include "hammer.h"
 #include "RunMapExpertDlg.h"
 #include "RunMapCfgDlg.h"
@@ -20,7 +21,7 @@
 // CRunMapExpertDlg dialog
 
 CRunMapExpertDlg::CRunMapExpertDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CRunMapExpertDlg::IDD, pParent)
+	: CDialog(IDD_RUNMAPEXPERT, pParent)
 {
 	//{{AFX_DATA_INIT(CRunMapExpertDlg)
 	//}}AFX_DATA_INIT
@@ -534,7 +535,7 @@ void CRunMapExpertDlg::InitSequenceList()
 		// add a default configuration
 		CCommandSequence *pSeq = new CCommandSequence;
 		strcpy(pSeq->m_szName, "Default");
-		((CHammer*)AfxGetApp())->m_CmdSequences.Add(pSeq);
+		pApp->m_CmdSequences.Add(pSeq);
 		iSize = 1;
 	}
 

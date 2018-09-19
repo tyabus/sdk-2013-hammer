@@ -25,7 +25,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CTransformDlg)
-	enum { IDD = IDD_TRANSFORM };
 	int		m_iMode;
 	float	m_X;
 	float	m_Y;

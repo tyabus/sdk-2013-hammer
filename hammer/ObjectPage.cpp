@@ -6,12 +6,11 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "ObjectPage.h"
 #include "GlobalFunctions.h"
 #include "ObjectProperties.h"
 
-
+#include "tier0/memdbgon.h"
 //
 // Used to indicate multiselect of entities with different keyvalues.
 //

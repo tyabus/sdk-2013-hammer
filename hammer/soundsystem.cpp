@@ -8,9 +8,8 @@
 #include "stdafx.h"
 #include "soundsystem.h"
 #include "mmsystem.h"
-#include "filesystem.h"
+#include <filesystem_tools.h>
 #include "KeyValues.h"
-#include "hammer.h"
 #include "HammerScene.h"
 #include "ScenePreviewDlg.h"
 #include "soundchars.h"

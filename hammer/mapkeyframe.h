@@ -11,7 +11,6 @@
 
 
 #include "MapHelper.h"
-#include "hammer_mathlib.h"
 #include "keyframe/keyframe.h"
 
 

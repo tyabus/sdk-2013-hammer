@@ -7,7 +7,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "GotoBrushDlg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -24,7 +24,7 @@ END_MESSAGE_MAP()
 // Purpose: 
 //-----------------------------------------------------------------------------
 CGotoBrushDlg::CGotoBrushDlg(CWnd *pParent)
-	: CDialog(CGotoBrushDlg::IDD, pParent)
+	: CDialog(IDD_GOTO_BRUSH, pParent)
 {
 	//{{AFX_DATA_INIT(CGotoBrushDlg)
 	m_nBrushID = 0;

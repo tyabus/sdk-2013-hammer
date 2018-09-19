@@ -27,7 +27,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CArchDlg)
-	enum { IDD = IDD_ARCH };
 	CSpinButtonCtrl	m_cStartAngleSpin;
 	CSpinButtonCtrl	m_cWallWidthSpin;
 	CEdit	m_cWallWidth;

@@ -19,7 +19,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CGotoBrushDlg)
-	enum { IDD = IDD_GOTO_BRUSH };
 	int		m_nBrushID;
 	//}}AFX_DATA
 

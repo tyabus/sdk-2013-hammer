@@ -13,7 +13,6 @@
 #include "MapClass.h"
 #include "MapPointHandle.h"
 #include "ToolInterface.h"
-#include "MapPointHandle.h"
 #include "mapview.h"
 
 

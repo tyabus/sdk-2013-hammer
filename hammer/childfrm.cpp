@@ -8,13 +8,6 @@
 //===========================================================================//
 
 #include "stdafx.h"
-#include <oleauto.h>
-#include <oaidl.h>
-#if _MSC_VER < 1300
-#include <afxpriv.h>
-#else
-#define WM_INITIALUPDATE    0x0364  // (params unused) - sent to children
-#endif
 #include "hammer.h"
 #include "Options.h"
 #include "MainFrm.h"
@@ -24,7 +17,6 @@
 #include "MapViewLogical.h"
 #include "MapView3D.h"
 #include "GlobalFunctions.h"
-#include "materialdlg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

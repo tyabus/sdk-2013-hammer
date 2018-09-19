@@ -5,16 +5,14 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "TextureBar.h"
 #include "ControlBarIDs.h"
-#include "StockSolids.h"
 #include "MainFrm.h"
 #include "MapDoc.h"
 #include "GlobalFunctions.h"
 #include "History.h"
 #include "IEditorTexture.h"
-#include "Options.h"
+#include "GameConfig.h"
 #include "ReplaceTexDlg.h"
 #include "TextureBrowser.h"
 #include "TextureSystem.h"
@@ -75,6 +73,11 @@ LPCTSTR GetNullTextureName()
 }
 
 
+CTextureBar::CTextureBar(): CHammerBar(), m_pCurTex(nullptr)
+{
+} 
+
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : *pParentWnd - 
@@ -82,11 +85,11 @@ LPCTSTR GetNullTextureName()
 //			iBarID - 
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
-BOOL CTextureBar::Create(CWnd *pParentWnd, int IDD, int iBarID)
+BOOL CTextureBar::Create(CWnd *pParentWnd)
 {
 	m_pCurTex = NULL;
 
-	if (!CHammerBar::Create(pParentWnd, IDD, CBRS_RIGHT, iBarID))
+	if (!CHammerBar::Create(pParentWnd, IDD_TEXTUREBAR, CBRS_RIGHT, IDCB_TEXTUREBAR))
 	{
 		return(FALSE);
 	}

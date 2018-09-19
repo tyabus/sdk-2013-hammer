@@ -9,7 +9,7 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "OPTView2D.h"
 #include "Options.h"	
 
@@ -21,7 +21,7 @@
 
 IMPLEMENT_DYNCREATE(COPTView2D, CPropertyPage)
 
-COPTView2D::COPTView2D() : CPropertyPage(COPTView2D::IDD)
+COPTView2D::COPTView2D() : CPropertyPage(IDD_OPTIONS_2D)
 {
 	//{{AFX_DATA_INIT(COPTView2D)
 	//}}AFX_DATA_INIT

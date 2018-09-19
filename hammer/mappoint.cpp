@@ -6,8 +6,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
-#include "MapDefs.h" // for COORD_NOTINIT
 #include "MapPoint.h"
 #include "hammer_mathlib.h"
 

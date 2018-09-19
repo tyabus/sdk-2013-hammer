@@ -6,14 +6,13 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "mapclass.h"
+#include "mapentity.h"
 #include "Box3D.h"
 #include "fgdlib/HelperInfo.h"
-#include "materialsystem/imaterialsystem.h"
-#include "materialsystem/IMesh.h"
 #include "MapDoc.h"
 #include "MapSphere.h"
 #include "MapView2D.h"
-#include "Material.h"
 #include "mathlib/MathLib.h"
 #include "Render2D.h"
 #include "Render3D.h"

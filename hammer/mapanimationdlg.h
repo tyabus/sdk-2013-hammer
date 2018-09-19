@@ -13,7 +13,7 @@
 
 
 #include "HammerBar.h"
-#include "MapClass.h"
+#include "globalfunctions.h"
 
 
 class CMapAnimationDlg : public CHammerBar
@@ -29,7 +29,6 @@ public:
 protected:
 
 	//{{AFX_DATA(CMapAnimationDlg)
-	enum { IDD = IDD_ANIMATIONDLG };
     CSliderCtrl		m_TimeSlider;        // time in animation
     CButton         m_Play;              // plays the current animation
 	//}}AFX_DATA

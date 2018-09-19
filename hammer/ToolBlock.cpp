@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include "History.h"
 #include "MainFrm.h"
-#include "MapDefs.h"
 #include "MapDoc.h"
 #include "MapView2D.h"
 #include "MapView3D.h"
@@ -19,6 +18,7 @@
 #include "vgui/Cursor.h"
 #include "Selection.h"
 
+#include "tier0/memdbgon.h"
 
 class CToolBlockMessageWnd : public CWnd
 {

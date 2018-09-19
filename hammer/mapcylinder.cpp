@@ -15,17 +15,16 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
 #include "MapEntity.h"
 #include "MapCylinder.h"
 #include "MapWorld.h"
 #include "Render2D.h"
 #include "Render3D.h"
-#include "TextureSystem.h"
 #include "materialsystem/IMesh.h"
 #include "Material.h"
 #include "mapdoc.h"
 #include "options.h"
+#include "mapclass.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

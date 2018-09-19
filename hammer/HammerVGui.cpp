@@ -1,17 +1,16 @@
 #include "stdafx.h"
-#include "hammer.h"
+#include "interface.h"
 #include "hammervgui.h"
 #include <vgui/IVGui.h>
-#include <vgui/ISurface.h>
 #include <vgui/ISystem.h>
-#include "vgui/IInput.h"
 #include <VGuiMatSurface/IMatSystemSurface.h>
 #include <matsys_controls/matsyscontrols.h>
-#include "material.h"
 #include "vgui_controls/AnimationController.h"
 #include "inputsystem/iinputsystem.h"
 #include "VGuiWnd.h"
 #include "vphysics_interface.h"
+
+#include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: singleton accessor
@@ -32,16 +31,16 @@ CHammerVGui::CHammerVGui(void)
 //-----------------------------------------------------------------------------
 // Setup the base vgui panels
 //-----------------------------------------------------------------------------
-bool CHammerVGui::Init( HWND hWindow )
+bool CHammerVGui::Init( HWND hWindow, CreateInterfaceFn factory )
 {
 	// initialize vgui_control interfaces
-	if (!vgui::VGui_InitInterfacesList( "HAMMER", &g_Factory, 1 ))
+	if (!vgui::VGui_InitInterfacesList( "HAMMER", &factory, 1 ))
 		return false;
 
-	if ( !vgui::VGui_InitMatSysInterfacesList( "HAMMER", &g_Factory, 1 ) )
+	if ( !vgui::VGui_InitMatSysInterfacesList( "HAMMER", &factory, 1 ) )
 		return false;
 
-	g_pPhysicsCollision = ( IPhysicsCollision* )g_Factory( VPHYSICS_COLLISION_INTERFACE_VERSION, NULL );
+	g_pPhysicsCollision = ( IPhysicsCollision* )factory( VPHYSICS_COLLISION_INTERFACE_VERSION, NULL );
 
 	if ( !g_pMatSystemSurface || !g_pPhysicsCollision )
 		return false;

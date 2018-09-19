@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "History.h"
-#include "MainFrm.h"			// FIXME: For ObjectProperties
 #include "MapDoc.h"
 #include "MapView2D.h"
 #include "MapSphere.h"

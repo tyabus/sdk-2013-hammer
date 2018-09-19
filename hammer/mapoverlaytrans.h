@@ -8,7 +8,6 @@
 #pragma once
 
 #include "utlvector.h"
-#include "mathlib/vector.h"
 #include "mathlib/vector2d.h"
 #include "MapHelper.h"
 

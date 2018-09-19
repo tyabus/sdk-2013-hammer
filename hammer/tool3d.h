@@ -11,16 +11,12 @@
 #pragma once
 #endif
 
-#include "MapAtom.h"
 #include "ToolInterface.h"
 
 class CMapDoc;
 class CMapView;
 class CRender;
 
-
-#define inrange(a,minv,maxv)	((a) >= (minv) && (a) <= (maxv))
-#pragma warning(disable: 4244)
 
 #define	DRAG_THRESHHOLD		2
 #define	HANDLE_OFFSET		6

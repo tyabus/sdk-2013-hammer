@@ -7,27 +7,12 @@
 
 #include "stdafx.h"
 #include <direct.h>
-#include <time.h>
 #include "MapSolid.h"
 #include "mapworld.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-
-static DWORD holdrand;
-
-
-void randomize()
-{
-	holdrand = DWORD(time(NULL));
-}
-
-
-DWORD random()
-{
-	return(holdrand = holdrand * 214013L + 2531011L);
-}
 
 
 // MapCheckDlg.cpp:

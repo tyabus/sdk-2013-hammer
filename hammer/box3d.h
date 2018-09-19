@@ -12,6 +12,7 @@
 
 #include "Tool3D.h"
 #include "BoundBox.h"
+#include "mathlib/vmatrix.h"
 
 
 class CMapView2D;

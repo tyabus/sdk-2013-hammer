@@ -33,6 +33,8 @@
 #include "materialsystem/MaterialSystem_Config.h"
 #include "soundbrowser.h"
 #include "KeyValues.h"
+#include "soundsystem.h"
+#include "GameConfig.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

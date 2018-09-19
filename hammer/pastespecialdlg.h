@@ -3,6 +3,7 @@
 // Purpose: 
 //
 //=============================================================================
+#pragma once
 
 #include "BoundBox.h"
 
@@ -15,7 +16,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CPasteSpecialDlg)
-	enum { IDD = IDD_WC_PASTESPECIAL };
 	int		m_iCopies;
 	BOOL	m_bGroup;
 	int		m_iOffsetX;

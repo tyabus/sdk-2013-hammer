@@ -4,10 +4,7 @@
 //
 //=============================================================================//
 
-#ifndef _RUNCOMMANDS_H
-#define _RUNCOMMANDS_H
-
-#include <afxtempl.h>
+#pragma once
 
 //
 // RunCommands functions
@@ -49,5 +46,3 @@ typedef CArray<CCOMMAND, CCOMMAND&> CCommandArray;
 bool RunCommands(CCommandArray& Commands, LPCTSTR pszDocName);
 void FixGameVars(char *pszSrc, char *pszDst, BOOL bUseQuotes = TRUE);
 bool IsRunningCommands();
-
-#endif // _RUNCOMMANDS_H

@@ -5,7 +5,6 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "EntityHelpDlg.h"
 #include "History.h"
 #include "MainFrm.h"
@@ -29,12 +28,13 @@
 #include "filesystem_tools.h"
 #include "tier0/icommandline.h"
 #include "ModelBrowser.h"
-#include "HammerVGui.h"
 #include "mapview3d.h"
 #include "camera.h"
 #include "Selection.h"
 #include "options.h"
 #include "op_flags.h"
+#include "soundsystem.h"
+#include "hammer.h"
 
 extern GameData *pGD;		// current game data
 
@@ -411,7 +411,7 @@ ColumnSortFn g_ColumnSortFunctions[] =
 // Purpose:
 //-----------------------------------------------------------------------------
 COP_Entity::COP_Entity()
-	: CObjectPage(COP_Entity::IDD),
+	: CObjectPage(IDD_OBJPAGE_ENTITYKV),
 	m_cClasses( this ),
 	m_SmartControlTargetNameRouter( this ),
 	m_VarList( this )

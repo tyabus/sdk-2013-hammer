@@ -5,6 +5,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "mapclass.h"
 #include "Box3D.h"
 #include "BrushOps.h"
 #include "GlobalFunctions.h"
@@ -21,6 +22,7 @@
 #include "camera.h"
 #include "ssolid.h"
 #include "TextureSystem.h"
+#include "chunkfile.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -1151,7 +1153,7 @@ ChunkFileResult_t CMapSolid::LoadVMF(CChunkFile *pFile, bool &bValid)
 //-----------------------------------------------------------------------------
 void CMapSolid::PickRandomColor()
 {
-	SetRenderColor(0, 100 + (random() % 156), 100 + (random() % 156));
+	SetRenderColor(0, 100 + (RandomInt(0, 255) % 156), 100 + (RandomInt(0, 255) % 156));
 }
 
 

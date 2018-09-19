@@ -5,23 +5,19 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "Box3D.h"
 #include "GlobalFunctions.h"
 #include "fgdlib/HelperInfo.h"
 #include "materialsystem/IMaterialSystem.h"
-#include "MainFrm.h"			// For refreshing the object properties dialog
 #include "MapDoc.h"
 #include "MapPlayerHullHandle.h"
 #include "MapSweptPlayerHull.h"
 #include "MapView2D.h"
-#include "Material.h"
 #include "Options.h"
 #include "ObjectProperties.h"	// For refreshing the object properties dialog
 #include "Render2D.h"
 #include "Render3D.h"
-#include "StatusBarIDs.h"		// For updating status bar text
-#include "ToolManager.h"
 #include "vgui/Cursor.h"
+#include "mapclass.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

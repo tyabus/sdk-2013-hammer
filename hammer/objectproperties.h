@@ -11,8 +11,6 @@
 
 #include "MapClass.h"
 #include "EditGameClass.h"
-#include "ObjectPage.h"
-#include "OP_Groups.h"
 #include "AnchorMgr.h"
 
 
@@ -21,6 +19,9 @@ class COP_Flags;
 class COP_Output;
 class COP_Input;
 class COP_Model;
+class COP_Groups;
+
+class CObjectPage;
 
 enum LayoutType_t;
 
@@ -58,7 +59,7 @@ public:
 	CObjectProperties(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
 	CObjectProperties(LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
 
-	inline void UpdateGrouplist(void);
+	void UpdateGrouplist(void);
 
 	PVOID GetEditObject(CRuntimeClass *pType);
 	PVOID GetEditObjectFromMapObject(CMapClass *pobj, CRuntimeClass *pType);
@@ -157,18 +158,5 @@ protected:
 friend CObjectPage;
 
 };
-
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-inline void CObjectProperties::UpdateGrouplist(void)
-{
-	if (m_pGroups != NULL)
-	{
-		m_pGroups->UpdateGroupList();
-	}
-}
-
 
 #endif // OBJECTPROPERTIES_H

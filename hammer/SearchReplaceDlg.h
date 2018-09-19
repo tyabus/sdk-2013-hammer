@@ -11,10 +11,6 @@
 #pragma once
 #endif
 
-#include "resource.h"
-#include "UtlVector.h"
-#include "MapClass.h"
-
 
 class CMapEntity;
 
@@ -37,7 +33,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CSearchReplaceDlg)
-	enum { IDD = IDD_SEARCH_REPLACE };
 	CString m_strFindText;
 	CString m_strReplaceText;
 	BOOL m_bVisiblesOnly;

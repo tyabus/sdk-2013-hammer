@@ -29,7 +29,6 @@ class CMapInfoDlg : public CDialog
 
 	// Dialog Data
 		//{{AFX_DATA(CMapInfoDlg)
-		enum { IDD = IDD_MAPINFO };
 		CStatic	m_Faces;
 		CStatic	m_Solids;
 		CStatic	m_SolidEntities;

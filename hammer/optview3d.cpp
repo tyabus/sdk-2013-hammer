@@ -10,7 +10,6 @@
 #include "GlobalFunctions.h"
 #include "MainFrm.h"
 #include "MapDoc.h"
-#include "hammer.h"
 #include "OPTView3D.h"
 #include "Options.h"	
 

@@ -5,15 +5,13 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include <stdafx.h>
+#include "stdafx.h"
 #include "MapWorld.h"
 #include "GlobalFunctions.h"
 #include "MainFrm.h"
 #include "ToolOverlay.h"
 #include "MapDoc.h"
 #include "History.h"
-#include "CollisionUtils.h"
-#include "cmodel.h"
 #include "MapView3D.h"
 #include "MapView2D.h"
 #include "MapSolid.h"

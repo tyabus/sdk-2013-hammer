@@ -9,10 +9,10 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "EditGameConfigs.h"
 #include "StrDlg.h"
 #include "MapDoc.h"
+#include "gameconfig.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

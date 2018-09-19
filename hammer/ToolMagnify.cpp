@@ -6,11 +6,8 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "MapDoc.h"
 #include "MapView2D.h"
-#include "resource.h"
 #include "ToolMagnify.h"
-#include "HammerVGui.h"
 #include <VGuiMatSurface/IMatSystemSurface.h>
 
 // memdbgon must be the last include file in a .cpp file!!!

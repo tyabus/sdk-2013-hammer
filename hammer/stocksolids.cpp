@@ -5,7 +5,6 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "StockSolids.h"
 #include "hammer_mathlib.h"
 #include "MapSolid.h"

@@ -5,7 +5,6 @@
 //===========================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "MapView2D.h"
 #include "MapDoc.h"
 #include "Render2D.h"

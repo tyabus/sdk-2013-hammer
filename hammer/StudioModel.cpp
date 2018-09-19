@@ -5,34 +5,25 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <malloc.h>
 #include "mapdoc.h"
 #include "MapWorld.h"
 #include "Material.h"
 #include "Render2D.h"
 #include "Render3D.h"
 #include "StudioModel.h"
-#include "ViewerSettings.h"
 #include "materialsystem/IMesh.h"
 #include "TextureSystem.h"
 #include "bone_setup.h"
 #include "IStudioRender.h"
-#include "GlobalFunctions.h"
 #include "UtlMemory.h"
 #include "UtlDict.h"
 #include "bone_accessor.h"
-#include "optimize.h"
 #include "FileSystem.h"
-#include "Hammer.h"
-#include "HammerVGui.h"
 #include <VGuiMatSurface/IMatSystemSurface.h>
 #include "mapview2d.h"
-#include "mapdefs.h"
 #include "camera.h"
 #include "options.h"
+#include "hammer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

@@ -13,9 +13,8 @@
 #include "MainFrm.h"
 #include "MapDoc.h"
 #include "Material.h"			// Specific IEditorTexture implementation
-#include "Options.h"
+#include "GameConfig.h"
 #include "TextureSystem.h"
-#include "hammer.h"
 #include "filesystem.h"
 #include "materialsystem/ITexture.h"
 #include "materialsystem/imaterialvar.h"

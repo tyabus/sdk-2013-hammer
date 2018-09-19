@@ -5,9 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "lprvwindow.h"
-#include "GameConfig.h"
 #include "lpreview_thread.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

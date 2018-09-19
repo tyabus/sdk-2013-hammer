@@ -76,7 +76,6 @@ $Project "hammer_dll"
 				"$SRCDIR\Public\ChunkFile.cpp"						\
 				"$SRCDIR\Public\CollisionUtils.cpp"					\
 				"$SRCDIR\common\ConfigManager.cpp"					\
-				"$SRCDIR\common\SourceAppInfo.cpp"					\
 				"$SRCDIR\public\disp_common.cpp"					\
 				"$SRCDIR\public\disp_powerinfo.cpp"					\
 				"$SRCDIR\public\filesystem_helpers.cpp"				\
@@ -84,7 +83,6 @@ $Project "hammer_dll"
 				"hammer_mathlib.cpp"								\
 				"$SRCDIR\public\KeyFrame\keyframe.cpp"				\
 				"$SRCDIR\Public\rope_physics.cpp"					\
-				"SaveInfo.cpp"										\
 				"$SRCDIR\Public\simple_physics.cpp"					\
 				"$SRCDIR\public\studio.cpp"							\
 				"$SRCDIR\public\vgui_controls\vgui_controls.cpp"	\
@@ -147,8 +145,6 @@ $Project "hammer_dll"
 		$File	"DispShore.h"
 		$File	"DispSubdiv.cpp"
 		$File	"DispSubdiv.h"
-		$File	"DynamicDialogWnd.cpp"
-		$File	"DynamicDialogWnd.h"
 		$File	"EditGameClass.cpp"
 		$File	"EditGameClass.h"
 		$File	"EditGameConfigs.cpp"
@@ -260,7 +256,6 @@ $Project "hammer_dll"
 		$File	"OPTTextures.h"
 		$File	"OPTView2D.h"
 		$File	"OPTView3D.h"
-		$File	"osver.cpp"
 		$File	"PopupMenus.h"
 		$File	"Prefab3D.cpp"
 		$File	"Prefab3d.h"
@@ -284,9 +279,9 @@ $Project "hammer_dll"
 		$File	"RunMap.cpp"
 		$File	"RunMap.h"
 		$File	"SaveInfo.h"
+        $File   "SaveInfo.cpp"
 		$File	"ScenePreviewDlg.cpp"
 		$File	"ScenePreviewDlg.h"
-		$File	"SearchBox.h"
 		$File	"Selection.cpp"
 		$File	"Shell.h"
 		$File	"SoundBrowser.cpp"
@@ -613,7 +608,6 @@ $Project "hammer_dll"
 		$File	"MapSprite.h"
 		$File	"$SRCDIR\Public\mathlib\MATHLIB.H"
 		$File	"$SRCDIR\Public\NTree.h"
-		$File	"osver.h"
 		$File	"Render.h"
 		$File	"Selection.h"
 		$File	"SelectModeDlgBar.h"

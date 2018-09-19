@@ -7,9 +7,7 @@
 
 #include "stdafx.h"
 #include "History.h"
-#include "hammer.h"
 #include "Options.h"
-#include "MainFrm.h"
 #include "MapDoc.h"
 #include "GlobalFunctions.h"
 #include "UndoWarningDlg.h"

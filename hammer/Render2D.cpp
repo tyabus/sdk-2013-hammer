@@ -8,13 +8,10 @@
 #include "stdafx.h"
 #include "Render2D.h"
 #include "gameconfig.h"
-#include "vgui_controls/Controls.h"
-#include "HammerVGui.h"
 #include "material.h"
 #include <VGuiMatSurface/IMatSystemSurface.h>
 #include "mapview2d.h"
 #include "camera.h"
-#include "vgui/IScheme.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "maplight.h"
-#include "hammer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

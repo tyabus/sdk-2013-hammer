@@ -9,7 +9,7 @@
 #include "MapDefs.h"
 #include "MapGroup.h"
 #include "SaveInfo.h"
-#include "hammer.h"
+#include "chunkfile.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

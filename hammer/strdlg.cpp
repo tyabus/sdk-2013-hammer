@@ -9,7 +9,7 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "StrDlg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -20,7 +20,7 @@
 
 CStrDlg::CStrDlg(DWORD dwFlags, LPCTSTR pszString, LPCTSTR pszPrompt, 
 				 LPCTSTR pszTitle)
-	: CDialog(CStrDlg::IDD, NULL)
+	: CDialog(IDD_STRINPUT, NULL)
 {
 	//{{AFX_DATA_INIT(CStrDlg)
 	m_string = _T("");

@@ -10,11 +10,12 @@
 #pragma once
 #endif
 
-#include "MapClass.h"	// For CMapObjectList
+#include "utlvector.h"
+#include "globalfunctions.h"
 
 class CMapClass;
-class CMapDoc;
 class CHistory;
+class CVisGroup;
 
 //
 // Holds undo information for a single object, due to a single operation. Held by a CHistoryTrack.

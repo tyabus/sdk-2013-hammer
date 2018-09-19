@@ -15,7 +15,6 @@
 #include "KeyValues.h"
 #include "UtlSymbol.h"
 #include "UtlVector.h"
-#include "utilmatlib.h"
 #include "mathlib/VMatrix.h"
 #include "vstdlib/random.h"
 #include "builddisp.h"
@@ -26,8 +25,7 @@
 #include "mapface.h"
 #include "camera.h"
 #include "options.h"
-
-#include "hammer.h"
+#include <filesystem_tools.h>
 
 // Actually, this is the max per map, but for now this is better than no limit at all.
 #define MAX_DETAIL_SPRITES_PER_FACE 65535

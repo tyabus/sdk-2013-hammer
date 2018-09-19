@@ -13,8 +13,10 @@
 
 #pragma once
 
+#include "globalfunctions.h"
 
-#include "MapClass.h"	// dvs: For CMapObjectList
+class CMapEntity;
+class CMapClass;
 
 
 class CSelectEntityDlg : public CDialog
@@ -26,7 +28,6 @@ class CSelectEntityDlg : public CDialog
 
 	// Dialog Data
 		//{{AFX_DATA(CSelectEntityDlg)
-		enum { IDD = IDD_SELECTENTITY };
 		CListBox	m_cEntities;
 		//}}AFX_DATA
 

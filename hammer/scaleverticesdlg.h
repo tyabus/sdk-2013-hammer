@@ -25,7 +25,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CScaleVerticesDlg)
-	enum { IDD = IDD_SCALEVERTICES };
 	CSpinButtonCtrl	m_cScaleSpin;
 	CEdit	m_cScale;
 	//}}AFX_DATA

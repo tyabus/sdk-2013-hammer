@@ -6,7 +6,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "AngleBox.h"
 #include "hammer_mathlib.h"
 #include "CustomMessages.h"

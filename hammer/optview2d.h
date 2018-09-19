@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // COPTView2D dialog
 
+#pragma once
+
 class COPTView2D : public CPropertyPage
 {
 	DECLARE_DYNCREATE(COPTView2D)
@@ -22,7 +24,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(COPTView2D)
-	enum { IDD = IDD_OPTIONS_2D };
 	CSliderCtrl	m_cGridIntensity;
 	//}}AFX_DATA
 

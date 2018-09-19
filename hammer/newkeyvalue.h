@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // CNewKeyValue dialog
 
+#pragma once
+
 class CNewKeyValue : public CDialog
 {
 // Construction
@@ -19,7 +21,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CNewKeyValue)
-	enum { IDD = IDD_NEWKEYVALUE };
 	CString	m_Key;
 	CString	m_Value;
 	//}}AFX_DATA

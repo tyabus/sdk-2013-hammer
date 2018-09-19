@@ -8,7 +8,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "hammer_mathlib.h"
 #include "TorusDlg.h"
 
@@ -22,7 +22,7 @@ void MakeArcCenterRadius(float xCenter, float yCenter, float xrad, float yrad, i
 void MakeArc(float x1, float y1, float x2, float y2, int npoints, float start_ang, float fArc, float points[][2]);
 
 CTorusDlg::CTorusDlg(Vector& boxmins, Vector& boxmaxs, CWnd* pParent /*=NULL*/)
-	: CDialog(CTorusDlg::IDD, pParent)
+	: CDialog(IDD_TORUS, pParent)
 {
 	bmins = boxmins;
 	bmaxs = boxmaxs;

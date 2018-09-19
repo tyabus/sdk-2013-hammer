@@ -10,12 +10,7 @@
 #define SAVEINFO_H
 #pragma once
 
-
-#include "ChunkFile.h"
-
-
 class CMapClass;
-
 
 class CSaveInfo
 {

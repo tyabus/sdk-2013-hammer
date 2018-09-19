@@ -6,16 +6,13 @@
 
 #include "stdafx.h"
 #include "Box3D.h"
-#include "GlobalFunctions.h"
-#include "MapDefs.h"		// dvs: For COORD_NOTINIT
+#include "mapclass.h"
 #include "MapEntity.h"
 #include "MapStudioModel.h"
 #include "Render2D.h"
 #include "Render3D.h"
 #include "ViewerSettings.h"
-#include "hammer.h"
 #include "materialsystem/IMesh.h"
-#include "TextureSystem.h"
 #include "Material.h"
 #include "Options.h"
 #include "camera.h"

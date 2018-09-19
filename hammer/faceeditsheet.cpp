@@ -4,10 +4,8 @@
 //
 //=============================================================================//
 
-#include <stdafx.h>
-#include "hammer.h"
+#include "stdafx.h"
 #include "MainFrm.h"
-#include "GlobalFunctions.h"
 #include "FaceEditSheet.h"
 #include "MapSolid.h"
 #include "MapFace.h"

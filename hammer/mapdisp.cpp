@@ -5,8 +5,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#include <stdafx.h>
-#include "bitmap/tgaloader.h"
+#include "stdafx.h"
 #include "ChunkFile.h"
 #include "MapDefs.h"
 #include "MapDisp.h"
@@ -17,14 +16,11 @@
 #include "MainFrm.h"
 #include "GlobalFunctions.h"
 #include "SaveInfo.h"
-#include "TextureSystem.h"
 #include "materialsystem/IMesh.h"
 #include "Material.h"
 #include "CollisionUtils.h"
 #include "CModel.h"
 #include "History.h"
-#include "ToolDisplace.h"
-#include "ToolManager.h"
 #include "mathlib/mathlib.h"
 #include "dispshore.h"
 #include "Color.h"

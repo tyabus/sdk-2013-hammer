@@ -6,7 +6,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "ObjectProperties.h"
 #include "ObjectPage.h"
 #include "OP_Flags.h"
@@ -126,6 +125,14 @@ CObjectProperties::CObjectProperties(LPCTSTR pszCaption, CWnd* pParentWnd, UINT 
 	m_pOutputButton = NULL;
 
 	CreatePages();
+}
+
+void CObjectProperties::UpdateGrouplist()
+{
+    if (m_pGroups != NULL)
+    {
+        m_pGroups->UpdateGroupList();
+    }
 }
 
 

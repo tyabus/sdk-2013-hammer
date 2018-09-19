@@ -13,8 +13,9 @@
 // SoundBrowser.h : header file
 //
 
-#include "soundsystem.h"
 #include "AutoSelCombo.h"
+
+enum SoundType_t;
 
 /////////////////////////////////////////////////////////////////////////////
 // CSoundBrowser dialog
@@ -28,7 +29,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CSoundBrowser)
-	enum { IDD = IDD_SOUNDBROWSER };
 	CListBox	m_SoundList;
 	CString	m_SoundNameSelected;
 	int		m_SoundType;

@@ -21,7 +21,6 @@
 #include "materialsystem/IMesh.h"
 #include "TextureSystem.h"
 #include "ToolInterface.h"
-#include "StudioModel.h"
 #include "ibsplighting.h"
 #include "ToolManager.h"
 #include "mapview.h"

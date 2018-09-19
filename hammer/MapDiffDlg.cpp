@@ -1,12 +1,11 @@
 // MapDiffDlg.cpp : implementation file
 //
 #include "stdafx.h"
+#include "utlvector.h"
 #include "GlobalFunctions.h"
-#include "History.h"
 #include "MainFrm.h"
 #include "MapDiffDlg.h"
 #include "MapDoc.h"
-#include "MapView2D.h"
 #include "MapWorld.h"
 #include "Options.h"
 #include "VisGroup.h"
@@ -102,8 +101,7 @@ void CMapDiffDlg::OnOK()
 {
 	CString strFilename;
 	m_mapName.GetWindowText( strFilename );
-	CHammer *pApp = (CHammer*) AfxGetApp();
-	CMapDoc *pDoc = (CMapDoc*) pApp->pMapDocTemplate->OpenDocumentFile( strFilename );	
+	CMapDoc *pDoc = (CMapDoc*) APP()->pMapDocTemplate->OpenDocumentFile( strFilename );	
     CUtlVector <int> IDList;
 	
 	const CMapObjectList *pChildren = pDoc->GetMapWorld()->GetChildren();

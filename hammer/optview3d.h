@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // COPTView3D dialog
 
+#pragma once
+
 class COPTView3D : public CPropertyPage
 {
 	DECLARE_DYNCREATE(COPTView3D)

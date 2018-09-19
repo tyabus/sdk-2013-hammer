@@ -5,9 +5,11 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "SoundBrowser.h"
 #include "mmsystem.h"
+#include "strtools.h"
+#include "soundsystem.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -21,7 +23,7 @@ int CSoundBrowser::m_nFilterHistory;
 
 
 CSoundBrowser::CSoundBrowser( const char *pCurrentSoundName, CWnd* pParent /*=NULL*/ )
-	: CDialog(CSoundBrowser::IDD, pParent)
+	: CDialog(IDD_SOUNDBROWSER, pParent)
 {
 	//{{AFX_DATA_INIT(CSoundBrowser)
 	m_Autoplay = FALSE;

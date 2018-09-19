@@ -7,7 +7,6 @@
 
 #include "stdafx.h"
 #include "MapPath.h"
-#include "hammer.h"
 #include "EditPathDlg.h"
 #include "MapEntity.h"
 

@@ -12,12 +12,11 @@
 
 
 #include "MapHelper.h"
-#include "StudioModel.h"
-
 
 class CRender2D;
 class CRender3D;
-
+class CHelperInfo;
+class StudioModel;
 
 class CMapStudioModel : public CMapHelper
 {

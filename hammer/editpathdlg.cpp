@@ -5,7 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "EditPathDlg.h"
 #include "GameConfig.h"
 #include "fgdlib/GameData.h"
@@ -15,7 +15,7 @@
 
 
 CEditPathDlg::CEditPathDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CEditPathDlg::IDD, pParent)
+	: CDialog(IDD_EDITPATH, pParent)
 {
 	//{{AFX_DATA_INIT(CEditPathDlg)
 	m_strClass = _T("");

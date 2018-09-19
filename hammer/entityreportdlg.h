@@ -10,10 +10,9 @@
 #pragma once
 #endif
 
-#include <afxtempl.h>
-#include "resource.h"
-#include "MapDoc.h"
 
+class CMapDoc;
+class CMapEntity;
 
 class CEntityReportDlg : public CDialog
 {
@@ -29,7 +28,6 @@ private:
 	void SaveToIni();
 
 	//{{AFX_DATA(CEntityReportDlg)
-	enum { IDD = IDD_ENTITYREPORT };
 	CButton	m_cExact;
 	CComboBox	m_cFilterClass;
 	CButton	m_cFilterByClass;

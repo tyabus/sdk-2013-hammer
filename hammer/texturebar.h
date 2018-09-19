@@ -10,11 +10,10 @@
 #pragma once
 #endif
 
-
+#include "HammerBar.h"
 #include "TextureBox.h"
 #include "wndTex.h"
-#include "ControlBarIDs.h"
-#include "HammerBar.h"
+
 
 class IEditorTexture;
 
@@ -23,8 +22,9 @@ class CTextureBar : public CHammerBar
 {
 	public:
 
-		CTextureBar() : CHammerBar() {}
-		BOOL Create(CWnd *pParentWnd, int IDD = IDD_TEXTUREBAR, int iBarID = IDCB_TEXTUREBAR);
+    CTextureBar();
+
+		BOOL Create(CWnd *pParentWnd);
 
 		void NotifyGraphicsChanged(void);
 		void NotifyNewMaterial( IEditorTexture *pTexture );

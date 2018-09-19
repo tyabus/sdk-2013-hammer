@@ -9,10 +9,9 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "ScaleVerticesDlg.h"
 #include "MapDoc.h"
-#include "GlobalFunctions.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -22,7 +21,7 @@
 
 
 CScaleVerticesDlg::CScaleVerticesDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CScaleVerticesDlg::IDD, pParent)
+	: CDialog(IDD_SCALEVERTICES, pParent)
 {
 	//{{AFX_DATA_INIT(CScaleVerticesDlg)
 	//}}AFX_DATA_INIT

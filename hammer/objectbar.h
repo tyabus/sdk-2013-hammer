@@ -11,7 +11,6 @@
 #pragma once
 #endif
 
-#include "AutoSelCombo.h"
 #include "HammerBar.h"
 #include "FilteredComboBox.h"
 
@@ -67,7 +66,6 @@ private:
 	} ListType;
 
 	//{{AFX_DATA(CMapViewBar)
-	enum { IDD = IDD_OBJECTBAR };
 	//}}AFX_DATA
 	
 	CFilteredComboBox	m_CreateList;				// this should really be m_ItemList

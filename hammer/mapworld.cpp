@@ -10,18 +10,15 @@
 #include "CullTreeNode.h"
 #include "GlobalFunctions.h"
 #include "MainFrm.h"
-#include "MapDefs.h"
+#include "chunkfile.h"
 #include "MapDoc.h"		// dvs: think of a way around the world knowing about the doc
 #include "MapEntity.h"
 #include "MapGroup.h"
 #include "MapSolid.h"
 #include "MapWorld.h"
 #include "SaveInfo.h"
-#include "StatusBarIDs.h"
-#include "VisGroup.h"
-#include "hammer.h"
-#include "Worldsize.h"
 #include "MapOverlay.h"
+#include "GameConfig.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

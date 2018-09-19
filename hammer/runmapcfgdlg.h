@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // CRunMapCfgDlg dialog
 
+#pragma once
+
 class CRunMapCfgDlg : public CDialog
 {
 // Construction
@@ -19,7 +21,6 @@ public:
 
 // Dialog Data
 	//{{AFX_DATA(CRunMapCfgDlg)
-	enum { IDD = IDD_RUNMAPCONFIGS };
 	CListBox	m_cConfigurations;
 	//}}AFX_DATA
 

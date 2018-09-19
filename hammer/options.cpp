@@ -14,6 +14,8 @@
 #include "GlobalFunctions.h"
 #include "CustomMessages.h"
 #include "OptionProperties.h"
+#include "GameConfig.h"
+#include "MapFace.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

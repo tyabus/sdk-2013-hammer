@@ -5,7 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "GameConfig.h"
 #include "ObjectBar.h"
 #include "Options.h"
 #include "ControlBarIDs.h"

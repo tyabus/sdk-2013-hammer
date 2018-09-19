@@ -9,7 +9,7 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "TransformDlg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -20,7 +20,7 @@
 
 
 CTransformDlg::CTransformDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CTransformDlg::IDD, pParent)
+	: CDialog(IDD_TRANSFORM, pParent)
 {
 	//{{AFX_DATA_INIT(CTransformDlg)
 	m_iMode = -1;

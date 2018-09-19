@@ -6,6 +6,7 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "mapclass.h"
 #include "Box3D.h"
 #include "fgdlib/HelperInfo.h"
 #include "MapAlignedBox.h"

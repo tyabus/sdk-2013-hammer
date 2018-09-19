@@ -8,8 +8,6 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <afxtempl.h>
-#include "hammer.h"
 #include "MapDoc.h"
 #include "Material.h"
 #include "GlobalFunctions.h"
@@ -24,6 +22,8 @@
 #include "tier1/strtools.h"
 #include "tier0/dbg.h"
 #include "TextureSystem.h"
+#include "GameConfig.h"
+#include <filesystem_tools.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>

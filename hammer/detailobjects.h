@@ -10,11 +10,6 @@
 #pragma once
 #endif
 
-#include "mathlib/mathlib.h"
-#include "datamap.h"
-#include "bspfile.h"
-#include "builddisp.h"
-#include "mapface.h"
 #include "mapdisp.h"
 #include "utlsymbol.h"
 #include "sprite.h"

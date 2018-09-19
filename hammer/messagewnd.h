@@ -9,7 +9,7 @@
 #pragma once
 
 #include <afxtempl.h>
-#include "GlobalFunctions.h"
+#include "globalfunctions.h"
 
 const int MAX_MESSAGE_WND_LINES = 5000;
 

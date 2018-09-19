@@ -5,7 +5,6 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
 #include "TextureWindow.h"
 #include "TextureBrowser.h"
 #include "CustomMessages.h"

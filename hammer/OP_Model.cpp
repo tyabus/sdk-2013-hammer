@@ -5,7 +5,7 @@
 //=============================================================================
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "MapEntity.h"
 #include "MapStudioModel.h"
 #include "OP_Model.h"
@@ -36,7 +36,7 @@ const int FRAME_SCROLLBAR_RANGE = 1000;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-COP_Model::COP_Model() : CObjectPage(COP_Model::IDD), m_ComboSequence( this )
+COP_Model::COP_Model() : CObjectPage(IDD_OBJPAGE_MODEL), m_ComboSequence( this )
 {
 	//{{AFX_DATA_INIT(COP_Model)
 	//}}AFX_DATA_INIT

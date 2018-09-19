@@ -6,6 +6,7 @@
 // $NoKeywords: $
 //=============================================================================//
 
+#include "stdafx.h"
 #include "MapClass.h"
 #include "SaveInfo.h"
 

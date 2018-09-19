@@ -11,12 +11,11 @@
 #include "MapDoc.h"
 #include "MapWorld.h"
 #include "SearchReplaceDlg.h"
-#include "hammer.h"
+#include "resource.h"
 #include "Selection.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
-
 
 //
 // Context data for a FindFirstObject/FindNextObject session.
@@ -326,7 +325,7 @@ END_MESSAGE_MAP()
 // Input  : pParent -
 //-----------------------------------------------------------------------------
 CSearchReplaceDlg::CSearchReplaceDlg(CWnd *pParent)
-	: CDialog(CSearchReplaceDlg::IDD, pParent)
+	: CDialog(IDD_SEARCH_REPLACE, pParent)
 {
 	m_bNewSearch = true;
 
@@ -345,7 +344,7 @@ CSearchReplaceDlg::CSearchReplaceDlg(CWnd *pParent)
 //-----------------------------------------------------------------------------
 BOOL CSearchReplaceDlg::Create(CWnd *pwndParent)
 {
-	return CDialog::Create(CSearchReplaceDlg::IDD, pwndParent);
+	return CDialog::Create(IDD_SEARCH_REPLACE, pwndParent);
 }
 
 

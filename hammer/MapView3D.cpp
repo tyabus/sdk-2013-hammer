@@ -8,27 +8,18 @@
 //=============================================================================//
 
 #include "stdafx.h"
-#include <oleauto.h>
-#include <oaidl.h>
-#if _MSC_VER < 1300
-#include <afxpriv.h>
-#endif
 #include <mmsystem.h>
 #include "Camera.h"
 #include "GlobalFunctions.h"
-#include "Gizmo.h"
-#include "History.h"
 #include "Keyboard.h"
 #include "MainFrm.h"
 #include "MapDoc.h"
-#include "MapDecal.h"
 #include "MapEntity.h"
 #include "MapSolid.h"
 #include "MapStudioModel.h"
 #include "MapWorld.h"
 #include "MapView3D.h"
 #include "MapView2D.h"
-#include "ObjectBar.h"
 #include "Options.h"
 #include "StatusBarIDs.h"
 #include "TitleWnd.h"
@@ -39,12 +30,10 @@
 #include "vgui/Cursor.h"
 #include "ToolCamera.h"
 #include "KeyBinds.h"
+#include "utlvector.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
-
-#pragma warning(disable:4244 4305)
-
 
 typedef struct
 {

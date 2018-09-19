@@ -9,7 +9,7 @@
 //
 
 #include "stdafx.h"
-#include "hammer.h"
+#include "resource.h"
 #include "UndoWarningDlg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -20,7 +20,7 @@
 
 
 CUndoWarningDlg::CUndoWarningDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CUndoWarningDlg::IDD, pParent)
+	: CDialog(IDD_UNDOWARNING, pParent)
 {
 	//{{AFX_DATA_INIT(CUndoWarningDlg)
 	m_bNoShow = FALSE;
