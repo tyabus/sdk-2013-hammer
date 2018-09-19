@@ -94,18 +94,18 @@ void CTextureBox::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 			dc.RealizePalette();
 		}
 
-		COLORREF dwBackColor = RGB(255,255,255);
-		COLORREF dwForeColor = RGB(0,0,0);
+		COLORREF dwBackColor = APP()->GetBackgroundColor();
+		COLORREF dwForeColor = APP()->GetTextColor();
 
 		if (lpDrawItemStruct->itemState & ODS_SELECTED)
 		{
-			dwBackColor = GetSysColor(COLOR_HIGHLIGHT);
-			dwForeColor = GetSysColor(COLOR_HIGHLIGHTTEXT);
+			dwBackColor = APP()->GetBackgroundSelectedColor();
+			dwForeColor = APP()->GetTextSelectedColor();
 		}
 
 		// draw background
 		CBrush brush;
-		brush.CreateSolidBrush(dwBackColor);
+	    brush.CreateSolidBrush(dwBackColor);
 		dc.FillRect(&r, &brush);
 
 		if (pTex == NULL)

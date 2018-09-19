@@ -38,7 +38,7 @@ struct GroupListPair
 	bool	  bExpanded;
 };
 
-class CGroupList : private CTreeCtrl
+class CGroupList : public CTreeCtrl
 {
 public:
 
@@ -90,6 +90,8 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnContextMenu(CWnd *, CPoint);
 	afx_msg void OnSelChange(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()

@@ -854,8 +854,10 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	WriteProfileString("General", "Directory", m_szAppDir);
 
     // Load theme stuff
+    m_clrBkgrndSel = GetProfileColor("Theme", "Background_Selected", 96, 96, 96);
     m_clrBkgrnd = GetProfileColor("Theme", "Background", 32, 32, 32);
     m_clrText = GetProfileColor("Theme", "Text", 255, 255, 255);
+    m_clrTextSel = GetProfileColor("Theme", "Text_Selected", 255, 255, 255);
 
     m_brBkgrnd = new CBrush(m_clrBkgrnd);
 
@@ -878,7 +880,7 @@ InitReturnVal_t CHammer::HammerInternalInit()
 						//  users might want to share (darn registry)
 
 	// other init:
-	randomize();
+	RandomSeed(time(NULL));
 
 	/*
 #ifdef _AFXDLL
@@ -1188,9 +1190,19 @@ COLORREF CHammer::GetBackgroundColor()
     return m_clrBkgrnd;
 }
 
+COLORREF CHammer::GetBackgroundSelectedColor()
+{
+    return m_clrBkgrndSel;
+}
+
 COLORREF CHammer::GetTextColor()
 {
     return m_clrText;
+}
+
+COLORREF CHammer::GetTextSelectedColor()
+{
+    return m_clrTextSel;
 }
 
 CBrush* CHammer::GetBackgroundBrush()

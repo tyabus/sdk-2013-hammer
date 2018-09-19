@@ -15,12 +15,10 @@
 	#error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "resource.h"       // main symbols
-#include "RunCommands.h"
-#include "IHammer.h"
-#include "tier1/utlmap.h"
 #include "tier3/tier3dm.h"
-
+#include "IHammer.h"
+#include "runcommands.h"
+#include "utlmap.h"
 
 //-----------------------------------------------------------------------------
 // Forward declarations...
@@ -113,7 +111,9 @@ public:
 	bool IsClosing();
 
     COLORREF GetBackgroundColor();
+    COLORREF GetBackgroundSelectedColor();
     COLORREF GetTextColor();
+    COLORREF GetTextSelectedColor();
     CBrush *GetBackgroundBrush();
 
 	void Enable3DRender(bool bEnable);
@@ -179,7 +179,7 @@ protected:
     CHammerCmdLine *m_CmdLineInfo;
 
     CBrush *m_brBkgrnd;
-    COLORREF m_clrBkgrnd, m_clrText;
+    COLORREF m_clrBkgrnd, m_clrBkgrndSel, m_clrText, m_clrTextSel;
 };
 
 

@@ -7,12 +7,12 @@
 //=============================================================================//
 
 #include "stdafx.h"
+#include "resource.h"
 #include "hammer.h"
 #include "GroupList.h"
 #include "MapDoc.h"
 #include "MapSolid.h"
 #include "MapWorld.h"
-#include "GlobalFunctions.h"
 #include "VisGroup.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -46,6 +46,8 @@ BEGIN_MESSAGE_MAP(CGroupList, CTreeCtrl)
 	ON_WM_MOUSEMOVE()
 	ON_WM_TIMER()
 	ON_WM_CONTEXTMENU()
+    ON_WM_ERASEBKGND()
+    ON_WM_CTLCOLOR()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -58,6 +60,9 @@ CGroupList::CGroupList(void)
 	m_pDragImageList = NULL;
 	m_hDragItem = NULL;
 	m_bRButtonDown = false;
+    SetBkColor(APP()->GetBackgroundColor());
+    SetTextColor(APP()->GetTextColor());
+    SetLineColor(APP()->GetBackgroundColor());
 }
 
 
@@ -842,4 +847,27 @@ void CGroupList::RestoreVisGroupExpandStates()
 			}
 		}
 	}
+}
+
+BOOL CGroupList::OnEraseBkgnd(CDC* pDC)
+{
+    // Save old brush
+    CBrush *pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+    CRect rect;
+    pDC->GetClipBox(&rect);     // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
+}
+
+
+HBRUSH CGroupList::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+    pDC->SetTextColor(APP()->GetTextColor());
+    pDC->SetBkColor(APP()->GetBackgroundColor());
+
+    return (HBRUSH) APP()->GetBackgroundBrush()->GetSafeHandle();
 }
