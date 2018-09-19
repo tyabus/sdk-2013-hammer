@@ -10,7 +10,6 @@
 #pragma once
 
 
-#include "resource.h"
 #include "AutoSelCombo.h"
 #include "texturewindow.h"
 
@@ -22,7 +21,6 @@ public:
 	CTextureBrowser(CWnd *pParent);
 
 	//{{AFX_DATA(CTextureBrowser)
-	enum { IDD = IDD_TEXTURES };
 	//}}AFX_DATA
 
 	void SetInitialTexture(LPCTSTR);
@@ -57,6 +55,8 @@ protected:
 	afx_msg void OnUpdateKeywordsNOW(void);
 	afx_msg LRESULT OnTextureWindowDblClk(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnTexturewindowSelchange(WPARAM, LPARAM);
+    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()

@@ -6,7 +6,7 @@
 
 #include "stdafx.h"
 #include "TextureWindow.h"
-#include "TextureBrowser.h"
+#include "resource.h"
 #include "CustomMessages.h"
 #include "IEditorTexture.h"
 #include "GameConfig.h"

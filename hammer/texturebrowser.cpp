@@ -17,6 +17,7 @@
 #include "TextureBrowser.h"
 #include "TextureSystem.h"
 #include "Selection.h"
+#include "hammer.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -51,6 +52,8 @@ BEGIN_MESSAGE_MAP(CTextureBrowser, CDialog)
 	ON_BN_CLICKED(IDC_TEXTURES_RELOAD, OnReload)
 	ON_MESSAGE(TWN_SELCHANGED, OnTexturewindowSelchange)
 	ON_MESSAGE(TWN_LBUTTONDBLCLK, OnTextureWindowDblClk)
+    ON_WM_CTLCOLOR()
+    ON_WM_ERASEBKGND()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -60,7 +63,7 @@ END_MESSAGE_MAP()
 // Input  : pParent - 
 //-----------------------------------------------------------------------------
 CTextureBrowser::CTextureBrowser(CWnd* pParent)
-	: CDialog(IDD, pParent)
+	: CDialog(IDD_TEXTURES, pParent)
 {
 	m_szNameFilter[0] = '\0';
 	szInitialTexture[0] = '\0';
@@ -524,6 +527,28 @@ LRESULT CTextureBrowser::OnTexturewindowSelchange(WPARAM wParam, LPARAM lParam)
 	m_cCurDescription.SetWindowText(str);
 
 	return(0);
+}
+
+BOOL CTextureBrowser::OnEraseBkgnd(CDC* pDC)
+{
+    // Save old brush
+    CBrush* pOldBrush = pDC->SelectObject(APP()->GetBackgroundBrush());
+
+    CRect rect;
+    pDC->GetClipBox(&rect); // Erase the area needed
+
+    pDC->PatBlt(rect.left, rect.top, rect.Width(), rect.Height(), PATCOPY);
+
+    pDC->SelectObject(pOldBrush);
+    return TRUE;
+}
+
+HBRUSH CTextureBrowser::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+    pDC->SetTextColor(APP()->GetTextColor());
+    pDC->SetBkColor(APP()->GetBackgroundColor());
+
+    return (HBRUSH) APP()->GetBackgroundBrush()->GetSafeHandle();
 }
 
 
