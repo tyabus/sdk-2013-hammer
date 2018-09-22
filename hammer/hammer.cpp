@@ -113,7 +113,8 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CHammer, IHammer, INTERFACEVERSION_HAMMER, the
 //-----------------------------------------------------------------------------
 // global interfaces
 //-----------------------------------------------------------------------------
-IBaseFileSystem *g_pFileSystem;
+IBaseFileSystem* g_pFileSystem;
+IStudioDataCache* g_pStudioDataCache;
 CreateInterfaceFn g_Factory;
 
 bool g_bHDR = true;
@@ -306,12 +307,13 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 		return false;
 
 //	bool bCVarOk = ConnectStudioRenderCVars( factory );
-	g_pFileSystem = ( IBaseFileSystem * )factory( BASEFILESYSTEM_INTERFACE_VERSION, NULL );
-	g_pStudioRender = ( IStudioRender * )factory( STUDIO_RENDER_INTERFACE_VERSION, NULL );
-	g_pMDLCache = (IMDLCache*)factory( MDLCACHE_INTERFACE_VERSION, NULL );
+	g_pFileSystem = ( IBaseFileSystem* )factory( BASEFILESYSTEM_INTERFACE_VERSION, NULL );
+	g_pStudioRender = ( IStudioRender* )factory( STUDIO_RENDER_INTERFACE_VERSION, NULL );
+	g_pStudioDataCache = ( IStudioDataCache* )factory( STUDIO_DATA_CACHE_INTERFACE_VERSION, NULL );
+	g_pMDLCache = ( IMDLCache* )factory( MDLCACHE_INTERFACE_VERSION, NULL );
     g_Factory = factory;
 
-	if ( !g_pMDLCache || !g_pFileSystem || !g_pFullFileSystem || !materials || !g_pMaterialSystemHardwareConfig || !g_pStudioRender )
+	if ( !g_pMDLCache || !g_pFileSystem || !g_pFullFileSystem || !materials || !g_pMaterialSystemHardwareConfig || !g_pStudioRender || !g_pStudioDataCache )
 		return false;
 
     InstallDmElementFactories();
@@ -363,6 +365,7 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 void CHammer::Disconnect()
 {
 	g_pStudioRender = NULL;
+	g_pStudioDataCache = NULL;
 	g_pFileSystem = NULL;
 	g_pMDLCache = NULL;
 	BaseClass::Disconnect();

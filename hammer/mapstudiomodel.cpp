@@ -20,7 +20,7 @@
 #include "Options.h"
 #include "camera.h"
 #include "optimize.h"
-#include "filesystem.h"
+#include "istudiorender.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -753,74 +753,10 @@ void CMapStudioModel::DoTransform(const VMatrix &matrix)
 	SetAngles( angles );
 }
 
+extern IStudioDataCache* g_pStudioDataCache;
 const vertexFileHeader_t* mstudiomodel_t::CacheVertexData( void *pModelData )
 {
-	studiohdr_t *pActiveStudioHdr = static_cast<studiohdr_t *>(pModelData);
-	Assert( pActiveStudioHdr );
-
-	if ( pActiveStudioHdr->pVertexBase )
-	{
-		return (vertexFileHeader_t *)pActiveStudioHdr->pVertexBase;
-	}
-
-	// mandatory callback to make requested data resident
-	// load and persist the vertex file
-	char fileName[MAX_PATH];
-	strcpy( fileName, "models/" );
-	strcat( fileName, pActiveStudioHdr->pszName() );
-	Q_StripExtension( fileName, fileName, sizeof( fileName ) );
-	strcat( fileName, ".vvd" );
-
-	// load the model
-	FileHandle_t fileHandle = g_pFileSystem->Open( fileName, "rb" );
-	if ( !fileHandle )
-	{
-		Error( "Unable to load vertex data \"%s\"\n", fileName );
-	}
-
-	// Get the file size
-	int vvdSize = g_pFileSystem->Size( fileHandle );
-	if ( vvdSize == 0 )
-	{
-		g_pFileSystem->Close( fileHandle );
-		Error( "Bad size for vertex data \"%s\"\n", fileName );
-	}
-
-	vertexFileHeader_t *pVvdHdr = (vertexFileHeader_t *)malloc( vvdSize );
-	g_pFileSystem->Read( pVvdHdr, vvdSize, fileHandle );
-	g_pFileSystem->Close( fileHandle );
-
-	// check header
-	if ( pVvdHdr->id != MODEL_VERTEX_FILE_ID )
-	{
-		Error("Error Vertex File %s id %d should be %d\n", fileName, pVvdHdr->id, MODEL_VERTEX_FILE_ID);
-	}
-	if ( pVvdHdr->version != MODEL_VERTEX_FILE_VERSION )
-	{
-		Error("Error Vertex File %s version %d should be %d\n", fileName, pVvdHdr->version, MODEL_VERTEX_FILE_VERSION);
-	}
-	if ( pVvdHdr->checksum != pActiveStudioHdr->checksum )
-	{
-		Error("Error Vertex File %s checksum %d should be %d\n", fileName, pVvdHdr->checksum, pActiveStudioHdr->checksum);
-	}
-
-	// need to perform mesh relocation fixups
-	// allocate a new copy
-	vertexFileHeader_t *pNewVvdHdr = (vertexFileHeader_t *)malloc( vvdSize );
-	if ( !pNewVvdHdr )
-	{
-		Error( "Error allocating %d bytes for Vertex File '%s'\n", vvdSize, fileName );
-	}
-
-	// load vertexes and run fixups
-	Studio_LoadVertexes( pVvdHdr, pNewVvdHdr, 0, true );
-
-	// discard original
-	free( pVvdHdr );
-	pVvdHdr = pNewVvdHdr;
-
-	pActiveStudioHdr->pVertexBase = (void*)pVvdHdr;
-	return pVvdHdr;
+	return g_pStudioDataCache->CacheVertexData( (studiohdr_t*)pModelData );
 }
 
 void CMapStudioModel::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
