@@ -104,7 +104,7 @@ class CChunkHandlerMap
 		FORCEINLINE void AddHandler( const char* pszChunkName, ChunkFileResult_t (*pfnHandler)( CChunkFile*, T1* ), T2* pData )
 		{
 			static_assert( __is_base_of( T1, T2 ) );
-			AddHandler( pszChunkName, (ChunkHandler_t)pfnHandler, (void*)pData );
+			AddHandler( pszChunkName, (ChunkHandler_t)pfnHandler, (void*)dynamic_cast<T1*>( pData ) );
 		}
 
 		void AddHandler(const char *pszChunkName, ChunkHandler_t pfnHandler, void *pData);
@@ -114,7 +114,7 @@ class CChunkHandlerMap
 		FORCEINLINE void SetErrorHandler( bool (*pfnHandler)( CChunkFile*, const char*, T1* ), T2* pData )
 		{
 			static_assert( __is_base_of( T1, T2 ) );
-			SetErrorHandler( (ChunkErrorHandler_t)pfnHandler, (void*)pData );
+			SetErrorHandler( (ChunkErrorHandler_t)pfnHandler, (void*)dynamic_cast<T1*>( pData ) );
 		}
 
 		void SetErrorHandler(ChunkErrorHandler_t pfnHandler, void *pData);
@@ -195,7 +195,7 @@ class CChunkFile
 		FORCEINLINE void SetDefaultChunkHandler( ChunkFileResult_t (*pHandler)( CChunkFile*, T1*, char const* ), T2* pData )
 		{
 			static_assert( __is_base_of( T1, T2 ) );
-			SetDefaultChunkHandler( (DefaultChunkHandler_t)pHandler, (void*)pData );
+			SetDefaultChunkHandler( (DefaultChunkHandler_t)pHandler, (void*)dynamic_cast<T1*>( pData ) );
 		}
 
 		void PushHandlers(CChunkHandlerMap *pHandlerMap);

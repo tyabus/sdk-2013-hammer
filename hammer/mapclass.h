@@ -319,23 +319,24 @@ public:
 
 	virtual CMapClass* GetPreferredPickObject();
 
-	template <typename T, typename C = CMapClass>
-	FORCEINLINE BOOL EnumChildren( BOOL (*pfn)( C*, T* ), T* dwParam, MAPCLASSTYPE Type = NULL )
+	template <typename T1, typename T2 = CMapClass, size_t N = 1>
+	FORCEINLINE BOOL EnumChildren( BOOL (*pfn)( T2*, T1* ), T1* dwParam, MAPCLASSTYPE Type = NULL )
 	{
-		COMPILE_TIME_ASSERT( sizeof( unsigned int ) == sizeof( T* ) );
-		COMPILE_TIME_ASSERT( __is_base_of( CMapClass, C ) );
+		static_assert( sizeof( unsigned int ) == sizeof( T1* ) );
+		static_assert( __is_base_of( CMapClass, T2 ) );
 		return EnumChildren( (ENUMMAPCHILDRENPROC)pfn, reinterpret_cast<unsigned int>( dwParam ), Type );
 	}
 
 	template <typename T>
 	FORCEINLINE BOOL EnumChildrenRecurseGroupsOnly( BOOL (*pfn)( CMapClass*, T* ), T* dwParam, MAPCLASSTYPE Type = NULL )
 	{
-		COMPILE_TIME_ASSERT( sizeof( unsigned int ) == sizeof( T* ) );
+		static_assert( sizeof( unsigned int ) == sizeof( T* ) );
 		return EnumChildrenRecurseGroupsOnly( (ENUMMAPCHILDRENPROC)pfn, reinterpret_cast<unsigned int>( dwParam ), Type );
 	}
 
 	BOOL EnumChildren(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam = 0, MAPCLASSTYPE Type = NULL);
 	BOOL EnumChildrenRecurseGroupsOnly(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam, MAPCLASSTYPE Type = NULL);
+
 	BOOL IsChildOf(CMapAtom *pObject);
 
 	virtual bool ShouldAppearInLightingPreview(void)
@@ -495,7 +496,6 @@ public:
 
 
 #define IMPLEMENT_MAPCLASS(class_name) \
-	const char* class_name::__Type = #class_name; \
 	MAPCLASSTYPE class_name::GetType() { return __Type; }	\
 	BOOL class_name::IsMapClass(MAPCLASSTYPE Type) \
 		{ return (Type == __Type) ? TRUE : FALSE; } \
@@ -507,7 +507,7 @@ public:
 
 #define DECLARE_MAPCLASS(class_name,class_base) \
 	typedef class_base BaseClass; \
-	static const char* __Type; \
+	static constexpr const char __Type[] = #class_name; \
 	virtual MAPCLASSTYPE GetType(); \
 	virtual BOOL IsMapClass(MAPCLASSTYPE Type);
 
