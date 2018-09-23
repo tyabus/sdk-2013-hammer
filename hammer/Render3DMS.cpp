@@ -162,7 +162,6 @@ float CRender3D::LightPlane(Vector& Normal)
 CRender3D::CRender3D(void)
 {
 	memset(&m_WinData, 0, sizeof(m_WinData));
-	m_WinData.bAllowSoft = true;
 
 	memset(m_FrustumPlanes, 0, sizeof(m_FrustumPlanes));
 
@@ -2527,11 +2526,6 @@ void CRender3D::ShutDown(void)
 	{
 		m_WinData.hDC = NULL;
 	}
-
-	if (m_WinData.bFullScreen)
-	{
-		ChangeDisplaySettings(NULL, 0);
-	}
 }
 
 
@@ -2561,25 +2555,7 @@ void CRender3D::RenderEnable(RenderState_t eRenderState, bool bEnable)
 
 		case RENDER_POLYGON_OFFSET_LINE:
 		{
-			assert(0);
-			/* FIXME:
-			   Think we'll need to have two versions of the wireframe material
-			   one which ztests with offset + culling, the other which doesn't
-			   ztest, doesn't offect, and doesn't cull??!?
-
-			   m_pWireframeIgnoreZ->SetIntValue( bEnable );
-			   m_pWireframe->GetMaterial()->InitializeStateSnapshots();
-			   /*
-			   if (bEnable)
-			   {
-			   glEnable(GL_POLYGON_OFFSET_LINE);
-			   glPolygonOffset(-1, -1);
-			   }
-			   else
-			   {
-			   glDisable(GL_POLYGON_OFFSET_LINE);
-			   }
-			*/
+			Assert(0);
 			break;
 		}
 
@@ -2618,8 +2594,8 @@ void CRender3D::DebugHook1(void *pData)
 	g_bShowStatistics = !g_bShowStatistics;
 
 #ifdef _DEBUG
-	m_bRecomputeFrustumRenderGeometry = true;
-	m_bRenderFrustum = true;
+	m_bRenderFrustum ^= true;
+	m_bRecomputeFrustumRenderGeometry = m_bRenderFrustum;
 #endif
 
 	//if (!m_bDroppedCamera)

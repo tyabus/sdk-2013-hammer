@@ -16,9 +16,6 @@
 class CRender2D : public CRender
 {
 public:
-
-   
-
     //
     // construction/deconstruction
     //

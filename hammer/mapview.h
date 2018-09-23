@@ -66,21 +66,20 @@ public:
 	virtual DrawType_t	GetDrawType(void) { return m_eDrawType; }
 
 	// virtual CMapClass	*ObjectAt(POINT ptClient, ULONG &ulFace) = 0;
-				
+
 	virtual void ProcessInput() = 0; // do input update
 	virtual void RenderView() = 0;	// render view NOW, called usually by framework
 	virtual void UpdateView( int nFlags ); // something changed, render this view with the next frame
 	virtual bool ShouldRender(); // let view decide if it wants to render or not
-		
+
 	virtual CWnd	*GetViewWnd() = 0;
 	virtual CMapDoc	*GetMapDoc() = 0;
-			
+
 	// get axis we look along
 	virtual const Vector &GetViewAxis();
-	void SetCamera(const Vector &vecPos, const Vector &vecLookAt);
 	CCamera *GetCamera() { return m_pCamera; }
 
-	// convert client view space to map world coordinates 
+	// convert client view space to map world coordinates
 	// general rule: float = world, int = client view
 	virtual void WorldToClient(Vector2D &ptClient, const Vector &vWorld) = 0;
 	virtual void ClientToWorld(Vector &vWorld, const Vector2D &vClient ) = 0;
@@ -90,9 +89,9 @@ public:
 	virtual void GetBestTransformPlane( Vector &horzAxis, Vector &vertAxis, Vector &thirdAxis) = 0;
 
 	bool SelectAt(const Vector2D &ptClient, bool bMakeFirst, bool bFace);
-		
-		
-		
+
+
+
 	// protected:
 
 	bool			m_bActive;
