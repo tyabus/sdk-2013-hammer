@@ -57,8 +57,8 @@ private:
 	void LoadVMF( CMapClass* pParent = NULL );
 	bool LoadVMFInternal( const char* pVMFPath );
 	void Render2DChildren( CRender2D* pRender, CMapClass* pEnt );
-	void Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt );
-	void Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt );
+	void Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt, bool ignoreFrameCount );
+	void Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt, bool ignoreFrameCount );
 	void AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt );
 	void GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& maxs ) const;
 	static void FixAngles( QAngle& angle );

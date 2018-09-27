@@ -13,6 +13,7 @@
 #include "fmtstr.h"
 #include "chunkfile.h"
 #include "KeyValues.h"
+#include "materialsystem/MaterialSystemUtil.h"
 #include "tier2/renderutils.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -315,9 +316,10 @@ void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
 	}
 }
 
+byte instanceRenderMode = 1;
 void CMapInstance::Render2D( CRender2D* pRender )
 {
-	if ( !m_pTemplate )
+	if ( !m_pTemplate || !instanceRenderMode )
 		return;
 
 	VMatrix localTransform;
@@ -351,14 +353,15 @@ void CMapInstance::Render2D( CRender2D* pRender )
 	pRender->PopRenderMode();
 }
 
-void CMapInstance::Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt )
+void CMapInstance::Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt, bool ignoreFrameCount )
 {
 	const EditorRenderMode_t renderMode = pRender->GetCurrentRenderMode();
 	CMapObjectList& children = pEnt->m_Children;
 	for( CMapClass* pChild : children )
 	{
-		if ( pChild && pChild->IsVisible() )
+		if ( pChild && pChild->IsVisible() && ( ignoreFrameCount || pChild->GetRenderFrame() <= GetRenderFrame() ) )
 		{
+			pChild->SetRenderFrame( GetRenderFrame() + 1 );
 			bool should_appear = true;
 			if ( renderMode == RENDER_MODE_LIGHT_PREVIEW2 )
 				should_appear &= pChild->ShouldAppearInLightingPreview();
@@ -382,12 +385,12 @@ void CMapInstance::Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>&
 				deferred.AddToTail( pChild );
 				continue;
 			}
-			Render3DChildren( pRender, deferred, pChild );
+			Render3DChildren( pRender, deferred, pChild, ignoreFrameCount );
 		}
 	}
 }
 
-void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt )
+void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt, bool ignoreFrameCount )
 {
 	const EditorRenderMode_t renderMode = pRender->GetCurrentRenderMode();
 
@@ -396,8 +399,9 @@ void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt
 	CMapObjectList& children = pEnt->m_Children;
 	for ( CMapClass* pChild : children )
 	{
-		if ( pChild && pChild->IsVisible() )
+		if ( pChild && pChild->IsVisible() && ( ignoreFrameCount || pChild->GetRenderFrame() <= GetRenderFrame() ) )
 		{
+			pChild->SetRenderFrame( GetRenderFrame() + 1 );
 			bool should_appear = true;
 			if ( renderMode == RENDER_MODE_LIGHT_PREVIEW2 )
 				should_appear &= pChild->ShouldAppearInLightingPreview();
@@ -408,15 +412,14 @@ void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt
 			if ( !should_appear )
 				continue;
 
-			pChild->Render3D( pRender );
-			Render3DChildrenDeferred( pRender, pChild );
+			Render3DChildrenDeferred( pRender, pChild, ignoreFrameCount );
 		}
 	}
 }
 
 void CMapInstance::Render3D( CRender3D* pRender )
 {
-	if ( m_pTemplate )
+	if ( m_pTemplate && instanceRenderMode != 0 )
 	{
 		CAutoPushPop guard2( pRender->m_DeferRendering, false );
 
@@ -437,74 +440,101 @@ void CMapInstance::Render3D( CRender3D* pRender )
 		}
 
 		CUtlVector<CMapClass*> deferred;
-		Render3DChildren( pRender, deferred, m_pTemplate );
+		Render3DChildren( pRender, deferred, m_pTemplate, false );
 
 		for ( CMapClass* def : deferred )
-			Render3DChildrenDeferred( pRender, def );
+			Render3DChildrenDeferred( pRender, def, false );
 
+		const EditorRenderMode_t mode = pRender->GetCurrentRenderMode();
+		if ( ( instanceRenderMode == 1 || GetSelectionState() != SELECT_NONE ) && ( mode == RENDER_MODE_FLAT || mode == RENDER_MODE_TEXTURED || mode == RENDER_MODE_TEXTURED_SHADED ) )
 		{
-			int width, height;
-			pRender->GetCamera()->GetViewPort( width, height );
-
-			CMatRenderContextPtr pRenderContext( materials );
-			pRenderContext->ClearBuffers( false, false, true );
-			pRenderContext->SetStencilEnable( true );
-			pRenderContext->ClearStencilBufferRectangle( 0, 0, width, height, 0xF );
-			pRenderContext->SetStencilReferenceValue( 1 );
-			pRenderContext->SetStencilTestMask( 0xF );
-			pRenderContext->SetStencilWriteMask( 0xF );
-			pRenderContext->SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_GREATEREQUAL );
-			pRenderContext->SetStencilPassOperation( STENCILOPERATION_KEEP );
-			pRenderContext->SetStencilFailOperation( STENCILOPERATION_ZERO );
-			pRenderContext->SetStencilZFailOperation( STENCILOPERATION_ZERO );
-		}
-
-		deferred.RemoveAll();
-		Render3DChildren( pRender, deferred, m_pTemplate );
-
-		for ( CMapClass* def : deferred )
-			Render3DChildrenDeferred( pRender, def );
-
-		if ( !inLocalTransform )
-			pRender->EndLocalTransfrom();
-		else
-		{
-			pRender->EndLocalTransfrom();
-			pRender->BeginLocalTransfrom( localTransform );
-		}
-
-		{
-			int width, height;
-			pRender->GetCamera()->GetViewPort( width, height );
-
-			static IMaterial* mat = NULL;
-			if ( !mat )
 			{
-				KeyValues* kv = new KeyValues( "UnlitGeneric" );
-				kv->SetString( "$basetexture", "white" );
-				kv->SetString( "$color", "[1 0 0]" );
-				kv->SetFloat( "$alpha", 0.5f );
-				kv->SetBool( "$vertexcolor", true );
-				mat = materials->CreateMaterial( "__", kv );
-				mat->Refresh();
+				int width, height;
+				pRender->GetCamera()->GetViewPort( width, height );
+
+				CMatRenderContextPtr pRenderContext( materials );
+				pRenderContext->SetStencilEnable( true );
+				//pRenderContext->ClearBuffers( false, false, true );
+				pRenderContext->ClearStencilBufferRectangle( 0, 0, width, height, 1 );
+				pRenderContext->OverrideColorWriteEnable( true, false );
+				pRenderContext->SetStencilReferenceValue( GetID() );
+				pRenderContext->SetStencilTestMask( 0xFFFF );
+				pRenderContext->SetStencilWriteMask( 0xFFFF );
+				pRenderContext->SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL );
+				pRenderContext->SetStencilPassOperation( STENCILOPERATION_KEEP );
+				pRenderContext->SetStencilFailOperation( STENCILOPERATION_REPLACE );
+				pRenderContext->SetStencilZFailOperation( STENCILOPERATION_REPLACE );
 			}
 
-			if ( GetSelectionState() == SELECT_NONE )
-				mat->ColorModulate( 134 / 255.f, 130 / 255.f, 0 );
-			else
-				mat->ColorModulate( 186 / 255.f, 126 / 255.f, 0 );
-			DrawScreenSpaceRectangle(
-				mat, 0, 0, width, height,
-				0,0,
-				width - 1, height -1,
-				width, height);
+			deferred.RemoveAll();
+			Render3DChildren( pRender, deferred, m_pTemplate, true );
 
-			CMatRenderContextPtr pRenderContext( materials );
-			pRenderContext->SetStencilEnable( false );
-			pRenderContext->SetStencilReferenceValue( 0 );
+			for ( CMapClass* def : deferred )
+				Render3DChildrenDeferred( pRender, def, true );
+
+			if ( !inLocalTransform )
+				pRender->EndLocalTransfrom();
+			else
+			{
+				pRender->EndLocalTransfrom();
+				pRender->BeginLocalTransfrom( localTransform );
+			}
+
+			{
+				int width, height;
+				pRender->GetCamera()->GetViewPort( width, height );
+
+				static CMaterialReference mat;
+				if ( !mat.IsValid() )
+				{
+					KeyValues* kv = new KeyValues( "UnlitGeneric" );
+					kv->SetString( "$basetexture", "white" );
+					kv->SetString( "$color", "[0 0 0]" );
+					kv->SetFloat( "$alpha", 0.75f );
+					kv->SetBool( "$vertexcolor", true );
+					mat.Init( "__instance_overlay", kv );
+					mat->Refresh();
+				}
+
+				if ( GetSelectionState() == SELECT_NONE )
+					mat->ColorModulate( 134 / 255.f, 130 / 255.f, 0 );
+				else
+					mat->ColorModulate( 186 / 255.f, 126 / 255.f, 0 );
+				CMatRenderContextPtr pRenderContext( materials );
+				//pRenderContext->ClearBuffersObeyStencilEx( false, true, false );
+				pRenderContext->OverrideColorWriteEnable( false, false );
+				//pRenderContext->OverrideAlphaWriteEnable( true, true );
+				pRenderContext->SetStencilWriteMask( 0 );
+				//pRenderContext->SetStencilTestMask( 0xFFFFFFFF );
+				//pRenderContext->SetStencilReferenceValue( GetID() );
+				/*pRenderContext->SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_EQUAL );
+				pRenderContext->SetStencilPassOperation( STENCILOPERATION_KEEP );
+				pRenderContext->SetStencilFailOperation( STENCILOPERATION_KEEP );
+				pRenderContext->SetStencilZFailOperation( STENCILOPERATION_KEEP );*/
+			//	pRenderContext->PerformFullScreenStencilOperation();
+
+				DrawScreenSpaceRectangle(
+					mat, 0, 0, width, height,
+					0,0,
+					width - 1, height -1,
+					width, height);
+
+				//pRenderContext->OverrideAlphaWriteEnable( false, false );
+				pRenderContext->SetStencilEnable( false );
+			}
+		}
+		else
+		{
+			if ( !inLocalTransform )
+				pRender->EndLocalTransfrom();
+			else
+			{
+				pRender->EndLocalTransfrom();
+				pRender->BeginLocalTransfrom( localTransform );
+			}
 		}
 	}
-	pRender->RenderBox(m_Render2DBox.bmins, m_Render2DBox.bmaxs, 220, 220, 220, GetSelectionState());
+	pRender->RenderBox( m_Render2DBox.bmins, m_Render2DBox.bmaxs, 220, 220, 220, GetSelectionState() );
 }
 
 bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
@@ -519,7 +549,7 @@ bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 
 void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 {
-	if ( m_pTemplate )
+	if ( m_pTemplate && instanceRenderMode != 0 )
 		AddShadowingTrianglesChildren( tri_list, m_pTemplate );
 }
 
@@ -539,10 +569,7 @@ void CMapInstance::LoadVMF( CMapClass* pParent )
 		V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
 		const CFmtStr instancePath( "%s%s", parentDir, m_strCurrentVMF.Get() );
 		if ( g_pFullFileSystem->FileExists( instancePath ) && LoadVMFInternal( instancePath ) )
-		{
-			m_pTemplate->SetRenderColor( 134, 130, 0 );
 			m_pTemplate->SetPreferredPickObject( pParent ? pParent : GetParent() );
-		}
 	}
 }
 

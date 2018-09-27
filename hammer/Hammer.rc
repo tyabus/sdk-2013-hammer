@@ -468,6 +468,22 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_TOOLS_OPTIONS
     END
+	POPUP "&Instancing"
+	BEGIN
+		POPUP "Collapse"
+		BEGIN
+			MENUITEM "Selection",				ID_INSTANCE_COLLAPSE_SEL
+			MENUITEM "Selection Recursive",		ID_INSTANCE_COLLAPSE_SEL_RECURSIVE
+			MENUITEM "All",						ID_INSTANCE_COLLAPSE_ALL
+			MENUITEM "All Recursive",			ID_INSTANCE_COLLAPSE_ALL_RECURSIVE
+		END
+		POPUP "View Instances"
+		BEGIN
+			MENUITEM "Hide",					ID_INSTANCE_VIS_HIDE
+			MENUITEM "Show Tinted",				ID_INSTANCE_VIS_TINTED
+			MENUITEM "Show Normal",				ID_INSTANCE_VIS_NORMAL
+		END
+	END
     POPUP "&Window"
     BEGIN
         MENUITEM "&New Window",                 ID_WINDOW_NEW
@@ -2710,6 +2726,17 @@ STRINGTABLE
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
     ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE
+BEGIN
+	ID_INSTANCE_COLLAPSE_SEL			"Selection"
+	ID_INSTANCE_COLLAPSE_SEL_RECURSIVE	"Selection Recursive"
+	ID_INSTANCE_COLLAPSE_ALL			"All"
+	ID_INSTANCE_COLLAPSE_ALL_RECURSIVE	"All Recursive"
+	ID_INSTANCE_VIS_HIDE				"Hide"
+	ID_INSTANCE_VIS_TINTED				"Show Tinted"
+	ID_INSTANCE_VIS_NORMAL				"Show Normal"
 END
 
 STRINGTABLE
