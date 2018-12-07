@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $Workfile:     $
 // $Date:         $
@@ -221,7 +221,7 @@ public:
 	// Neighbors
 	//
 	void UpdateNeighborDependencies( bool bDestroy );
-	
+
 	static void UpdateNeighborsOfDispsIntersectingBox( const Vector &bbMin, const Vector &bbMax, float flPadding );
 
 	inline void SetEdgeNeighbor( int direction, EditDispHandle_t handle, int orient );
@@ -360,7 +360,7 @@ private:
 	//
 	void PaintPosition_Update( int iVert );
 	void PaintAlpha_Update( int iVert );
-	
+
 	//=========================================================================
 	//
 	// Update/Modification/Editing Functions
@@ -368,7 +368,7 @@ private:
 	void UpSample( int oldPower );
 	void DownSample( int oldPower );
 	void GetValidSamplePoints( int index, int width, int height, bool *pValidPoints );
-	void SamplePoints( int index, int width, int height, bool *pValidPoints, float *pValue, float *pAlpha, 
+	void SamplePoints( int index, int width, int height, bool *pValidPoints, float *pValue, float *pAlpha,
 		               Vector& newDispVector, Vector& newSubdivPos, Vector &newSubdivNormal );
 
 	void PostCreate( void );
@@ -495,16 +495,16 @@ inline int CMapDisp::GetWidth( void )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-inline int CMapDisp::GetHeight( void ) 
-{ 
+inline int CMapDisp::GetHeight( void )
+{
     return m_CoreDispInfo.GetHeight();
 }
 
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-inline int CMapDisp::GetSize( void ) 
-{ 
+inline int CMapDisp::GetSize( void )
+{
 	return m_CoreDispInfo.GetSize();
 }
 
@@ -524,7 +524,7 @@ inline float CMapDisp::GetElevation( void )
 	return m_CoreDispInfo.GetElevation();
 }
 
-	
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 inline float CMapDisp::GetScale( void )
@@ -597,7 +597,7 @@ inline bool CMapDisp::IsSubdivided( void )
 	return m_bSubdiv;
 }
 
-	
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 inline void CMapDisp::SetReSubdivision( bool bReSubdiv )
@@ -605,7 +605,7 @@ inline void CMapDisp::SetReSubdivision( bool bReSubdiv )
 	m_bReSubdiv = bReSubdiv;
 }
 
-	
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 inline bool CMapDisp::NeedsReSubdivision( void )
@@ -658,9 +658,9 @@ inline void CMapDisp::GetSurfTexCoord( int ndx, Vector2D &texCoord )
 	pSurf->GetTexCoord( ndx, texCoord );
 }
 
-	
+
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------	
+//-----------------------------------------------------------------------------
 inline void CMapDisp::SetSurfTexCoord( int ndx, Vector2D const &texCoord )
 {
 	CCoreDispSurface *pSurf = m_CoreDispInfo.GetSurface();
@@ -691,7 +691,7 @@ inline void CMapDisp::SetAlpha( int index, float alpha )
 	m_CoreDispInfo.SetAlpha( index, alpha );
 }
 
-	
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 inline float CMapDisp::GetAlpha( int index )
@@ -729,7 +729,7 @@ inline void CMapDisp::SetFieldVector( int index, Vector const &v )
 	m_CoreDispInfo.SetFieldVector( index, v );
 }
 
-	
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 inline void CMapDisp::GetFieldVector( int index, Vector& v )
@@ -833,8 +833,8 @@ inline void CMapDisp::ResetNeighbors( void )
 //-----------------------------------------------------------------------------
 inline void CMapDisp::SetEdgeNeighbor( int direction, EditDispHandle_t handle, int orient )
 {
-	assert( direction >= 0 );
-	assert( direction < NUM_EDGES_CORNERS );
+	Assert( direction >= 0 );
+	Assert( direction < NUM_EDGES_CORNERS );
 	m_EdgeNeighbors[direction] = handle;
 	m_EdgeNeighborOrientations[direction] = orient;
 }
@@ -844,8 +844,8 @@ inline void CMapDisp::SetEdgeNeighbor( int direction, EditDispHandle_t handle, i
 //-----------------------------------------------------------------------------
 inline void CMapDisp::GetEdgeNeighbor( int direction, EditDispHandle_t &handle, int &orient )
 {
-	assert( direction >= 0 );
-	assert( direction < NUM_EDGES_CORNERS );
+	Assert( direction >= 0 );
+	Assert( direction < NUM_EDGES_CORNERS );
 	handle = m_EdgeNeighbors[direction];
 	orient = m_EdgeNeighborOrientations[direction];
 }
@@ -855,8 +855,8 @@ inline void CMapDisp::GetEdgeNeighbor( int direction, EditDispHandle_t &handle, 
 //-----------------------------------------------------------------------------
 inline EditDispHandle_t CMapDisp::GetEdgeNeighbor( int direction )
 {
-	assert( direction >= 0 );
-	assert( direction < NUM_EDGES_CORNERS );
+	Assert( direction >= 0 );
+	Assert( direction < NUM_EDGES_CORNERS );
 	return m_EdgeNeighbors[direction];
 }
 
@@ -865,8 +865,8 @@ inline EditDispHandle_t CMapDisp::GetEdgeNeighbor( int direction )
 //-----------------------------------------------------------------------------
 inline void CMapDisp::AddCornerNeighbor( int direction, EditDispHandle_t handle, int orient )
 {
-	assert( direction >= 0 );
-	assert( direction < NUM_EDGES_CORNERS );
+	Assert( direction >= 0 );
+	Assert( direction < NUM_EDGES_CORNERS );
 	if( m_CornerNeighborCounts[direction] >= MAX_CORNER_NEIGHBORS )
 		return;
 
@@ -880,8 +880,8 @@ inline void CMapDisp::AddCornerNeighbor( int direction, EditDispHandle_t handle,
 //-----------------------------------------------------------------------------
 inline int CMapDisp::GetCornerNeighborCount( int direction )
 {
-	assert( direction >= 0 );
-	assert( direction < NUM_EDGES_CORNERS );
+	Assert( direction >= 0 );
+	Assert( direction < NUM_EDGES_CORNERS );
 	return m_CornerNeighborCounts[direction];
 }
 
@@ -890,14 +890,14 @@ inline int CMapDisp::GetCornerNeighborCount( int direction )
 //-----------------------------------------------------------------------------
 inline void CMapDisp::GetCornerNeighbor( int direction, int cornerIndex, EditDispHandle_t &handle, int &orient )
 {
-	assert( direction >= 0 );
-	assert( direction < NUM_EDGES_CORNERS );
-	assert( cornerIndex >= 0 );
-	assert( cornerIndex < MAX_CORNER_NEIGHBORS );
+	Assert( direction >= 0 );
+	Assert( direction < NUM_EDGES_CORNERS );
+	Assert( cornerIndex >= 0 );
+	Assert( cornerIndex < MAX_CORNER_NEIGHBORS );
 
 	handle = EDITDISPHANDLE_INVALID;
 	orient = 0;
-	
+
 	if( cornerIndex >= m_CornerNeighborCounts[direction] )
 		return;
 
@@ -910,11 +910,11 @@ inline void CMapDisp::GetCornerNeighbor( int direction, int cornerIndex, EditDis
 //-----------------------------------------------------------------------------
 inline EditDispHandle_t CMapDisp::GetCornerNeighbor( int direction, int cornerIndex )
 {
-	assert( direction >= 0 );
-	assert( direction < NUM_EDGES_CORNERS );
+	Assert( direction >= 0 );
+	Assert( direction < NUM_EDGES_CORNERS );
 
-	assert( cornerIndex >= 0 );
-	assert( cornerIndex < MAX_CORNER_NEIGHBORS );
+	Assert( cornerIndex >= 0 );
+	Assert( cornerIndex < MAX_CORNER_NEIGHBORS );
 
 	if( cornerIndex >= m_CornerNeighborCounts[direction] )
 		return NULL;

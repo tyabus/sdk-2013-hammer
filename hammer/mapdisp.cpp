@@ -1951,7 +1951,7 @@ void CMapDisp::CalcColor( CRender3D *pRender, bool bIsSelected,
 		}
 		default:
 		{
-			assert( 0 );
+			Assert( 0 );
 			break;
 		}
 	}
