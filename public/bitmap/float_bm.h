@@ -36,20 +36,20 @@ struct PixRGBA8
 inline PixRGBAF PixRGBA8_to_F( PixRGBA8 const &x )
 {
 	PixRGBAF f;
-	f.Red = x.Red / float( 255.0f );
-	f.Green = x.Green / float( 255.0f );
-	f.Blue = x.Blue / float( 255.0f );
-	f.Alpha = x.Alpha / float( 255.0f );
+	f.Red = x.Red / 255.0f;
+	f.Green = x.Green / 255.0f;
+	f.Blue = x.Blue / 255.0f;
+	f.Alpha = x.Alpha / 255.0f;
 	return f;
 }
 
 inline PixRGBA8 PixRGBAF_to_8( PixRGBAF const &f )
 {
 	PixRGBA8 x;
-	x.Red = max( 0, min( 255.0,255.0*f.Red ) );
-	x.Green = max( 0, min( 255.0,255.0*f.Green ) );
-	x.Blue = max( 0, min( 255.0,255.0*f.Blue ) );
-	x.Alpha = max( 0, min( 255.0,255.0*f.Alpha ) );
+	x.Red = clamp( 255.0f * f.Red, 0.0f, 255.0f );
+	x.Green = clamp( 255.0f * f.Green, 0.0f, 255.0f );
+	x.Blue = clamp( 255.0f * f.Blue, 0.0f, 255.0f );
+	x.Alpha = clamp( 255.0f * f.Alpha, 0.0f, 255.0f );
 	return x;
 }
 

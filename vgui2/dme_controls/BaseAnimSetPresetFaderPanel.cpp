@@ -870,7 +870,7 @@ void CPresetSlider::PaintBackground()
 		// Gradient fill rectangle
 		int fillw = (int)( (float)tw * GetCurrent() + 0.5f );
 
-		int minAlpha = 15;
+		float minAlpha = 15.0f;
 		float alphaTarget = 255.0f;
 
 		int curAlpha = max( GetCurrent() * alphaTarget, minAlpha );

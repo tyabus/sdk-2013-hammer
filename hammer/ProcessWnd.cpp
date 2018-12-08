@@ -144,7 +144,7 @@ int CProcessWnd::Execute(LPCTSTR pszCmd, LPCTSTR pszCmdLine)
 				{
 					HANDLE hProcess = pi.hProcess;
 
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 4096UL
 					// read from pipe..
 					char buffer[BUFFER_SIZE];
 					BOOL bDone = FALSE;

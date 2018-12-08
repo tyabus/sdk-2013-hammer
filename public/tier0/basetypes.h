@@ -81,14 +81,14 @@ constexpr T AlignValue( T val, uintptr_t alignment )
 #include "valve_minmax_on.h"
 
 // #define COMPILETIME_MAX and COMPILETIME_MIN for max/min in constant expressions
-#define COMPILETIME_MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
-#define COMPILETIME_MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#define COMPILETIME_MIN( a, b ) Min( ( a ), ( b ) )
+#define COMPILETIME_MAX( a, b ) Max( ( a ), ( b ) )
 #ifndef MIN
-#define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
+#define MIN( a, b ) Min( ( a ), ( b ) )
 #endif
 
 #ifndef MAX
-#define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#define MAX( a, b ) Max( ( a ), ( b ) )
 #endif
 
 #ifdef __cplusplus

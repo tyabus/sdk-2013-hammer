@@ -248,7 +248,7 @@ void CPotteryWheelManip::OnCursorMoved( int x, int y )
 	{
 		m_azimuth  += 0.002f * ( x - m_lastx );
 		m_altitude -= 0.002f * ( y - m_lasty );
-		m_altitude = max( -M_PI/2, min( M_PI/2, m_altitude ) );
+		m_altitude = max( -M_PI_F/2, min( M_PI_F/2, m_altitude ) );
 	}
 	m_lastx = x;
 	m_lasty = y;
