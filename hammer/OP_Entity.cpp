@@ -54,6 +54,7 @@ extern GameData *pGD;		// current game data
 
 
 static WCKeyValues kvClipboard;
+static CUtlString kvClipboardClass;
 static BOOL bKvClipEmpty = TRUE;
 
 // Colors used for the keyvalues list control.
@@ -3278,16 +3279,15 @@ void COP_Entity::OnCopy(void)
 	// copy entity keyvalues
 	kvClipboard.RemoveAll();
 	bKvClipEmpty = FALSE;
-	for ( int i=m_kv.GetFirst(); i != m_kv.GetInvalidIndex(); i=m_kv.GetNext( i ) )
+	CString strClass = m_cClasses.GetCurrentItem();
+	kvClipboardClass.Set( strClass );
+	for ( int i = m_kv.GetFirst(); i != m_kv.GetInvalidIndex(); i=m_kv.GetNext( i ) )
 	{
-		if (stricmp(m_kv.GetKey(i), "origin"))
+		if ( !!stricmp( m_kv.GetKey( i ), "origin" ) )
 		{
-			kvClipboard.SetValue(m_kv.GetKey(i), m_kv.GetValue(i));
+			kvClipboard.SetValue( m_kv.GetKey( i ), m_kv.GetValue( i ) );
 		}
 	}
-
-	CString strClass = m_cClasses.GetCurrentItem();
-	kvClipboard.SetValue("xxxClassxxx", strClass);
 }
 
 
@@ -3474,25 +3474,30 @@ void COP_Entity::OnMarkAndAdd(void)
 //-----------------------------------------------------------------------------
 void COP_Entity::OnPaste(void)
 {
-	if(bKvClipEmpty)
+	if( bKvClipEmpty )
 		return;
 
 	CString str;
 	GetCurKey(str);
+	
+	m_cClasses.SelectItem( kvClipboardClass );
+	UpdateEditClass( kvClipboardClass, false );
+	UpdateDisplayClass( kvClipboardClass );
 
 	// copy entity keyvalues
 	for (int i = kvClipboard.GetFirst(); i != kvClipboard.GetInvalidIndex(); i=kvClipboard.GetNext( i ) )
 	{
-		if (!strcmp(kvClipboard.GetKey(i), "xxxClassxxx"))
+		if ( V_stricmp( kvClipboard.GetKey( i ), SPAWNFLAGS_KEYNAME ) == 0 )
 		{
-			m_cClasses.SelectItem( kvClipboard.GetValue(i) );
-			UpdateEditClass(kvClipboard.GetValue(i), false);
-			UpdateDisplayClass(kvClipboard.GetValue(i));
+			unsigned long value;
+			sscanf( kvClipboard.GetValue( i ), "%lu", &value );
+			OnUpdateSpawnFlags( 0, value );
+			m_pFlagsPage->OnUpdateSpawnFlags( value );
 			continue;
 		}
 
-		m_kv.SetValue(kvClipboard.GetKey(i), kvClipboard.GetValue(i));
-		m_kvAdded.SetValue(kvClipboard.GetKey(i), "1");
+		m_kv.SetValue( kvClipboard.GetKey( i ), kvClipboard.GetValue( i ) );
+		m_kvAdded.SetValue( kvClipboard.GetKey( i ), "1" );
 	}
 
 	PresentProperties();
