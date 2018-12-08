@@ -50,6 +50,7 @@ enum GDIV_TYPE
 	ivAngleNegativePitch,	// used for instance rotating when just a pitch value is present
 	ivInstanceVariable,		// used for instance variables for easy hammer editing
 	ivInstanceParm,			// used for instance parameter declaration
+	ivBoolean,
 
 	ivMax					// count of types
 };
@@ -90,7 +91,7 @@ class GDinputvariable
 		inline int GetChoiceCount() { return m_Items.Count(); }
 		inline const char *GetChoiceCaption(int nChoice);
 
-		inline GDIV_TYPE GetType() { return m_eType; }
+		inline GDIV_TYPE GetType() const { return m_eType; }
 		const char *GetTypeText(void);
 
 		inline void GetDefault(int *pnStore)
@@ -98,9 +99,10 @@ class GDinputvariable
 			pnStore[0] = m_nDefault;
 		}
 
-		inline void GetDefault(char *pszStore)
+		template <size_t N>
+		inline void GetDefault(char (&pszStore)[N])
 		{
-			strcpy(pszStore, m_szDefault);
+			strncpy(pszStore, m_szDefault, Min<size_t>(N, MAX_STRING));
 		}
 
 		GDIV_TYPE GetTypeFromToken(const char *pszToken);
@@ -120,7 +122,7 @@ class GDinputvariable
 		inline bool IsReportable(void);
 		inline bool IsReadOnly(void);
 
-		GDinputvariable &operator =(GDinputvariable &Other);
+		GDinputvariable& operator =(const GDinputvariable &Other);
 		void Merge(GDinputvariable &Other);
 
 		static const char *GetVarTypeName( GDIV_TYPE eType );
