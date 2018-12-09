@@ -83,6 +83,9 @@ public:
 	int Count() const;
 	int Size() const;	// don't use me!
 
+	template < typename TMatchFunc >
+	int CountIf( TMatchFunc&& func ) const;
+
 	/// are there no elements? For compatibility with lists.
 	inline bool IsEmpty( void ) const
 	{
@@ -127,6 +130,9 @@ public:
 
 	// Finds an element (element needs operator== defined)
 	int Find( const T& src ) const;
+
+	template < typename TMatchFunc >
+	int FindMatch(TMatchFunc&& func) const;
 
 	bool HasElement( const T& src ) const;
 
@@ -719,6 +725,21 @@ inline int CUtlVector<T, A>::Count() const
 }
 
 
+template< typename T, class A >
+template< typename TMatchFunc >
+inline int CUtlVector<T, A>::CountIf( TMatchFunc&& func ) const
+{
+	int count = 0;
+	for ( const auto& i : *this )
+	{
+		if ( func( i ) )
+			++count;
+	}
+	return count;
+}
+
+
+
 //-----------------------------------------------------------------------------
 // Is element index valid?
 //-----------------------------------------------------------------------------
@@ -1049,6 +1070,18 @@ int CUtlVector<T, A>::Find( const T& src ) const
 			return i;
 	}
 	return -1;
+}
+
+template< typename T, class A >
+template< typename TMatchFunc >
+int CUtlVector<T, A>::FindMatch( TMatchFunc&& func ) const
+{
+	for ( int i = 0; i < Count(); ++i )
+	{
+		if ( func( Element( i ) ) )
+			return i;
+	}
+	return InvalidIndex();
 }
 
 template< typename T, class A >

@@ -536,7 +536,7 @@ void CMaterial::EnumerateMaterials( IMaterialEnumerator *pEnum, const char *szRo
 //-----------------------------------------------------------------------------
 bool CMaterial::ShouldSkipMaterial(const char *pszName, int nFlags)
 {
-	static char szStrippedName[MAX_PATH];
+	//static char szStrippedName[MAX_PATH];
 
 	// if NULL skip it
 	if( !pszName )
@@ -545,10 +545,10 @@ bool CMaterial::ShouldSkipMaterial(const char *pszName, int nFlags)
 	//
 	// check against the list of exclusion directories
 	//
-	for( int i = 0; i < g_pGameConfig->m_MaterialExcludeCount; i++ )
+	for( int i = 0; i < g_pGameConfig->m_MaterialExclusions.Count(); i++ )
 	{
 		// This will guarantee the match is at the start of the string
-		const char *pMatchFound = Q_stristr( pszName, g_pGameConfig->m_szMaterialExcludeDirs[i] );
+		const char *pMatchFound = V_stristr( pszName, g_pGameConfig->m_MaterialExclusions[i].szDirectory );
 		if( pMatchFound == pszName )
 			return true;
 	}

@@ -832,7 +832,7 @@ InitReturnVal_t CHammer::HammerInternalInit()
 {
 	oldSpewFunc = GetSpewOutputFunc();
 	SpewOutputFunc( HammerDbgOutput );
-	MathLib_Init( 2.2f, 2.2f, 0.0f, 2.0f, false, false, false, false );
+	MathLib_Init();
 	InitReturnVal_t nRetVal = BaseClass::Init();
 	if ( nRetVal != INIT_OK )
 		return nRetVal;
@@ -1468,9 +1468,9 @@ void CHammer::LoadSequences(void)
     }
 
     if (bLoaded)
-		{
+	{
         FOR_EACH_TRUE_SUBKEY(pKvSequences, pKvSequence)
-			{
+		{
             CCommandSequence *pSeq = new CCommandSequence;
             Q_strncpy(pSeq->m_szName, pKvSequence->GetName(), 128);
             FOR_EACH_TRUE_SUBKEY(pKvSequence, pKvCmd)
@@ -1478,16 +1478,16 @@ void CHammer::LoadSequences(void)
                 CCOMMAND cmd;
                 Q_memset(&cmd, 0, sizeof(CCOMMAND));
                 cmd.Load(pKvCmd);
-			pSeq->m_Commands.Add(cmd);
-		}
+				pSeq->m_Commands.Add(cmd);
+			}
 
-		m_CmdSequences.Add(pSeq);
-	}
+			m_CmdSequences.Add(pSeq);
+		}
 
         // Save em out if defaults were loaded
         if (bLoaded == 2)
             pKvSequences->SaveToFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg", true);
-}
+	}
 
     pKvSequences->deleteThis();
 }
@@ -1508,10 +1508,7 @@ void CHammer::SaveSequences(void)
         int numCmds = pSeq->m_Commands.GetSize();
         for (int j = 0; j < numCmds; j++)
         {
-            KeyValues *pKvCmd = pKvSequence->CreateNewKey();
-
-            CCOMMAND cmd = pSeq->m_Commands[j];
-            cmd.Save(pKvCmd);
+            pSeq->m_Commands[j].Save( pKvSequence->CreateNewKey() );
 		}
         pKvSequences->AddSubKey(pKvSequence);
 	}

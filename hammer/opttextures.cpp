@@ -132,7 +132,7 @@ static int CALLBACK BrowseCallbackProc( HWND hwnd, UINT uMsg, LPARAM lParam, LPA
 //			*pszDirectory - 
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
-BOOL COPTTextures::BrowseForFolder( char *pszTitle, char *pszDirectory )
+BOOL COPTTextures::BrowseForFolder( const char *pszTitle, char *pszDirectory )
 {
 	USES_CONVERSION;
 
@@ -230,9 +230,9 @@ void COPTTextures::MaterialExcludeUpdate( void )
 	//
 	// add the data from the current material config
 	//
-	for( int i = 0; i < m_pMaterialConfig->m_MaterialExcludeCount; i++ )
+	for( int i = 0; i < m_pMaterialConfig->m_MaterialExclusions.Count(); i++ )
 	{
-		int result = m_MaterialExclude.AddString( m_pMaterialConfig->m_szMaterialExcludeDirs[i] );
+		int result = m_MaterialExclude.AddString( m_pMaterialConfig->m_MaterialExclusions[i].szDirectory );
 		if( ( result == LB_ERR ) || ( result == LB_ERRSPACE ) )
 			return;
 	}
@@ -286,17 +286,14 @@ void COPTTextures::OnMaterialExcludeAdd( void )
 	int result = m_MaterialExclude.AddString( szSubDirName );
 	if( ( result == LB_ERR ) || ( result == LB_ERRSPACE ) )
 		return;
-	
+
+	MatExlcusions_s& exclusion = m_pMaterialConfig->m_MaterialExclusions[m_pMaterialConfig->m_MaterialExclusions.AddToTail()];
 	//
 	// add name of directory to the global exlusion list
 	//
-	int ndx = m_pMaterialConfig->m_MaterialExcludeCount;
-	if( ndx >= MAX_DIRECTORY_SIZE )
-		return;
 
-
-	strcpy( m_pMaterialConfig->m_szMaterialExcludeDirs[ndx], szSubDirName );
-	m_pMaterialConfig->m_MaterialExcludeCount++;
+	V_strcpy_safe( exclusion.szDirectory, szSubDirName );
+	exclusion.bUserGenerated = true;
 }
 
 
@@ -324,19 +321,7 @@ void COPTTextures::OnMaterialExcludeRemove( void )
 	//
 	// remove the name of the directory from the global exlusion list
 	//
-	for( int i = 0; i < m_pMaterialConfig->m_MaterialExcludeCount; i++ )
-	{
-		if( !strcmp( szTmp, m_pMaterialConfig->m_szMaterialExcludeDirs[i] ) )
-		{
-			// remove the directory
-			if( i != ( m_pMaterialConfig->m_MaterialExcludeCount - 1 ) )
-			{
-				strcpy( m_pMaterialConfig->m_szMaterialExcludeDirs[i],
-					    m_pMaterialConfig->m_szMaterialExcludeDirs[m_pMaterialConfig->m_MaterialExcludeCount-1] );
-			}
-
-			// decrement count
-			m_pMaterialConfig->m_MaterialExcludeCount--;
-		}
-	}
+	const int find = m_pMaterialConfig->m_MaterialExclusions.FindMatch( [&szTmp]( const MatExlcusions_s& e ) { return !V_strcmp( szTmp, e.szDirectory ); } );
+	if ( m_pMaterialConfig->m_MaterialExclusions.IsValidIndex( find ) )
+		m_pMaterialConfig->m_MaterialExclusions.Remove( find );
 }

@@ -19,6 +19,11 @@ class KeyValues;
 
 #define MAX_DIRECTORY_SIZE	32
 
+struct MatExlcusions_s
+{
+	char szDirectory[260];
+	bool bUserGenerated;
+};
 
 class CGameConfig
 {
@@ -58,8 +63,9 @@ public:
 	char szMapDir[128];
 	char szBSPDir[128];
 	char m_szModDir[128];
-	int	 m_MaterialExcludeCount;
-	char m_szMaterialExcludeDirs[MAX_DIRECTORY_SIZE][MAX_PATH];
+	char m_szPrefabDir[128];
+	char m_szInstanceDir[260];
+	CUtlVector<MatExlcusions_s> m_MaterialExclusions;
 
 	CStringArray GDFiles;
 	GameData GD;	// gamedata files loaded
@@ -82,10 +88,10 @@ protected:
 	int m_nDefaultLightmapScale;
 	char m_szCordonTexture[MAX_PATH];
 
-		// These settings are loaded from GameInfo.txt:
-		char m_szSteamDir[MAX_PATH];			// The full path to steam.exe
-		char m_szSteamUserDir[MAX_PATH];		// The full path to the users's directory under SteamApps
-		char m_szSteamAppID[32];				// The app id to add to the command line when launching the game via Steam.
+	// These settings are loaded from GameInfo.txt:
+	char m_szSteamDir[MAX_PATH];			// The full path to steam.exe
+	char m_szSteamUserDir[MAX_PATH];		// The full path to the users's directory under SteamApps
+	char m_szSteamAppID[32];				// The app id to add to the command line when launching the game via Steam.
 };
 
 

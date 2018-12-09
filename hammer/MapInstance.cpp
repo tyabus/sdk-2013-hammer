@@ -26,14 +26,19 @@ CMapClass* CMapInstance::Create( CHelperInfo* pHelperInfo, CMapEntity* pParent )
 	return new CMapInstance( pParent );
 }
 
-CMapInstance::CMapInstance() : m_pTemplate( NULL )
+CMapInstance::CMapInstance() : m_pTemplate( nullptr )
 {
 	m_matTransform.Identity();
 }
 
-CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( NULL )
+CMapInstance::CMapInstance( CMapEntity* pParent ) : m_pTemplate( nullptr )
 {
 	m_matTransform.Identity();
+	QAngle angles;
+	Vector origin;
+	pParent->GetAngles( angles );
+	pParent->GetOrigin( origin );
+	m_matTransform.SetupMatrixOrgAngles( origin, angles );
 	m_strCurrentVMF = pParent->GetKeyValue( "file" );
 	LoadVMF( pParent );
 }
@@ -46,7 +51,7 @@ CMapInstance::~CMapInstance()
 CMapClass* CMapInstance::Copy( bool bUpdateDependencies )
 {
 	CMapInstance* inst = new CMapInstance;
-	if ( inst != NULL )
+	if ( inst != nullptr )
 		inst->CopyFrom( this, bUpdateDependencies );
 	return inst;
 }
@@ -550,7 +555,75 @@ bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 {
 	if ( m_pTemplate && instanceRenderMode != 0 )
+	{
+		const int prevCount = tri_list.Count();
 		AddShadowingTrianglesChildren( tri_list, m_pTemplate );
+		// transform into correct space
+		for ( int i = prevCount; i < tri_list.Count(); ++i )
+		{
+			Vector& vec = tri_list[i];
+			vec = m_matTransform.VMul4x3( vec );
+		}
+	}
+}
+
+template <size_t N>
+static bool DeterminePath( const char *pszBaseFileName, const char *pszInstanceFileName, char (&pszOutFileName)[N] )
+{
+	char szInstanceFileNameFixed[ MAX_PATH ];
+	const char *pszMapPath = "\\maps\\";
+
+	V_strcpy_safe( szInstanceFileNameFixed, pszInstanceFileName );
+	V_SetExtension( szInstanceFileNameFixed, ".vmf", sizeof( szInstanceFileNameFixed ) );
+	V_FixSlashes( szInstanceFileNameFixed );
+
+	// first, try to find a relative location based upon the Base file name
+	V_strcpy_safe( pszOutFileName, pszBaseFileName );
+	V_StripFilename( pszOutFileName );
+
+	V_strcat_safe( pszOutFileName, "\\" );
+	V_strcat_safe( pszOutFileName, szInstanceFileNameFixed );
+
+	if ( g_pFullFileSystem->FileExists( pszOutFileName ) )
+		return true;
+
+	// second, try to find the master 'maps' directory and make it relative from that
+	V_strcpy_safe( pszOutFileName, pszBaseFileName );
+	V_StripFilename( pszOutFileName );
+	V_RemoveDotSlashes( pszOutFileName );
+	V_FixDoubleSlashes( pszOutFileName );
+	V_strlower( pszOutFileName );
+	V_strcat_safe( pszOutFileName, "\\" );
+
+	char *pos = strstr( pszOutFileName, pszMapPath );
+	if ( pos )
+	{
+		pos += V_strlen( pszMapPath );
+		*pos = 0;
+		V_strcat_safe( pszOutFileName, szInstanceFileNameFixed );
+
+		if ( g_pFullFileSystem->FileExists( pszOutFileName ) )
+		{
+			return true;
+		}
+	}
+
+	if ( g_pGameConfig->m_szInstanceDir[0] )
+	{
+		V_sprintf_safe( szInstanceFileNameFixed, "%s%s", g_pGameConfig->m_szInstanceDir, pszInstanceFileName );
+
+		if ( g_pFullFileSystem->FileExists( szInstanceFileNameFixed, "GAME" ) )
+		{
+			char FullPath[ MAX_PATH ];
+			g_pFullFileSystem->RelativePathToFullPath( szInstanceFileNameFixed, "GAME", FullPath, sizeof( FullPath ) );
+			V_strcpy_safe( pszOutFileName, FullPath );
+
+			return true;
+		}
+	}
+
+	pszOutFileName[ 0 ] = 0;
+	return false;
 }
 
 void CMapInstance::LoadVMF( CMapClass* pParent )
@@ -558,17 +631,15 @@ void CMapInstance::LoadVMF( CMapClass* pParent )
 	if ( m_pTemplate )
 	{
 		delete m_pTemplate;
-		m_pTemplate = NULL;
+		m_pTemplate = nullptr;
 	}
 
 	if ( !m_strCurrentVMF.IsEmpty() )
 	{
 		CMapWorld* world = GetWorldObject( pParent ? pParent : GetParent() );
 		Assert( world );
-		char parentDir[MAX_PATH];
-		V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
-		const CFmtStr instancePath( "%s%s", parentDir, m_strCurrentVMF.Get() );
-		if ( g_pFullFileSystem->FileExists( instancePath ) && LoadVMFInternal( instancePath ) )
+		char instancePath[MAX_PATH];
+		if ( DeterminePath( world->GetVMFPath(), m_strCurrentVMF, instancePath ) && LoadVMFInternal( instancePath ) )
 			m_pTemplate->SetPreferredPickObject( pParent ? pParent : GetParent() );
 	}
 }
@@ -602,7 +673,7 @@ bool CMapInstance::LoadVMFInternal( const char* pVMFPath )
 		CChunkHandlerMap handlers;
 		handlers.AddHandler( "world", LoadWorldCallback, this );
 		handlers.AddHandler( "entity", LoadEntityCallback, this );
-		handlers.SetErrorHandler( []( CChunkFile*, const char*, void* ) { return false; }, NULL );
+		handlers.SetErrorHandler( []( CChunkFile*, const char*, void* ) { return false; }, nullptr );
 
 		file.PushHandlers( &handlers );
 
@@ -620,7 +691,7 @@ bool CMapInstance::LoadVMFInternal( const char* pVMFPath )
 	else
 	{
 		delete m_pTemplate;
-		m_pTemplate = NULL;
+		m_pTemplate = nullptr;
 	}
 
 	return eResult == ChunkFile_Ok;

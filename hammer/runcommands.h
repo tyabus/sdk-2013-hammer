@@ -37,7 +37,7 @@ typedef struct
 	BOOL bUseProcessWnd;
 	BOOL bNoWait;
 
-    void Save(KeyValues *pKv);
+    void Save(KeyValues *pKv) const;
     void Load(KeyValues *pKv);
 
 } CCOMMAND, *PCCOMMAND;

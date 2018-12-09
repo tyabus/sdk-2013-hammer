@@ -87,7 +87,6 @@ CGameConfig::CGameConfig(void)
 	nGDFiles = 0;
 	m_fDefaultTextureScale = DEFAULT_TEXTURE_SCALE;
 	m_nDefaultLightmapScale = DEFAULT_LIGHTMAP_SCALE;
-	m_MaterialExcludeCount = 0;
 
 	memset(szName, 0, sizeof(szName));
 	memset(szExecutable, 0, sizeof(szExecutable));
@@ -100,7 +99,7 @@ CGameConfig::CGameConfig(void)
 	memset(m_szGameExeDir, 0, sizeof(m_szGameExeDir));
 	memset(szBSPDir, 0, sizeof(szBSPDir));
 	memset(m_szModDir, 0, sizeof(m_szModDir));
-	memset(m_szMaterialExcludeDirs, 0, sizeof( m_szMaterialExcludeDirs ));
+	memset(m_szInstanceDir, 0, sizeof(m_szInstanceDir));
 	strcpy(m_szCordonTexture, "BLACK");
 
 	m_szSteamDir[0] = '\0';
@@ -171,15 +170,25 @@ bool CGameConfig::Load(KeyValues *pkv)
 	SetCordonTexture( pkvHammer->GetString("CordonTexture", "BLACK") );
 
 	char szExcludeDir[MAX_PATH];
-	m_MaterialExcludeCount = pkvHammer->GetInt("MaterialExcludeCount");
-	for (int i = 0; i < m_MaterialExcludeCount; i++)
+	const int materialExcludeCount = pkvHammer->GetInt("MaterialExcludeCount");
+	for (int i = 0; i < materialExcludeCount; i++)
 	{
+		MatExlcusions_s& exclusion = m_MaterialExclusions[m_MaterialExclusions.AddToTail()];
 		sprintf(szExcludeDir, "-MaterialExcludeDir%d", i );
-		Q_strncpy(m_szMaterialExcludeDirs[i], pkvHammer->GetString(szExcludeDir), sizeof(m_szMaterialExcludeDirs[0]));
-		Q_StripTrailingSlash(m_szMaterialExcludeDirs[i]);
+		V_strcpy_safe( exclusion.szDirectory, pkvHammer->GetString( szExcludeDir ) );
+		V_StripTrailingSlash( exclusion.szDirectory );
+		exclusion.bUserGenerated = true;
 	}
 
 	LoadGDFiles();
+
+	for ( int i = 0; i < GD.m_FGDMaterialExclusions.Count(); ++i )
+	{
+		MatExlcusions_s& exclusion = m_MaterialExclusions[m_MaterialExclusions.AddToTail()];
+		const FGDMatExlcusions_s& fgdExclusion = GD.m_FGDMaterialExclusions[i];
+		V_strcpy_safe( exclusion.szDirectory, fgdExclusion.szDirectory );
+		exclusion.bUserGenerated = false;
+	}
 
 	return(true);
 }
@@ -236,11 +245,14 @@ bool CGameConfig::Save(KeyValues *pkv)
 	pkvHammer->SetString("CordonTexture", m_szCordonTexture);
 
 	char szExcludeDir[MAX_PATH];
-	pkvHammer->SetInt("MaterialExcludeCount", m_MaterialExcludeCount);
-	for (int i = 0; i < m_MaterialExcludeCount; i++)
+	pkvHammer->SetInt("MaterialExcludeCount", m_MaterialExclusions.CountIf( [](const MatExlcusions_s& e) { return e.bUserGenerated; }));
+	for (int i = 0; i < m_MaterialExclusions.Count(); i++)
 	{
+		const MatExlcusions_s& exclusion = m_MaterialExclusions[i];
+		if ( !exclusion.bUserGenerated )
+			continue;
 		sprintf(szExcludeDir, "-MaterialExcludeDir%d", i );
-		pkvHammer->SetString(szExcludeDir, m_szMaterialExcludeDirs[i]);
+		pkvHammer->SetString(szExcludeDir, exclusion.szDirectory);
 	}
 
 	return true;
@@ -269,12 +281,9 @@ void CGameConfig::CopyFrom(CGameConfig *pConfig)
 	strcpy(m_szGameExeDir, pConfig->m_szGameExeDir);
 	strcpy(szBSPDir, pConfig->szBSPDir);
 	strcpy(m_szModDir, pConfig->m_szModDir);
+	strcpy(m_szInstanceDir, pConfig->m_szInstanceDir);
 
-	pConfig->m_MaterialExcludeCount = m_MaterialExcludeCount;
-	for( int i = 0; i < m_MaterialExcludeCount; i++ )
-	{
-		strcpy( m_szMaterialExcludeDirs[i], pConfig->m_szMaterialExcludeDirs[i] );
-	}
+	pConfig->m_MaterialExclusions.CopyArray( m_MaterialExclusions.Base(), m_MaterialExclusions.Count() );
 }
 
 
@@ -416,7 +425,7 @@ bool FindSteamUserDir(const char *szAppDir, const char *szSteamDir, char *szStea
 //-----------------------------------------------------------------------------
 void CGameConfig::ParseGameInfo()
 {
-	KeyValues *pkv = new KeyValues("gameinfo.txt");
+	KeyValuesAD pkv("gameinfo.txt");
 	if (!pkv->LoadFromFile(g_pFileSystem, "gameinfo.txt", "GAME"))
 	{
 		pkv->deleteThis();
@@ -426,10 +435,19 @@ void CGameConfig::ParseGameInfo()
 	KeyValues *pKey = pkv->FindKey("FileSystem");
 	if (pKey)
 	{
-		strcpy(m_szSteamAppID, pKey->GetString("SteamAppId", ""));
+		V_strcpy_safe(m_szSteamAppID, pKey->GetString("SteamAppId", ""));
 	}
 
-	pkv->deleteThis();
+	const char* instancePath = pkv->GetString( "InstancePath", nullptr );
+	if ( instancePath )
+	{
+		if ( !V_IsAbsolutePath( instancePath ) )
+		{
+			g_pFullFileSystem->RelativePathToFullPath_safe( instancePath, "GAME", m_szInstanceDir );
+		}
+		else
+			V_strcpy_safe( m_szInstanceDir, instancePath );
+	}
 
 	char szAppDir[MAX_PATH];
 	APP()->GetDirectory(DIR_PROGRAM, szAppDir);
