@@ -537,7 +537,6 @@ ChunkFileResult_t CEditGameClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInf
 	return(eResult);
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: Slightly modified strtok. Does not modify the input string. Does
 //			not skip over more than one seperator at a time. This allows parsing
@@ -548,21 +547,21 @@ ChunkFileResult_t CEditGameClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInf
 //
 // Input  : token - Returns with a token, or zero length if the token was missing.
 //			str - String to parse.
-//			sep - Character to use as seperator. UNDONE: allow multiple seperator chars
+//			sep - Characters to use as seperator.
 // Output : Returns a pointer to the next token to be parsed.
 //-----------------------------------------------------------------------------
-static const char *nexttoken(char *token, const char *str, char sep)
+static const char *nexttoken(char *token, const char *str, const char* sep)
 {
 	if (*str == '\0')
 	{
-		return(NULL);
+		return(nullptr);
 	}
 
 	//
 	// Find the first seperator.
 	//
 	const char *ret = str;
-	while ((*str != sep) && (*str != '\0'))
+	while (strchr(sep, *str) && (*str != '\0'))
 	{
 		str++;
 	}
@@ -607,11 +606,16 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	pConnection->SetOutputName(szKey);
 
 	char szToken[MAX_PATH];
+	const char szSeparators[] = ",\x1b";
 
 	//
 	// Parse the target name.
 	//
-	const char *psz = nexttoken(szToken, szValue, ',');
+	const char *psz = nexttoken(szToken, szValue, szSeparators);
+	if (psz == nullptr)
+	{
+		return(ChunkFile_Fail);
+	}
 	if (szToken[0] != '\0')
 	{
 		pConnection->SetTargetName(szToken);
@@ -620,7 +624,11 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the input name.
 	//
-	psz = nexttoken(szToken, psz, ',');
+	psz = nexttoken(szToken, psz, szSeparators);
+	if (psz == nullptr)
+	{
+		return(ChunkFile_Fail);
+	}
 	if (szToken[0] != '\0')
 	{
 		pConnection->SetInputName(szToken);
@@ -629,7 +637,11 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the parameter override.
 	//
-	psz = nexttoken(szToken, psz, ',');
+	psz = nexttoken(szToken, psz, szSeparators);
+	if (psz == nullptr)
+	{
+		return(ChunkFile_Fail);
+	}
 	if (szToken[0] != '\0')
 	{
 		pConnection->SetParam(szToken);
@@ -638,7 +650,11 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the delay.
 	//
-	psz = nexttoken(szToken, psz, ',');
+	psz = nexttoken(szToken, psz, szSeparators);
+	if (psz == nullptr)
+	{
+		return(ChunkFile_Fail);
+	}
 	if (szToken[0] != '\0')
 	{
 		pConnection->SetDelay((float)atof(szToken));
@@ -647,7 +663,11 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the number of times to fire the output.
 	//
-	nexttoken(szToken, psz, ',');
+	nexttoken(szToken, psz, szSeparators);
+	if (psz == nullptr)
+	{
+		return(ChunkFile_Fail);
+	}
 	if (szToken[0] != '\0')
 	{
 		pConnection->SetTimesToFire(atoi(szToken));
