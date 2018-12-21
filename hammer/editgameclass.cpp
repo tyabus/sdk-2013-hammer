@@ -561,7 +561,7 @@ static const char *nexttoken(char *token, const char *str, const char* sep)
 	// Find the first seperator.
 	//
 	const char *ret = str;
-	while (strchr(sep, *str) && (*str != '\0'))
+	while (!strchr(sep, *str) && (*str != '\0'))
 	{
 		str++;
 	}
