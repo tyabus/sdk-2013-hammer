@@ -614,7 +614,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	const char *psz = nexttoken(szToken, szValue, szSeparators);
 	if (psz == nullptr)
 	{
-		return(ChunkFile_Fail);
+		return(ChunkFile_Ok);
 	}
 	if (szToken[0] != '\0')
 	{
@@ -627,7 +627,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	psz = nexttoken(szToken, psz, szSeparators);
 	if (psz == nullptr)
 	{
-		return(ChunkFile_Fail);
+		return(ChunkFile_Ok);
 	}
 	if (szToken[0] != '\0')
 	{
@@ -640,7 +640,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	psz = nexttoken(szToken, psz, szSeparators);
 	if (psz == nullptr)
 	{
-		return(ChunkFile_Fail);
+		return(ChunkFile_Ok);
 	}
 	if (szToken[0] != '\0')
 	{
@@ -653,7 +653,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	psz = nexttoken(szToken, psz, szSeparators);
 	if (psz == nullptr)
 	{
-		return(ChunkFile_Fail);
+		return(ChunkFile_Ok);
 	}
 	if (szToken[0] != '\0')
 	{
@@ -666,7 +666,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	nexttoken(szToken, psz, szSeparators);
 	if (psz == nullptr)
 	{
-		return(ChunkFile_Fail);
+		return(ChunkFile_Ok);
 	}
 	if (szToken[0] != '\0')
 	{
