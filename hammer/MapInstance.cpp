@@ -321,10 +321,12 @@ void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
 	}
 }
 
-byte instanceRenderMode = 1;
 void CMapInstance::Render2D( CRender2D* pRender )
 {
-	if ( !m_pTemplate || !instanceRenderMode )
+	if ( !m_pTemplate )
+		return;
+	const ShowInstance_t visibility = GetWorldObject( this )->GetInstanceVisibility();
+	if ( visibility == ShowInstance_t::INSTANCES_HIDE )
 		return;
 
 	VMatrix localTransform;
@@ -424,8 +426,12 @@ void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt
 
 void CMapInstance::Render3D( CRender3D* pRender )
 {
-	if ( m_pTemplate && instanceRenderMode != 0 )
+	if ( m_pTemplate )
 	{
+		const ShowInstance_t visibility = GetWorldObject( this )->GetInstanceVisibility();
+		if ( visibility == ShowInstance_t::INSTANCES_HIDE )
+			return;
+
 		CAutoPushPop guard2( pRender->m_DeferRendering, false );
 
 		VMatrix localTransform;
@@ -451,7 +457,7 @@ void CMapInstance::Render3D( CRender3D* pRender )
 			Render3DChildrenDeferred( pRender, def, false );
 
 		const EditorRenderMode_t mode = pRender->GetCurrentRenderMode();
-		if ( ( instanceRenderMode == 1 || GetSelectionState() != SELECT_NONE ) && ( mode == RENDER_MODE_FLAT || mode == RENDER_MODE_TEXTURED || mode == RENDER_MODE_TEXTURED_SHADED ) )
+		if ( ( visibility == ShowInstance_t::INSTANCES_SHOW_TINTED || GetSelectionState() != SELECT_NONE ) && ( mode == RENDER_MODE_FLAT || mode == RENDER_MODE_TEXTURED || mode == RENDER_MODE_TEXTURED_SHADED ) )
 		{
 			{
 				int width, height;
@@ -554,7 +560,7 @@ bool CMapInstance::RenderPreload( CRender3D* pRender, bool bNewContext )
 
 void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 {
-	if ( m_pTemplate && instanceRenderMode != 0 )
+	if ( m_pTemplate && GetWorldObject( this )->GetInstanceVisibility() != ShowInstance_t::INSTANCES_HIDE )
 	{
 		const int prevCount = tri_list.Count();
 		AddShadowingTrianglesChildren( tri_list, m_pTemplate );
@@ -567,6 +573,7 @@ void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 	}
 }
 
+// Logic from VBSP
 template <size_t N>
 static bool DeterminePath( const char *pszBaseFileName, const char *pszInstanceFileName, char (&pszOutFileName)[N] )
 {

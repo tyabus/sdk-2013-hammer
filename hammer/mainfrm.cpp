@@ -1162,9 +1162,33 @@ void CMainFrame::SetUndoActive(BOOL bActive)
 	CMapDoc::GetActiveMapDoc()->SetUndoActive(bActive == TRUE);
 }
 
+void SetInstanceBoxChecked( UINT nID, CMainFrame* pFrm )
+{
+	CMenu* pMenu = pFrm->GetMenu();
+	
+	switch ( nID )
+	{
+	case ID_INSTANCE_VIS_HIDE:
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_HIDE, MF_CHECKED | MF_BYCOMMAND );
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_TINTED, MF_UNCHECKED | MF_BYCOMMAND );
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_NORMAL, MF_UNCHECKED | MF_BYCOMMAND );
+		break;
+	case ID_INSTANCE_VIS_TINTED:
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_TINTED, MF_CHECKED | MF_BYCOMMAND );
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_HIDE, MF_UNCHECKED | MF_BYCOMMAND );
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_NORMAL, MF_UNCHECKED | MF_BYCOMMAND );
+		break;
+	case ID_INSTANCE_VIS_NORMAL:
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_NORMAL, MF_CHECKED | MF_BYCOMMAND );
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_HIDE, MF_UNCHECKED | MF_BYCOMMAND );
+		pMenu->CheckMenuItem( ID_INSTANCE_VIS_TINTED, MF_UNCHECKED | MF_BYCOMMAND );
+		break;
+	}
+	pFrm->DrawMenuBar();
+}
+
 BOOL CMainFrame::OnInstanceMsg(UINT nID)
 {
-	extern byte instanceRenderMode;
 	switch ( nID )
 	{
 	case ID_INSTANCE_COLLAPSE_SEL:
@@ -1173,16 +1197,21 @@ BOOL CMainFrame::OnInstanceMsg(UINT nID)
 	case ID_INSTANCE_COLLAPSE_ALL_RECURSIVE:
 		break;
 	case ID_INSTANCE_VIS_HIDE:
-		instanceRenderMode = 0;
+		CMapDoc::GetActiveMapDoc()->SetInstanceVisibility( ShowInstance_t::INSTANCES_HIDE );
 		break;
 	case ID_INSTANCE_VIS_TINTED:
-		instanceRenderMode = 1;
+		CMapDoc::GetActiveMapDoc()->SetInstanceVisibility( ShowInstance_t::INSTANCES_SHOW_TINTED );
 		break;
 	case ID_INSTANCE_VIS_NORMAL:
-		instanceRenderMode = 2;
+		CMapDoc::GetActiveMapDoc()->SetInstanceVisibility( ShowInstance_t::INSTANCES_SHOW_NORMAL );
 		break;
 	default:
 		Assert( 0 );
+	}
+
+	if ( nID == ID_INSTANCE_VIS_HIDE || nID == ID_INSTANCE_VIS_TINTED || nID == ID_INSTANCE_VIS_NORMAL )
+	{
+		SetInstanceBoxChecked( nID, this );
 	}
 	return TRUE;
 }

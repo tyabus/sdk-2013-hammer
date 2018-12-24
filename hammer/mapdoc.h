@@ -119,6 +119,13 @@ struct portalfile_t
 	CUtlVector<int>		vertCount;
 };
 
+enum class ShowInstance_t
+{
+	INSTANCES_HIDE = 0x0,
+	INSTANCES_SHOW_TINTED = 0x1,
+	INSTANCES_SHOW_NORMAL = 0x2,
+};
+
 class CMapDoc : public CDocument
 {
 	protected:
@@ -428,6 +435,9 @@ class CMapDoc : public CDocument
 		// Builds a list of all objects which are connected to outputs of pObj
 		void BuildCascadingSelectionList( CMapClass *pObj, CUtlRBTree< CMapClass*, unsigned short > &list, bool bRecursive );
 
+		void SetInstanceVisibility( ShowInstance_t state ) { m_tShowInstance = state; }
+		ShowInstance_t GetInstanceVisibility() const { return m_tShowInstance; }
+
 	protected:
 
 		void Initialize();
@@ -520,6 +530,8 @@ class CMapDoc : public CDocument
 
 		bool m_bShow3DGrid;				// Whether to render a grid in the 3D views.
 		bool m_bHideItems;				// Whether to render point entities in all views.
+
+		ShowInstance_t m_tShowInstance;
 
 		//
 		// Animation.

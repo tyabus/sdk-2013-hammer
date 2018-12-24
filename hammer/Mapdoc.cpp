@@ -346,8 +346,6 @@ struct SelectLogicalBoxInfo_t
 CMapDoc::CMapDoc(void)
 {
 	m_nLogicalPositionCount = 0;
-	int nSize = sizeof(CMapFace);
-	nSize = sizeof(CMapSolid);
 
 	m_bLoading = false;
 	m_pWorld = NULL;
@@ -420,6 +418,8 @@ CMapDoc::CMapDoc(void)
 	m_bIsCordoning = false;
 	m_vCordonMins = Vector(-1024,-1024,-1024);
 	m_vCordonMaxs = Vector( 1024,1024,1024);
+
+	m_tShowInstance = ShowInstance_t::INSTANCES_SHOW_TINTED;
 }
 
 
@@ -1308,6 +1308,7 @@ void CMapDoc::Initialize(void)
 	Assert(!m_pWorld);
 
 	m_pWorld = new CMapWorld;
+	m_pWorld->SetOwningDoc( this );
 	m_pWorld->CullTree_Build();
 }
 
@@ -1378,6 +1379,7 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 	if (m_pWorld == NULL)
 	{
 		m_pWorld = new CMapWorld;
+		m_pWorld->SetOwningDoc( this );
 	}
 
 	m_pWorld->SetVMFPath( pszFileName );
@@ -2867,7 +2869,10 @@ void CMapDoc::SetActiveMapDoc(CMapDoc *pDoc)
 
 		CHistory::SetHistory(m_pMapDoc->GetDocHistory());
 		m_pMapDoc->SetUndoActive(GetMainWnd()->IsUndoActive() == TRUE);
-	        m_pMapDoc->UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
+		m_pMapDoc->UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
+		extern void SetInstanceBoxChecked( UINT nID, CMainFrame* pFrm );
+		SetInstanceBoxChecked( m_pMapDoc->m_tShowInstance == ShowInstance_t::INSTANCES_HIDE ? ID_INSTANCE_VIS_HIDE 
+			: m_pMapDoc->m_tShowInstance == ShowInstance_t::INSTANCES_SHOW_TINTED ? ID_INSTANCE_VIS_TINTED : ID_INSTANCE_VIS_NORMAL, GetMainWnd() );
 	}
 	else
 	{
@@ -8499,6 +8504,7 @@ void CMapDoc::RenderPreloadObject(CMapClass *pObject)
 CMapWorld *CMapDoc::CordonCreateWorld()
 {
 	CMapWorld *pWorld = new CMapWorld;
+	pWorld->SetOwningDoc( this );
 
 	GetHistory()->Pause();
 

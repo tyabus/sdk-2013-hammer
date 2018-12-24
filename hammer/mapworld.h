@@ -13,6 +13,7 @@
 #include "MapEntity.h"
 #include "EditGameClass.h"
 #include "MapClass.h"
+#include "MapDoc.h"
 #include "MapPath.h"
 
 // Flags for SaveVMF.
@@ -146,6 +147,9 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		void SetVMFPath( const char* pVMFPath );
 		const char* GetVMFPath() const;
 
+		void SetOwningDoc( CMapDoc* pDoc ) { m_pOwningDocument = pDoc; }
+		ShowInstance_t GetInstanceVisibility() const { return m_pOwningDocument ? m_pOwningDocument->GetInstanceVisibility() : ShowInstance_t::INSTANCES_HIDE; }
+
 	protected:
 
 		//
@@ -191,6 +195,8 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		CMapClass* m_pPreferredPickObject;
 
 		CString m_strVMFPath;
+
+		CMapDoc* m_pOwningDocument;
 };
 
 
