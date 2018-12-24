@@ -71,7 +71,6 @@ $Project "hammer_dll"
 		
 		$File	"$SRCDIR\public\bone_setup.cpp"						\
 				"$SRCDIR\public\builddisp.cpp"						\
-				"BuildNum.cpp"										\
 				"Camera.cpp"										\
 				"$SRCDIR\Public\ChunkFile.cpp"						\
 				"$SRCDIR\Public\CollisionUtils.cpp"					\

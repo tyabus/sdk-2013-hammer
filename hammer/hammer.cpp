@@ -1284,7 +1284,7 @@ BOOL CAboutDlg::OnInitDialog(void)
 	if (pWnd != NULL)
 	{
 		char szTemp2[MAX_PATH];
-		const int nBuild = build_number();
+		constexpr int nBuild = build_number();
 		sprintf(szTemp2, "Build %d%s", nBuild,
 	//
 	// For SDK builds, append "SDK" to the version number.
