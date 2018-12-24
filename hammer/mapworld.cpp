@@ -1655,7 +1655,7 @@ void CMapWorld::PostloadVisGroups()
 	const CMapEntityList *pEntities = EntityList_GetList();
 	FOR_EACH_OBJ( *pEntities, pos )
 	{
-		CMapEntity *pEntity = dynamic_cast< CMapEntity *>( (*pEntities)[pos] );
+		CMapEntity *pEntity = pEntities->Element( pos );
 #if	defined(_DEBUG) && 0
 		LPCTSTR	pszTargetName = pEntity->GetKeyValue("targetname");
 		if ( pszTargetName && !strcmp(pszTargetName, "relay_cancelVCDs") )

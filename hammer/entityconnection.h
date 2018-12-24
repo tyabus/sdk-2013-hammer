@@ -22,6 +22,7 @@
 
 #include "UtlVector.h"
 #include "fgdlib/InputOutput.h"
+#include "tier1/utlobjectreference.h"
 
 
 #define EVENT_FIRE_ALWAYS	-1
@@ -40,7 +41,7 @@ enum
 };
 
 class CMapEntity;
-typedef CUtlVector<CMapEntity*> CMapEntityList;
+typedef CUtlReferenceVector<CMapEntity> CMapEntityList;
 
 class CEntityConnection
 {

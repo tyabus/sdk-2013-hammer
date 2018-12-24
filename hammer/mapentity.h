@@ -11,7 +11,7 @@
 #include "MapClass.h"
 #include "MapFace.h"			// FIXME: For PLANE definition.
 #include "EditGameClass.h"
-
+#include "tier1/utlobjectreference.h"
 
 class CMapAnimator;
 class CRender2D;
@@ -259,10 +259,12 @@ private:
 	Vector2D m_vecLogicalPosition;	// Position in logical space
 
 	bool m_bIsInstance;
+
+	DECLARE_REFERENCED_CLASS( CMapEntity );
 };
 
 
-typedef CUtlVector<CMapEntity*> CMapEntityList;
+typedef CUtlReferenceVector<CMapEntity> CMapEntityList;
 
 bool MapEntityList_HasInput(const CMapEntityList *pList, const char *szInput, InputOutputType_t eType = iotInvalid);
 
