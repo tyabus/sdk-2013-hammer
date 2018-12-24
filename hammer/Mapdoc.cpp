@@ -1596,6 +1596,7 @@ ChunkFileResult_t CMapDoc::LoadViewSettingsKeyCallback(const char *szKey, const 
 	KeyBool( "bShowLogicalGrid", pDoc->m_bShowLogicalGrid);
 	KeyInt( "nGridSpacing", pDoc->m_nGridSpacing);
 	KeyBool( "bShow3DGrid", pDoc->m_bShow3DGrid);
+	KeyInt( "nInstanceVisibility", (int&)pDoc->m_tShowInstance);
 
 	return(ChunkFile_Ok);
 }
@@ -8746,7 +8747,6 @@ bool CMapDoc::SaveVMF(const char *pszFileName, int saveFlags )
 	return(true);
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: Saves the version information chunk.
 // Input  : *pFile -
@@ -8763,7 +8763,8 @@ ChunkFileResult_t CMapDoc::SaveVersionInfoVMF(CChunkFile *pFile, bool bIsAutoSav
 
 	if (eResult == ChunkFile_Ok)
 	{
-		eResult = pFile->WriteKeyValueInt("editorbuild", build_number());
+		constexpr int build = build_number();
+		eResult = pFile->WriteKeyValueInt("editorbuild", build);
 	}
 
 	if (eResult == ChunkFile_Ok)
@@ -9481,6 +9482,10 @@ ChunkFileResult_t CMapDoc::SaveViewSettingsVMF(CChunkFile *pFile, CSaveInfo *pSa
 		return eResult;
 
 	eResult = pFile->WriteKeyValueBool("bShow3DGrid", m_bShow3DGrid);
+	if (eResult != ChunkFile_Ok)
+		return eResult;
+
+	eResult = pFile->WriteKeyValueInt("nInstanceVisibility", (int)m_tShowInstance);
 	if (eResult != ChunkFile_Ok)
 		return eResult;
 
