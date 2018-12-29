@@ -10,14 +10,6 @@ $Macro OUTLIBDIR	"$SRCDIR\lib\public"
 $include "$SRCDIR\vpc_scripts\source_lib_win32_base.vpc"	[$WIN32||$LINUX]
 $include "$SRCDIR\vpc_scripts\source_lib_x360_base.vpc"		[$X360]
 
-$Configuration
-{
-	$Compiler
-	{
-		$AdditionalOptions				"$BASE /std:c++17"
-	}
-}
-
 $Project "matsys_controls"
 {
 	$Folder	"Source Files"

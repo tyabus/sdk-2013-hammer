@@ -12,7 +12,6 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories		"$BASE,$SRCDIR\utils\common"
-		$AdditionalOptions				"$BASE /std:c++17"
 	}
 }
 

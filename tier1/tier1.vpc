@@ -13,7 +13,6 @@ $Configuration
 	$Compiler
 	{
 		$PreprocessorDefinitions		"$BASE;TIER1_STATIC_LIB"
-		$AdditionalOptions			"$BASE /std:c++17"
 	}
 
 	$Librarian [$WINDOWS]

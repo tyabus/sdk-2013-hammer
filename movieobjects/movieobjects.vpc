@@ -14,7 +14,6 @@ $Configuration
 	$Compiler
 	{
 		$PreprocessorDefinitions			"$BASE;MOVIEOBJECTS_LIB;RAD_TELEMETRY_DISABLED"
-		$AdditionalOptions				"$BASE /std:c++17"
 	}
 }
 
