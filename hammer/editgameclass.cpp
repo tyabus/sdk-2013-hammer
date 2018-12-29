@@ -546,11 +546,12 @@ ChunkFileResult_t CEditGameClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInf
 //			Door01,Open,,0 would be parsed as "Door01"  "Open"  ""  "0"
 //
 // Input  : token - Returns with a token, or zero length if the token was missing.
+//			maxlen - Max length of token buffer
 //			str - String to parse.
 //			sep - Characters to use as seperator.
 // Output : Returns a pointer to the next token to be parsed.
 //-----------------------------------------------------------------------------
-static const char *nexttoken(char *token, const char *str, const char* sep)
+static const char *nexttoken(char *token, size_t maxlen, const char *str, const char* sep)
 {
 	if (*str == '\0')
 	{
@@ -570,7 +571,8 @@ static const char *nexttoken(char *token, const char *str, const char* sep)
 	// Copy everything up to the first seperator into the return buffer.
 	// Do not include seperators in the return buffer.
 	//
-	while (ret < str)
+	const char* end = token + maxlen;
+	while (ret < str && token < end - 1)
 	{
 		*token++ = *ret++;
 	}
@@ -611,7 +613,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the target name.
 	//
-	const char *psz = nexttoken(szToken, szValue, szSeparators);
+	const char *psz = nexttoken(szToken, sizeof(szToken), szValue, szSeparators);
 	if (psz == nullptr)
 	{
 		return(ChunkFile_Ok);
@@ -624,7 +626,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the input name.
 	//
-	psz = nexttoken(szToken, psz, szSeparators);
+	psz = nexttoken(szToken, sizeof(szToken), psz, szSeparators);
 	if (psz == nullptr)
 	{
 		return(ChunkFile_Ok);
@@ -637,7 +639,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the parameter override.
 	//
-	psz = nexttoken(szToken, psz, szSeparators);
+	psz = nexttoken(szToken, sizeof(szToken), psz, szSeparators);
 	if (psz == nullptr)
 	{
 		return(ChunkFile_Ok);
@@ -650,7 +652,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the delay.
 	//
-	psz = nexttoken(szToken, psz, szSeparators);
+	psz = nexttoken(szToken, sizeof(szToken), psz, szSeparators);
 	if (psz == nullptr)
 	{
 		return(ChunkFile_Ok);
@@ -663,7 +665,7 @@ ChunkFileResult_t CEditGameClass::LoadKeyCallback(const char *szKey, const char 
 	//
 	// Parse the number of times to fire the output.
 	//
-	nexttoken(szToken, psz, szSeparators);
+	nexttoken(szToken, sizeof(szToken), psz, szSeparators);
 	if (psz == nullptr)
 	{
 		return(ChunkFile_Ok);
