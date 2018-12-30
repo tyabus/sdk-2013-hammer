@@ -50,8 +50,14 @@ public:
 	// constructor, destructor
 	explicit CUtlVector( int growSize = 0, int initSize = 0 );
 	explicit CUtlVector( T* pMemory, int allocationCount, int numElements = 0 );
+#ifdef VALVE_RVALUE_REFS
+	CUtlVector( CUtlVector<T, A>&& src );
+#endif // VALVE_RVALUE_REFS
+#ifdef VALVE_INITIALIZER_LIST_SUPPORT
+	CUtlVector( std::initializer_list<T> initializerList );
+#endif // VALVE_INITIALIZER_LIST_SUPPORT
 	~CUtlVector();
-	
+
 	// Copy the array.
 	CUtlVector<T, A>& operator=( const CUtlVector<T, A> &other );
 
@@ -107,10 +113,13 @@ public:
 	int AddToTail( const T& src );
 	int InsertBefore( int elem, const T& src );
 	int InsertAfter( int elem, const T& src );
+#ifdef VALVE_RVALUE_REFS
+	int AddToTail( T&& src );
+#endif
 
 	// Adds multiple elements, uses default constructor
 	int AddMultipleToHead( int num );
-	int AddMultipleToTail( int num, const T *pToCopy=NULL );	   
+	int AddMultipleToTail( int num, const T *pToCopy=NULL );
 	int InsertMultipleBefore( int elem, int num, const T *pToCopy=NULL );	// If pToCopy is set, then it's an array of length 'num' and
 	int InsertMultipleAfter( int elem, int num );
 
@@ -118,13 +127,13 @@ public:
 	void SetSize( int size );
 	void SetCount( int count );
 	void SetCountNonDestructively( int count ); //sets count by adding or removing elements to tail TODO: This should probably be the default behavior for SetCount
-	
+
 	// Calls SetSize and copies each element.
 	void CopyArray( const T *pArray, int size );
 
 	// Fast swap
 	void Swap( CUtlVector< T, A > &vec );
-	
+
 	// Add the specified array to the tail.
 	int AddVectorToTail( CUtlVector<T, A> const &src );
 
@@ -158,7 +167,7 @@ public:
 	// Purges the list and calls delete on each element in it.
 	void PurgeAndDeleteElements();
 
-	// Compacts the vector to the number of elements actually in use 
+	// Compacts the vector to the number of elements actually in use
 	void Compact();
 
 	// Set the size by which it grows when it needs to allocate more memory.
@@ -575,6 +584,7 @@ public:
 	explicit CCopyableUtlVector( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
 	virtual ~CCopyableUtlVector() {}
 	CCopyableUtlVector( CCopyableUtlVector const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
+	CCopyableUtlVector( BaseClass const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
 };
 
 // TODO (Ilya): It seems like all the functions in CUtlVector are simple enough that they should be inlined.
@@ -583,18 +593,38 @@ public:
 // constructor, destructor
 //-----------------------------------------------------------------------------
 template< typename T, class A >
-inline CUtlVector<T, A>::CUtlVector( int growSize, int initSize )	: 
+inline CUtlVector<T, A>::CUtlVector( int growSize, int initSize )	:
 	m_Memory(growSize, initSize), m_Size(0)
 {
 	ResetDbgInfo();
 }
 
 template< typename T, class A >
-inline CUtlVector<T, A>::CUtlVector( T* pMemory, int allocationCount, int numElements )	: 
+inline CUtlVector<T, A>::CUtlVector( T* pMemory, int allocationCount, int numElements )	:
 	m_Memory(pMemory, allocationCount), m_Size(numElements)
 {
 	ResetDbgInfo();
 }
+
+#ifdef VALVE_RVALUE_REFS
+template< typename T, class A >
+inline CUtlVector<T, A>::CUtlVector( CUtlVector<T, A>&& src ) : m_Size( 0 )
+{
+	Swap( src );
+}
+#endif // VALVE_RVALUE_REFS
+
+#ifdef VALVE_INITIALIZER_LIST_SUPPORT
+template< typename T, class A >
+inline CUtlVector<T, A>::CUtlVector( std::initializer_list<T> initializerList ) :
+	m_Size( 0 )
+{
+	EnsureCapacity( static_cast<int>( initializerList.size() ) );
+
+	for ( const auto& v : initializerList )
+		AddToTail( v );
+}
+#endif // VALVE_INITIALIZER_LIST_SUPPORT
 
 template< typename T, class A >
 inline CUtlVector<T, A>::~CUtlVector()
@@ -770,7 +800,7 @@ inline bool CUtlVector<T, A>::IsValidIndex( int i ) const
 {
 	return (i >= 0) && (i < m_Size);
 }
- 
+
 
 //-----------------------------------------------------------------------------
 // Returns in invalid index
@@ -961,6 +991,19 @@ int CUtlVector<T, A>::InsertBefore( int elem, const T& src )
 	return elem;
 }
 
+#ifdef VALVE_RVALUE_REFS
+// Optimized AddToTail path with move constructor.
+template< typename T, class A >
+int CUtlVector<T, A>::AddToTail( T&& src )
+{
+	// Can't insert something that's in the list... reallocation may hose us
+	Assert( ( &src < Base() ) || ( &src >= ( Base() + Count() ) ) );
+	int elem = m_Size;
+	GrowVector();
+	CopyConstruct( &Element( elem ), std::forward<T>( src ) );
+	return elem;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Adds multiple elements, uses default constructor
@@ -975,7 +1018,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddMultipleToTail( int num, const T *pToCopy )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || !pToCopy || (pToCopy + num < Base()) || (pToCopy >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || !pToCopy || (pToCopy + num < Base()) || (pToCopy >= (Base() + Count()) ) );
 
 	return InsertMultipleBefore( m_Size, num, pToCopy );
 }
@@ -1012,7 +1055,7 @@ template< typename T, class A >
 void CUtlVector<T, A>::CopyArray( const T *pArray, int size )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || !pArray || (Base() >= (pArray + size)) || (pArray >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || !pArray || (Base() >= (pArray + size)) || (pArray >= (Base() + Count()) ) );
 
 	SetSize( size );
 	for( int i=0; i < size; i++ )
@@ -1038,11 +1081,11 @@ int CUtlVector<T, A>::AddVectorToTail( CUtlVector const &src )
 	Assert( &src != this );
 
 	int base = Count();
-	
+
 	// Make space.
 	AddMultipleToTail( src.Count() );
 
-	// Copy the elements.	
+	// Copy the elements.
 	for ( int i=0; i < src.Count(); i++ )
 	{
 		(*this)[base + i] = src[i];
@@ -1273,6 +1316,8 @@ public:
 
 };
 
+#include "tier0/memdbgon.h"
+
 // easy string list class with dynamically allocated strings. For use with V_SplitString, etc.
 // Frees the dynamic strings in destructor.
 class CUtlStringList : public CUtlVectorAutoPurge< char *>
@@ -1305,7 +1350,7 @@ public:
 	}
 };
 
-
+#include "tier0/memdbgoff.h"
 
 // <Sergiy> placing it here a few days before Cert to minimize disruption to the rest of codebase
 class CSplitString: public CUtlVector<char*, CUtlMemory<char*, int> >

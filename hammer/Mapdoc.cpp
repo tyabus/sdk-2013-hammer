@@ -9741,7 +9741,7 @@ bool CMapDoc::FindNotification(CMapClass *pObject, Notify_Dependent_t eNotifyTyp
 	int nCount = m_NotifyList.Count();
 	for (int i = 0; i < nCount; i++)
 	{
-		if ((m_NotifyList.Element(i).pObject->m_pObject == pObject) &&
+		if ((m_NotifyList.Element(i).pObject == pObject) &&
 			(m_NotifyList.Element(i).eNotifyType == eNotifyType))
 		{
 			return true;
@@ -9757,7 +9757,7 @@ bool CMapDoc::AnyNotificationsForObject(CMapClass *pObject)
 	int nCount = m_NotifyList.Count();
 	for (int i = 0; i < nCount; i++)
 	{
-		if ( m_NotifyList.Element(i).pObject->m_pObject == pObject )
+		if ( m_NotifyList.Element(i).pObject == pObject )
 			return true;
 	}
 
@@ -9787,7 +9787,7 @@ void CMapDoc::NotifyDependents(CMapClass *pObject, Notify_Dependent_t eNotifyTyp
 		if (!FindNotification(pObject, eNotifyType))
 		{
 			NotifyListEntry_t entry;
-			entry.pObject = pObject->GetSafeObjectSmartPtr();
+			entry.pObject = pObject;
 			entry.eNotifyType = eNotifyType;
 			m_NotifyList.AddToTail(entry);
 		}
@@ -9814,9 +9814,9 @@ void CMapDoc::ProcessNotifyList()
 		for (int i = 0; i < nCount; i++)
 		{
 			NotifyListEntry_t entry = m_NotifyList.Element(i);
-			if ( entry.pObject->m_pObject )
+			if ( entry.pObject )
 			{
-				DispatchNotifyDependents(entry.pObject->m_pObject, entry.eNotifyType);
+				DispatchNotifyDependents(entry.pObject, entry.eNotifyType);
 			}
 			else
 			{

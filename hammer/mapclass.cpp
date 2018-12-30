@@ -83,8 +83,6 @@ CMapClass *CMapClassManager::CreateObject(MAPCLASSTYPE Type)
 //-----------------------------------------------------------------------------
 CMapClass::CMapClass(void)
 {
-	m_pSafeObject = CSafeObject<CMapClass>::Create( this );
-
 	//
 	// The document manages the unique object IDs. Eventually all object construction
 	// should be done through the document, eliminating the need for CMapClass to know
@@ -126,36 +124,6 @@ CMapClass::~CMapClass(void)
 	m_Children.RemoveAll();
 
 	delete m_pEditorKeys;
-
-	// In case any CMapDocs are pointing at us, let them know we're gone.
-	m_pSafeObject->m_pObject = NULL;
-
-	// Show a warning if anyone is left pointing at us.
-	static bool bCheckSafeObjects = true;
-	if ( bCheckSafeObjects && m_pSafeObject->GetRefCount() != 1 )
-	{
-		int ret = AfxMessageBox(	"Warning: a CMapClass is being deleted but is still referenced by a CMapDoc.\n"
-									"Please tell a programmer.\n"
-									"Click Yes to write a minidump and continue.\n"
-									"Click No to ignore.",
-						MB_YESNO );
-
-		if ( ret == IDYES )
-		{
-			WriteMiniDump();
-		}
-		else if ( ret == IDNO )
-		{
-			// Ignore it and don't get in here again.
-			bCheckSafeObjects = false;
-		}
-	}
-}
-
-
-const CSmartPtr< CSafeObject< CMapClass > >& CMapClass::GetSafeObjectSmartPtr()
-{
-	return m_pSafeObject;
 }
 
 

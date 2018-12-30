@@ -92,7 +92,7 @@ struct ExportDXFInfo_s
 //
 struct NotifyListEntry_t
 {
-	CSmartPtr< CSafeObject< CMapClass > > pObject;
+	CUtlReference<CMapClass> pObject;
 	Notify_Dependent_t eNotifyType;
 };
 
