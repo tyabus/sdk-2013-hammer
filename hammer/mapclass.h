@@ -24,6 +24,7 @@
 #include "visgroup.h"
 #include "fgdlib/wckeyvalues.h"
 #include "tier1/smartptr.h"
+#include "tier1/utlobjectreference.h"
 
 
 class Box3D;
@@ -88,7 +89,7 @@ enum VisGroupSelection
 
 typedef const char * MAPCLASSTYPE;
 typedef BOOL (*ENUMMAPCHILDRENPROC)(CMapClass *, unsigned int dwParam);
-typedef CUtlVector<CMapClass*> CMapObjectList;
+typedef CUtlReferenceVector<CMapClass> CMapObjectList;
 
 
 #define MAX_ENUM_CHILD_DEPTH	16
@@ -155,6 +156,8 @@ private:
 
 class CMapClass : public CMapPoint
 {
+	DECLARE_REFERENCED_CLASS( CMapClass );
+
 public:
 	//
 	// Construction/destruction:

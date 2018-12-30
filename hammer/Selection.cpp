@@ -31,7 +31,7 @@ void CSelection::Init( CMapDoc *pDocument )
 {
 	m_pDocument = pDocument;
 	m_eSelectMode = selectGroups;
-	m_SelectionList.Purge();
+	m_SelectionList.RemoveAll();
 	ClearHitList();
 
 	m_LastValidBounds.bmins = Vector(0, 0, 0);

@@ -113,7 +113,7 @@ CMapClass::CMapClass(void)
 	m_pParent = NULL;
 	m_nRenderFrame = 0;
 	m_pEditorKeys = NULL;
-	m_Dependents.Purge();
+	m_Dependents.RemoveAll();
 }
 
 
@@ -123,7 +123,7 @@ CMapClass::CMapClass(void)
 CMapClass::~CMapClass(void)
 {
 	// Delete all of our children.
-	m_Children.PurgeAndDeleteElements();
+	m_Children.RemoveAll();
 
 	delete m_pEditorKeys;
 

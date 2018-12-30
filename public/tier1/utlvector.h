@@ -16,13 +16,13 @@
 #endif
 
 
-#include <string.h>
 #include "tier0/platform.h"
 #include "tier0/dbg.h"
 #include "tier0/threadtools.h"
 #include "tier1/utlmemory.h"
 #include "tier1/utlblockmemory.h"
 #include "tier1/strtools.h"
+#include "tier1/utliterator.h"
 #include "vstdlib/random.h"
 
 #define FOR_EACH_VEC( vecName, iteratorName ) \
@@ -206,22 +206,44 @@ private:
 
 
 // this is kind of ugly, but until C++ gets templatized typedefs in C++0x, it's our only choice
-template < class T >
-class CUtlBlockVector : public CUtlVector< T, CUtlBlockMemory< T, int > >
+template <class T>
+class CUtlBlockVector : public CUtlVector<T, CUtlBlockMemory<T, int>>
 {
+	typedef CUtlBlockVector<T> ThisType;
+	typedef CUtlBlockMemory<T, int> ThisMemory;
 public:
-	explicit CUtlBlockVector( int growSize = 0, int initSize = 0 )
-		: CUtlVector< T, CUtlBlockMemory< T, int > >( growSize, initSize ) {}
+	explicit CUtlBlockVector( int growSize = 0, int initSize = 0 ) : CUtlVector<T, CUtlBlockMemory<T, int>>( growSize, initSize ) {}
 
-private:
-	// Private and unimplemented because iterator semantics are not currently supported
-	// on CUtlBlockVector, due to its non-contiguous allocations.
-	// typename is require to disambiguate iterator as a type versus other possibilities.
-	typedef CUtlVector< T, CUtlBlockMemory< T, int > > Base;
-	typename Base::iterator begin();
-	typename Base::const_iterator begin() const;
-	typename Base::iterator end();
-	typename Base::const_iterator end() const;
+	struct ProxyTypeIterate;
+	using iterator = CUtlForwardIteratorImplT<ProxyTypeIterate, false>;
+	using const_iterator = CUtlForwardIteratorImplT<ProxyTypeIterate, true>;
+	struct ProxyTypeIterate // "this" pointer is reinterpret_cast from CUtlBlockVector!
+	{
+		using ElemType_t = T;
+		using IndexType_t = int;
+		T &Element( int i ) { return reinterpret_cast<ThisType*>( this )->Element( i ); }
+		const T &Element( int i ) const { return reinterpret_cast<const ThisType*>( this )->Element( i ); }
+		int IteratorNext( int i ) const
+		{
+			const ThisType* pVec = reinterpret_cast<const ThisType*>( this );
+			if ( pVec->IsValidIndex( i + 1 ) )
+				return pVec->m_Memory.Next( ThisMemory::Iterator_t( i ) ).index;
+			return ThisType::InvalidIndex();
+		}
+
+		using iterator = typename ThisType::iterator;
+		using const_iterator = typename ThisType::const_iterator;
+
+		iterator begin() { ThisType* pVec = reinterpret_cast<ThisType*>(this); return iterator( this, pVec->m_Memory.First().index ); }
+		iterator end() { return iterator( this, ThisType::InvalidIndex() ); }
+		const_iterator begin() const { const ThisType* pVec = reinterpret_cast<const ThisType*>( this ); return const_iterator( this, pVec->m_Memory.First().index ); }
+		const_iterator end() const { return const_iterator( this, ThisType::InvalidIndex() ); }
+	};
+	
+	iterator begin()				{ return reinterpret_cast<ProxyTypeIterate*>( this )->begin(); }
+	iterator end()					{ return reinterpret_cast<ProxyTypeIterate*>( this )->end(); }
+	const_iterator begin() const	{ return reinterpret_cast<const ProxyTypeIterate*>( this )->begin(); }
+	const_iterator end() const		{ return reinterpret_cast<const ProxyTypeIterate*>( this )->end(); }
 };
 
 //-----------------------------------------------------------------------------

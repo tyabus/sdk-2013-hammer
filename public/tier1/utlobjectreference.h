@@ -14,7 +14,6 @@
 #include "tier1/utlintrusivelist.h"
 #include "mathlib/mathlib.h"
 
-#pragma push_macro("GetObject")
 #undef GetObject
 
 // Purpose: class for keeping track of all the references that exist to an object.  When the object
@@ -33,7 +32,8 @@
 
 
 
-template<class T> class CUtlReference
+template<class T>
+class CUtlReference
 {
 public:
 	FORCEINLINE CUtlReference(void)
@@ -75,17 +75,7 @@ public:
 		return ( m_pObject != NULL );
 	}
 
-	FORCEINLINE T* operator()(void)
-	{
-		return m_pObject;
-	}
-
 	FORCEINLINE T* operator()(void) const
-	{
-		return m_pObject;
-	}
-
-	FORCEINLINE operator T*()
 	{
 		return m_pObject;
 	}
@@ -94,28 +84,13 @@ public:
 	{
 		return m_pObject;
 	}
-	
-	FORCEINLINE operator const T*() const
-	{
-		return m_pObject;
-	}
-	
-	FORCEINLINE T* GetObject( void )
+
+	FORCEINLINE T* GetObject( void ) const
 	{
 		return m_pObject;
 	}
 
-	FORCEINLINE const T* GetObject( void ) const
-	{
-		return m_pObject;
-	}
-
-	FORCEINLINE T* operator->()
-	{ 
-		return m_pObject; 
-	}
-
-	FORCEINLINE const T* operator->() const
+	FORCEINLINE T* operator->() const
 	{ 
 		return m_pObject; 
 	}
@@ -198,12 +173,13 @@ public:
 
 };
 
-template<class T> class CUtlReferenceList : public CUtlIntrusiveDList< CUtlReference<T> >
+template<class T>
+class CUtlReferenceList : public CUtlIntrusiveDList<CUtlReference<T>>
 {
 public:
 	~CUtlReferenceList( void )
 	{
-		CUtlReference<T> *i = CUtlIntrusiveDList<CUtlReference<T> >::m_pHead;
+		CUtlReference<T> *i = CUtlIntrusiveDList<CUtlReference<T>>::m_pHead;
 		while( i )
 		{
 			CUtlReference<T> *n = i->m_pNext;
@@ -222,40 +198,40 @@ public:
 //-----------------------------------------------------------------------------
 #define DECLARE_REFERENCED_CLASS( _className )				\
 	private:												\
-		CUtlReferenceList< _className > m_References;		\
+		CUtlReferenceList<_className> m_References;			\
 		template<class T> friend class CUtlReference;
 
 
-template < class T >
-class CUtlReferenceVector : public CUtlBlockVector< CUtlReference< T > >
+template <class T>
+class CUtlReferenceVector : public CUtlBlockVector<CUtlReference<T>>
 {
 public:
 	void RemoveAll()
 	{
 		for ( int i = 0; i < Count(); i++ )
 		{
-			Element( i ).KillRef();
+			CUtlBlockVector<CUtlReference<T>>::Element( i ).KillRef();
 		}
 
-		CUtlBlockVector< CUtlReference< T > >::RemoveAll();
+		CUtlBlockVector<CUtlReference<T>>::RemoveAll();
 	}
 
 	void FastRemove( int elem )
 	{
-		Assert( IsValidIndex(elem) );
+		Assert( IsValidIndex( elem ) );
 
-		if (m_Size > 0)
+		if ( m_Size > 0 )
 		{
 			if ( elem != m_Size -1 )
 			{
-				Element(elem).Set( Element(m_Size-1).GetObject() );
+				CUtlBlockVector<CUtlReference<T>>::Element( elem ).Set( CUtlBlockVector<CUtlReference<T>>::Element( m_Size - 1 ).GetObject() );
 			}
-			Destruct( &Element(m_Size-1) );
+			Destruct( &CUtlBlockVector<CUtlReference<T>>::Element( m_Size - 1 ) );
 			--m_Size;
 		}
 	}
 
-	bool FindAndFastRemove( const CUtlReference< T >& src )
+	bool FindAndFastRemove( const CUtlReference<T>& src )
 	{
 		int elem = Find( src );
 		if ( elem != -1 )
@@ -268,16 +244,16 @@ public:
 
 	void Remove( int elem )
 	{
-		Assert( IsValidIndex(elem) );
+		Assert( IsValidIndex( elem ) );
 
-		if (m_Size > 0)
+		if ( m_Size > 0 )
 		{
 			for ( int i = elem; i < ( m_Size - 1 ); i++ )
 			{
-				Element( i ).Set( Element( i + 1 ).GetObject() );
+				CUtlBlockVector<CUtlReference<T>>::Element( i ).Set( CUtlBlockVector<CUtlReference<T>>::Element( i + 1 ).GetObject() );
 			}
 
-			Destruct( &Element(m_Size-1) );
+			Destruct( &CUtlBlockVector<CUtlReference<T>>::Element( m_Size - 1 ) );
 			--m_Size;
 		}
 	}
@@ -291,6 +267,16 @@ public:
 			return true;
 		}
 		return false;
+	}
+
+	T* operator[]( int i ) const
+	{
+		return CUtlBlockVector<CUtlReference<T>>::operator[]( i );
+	}
+
+	T* Element( int i ) const
+	{
+		return CUtlBlockVector<CUtlReference<T>>::Element( i );
 	}
 
 private:
@@ -307,7 +293,5 @@ private:
 	void PurgeAndDeleteElements();
 	void Compact();
 };
-
-#pragma pop_macro("GetObject")
 
 #endif

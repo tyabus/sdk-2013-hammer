@@ -43,6 +43,7 @@
 #include "RunMap.h"
 #include "RunMapExpertDlg.h"
 #include "SaveInfo.h"
+#include "MapInstance.h"
 
 #include "ToolManager.h"
 #include "ToolCamera.h"
@@ -67,6 +68,8 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
+
+#undef GetObject
 
 #define KeyInt( key, dest ) \
 	if (stricmp(szKey, key) != 0) \
@@ -3599,7 +3602,7 @@ void CMapDoc::OnEditCopy(void)
 	BeginWaitCursor();
 
 	// Delete the contents of the clipboard.
-	s_Clipboard.Objects.PurgeAndDeleteElements();
+	s_Clipboard.Objects.RemoveAll();
 
 	m_pSelection->GetBoundsCenter(s_Clipboard.vecOriginalCenter);
 	m_pSelection->GetBounds(s_Clipboard.Bounds.bmins, s_Clipboard.Bounds.bmaxs);
@@ -5354,7 +5357,7 @@ void CMapDoc::OnToolsHollow(void)
 
 	FOR_EACH_OBJ( SelectedSolids, pos )
 	{
-		CMapSolid *pSelectedSolid = (CMapSolid *)SelectedSolids.Element(pos);
+		CMapSolid *pSelectedSolid = (CMapSolid *)SelectedSolids[pos];
 		CMapClass *pDestParent = pSelectedSolid->GetParent();
 
 		GetHistory()->Keep(pSelectedSolid);
@@ -10168,4 +10171,21 @@ void CMapDoc::OnLogicalobjectLayoutdefault()
 void CMapDoc::OnLogicalobjectLayoutlogical()
 {
 	// TODO: Add your command handler code here
+}
+
+void CMapDoc::CollapseInstances( bool bSelected, bool bRecursive )
+{
+	if ( bSelected )
+	{
+		const CMapObjectList* selected = m_pSelection->GetList();
+		NOTE_UNUSED(selected);
+		return;
+	}
+
+	BOOL(*func)(CMapInstance *, CMapDoc*) = []( CMapInstance* pInstance, CMapDoc* ) -> BOOL
+	{
+		
+		return true;
+	};
+	m_pWorld->EnumChildren( func, this, MAPCLASS_TYPE( CMapInstance ) );
 }

@@ -195,7 +195,7 @@ public:
 	//			entity, NULL if the first child of this entity is not MapClass.
 	//-----------------------------------------------------------------------------
 	template< class MapClass >
-	MapClass *GetChildOfType( MapClass *null )
+	MapClass *GetChildOfType()
 	{
 		FOR_EACH_OBJ( m_Children, pos )
 		{

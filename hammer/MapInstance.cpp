@@ -304,7 +304,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 
 void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
 {
-	CMapObjectList& children = pEnt->m_Children;
+	const CMapObjectList& children = pEnt->m_Children;
 	for( CMapClass* pChild : children )
 	{
 		if ( pChild && pChild->IsVisible() && pChild->IsVisible2D() )
@@ -363,7 +363,7 @@ void CMapInstance::Render2D( CRender2D* pRender )
 void CMapInstance::Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt, bool ignoreFrameCount )
 {
 	const EditorRenderMode_t renderMode = pRender->GetCurrentRenderMode();
-	CMapObjectList& children = pEnt->m_Children;
+	const CMapObjectList& children = pEnt->m_Children;
 	for( CMapClass* pChild : children )
 	{
 		if ( pChild && pChild->IsVisible() && ( ignoreFrameCount || pChild->GetRenderFrame() <= GetRenderFrame() ) )
@@ -403,7 +403,7 @@ void CMapInstance::Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt
 
 	pEnt->Render3D( pRender );
 
-	CMapObjectList& children = pEnt->m_Children;
+	const CMapObjectList& children = pEnt->m_Children;
 	for ( CMapClass* pChild : children )
 	{
 		if ( pChild && pChild->IsVisible() && ( ignoreFrameCount || pChild->GetRenderFrame() <= GetRenderFrame() ) )

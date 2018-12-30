@@ -216,7 +216,7 @@ void CMapAnimationDlg::OnCreateKeyFrame( void )
 		if ( ent && ent->IsAnimationController() )
 		{
 			// tell the animating object to create a new keyframe
-			CMapAnimator *anim = ent->GetChildOfType( (CMapAnimator*)NULL );
+			CMapAnimator *anim = ent->GetChildOfType<CMapAnimator>();
 			if ( anim )
 			{
 				CMapEntity *pNewEntity = anim->CreateNewKeyFrame( m_flAnimTime );
@@ -306,7 +306,7 @@ void CMapAnimationDlg::SelectionChanged( CMapObjectList &selection )
 
 		if ( ent )
 		{
-			if ( ent->IsAnimationController() && ent->GetChildOfType((CMapAnimator*)NULL) )
+			if ( ent->IsAnimationController() && ent->GetChildOfType<CMapAnimator>() )
 			{
 				m_bEnabled = true;
 				break;
@@ -324,7 +324,7 @@ void CMapAnimationDlg::SelectionChanged( CMapObjectList &selection )
 	m_TimeSlider.EnableWindow( true );
 
 	// set up the slider from the selection
-	CMapAnimator *anim = ent->GetChildOfType( (CMapAnimator*)NULL );
+	CMapAnimator *anim = ent->GetChildOfType<CMapAnimator>();
 	Assert( anim != NULL );
 
 	m_flAnimationDuration = anim->GetRemainingTime();

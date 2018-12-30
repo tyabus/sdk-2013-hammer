@@ -97,7 +97,7 @@ protected:
 
 inline bool IsSweptHullClass(CMapEntity *pEntity)
 {
-	return (pEntity->GetChildOfType((CMapSweptPlayerHull *)NULL) != NULL);
+	return (pEntity->GetChildOfType<CMapSweptPlayerHull>() != NULL);
 }
 
 

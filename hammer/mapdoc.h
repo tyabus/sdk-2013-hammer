@@ -382,6 +382,8 @@ class CMapDoc : public CDocument
 		// Default logical placement for new entities
 		void GetDefaultNewLogicalPosition( Vector2D &vecPosition );
 
+		void CollapseInstances(bool selected, bool recursive);
+
 	private:
 
 		void VisGroups_Validate();
