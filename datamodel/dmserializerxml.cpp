@@ -44,24 +44,6 @@ BEGIN_CHAR_CONVERSION( s_XMLCharConversion, "", '&' )
 	{ '\'', "apos;" },
 END_CHAR_CONVERSION( s_XMLCharConversion, "", '&' )
 
-// Just delimiters, no type conversion
-class CXMLInputStringConversion : public CUtlCharConversion
-{
-public:
-	CXMLInputStringConversion( char nEscapeChar, const char *pDelimiter, int nCount, ConversionArray_t *pArray ) :
-		CUtlCharConversion( '\0', pDelimiter, 0, NULL )
-	{
-	}
-
-	// Finds a conversion for the passed-in string, returns length
-	virtual char FindConversion( const char *pString, int *pLength )
-	{
-		*pLength = 0;
-		return '\0';
-	}
-};
-
-
 //-----------------------------------------------------------------------------
 // Base serialization class 
 //-----------------------------------------------------------------------------
@@ -793,7 +775,7 @@ int CXMLUnserializationState::EndChildElement( const char *pElementType )
 	const char *pActualElementType = GetTopmostElement()->GetTypeString();
 	if ( Q_stricmp( pElementType, pActualElementType ) )
 	{
-		Warning("XML: (%d) Child element (%s) has mismatched ending element type %s\n", GetCurrentLine(), pElementType );
+		Warning("XML: (%d) Child element (%s) has mismatched ending element type %s != %s\n", GetCurrentLine(), GetTopmostElement()->GetName(), pElementType, pActualElementType );
 		return XML_ABORT;
 	}
 

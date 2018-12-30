@@ -735,7 +735,7 @@ bool CDataModel::Serialize( CUtlBuffer &outBuf, const char *pEncodingName, const
 		{
 			if ( !outBuf.ContainsCRLF() )
 			{
-				Warning( "Serialize: Format %s expects to be written to a binary format, but the buffer is a text-format buffer\n" );
+				Warning( "Serialize: Format %s expects to be written to a binary format, but the buffer is a text-format buffer\n", pFormatName );
 				return false;
 			}
 			outBuf.SetBufferType( false, false );
