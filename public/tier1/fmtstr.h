@@ -9,6 +9,8 @@
 #ifndef FMTSTR_H
 #define FMTSTR_H
 
+#undef sprintf
+
 #include <stdarg.h>
 #include <stdio.h>
 #include "tier0/platform.h"
@@ -80,15 +82,15 @@ template <int SIZE_BUF, bool QUIET_TRUNCATION = false >
 class CFmtStrN
 {
 public:
-	CFmtStrN()	
-	{ 
+	CFmtStrN()
+	{
 		InitQuietTruncation();
-		m_szBuf[0] = 0; 
+		m_szBuf[0] = 0;
 		m_nLength = 0;
 	}
-	
+
 	// Standard C formatting
-	CFmtStrN(PRINTF_FORMAT_STRING const char *pszFormat, ...) FMTFUNCTION( 2, 3 )
+	FMTFUNCTION_WIN( 2, 3 ) CFmtStrN(PRINTF_FORMAT_STRING const char *pszFormat, ...) FMTFUNCTION( 2, 3 )
 	{
 		InitQuietTruncation();
 		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat );
@@ -102,29 +104,29 @@ public:
 	}
 
 	// Explicit reformat
-	const char *sprintf(PRINTF_FORMAT_STRING const char *pszFormat, ...) FMTFUNCTION( 2, 3 )
+	FMTFUNCTION_WIN( 2, 3 ) const char *sprintf(PRINTF_FORMAT_STRING const char *pszFormat, ...) FMTFUNCTION( 2, 3 )
 	{
 		InitQuietTruncation();
-		FmtStrVSNPrintf(m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat ); 
+		FmtStrVSNPrintf(m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat );
 		return m_szBuf;
 	}
 
 	// Use this for va_list formatting
 	const char *sprintf_argv(const char *pszFormat, va_list arg_ptr)
 	{
-		int result; 
-		bool bTruncated = false; 
-		static int s_nWarned = 0; 
+		int result;
+		bool bTruncated = false;
+		static int s_nWarned = 0;
 
 		InitQuietTruncation();
 		result = V_vsnprintfRet( m_szBuf, SIZE_BUF - 1, pszFormat, arg_ptr, &bTruncated );
-		m_szBuf[SIZE_BUF - 1] = 0; 
-		if ( bTruncated && !m_bQuietTruncation && ( s_nWarned < 5 ) ) 
-		{ 
-			Warning( "CFmtStr truncated to %d without QUIET_TRUNCATION specified!\n", SIZE_BUF ); 
+		m_szBuf[SIZE_BUF - 1] = 0;
+		if ( bTruncated && !m_bQuietTruncation && ( s_nWarned < 5 ) )
+		{
+			Warning( "CFmtStr truncated to %d without QUIET_TRUNCATION specified!\n", SIZE_BUF );
 			AssertMsg( 0, "CFmtStr truncated without QUIET_TRUNCATION specified!\n" );
-			s_nWarned++; 
-		} 
+			s_nWarned++;
+		}
 		m_nLength = V_strlen( m_szBuf );
 		return m_szBuf;
 	}
@@ -146,17 +148,17 @@ public:
 	// Access template argument
 	static inline int GetMaxLength() { return SIZE_BUF-1; }
 
-	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator=( const char *pchValue ) 
-	{ 
+	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator=( const char *pchValue )
+	{
 		V_strncpy( m_szBuf, pchValue, SIZE_BUF );
 		m_nLength = V_strlen( m_szBuf );
-		return *this; 
+		return *this;
 	}
 
-	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator+=( const char *pchValue ) 
-	{ 
-		Append( pchValue ); 
-		return *this; 
+	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator+=( const char *pchValue )
+	{
+		Append( pchValue );
+		return *this;
 	}
 
 	int Length() const							{ return m_nLength; }
@@ -167,20 +169,20 @@ public:
 		m_szBuf[m_nLength] = '\0';
 	}
 
-	void Clear()								
-	{ 
-		m_szBuf[0] = 0; 
-		m_nLength = 0; 
+	void Clear()
+	{
+		m_szBuf[0] = 0;
+		m_nLength = 0;
 	}
 
-	void AppendFormat( PRINTF_FORMAT_STRING const char *pchFormat, ... ) FMTFUNCTION( 2, 3 )
-	{ 
-		char *pchEnd = m_szBuf + m_nLength; 
-		FmtStrVSNPrintf( pchEnd, SIZE_BUF - m_nLength, m_bQuietTruncation, &pchFormat, m_nLength, pchFormat ); 
+	FMTFUNCTION_WIN( 2, 3 ) void AppendFormat( PRINTF_FORMAT_STRING const char *pchFormat, ... ) FMTFUNCTION( 2, 3 )
+	{
+		char *pchEnd = m_szBuf + m_nLength;
+		FmtStrVSNPrintf( pchEnd, SIZE_BUF - m_nLength, m_bQuietTruncation, &pchFormat, m_nLength, pchFormat );
 	}
 
 	void AppendFormatV( const char *pchFormat, va_list args );
-	
+
 	void Append( const char *pchValue )
 	{
 		// This function is close to the metal to cut down on the CPU cost
@@ -223,7 +225,7 @@ public:
 protected:
 	virtual void InitQuietTruncation()
 	{
-		m_bQuietTruncation = QUIET_TRUNCATION; 
+		m_bQuietTruncation = QUIET_TRUNCATION;
 	}
 
 	bool m_bQuietTruncation;
@@ -292,7 +294,7 @@ class CNumStr
 public:
 	CNumStr() { m_szBuf[0] = 0; }
 
-	explicit CNumStr( bool b )		{ SetBool( b ); } 
+	explicit CNumStr( bool b )		{ SetBool( b ); }
 
 	explicit CNumStr( int8 n8 )		{ SetInt8( n8 ); }
 	explicit CNumStr( uint8 un8 )	{ SetUint8( un8 );  }
@@ -311,7 +313,7 @@ public:
 	explicit CNumStr( double f )	{ SetDouble( f ); }
 	explicit CNumStr( float f )		{ SetFloat( f ); }
 
-	inline void SetBool( bool b )			{ Q_memcpy( m_szBuf, b ? "1" : "0", 2 ); } 
+	inline void SetBool( bool b )			{ Q_memcpy( m_szBuf, b ? "1" : "0", 2 ); }
 
 #ifdef _WIN32
 	inline void SetInt8( int8 n8 )			{ _itoa( (int32)n8, m_szBuf, 10 ); }
@@ -340,7 +342,7 @@ public:
 
 	operator const char *() const { return m_szBuf; }
 	const char* String() const { return m_szBuf; }
-	
+
 	void AddQuotes()
 	{
 		Assert( m_szBuf[0] != '"' );
