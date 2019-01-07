@@ -1332,6 +1332,8 @@ ChunkFileResult_t CMapDoc::LoadEntityCallback(CChunkFile *pFile, CMapDoc *pDoc)
 		CMapWorld *pWorld = pDoc->GetMapWorld();
 		pWorld->AddChild(pEntity);
 	}
+	else
+		delete pEntity;
 
 	return(ChunkFile_Ok);
 }
@@ -2875,7 +2877,7 @@ void CMapDoc::SetActiveMapDoc(CMapDoc *pDoc)
 		m_pMapDoc->SetUndoActive(GetMainWnd()->IsUndoActive() == TRUE);
 		m_pMapDoc->UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
 		extern void SetInstanceBoxChecked( UINT nID, CMainFrame* pFrm );
-		SetInstanceBoxChecked( m_pMapDoc->m_tShowInstance == ShowInstance_t::INSTANCES_HIDE ? ID_INSTANCE_VIS_HIDE 
+		SetInstanceBoxChecked( m_pMapDoc->m_tShowInstance == ShowInstance_t::INSTANCES_HIDE ? ID_INSTANCE_VIS_HIDE
 			: m_pMapDoc->m_tShowInstance == ShowInstance_t::INSTANCES_SHOW_TINTED ? ID_INSTANCE_VIS_TINTED : ID_INSTANCE_VIS_NORMAL, GetMainWnd() );
 	}
 	else
@@ -10184,7 +10186,7 @@ void CMapDoc::CollapseInstances( bool bSelected, bool bRecursive )
 
 	BOOL(*func)(CMapInstance *, CMapDoc*) = []( CMapInstance* pInstance, CMapDoc* ) -> BOOL
 	{
-		
+
 		return true;
 	};
 	m_pWorld->EnumChildren( func, this, MAPCLASS_TYPE( CMapInstance ) );
