@@ -108,7 +108,8 @@ void CMessageWnd::AddMsg(MWMSGTYPE type, const TCHAR* msg)
 		break;
 	}
 	Assert(mws.MsgLen <= (sizeof(mws.szMsg) / sizeof(TCHAR)));
-	_tcscpy(mws.szMsg, msg);
+	mws.MsgLen = Min<int>(mws.MsgLen, sizeof(mws.szMsg));
+	_tcsncpy(mws.szMsg, msg, mws.MsgLen);
 
 	// Add the message, growing the array as necessary
 	MsgArray.SetAtGrow(iAddAt, mws);
@@ -142,7 +143,8 @@ void CMessageWnd::AddMsg( const Color& color, const TCHAR* msg )
 	mws.MsgLen = strlen(msg);
 	mws.color = color;
 	Assert(mws.MsgLen <= (sizeof(mws.szMsg) / sizeof(TCHAR)));
-	_tcscpy(mws.szMsg, msg);
+	mws.MsgLen = Min<int>(mws.MsgLen, sizeof(mws.szMsg));
+	_tcsncpy(mws.szMsg, msg, mws.MsgLen);
 
 	// Add the message, growing the array as necessary
 	MsgArray.SetAtGrow(iAddAt, mws);

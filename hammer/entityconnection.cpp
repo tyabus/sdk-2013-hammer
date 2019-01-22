@@ -63,7 +63,7 @@ CEntityConnection::~CEntityConnection()
         m_pSourceEntityList->RemoveAll();
 		delete m_pSourceEntityList;
 		m_pSourceEntityList = NULL;
-	}
+}
 	if ( m_pTargetEntityList )
 	{
 		m_pTargetEntityList->RemoveAll();
@@ -96,11 +96,11 @@ CEntityConnection &CEntityConnection::operator =(const CEntityConnection &Other)
 // Purpose: Sets a new Input Name and sets links to any matching entities
 //-----------------------------------------------------------------------------
 
-void CEntityConnection::SetSourceName(const char *pszName) 
+void CEntityConnection::SetSourceName(const char *pszName)
 {
 	// Save the name of the entity(ies)
 	lstrcpyn(m_szSourceEntity, pszName ? pszName : "<<null>>", sizeof(m_szSourceEntity));
-	
+
 	// Update the source entity list
 	// LinkSourceEntities(); // Changing the entity connection source name shouldnt change the source entity linkage, right?
 }
@@ -109,7 +109,7 @@ void CEntityConnection::SetSourceName(const char *pszName)
 // Purpose: Sets a new Output Name and sets links to any matching entities
 //-----------------------------------------------------------------------------
 
-void CEntityConnection::SetTargetName(const char *pszName) 
+void CEntityConnection::SetTargetName(const char *pszName)
 {
 	// Save the name of the entity(ies)
 	lstrcpyn(m_szTargetEntity, pszName ? pszName : "<<null>>", sizeof(m_szTargetEntity));
@@ -137,7 +137,7 @@ void CEntityConnection::LinkSourceEntities()
 		{
 			CMapEntityList matches;
 			pWorld->FindEntitiesByName( matches, m_szSourceEntity, false );
-		
+
 			for ( int i = 0; i < matches.Count(); i++ )
 			{
 				CMapEntity *pEntity = matches.Element( i );
@@ -176,11 +176,11 @@ void CEntityConnection::LinkTargetEntities()
 		{
 			CMapEntityList matches;
 			pWorld->FindEntitiesByName( matches, m_szTargetEntity, false );
-		
+
 			for ( int i = 0; i < matches.Count(); i++ )
 			{
 				CMapEntity *pEntity = matches.Element( i );
-		
+
 				m_pTargetEntityList->AddToTail( pEntity );
 
 				// Special -- Add this connection to the target entity connection list
@@ -229,7 +229,7 @@ bool CEntityConnection::ValidateOutput(CMapEntity *pEntity, const char* pszOutpu
 }
 
 //------------------------------------------------------------------------------
-// Purpose : Returns true if output string is valid for all the entities in 
+// Purpose : Returns true if output string is valid for all the entities in
 //			 the entity list
 // Input   :
 // Output  :
@@ -257,7 +257,7 @@ bool CEntityConnection::ValidateOutput(const CMapEntityList *pEntityList, const 
 // Purpose: Returns true if the given entity list contains an entity of the
 //			given target name
 //------------------------------------------------------------------------------
-bool CEntityConnection::ValidateTarget( const CMapEntityList *pEntityList, bool bVisibilityCheck, const char *pszTarget)
+bool CEntityConnection::ValidateTarget( const CMapEntityList* pEntityList, bool bVisibilityCheck, const char *pszTarget)
 {
 	if (!pEntityList || !pszTarget)
 		return false;
@@ -354,7 +354,7 @@ void CEntityConnection::FindBadConnections(CMapEntity *pEntity, bool bVisibility
 				if ( pConnection->GetTargetEntityList()->Count() > 0 && !pConnection->AreAnyTargetEntitiesVisible() )
 					continue;
 			}
-			
+
 			// Check validity of output for this entity
 			if (!CEntityConnection::ValidateOutput(pEntity, pConnection->GetOutputName()))
 			{
@@ -401,7 +401,7 @@ int CEntityConnection::ValidateOutputConnections(CMapEntity *pEntity, bool bVisi
 		return CONNECTION_BAD;
 	}
 
-	return CONNECTION_GOOD;	
+	return CONNECTION_GOOD;
 }
 
 
@@ -420,8 +420,8 @@ void CEntityConnection::FixBadConnections(CMapEntity *pEntity, bool bVisibilityC
 	{
 		CEntityConnection *pConnection = BadConnectionList.Element(i);
 		pEntity->Connections_Remove( pConnection );
-		
-		//								
+
+		//
 		// Remove the connection from the upstream list of all entities it targets.
 		//
 		CMapEntityList *pTargetList = pConnection->GetTargetEntityList();
@@ -433,7 +433,7 @@ void CEntityConnection::FixBadConnections(CMapEntity *pEntity, bool bVisibilityC
 				pEntity->Upstream_Remove( pConnection );
 			}
 		}
-				
+
 		delete pConnection;
 	}
 }
@@ -478,7 +478,7 @@ int CEntityConnection::ValidateInputConnections(CMapEntity *pEntity, bool bVisib
 	}
 
 	// Look at outputs from each entity in the world
-	
+
 	bool bHaveConnection = false;
 	FOR_EACH_OBJ( *pAllWorldEntities, pos )
 	{
@@ -680,9 +680,17 @@ int CALLBACK CEntityConnection::CompareTargetNames(CEntityConnection *pConn1, CE
 	return(nReturn);
 }
 
-
-
-
-
-
-
+//-----------------------------------------------------------------------------
+// Purpose: Returns true if the given connection is identical to this connection.
+// Input  : pConnection - Connection to compare.
+//-----------------------------------------------------------------------------
+bool CEntityConnection::CompareConnection(CEntityConnection *pConnection)
+{
+	// BUGBUG - Why not compare the GetSourceName() values too?  Why is this field not relevant?
+	return((!stricmp(GetOutputName(), pConnection->GetOutputName())) &&
+		   (!stricmp(GetTargetName(), pConnection->GetTargetName())) &&
+		   (!stricmp(GetInputName(), pConnection->GetInputName())) &&
+		   (!stricmp(GetParam(), pConnection->GetParam())) &&
+		   (GetDelay() == pConnection->GetDelay()) &&
+		   (GetTimesToFire() == pConnection->GetTimesToFire()));
+}

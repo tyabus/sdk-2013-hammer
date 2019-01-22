@@ -51,8 +51,9 @@ public:
 	void Render2D( CRender2D* pRender ) override;
 	void Render3D( CRender3D* pRender ) override;
 	bool RenderPreload( CRender3D* pRender, bool bNewContext ) override;
-	void AddShadowingTriangles(CUtlVector<Vector>& tri_list) override;
+	void AddShadowingTriangles( CUtlVector<Vector>& tri_list ) override;
 
+	void Collapse( bool bRecursive, InstanceCollapseData_t& collapseData );
 private:
 	void LoadVMF( CMapClass* pParent = NULL );
 	bool LoadVMFInternal( const char* pVMFPath );
@@ -60,7 +61,8 @@ private:
 	void Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt, bool ignoreFrameCount );
 	void Render3DChildrenDeferred( CRender3D* pRender, CMapClass* pEnt, bool ignoreFrameCount );
 	void AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt );
-	void GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& maxs ) const;
+	template <BoundBox CMapClass::* type>
+	void GetBounds( Vector& mins, Vector& maxs ) const;
 	static void FixAngles( QAngle& angle );
 	void DecompressMatrix( Vector& origin, QAngle& angle ) const;
 	void ConstructMatrix( const Vector& origin, const QAngle& angle );

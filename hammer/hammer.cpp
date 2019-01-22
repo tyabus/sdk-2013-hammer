@@ -54,6 +54,7 @@
 #include "KeyBinds.h"
 #include "fmtstr.h"
 #include "KeyValues.h"
+// #include "vgui/ILocalize.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -88,9 +89,6 @@
 // dvs: hack
 extern LPCTSTR GetErrorString(void);
 extern void MakePrefabLibrary(LPCTSTR pszName);
-
-
-static bool bMakeLib = false;
 
 CHammer theApp;
 COptions Options;
@@ -148,7 +146,7 @@ int WrapFunctionWithMinidumpHandler( int (*pfn)(void *pParam), void *pParam, int
 // Input  : fmt - format specifier.
 //			... - arguments to format.
 //-----------------------------------------------------------------------------
-void DBG(char *fmt, ...)
+void DBG(const char *fmt, ...)
 {
     char ach[128];
     va_list va;
@@ -332,6 +330,8 @@ bool CHammer::Connect( CreateInterfaceFn factory )
     V_ComposeFileName(hammerDir, "prefabs", hammerPrefabs, MAX_PATH);
     g_pFullFileSystem->CreateDirHierarchy("prefabs", "hammer"); // Create the prefabs folder if it doesn't already exist
     g_pFullFileSystem->AddSearchPath(hammerPrefabs, "hammer_prefabs", PATH_ADD_TO_HEAD);
+
+	// g_pVGuiLocalize->AddFile("resource/hammer_english.txt", "hammer");
 
 	// Create the message window object for capturing errors and warnings.
 	// This does NOT create the window itself. That happens later in CMainFrame::Create.
@@ -715,7 +715,7 @@ void UpdatePrefabs_Shutdown()
 BOOL CHammer::InitInstance()
 {
 	SetRegistryKey( "Valve" );
-	return TRUE;
+	return CWinApp::InitInstance();
 }
 
 
@@ -840,7 +840,6 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	if ( !Check16BitColor() )
 		return INIT_FAILED;
 
-
 	//
 	// Create a custom window class for this application so that engine's
 	// FindWindow will find us.
@@ -876,9 +875,6 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	//
 	g_ShellMessageWnd.Create();
 	g_ShellMessageWnd.SetShell(&g_Shell);
-
-	if (bMakeLib)
-		return INIT_FAILED;	// made library .. don't want to enter program
 
 	//
 	// Create and optionally display the splash screen.

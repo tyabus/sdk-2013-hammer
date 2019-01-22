@@ -330,8 +330,13 @@ bool CSelection::RemoveDead(void)
 
 	for ( int i=m_SelectionList.Count()-1; i>=0; i-- )
 	{
-		CMapClass *pObject = m_SelectionList.Element(i);
-		if (!pObject->GetParent())
+		CMapClass *pObject = m_SelectionList.Element( i );
+		if ( !pObject )
+		{
+			m_SelectionList.FastRemove( i );
+			bFoundOne = true;
+		}
+		else if (!pObject->GetParent())
 		{
 			m_SelectionList.FastRemove(i);
 			pObject->SetSelectionState(SELECT_NONE);

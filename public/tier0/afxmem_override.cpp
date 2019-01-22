@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //
@@ -115,7 +115,7 @@ CObject::operator delete(void *pObject, LPCSTR /* lpszFileName */,
 }
 #endif
 
-void* AFXAPI AfxAllocMemoryDebug(size_t nSize, BOOL bIsObject,  LPCSTR lpszFileName, int nLine)
+_AFX_DECLSPEC_ALLOCATOR void* AFXAPI AfxAllocMemoryDebug(size_t nSize, BOOL bIsObject,  LPCSTR lpszFileName, int nLine)
 {
 	return _malloc_dbg(nSize, bIsObject ? _AFX_CLIENT_BLOCK : _NORMAL_BLOCK,
 		lpszFileName, nLine);
@@ -174,6 +174,14 @@ AFX_ALLOC_HOOK AFXAPI AfxSetAllocHook(AFX_ALLOC_HOOK pfnNewHook)
 // This can be set to TRUE to override all AfxEnableMemoryTracking calls,
 // allowing all allocations, even MFC internal allocations to be tracked.
 BOOL _afxMemoryLeakOverride = FALSE;
+
+BOOL AFXAPI AfxEnableMemoryLeakOverride(BOOL bEnable)
+{
+	BOOL bOldState = _afxMemoryLeakOverride;
+	_afxMemoryLeakOverride = bEnable;
+
+	return bOldState;
+}
 
 BOOL AFXAPI AfxEnableMemoryTracking(BOOL bTrack)
 {

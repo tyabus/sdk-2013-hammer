@@ -107,6 +107,14 @@ struct EnumChildrenPos_t
 	int nDepth;
 };
 
+struct InstanceCollapseData_t
+{
+	CMapObjectList newChildren;
+	CUtlVector<class CEntityConnection*> connections; // CEntityConnectionList
+	CUtlVector<CVisGroup*> visGroups;
+};
+
+
 class CMapClass : public CMapPoint
 {
 	DECLARE_REFERENCED_CLASS( CMapClass );

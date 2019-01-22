@@ -148,7 +148,7 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		const char* GetVMFPath() const;
 
 		void SetOwningDoc( CMapDoc* pDoc ) { m_pOwningDocument = pDoc; }
-		ShowInstance_t GetInstanceVisibility() const { return m_pOwningDocument ? m_pOwningDocument->GetInstanceVisibility() : ShowInstance_t::INSTANCES_HIDE; }
+		ShowInstance_t GetInstanceVisibility() const { return m_pOwningDocument ? m_pOwningDocument->GetInstanceVisibility() : ShowInstance_t::INSTANCES_SHOW_NORMAL; }
 
 	protected:
 

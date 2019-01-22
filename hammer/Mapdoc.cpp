@@ -94,8 +94,6 @@
 #define HALF_LIFE_2_EYE_HEIGHT 64
 
 #define VMF_FORMAT_VERSION	100
-static int g_nFileFormatVersion = 0;
-
 
 extern CShell g_Shell;
 
@@ -669,7 +667,7 @@ void CMapDoc::VisGroups_Validate()
 		// could belong to visgroups, even if those visgroups no longer existed.
 
 		// For new versions of Hammer, just make sure that the object is allowed to belong to a visgroup.
-		if (((g_nFileFormatVersion < 100) && (!IsWorldObject(pParent))) ||
+		if (((m_nFileFormatVersion < 100) && (!IsWorldObject(pParent))) ||
 			!VisGroups_ObjectCanBelongToVisGroup(pChild))
 		{
 			int nCount = pChild->GetVisGroupCount();
@@ -1400,7 +1398,7 @@ bool CMapDoc::LoadVMF(const char *pszFileName)
 	caption.LoadString(IDS_LOADINGFILE);
 	pProgDlg->SetWindowText(caption);
 
-	g_nFileFormatVersion = 0;
+	m_nFileFormatVersion = 0;
 
 	bool bLocked = VisGroups_LockUpdates( true );
 
@@ -1536,7 +1534,7 @@ ChunkFileResult_t CMapDoc::LoadVersionInfoCallback(CChunkFile *pFile, CMapDoc *p
 ChunkFileResult_t CMapDoc::LoadVersionInfoKeyCallback(const char *szKey, const char *szValue, CMapDoc *pDoc)
 {
 	KeyInt("mapversion", pDoc->m_nDocVersion);
-	KeyInt("formatversion", g_nFileFormatVersion);
+	KeyInt("formatversion", pDoc->m_nFileFormatVersion);
 	KeyBool("prefab", pDoc->m_bPrefab);
 
 	return(ChunkFile_Ok);
@@ -10177,17 +10175,26 @@ void CMapDoc::OnLogicalobjectLayoutlogical()
 
 void CMapDoc::CollapseInstances( bool bSelected, bool bRecursive )
 {
-	if ( bSelected )
+	CUtlVector<CMapClass*> toRemove;
+	CUtlVector<InstanceCollapseData_t> collapseData;
+	for ( CMapClass* child : std::as_const( bSelected ? *m_pSelection->GetList() : *m_pWorld->GetChildren() ) )
 	{
-		const CMapObjectList* selected = m_pSelection->GetList();
-		NOTE_UNUSED(selected);
-		return;
+		for ( CMapClass* subChild : std::as_const( *child->GetChildren() ) )
+		{
+			if ( subChild && subChild->IsMapClass( MAPCLASS_TYPE( CMapInstance ) ) )
+			{
+				static_cast<CMapInstance*>( subChild )->Collapse( bRecursive, collapseData[collapseData.AddToTail()]);
+				toRemove.AddToTail( child );
+				break;
+			}
+		}
 	}
 
-	BOOL(*func)(CMapInstance *, CMapDoc*) = []( CMapInstance* pInstance, CMapDoc* ) -> BOOL
-	{
+	for ( CMapClass* pChild : toRemove )
+		m_pWorld->RemoveObjectFromWorld( pChild, true );
 
-		return true;
-	};
-	m_pWorld->EnumChildren( func, this, MAPCLASS_TYPE( CMapInstance ) );
+	m_pSelection->RemoveDead();
+
+	/*for ( CMapClass* newChild : newChildren )
+		AddObjectToWorld( newChild );*/
 }

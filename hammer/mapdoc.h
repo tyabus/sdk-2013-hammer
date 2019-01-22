@@ -511,6 +511,7 @@ class CMapDoc : public CDocument
 		CMapObjectList m_UpdateList;		// List of objects that have changed since the last call to Update.
 		CString m_strLastExportFileName;	// The full path that we last exported this document to.
 		int m_nDocVersion;					// A number that increments every time the doc is modified after being saved.
+		int m_nFileFormatVersion;
 		BOOL m_bNeedsAutosave;				// True if the document has been changed and needs autosaved.
 		BOOL m_bIsAutosave;
 		CString m_strAutosavedFrom;

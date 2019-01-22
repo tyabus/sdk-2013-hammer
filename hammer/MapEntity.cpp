@@ -248,7 +248,7 @@ void CMapEntity::AddBoundBoxForClass(GDclass *pClass, bool bLoading)
 	// Don't call AddObjectToWorld during VMF load because we don't want to call
 	// OnAddToWorld during VMF load. We update our helpers during PostloadWorld.
 	//
-	CMapWorld *pWorld = (CMapWorld *)GetWorldObject(this);
+	CMapWorld *pWorld = GetWorldObject(this);
 	if ((!bLoading) && (pWorld != NULL))
 	{
 		pWorld->AddObjectToWorld(pBox, this);

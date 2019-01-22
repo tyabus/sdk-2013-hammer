@@ -14,6 +14,7 @@
 #include "tier1/utlintrusivelist.h"
 #include "mathlib/mathlib.h"
 
+#pragma push_macro("GetObject")
 #undef GetObject
 
 // Purpose: class for keeping track of all the references that exist to an object.  When the object
@@ -41,13 +42,13 @@ public:
 		m_pNext = m_pPrev = NULL;
 		m_pObject = NULL;
 	}
-  
+
 	FORCEINLINE CUtlReference(T *pObj)
 	{
 		m_pNext = m_pPrev = NULL;
 		AddRef( pObj );
 	}
-	
+
 	FORCEINLINE CUtlReference( const CUtlReference<T>& other ) : CUtlReference()
 	{
 		if ( other.IsValid() )
@@ -60,7 +61,7 @@ public:
 	{
 		KillRef();
 	}
-  
+
 	FORCEINLINE void Set(T *pObj)
 	{
 		if ( m_pObject != pObj )
@@ -69,7 +70,7 @@ public:
 			AddRef( pObj );
 		}
 	}
-  
+
 	FORCEINLINE bool IsValid( void) const
 	{
 		return ( m_pObject != NULL );
@@ -91,8 +92,8 @@ public:
 	}
 
 	FORCEINLINE T* operator->() const
-	{ 
-		return m_pObject; 
+	{
+		return m_pObject;
 	}
 
 	FORCEINLINE CUtlReference &operator=( const CUtlReference& otherRef )
@@ -140,12 +141,12 @@ public:
 	FORCEINLINE bool operator!=( std::nullptr_t ) const
 	{
 		return IsValid();
-	}	
+	}
 
 	FORCEINLINE bool operator==( std::nullptr_t ) const
 	{
 		return !IsValid();
-	}	
+	}
 
 public:
 	CUtlReference *m_pNext;
@@ -285,13 +286,15 @@ private:
 	// breaking assumptions of CUtlReference. If any of these becomes needed just add a safe
 	// implementation to the public section.
 	//
-	void RemoveMultiple( int elem, int num );	
-	void RemoveMultipleFromHead(int num); 
-	void RemoveMultipleFromTail(int num); 
+	void RemoveMultiple( int elem, int num );
+	void RemoveMultipleFromHead(int num);
+	void RemoveMultipleFromTail(int num);
 	void Swap( CUtlReferenceVector< T > &vec );
 	void Purge();
 	void PurgeAndDeleteElements();
 	void Compact();
 };
+
+#pragma pop_macro("GetObject")
 
 #endif

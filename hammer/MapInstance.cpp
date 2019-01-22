@@ -3,6 +3,8 @@
 #include "mapentity.h"
 #include "mapdoc.h"
 #include "mapworld.h"
+#include "mapsolid.h"
+#include "mapgroup.h"
 #include "render2d.h"
 #include "render3dms.h"
 #include "toolinterface.h"
@@ -116,7 +118,7 @@ void CMapInstance::CalcBounds( BOOL bFullUpdate )
 void CMapInstance::GetCullBox( Vector& mins, Vector& maxs )
 {
 	if ( m_pTemplate )
-		GetBounds( &CMapClass::m_CullBox, mins, maxs );
+		GetBounds<&CMapClass::m_CullBox>( mins, maxs );
 	else
 		CMapHelper::GetCullBox( mins, maxs );
 }
@@ -130,7 +132,7 @@ bool CMapInstance::GetCullBoxChild( Vector& mins, Vector& maxs )
 void CMapInstance::GetRender2DBox( Vector& mins, Vector& maxs )
 {
 	if ( m_pTemplate )
-		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
+		GetBounds<&CMapClass::m_Render2DBox>( mins, maxs );
 	else
 		CMapHelper::GetRender2DBox( mins, maxs );
 }
@@ -146,7 +148,7 @@ void CMapInstance::GetBoundsCenter( Vector& vecCenter )
 	if ( m_pTemplate )
 	{
 		Vector mins, maxs;
-		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
+		GetBounds<&CMapClass::m_Render2DBox>(mins, maxs );
 		VectorLerp( mins, maxs, 0.5f, vecCenter );
 	}
 	else
@@ -164,7 +166,7 @@ void CMapInstance::GetBoundsSize( Vector& vecSize )
 	if ( m_pTemplate )
 	{
 		Vector mins, maxs;
-		GetBounds( &CMapClass::m_Render2DBox, mins, maxs );
+		GetBounds<&CMapClass::m_Render2DBox>( mins, maxs );
 		VectorSubtract( maxs, mins, vecSize );
 	}
 	else
@@ -234,7 +236,7 @@ bool CMapInstance::IsInsideBox( Vector const& pfMins, Vector const& pfMaxs ) con
 	if ( m_pTemplate )
 	{
 		Vector bmins, bmaxs;
-		GetBounds( &CMapClass::m_Render2DBox, bmins, bmaxs );
+		GetBounds<&CMapClass::m_Render2DBox>( bmins, bmaxs );
 
 		if ( bmins[0] < pfMins[0] || bmaxs[0] > pfMaxs[0] )
 			return CMapHelper::IsInsideBox( pfMins, pfMaxs );
@@ -256,7 +258,7 @@ bool CMapInstance::IsIntersectingBox( const Vector& vecMins, const Vector& vecMa
 	if ( m_pTemplate )
 	{
 		Vector bmins, bmaxs;
-		GetBounds( &CMapClass::m_Render2DBox, bmins, bmaxs );
+		GetBounds<&CMapClass::m_Render2DBox>( bmins, bmaxs );
 
 		if ( bmins[0] >= vecMaxs[0] || bmaxs[0] <= vecMins[0] )
 			return CMapHelper::IsIntersectingBox( vecMins, vecMaxs );
@@ -654,7 +656,10 @@ void CMapInstance::LoadVMF( CMapClass* pParent )
 bool CMapInstance::LoadVMFInternal( const char* pVMFPath )
 {
 	if ( !m_pTemplate )
+	{
 		m_pTemplate = new CMapWorld;
+		m_pTemplate->SetOwningDoc( nullptr );
+	}
 	m_pTemplate->SetVMFPath( pVMFPath );
 
 	CChunkFile file;
@@ -718,7 +723,8 @@ void CMapInstance::AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, 
 }
 
 #pragma float_control(precise, on, push)
-void CMapInstance::GetBounds( BoundBox CMapClass::* type, Vector& mins, Vector& maxs ) const
+template <BoundBox CMapClass::* type>
+void CMapInstance::GetBounds( Vector& mins, Vector& maxs ) const
 {
 	if ( m_pTemplate )
 	{
@@ -767,3 +773,210 @@ void CMapInstance::ConstructMatrix( const Vector& origin, const QAngle& angle )
 	m_matTransform.SetupMatrixOrgAngles( origin, angle );
 }
 #pragma float_control(pop)
+
+void CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseData )
+{
+	if (m_strCurrentVMF.IsEmpty())
+		return;
+	CMapWorld* world = GetWorldObject(GetParent());
+	Assert(world);
+	char instancePath[MAX_PATH];
+	if (!DeterminePath(world->GetVMFPath(), m_strCurrentVMF, instancePath))
+		return;
+
+	CChunkFile file;
+	ChunkFileResult_t eResult = file.Open(instancePath, ChunkFile_Read);
+	if (eResult == ChunkFile_Ok)
+	{
+		ChunkFileResult_t(*LoadWorldCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+		{
+			ChunkFileResult_t(*LoadSolidCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+			{
+				CMapSolid *pSolid = new CMapSolid;
+
+				bool bValid;
+				ChunkFileResult_t eResult = pSolid->LoadVMF(pFile, bValid);
+
+				if (eResult == ChunkFile_Ok && bValid)
+				{
+					const char *pszValue = pSolid->GetEditorKeyValue("cordonsolid");
+					if (pszValue == nullptr)
+						pDoc->newChildren.AddToTail(pSolid);
+				}
+				else
+					delete pSolid;
+
+				return eResult;
+			};
+
+			struct SubLoadHiddenData
+			{
+				InstanceCollapseData_t& data;
+				ChunkFileResult_t(*LoadSolidCallback)(CChunkFile*, InstanceCollapseData_t*);
+			};
+
+			ChunkFileResult_t(*LoadHiddenCallback)(CChunkFile*, SubLoadHiddenData*) = [](CChunkFile* pFile, SubLoadHiddenData* pDoc) -> ChunkFileResult_t
+			{
+				CChunkHandlerMap Handlers;
+				Handlers.AddHandler("solid", pDoc->LoadSolidCallback, &pDoc->data);
+
+				pFile->PushHandlers(&Handlers);
+				const ChunkFileResult_t eResult = pFile->ReadChunk();
+				pFile->PopHandlers();
+
+				return eResult;
+			};
+
+			ChunkFileResult_t(*LoadGroupCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+			{
+				CMapGroup* pGroup = new CMapGroup;
+				const ChunkFileResult_t eResult = pGroup->LoadVMF(pFile);
+				if (eResult == ChunkFile_Ok)
+					pDoc->newChildren.AddToTail(pGroup);
+
+				return eResult;
+			};
+
+			SubLoadHiddenData subLoadHidden { *pDoc, LoadSolidCallback };
+
+			CChunkHandlerMap Handlers;
+			Handlers.AddHandler("solid", LoadSolidCallback, pDoc);
+			Handlers.AddHandler("hidden", LoadHiddenCallback, &subLoadHidden);
+			Handlers.AddHandler("group", LoadGroupCallback, pDoc);
+
+			pFile->PushHandlers(&Handlers);
+			const ChunkFileResult_t eResult = pFile->ReadChunk();
+			pFile->PopHandlers();
+
+			return eResult;
+		};
+
+		ChunkFileResult_t(*LoadEntityCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+		{
+			CMapEntity* pEntity = new CMapEntity;
+			pEntity->SetInstance(true);
+			if (pEntity->LoadVMF(pFile) == ChunkFile_Ok)
+				pDoc->newChildren.AddToTail(pEntity);
+			else
+				delete pEntity;
+			return ChunkFile_Ok;
+		};
+
+		struct SubLoadHiddenData
+		{
+			InstanceCollapseData_t& data;
+			ChunkFileResult_t(*LoadEntityCallback)(CChunkFile*, InstanceCollapseData_t*);
+		};
+
+		ChunkFileResult_t(*LoadHiddenCallback)(CChunkFile*, SubLoadHiddenData*) = [](CChunkFile* pFile, SubLoadHiddenData* pDoc) -> ChunkFileResult_t
+		{
+			CChunkHandlerMap Handlers;
+			Handlers.AddHandler("entity", pDoc->LoadEntityCallback, &pDoc->data);
+
+			pFile->PushHandlers(&Handlers);
+			const ChunkFileResult_t eResult = pFile->ReadChunk();
+			pFile->PopHandlers();
+
+			return eResult;
+		};
+
+		ChunkFileResult_t(*LoadVisGroupsCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+		{
+			// Fill out a little context blob for passing to the handler.
+			struct SubLoadVisData
+			{
+				ChunkFileResult_t(*LoadVisGroupCallback)(CChunkFile*, SubLoadVisData*);
+				InstanceCollapseData_t& pData;
+				CVisGroup* pParent;
+			};
+
+			ChunkFileResult_t(*LoadVisGroupCallback)(CChunkFile*, SubLoadVisData*) = [](CChunkFile* pFile, SubLoadVisData* pLoadData) -> ChunkFileResult_t
+			{
+				const auto& LoadVMF = [](CVisGroup* pGroup, CChunkFile* pFile, SubLoadVisData* pLoadData) -> ChunkFileResult_t
+				{
+					SubLoadVisData InstanceCollapseData_t { pLoadData->LoadVisGroupCallback, pLoadData->pData, pGroup };
+
+					CChunkHandlerMap Handlers;
+					Handlers.AddHandler("visgroup", pLoadData->LoadVisGroupCallback, &InstanceCollapseData_t);
+
+					pFile->PushHandlers(&Handlers);
+					const ChunkFileResult_t eResult = pFile->ReadChunk(CVisGroup::LoadKeyCallback, pGroup);
+					pFile->PopHandlers();
+
+					return eResult;
+				};
+				CVisGroup* pVisGroup = new CVisGroup;
+				const ChunkFileResult_t eResult = LoadVMF(pVisGroup, pFile, pLoadData);
+				if (eResult == ChunkFile_Ok)
+				{
+					if (pLoadData->pParent != nullptr)
+					{
+						pLoadData->pParent->AddChild(pVisGroup);
+						pVisGroup->SetParent(pLoadData->pParent);
+					}
+
+					if (!pVisGroup->IsAutoVisGroup())
+						pLoadData->pData.visGroups.AddToTail(pVisGroup);
+				}
+
+				return eResult;
+			};
+
+			SubLoadVisData subData { LoadVisGroupCallback, *pDoc, nullptr };
+
+			//
+			// Set up handlers for the subchunks that we are interested in.
+			//
+			CChunkHandlerMap Handlers;
+			Handlers.AddHandler("visgroup", LoadVisGroupCallback, &subData);
+
+			pFile->PushHandlers(&Handlers);
+			const ChunkFileResult_t eResult = pFile->ReadChunk();
+			pFile->PopHandlers();
+
+			return eResult;
+		};
+
+		SubLoadHiddenData subLoadHidden{ collapseData, LoadEntityCallback };
+
+		CChunkHandlerMap handlers;
+		handlers.AddHandler("world", LoadWorldCallback, &collapseData);
+		handlers.AddHandler("hidden", LoadHiddenCallback, &subLoadHidden);
+		handlers.AddHandler("entity", LoadEntityCallback, &collapseData);
+		handlers.AddHandler("visgroups", LoadVisGroupsCallback, &collapseData);
+		handlers.SetErrorHandler([](CChunkFile*, const char*, void*) { return false; }, nullptr);
+
+		file.PushHandlers(&handlers);
+
+		while (eResult == ChunkFile_Ok)
+			eResult = file.ReadChunk();
+
+		if (eResult == ChunkFile_EOF)
+			eResult = ChunkFile_Ok;
+
+		file.PopHandlers();
+	}
+
+	if (eResult == ChunkFile_Ok)
+	{
+		if (bRecursive)
+		{
+			for ( CMapClass* child : std::as_const( collapseData.newChildren ) )
+			{
+				for ( CMapClass* subChild : std::as_const( *child->GetChildren() ) )
+				{
+					if ( subChild && subChild->IsMapClass( MAPCLASS_TYPE( CMapInstance ) ) )
+					{
+						static_cast<CMapInstance*>( subChild )->Collapse( bRecursive, collapseData);
+						//toRemove.AddToTail( child );
+						break;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		// TODO: Cleanup if failed
+	}
+}
