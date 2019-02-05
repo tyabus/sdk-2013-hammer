@@ -953,7 +953,7 @@ template <typename T>
 inline T QWordSwapC( T dw )
 {
 	// Assert sizes passed to this are already correct, otherwise
-	// the cast to uint64 * below is unsafe and may have wrong results 
+	// the cast to uint64 * below is unsafe and may have wrong results
 	// or even crash.
 	PLAT_COMPILE_TIME_ASSERT( sizeof( dw ) == sizeof(uint64) );
 
@@ -1494,6 +1494,12 @@ inline void CopyConstruct( T* pMemory, T&& src )
 {
 	HINT( pMemory != nullptr );
 	::new( pMemory )T( std::forward<T>( src ) );
+}
+template <class T, typename... Args>
+inline void CopyConstruct( T* pMemory, Args&&... src )
+{
+	HINT( pMemory != nullptr );
+	::new( pMemory )T( std::forward<Args...>( src )... );
 }
 #endif
 

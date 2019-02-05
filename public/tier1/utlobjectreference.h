@@ -43,9 +43,8 @@ public:
 		m_pObject = NULL;
 	}
 
-	FORCEINLINE CUtlReference(T *pObj)
+	FORCEINLINE CUtlReference( T* pObj ) : CUtlReference()
 	{
-		m_pNext = m_pPrev = NULL;
 		AddRef( pObj );
 	}
 
@@ -154,6 +153,7 @@ public:
 
 	T *m_pObject;
 
+private:
 	FORCEINLINE void AddRef( T *pObj )
 	{
 		m_pObject = pObj;
@@ -172,12 +172,18 @@ public:
 		}
 	}
 
+	template<typename T> friend class CUtlReferenceVector;
 };
 
 template<class T>
 class CUtlReferenceList : public CUtlIntrusiveDList<CUtlReference<T>>
 {
 public:
+	CUtlReferenceList()
+	{
+		RemoveAll();
+	}
+
 	~CUtlReferenceList( void )
 	{
 		CUtlReference<T> *i = CUtlIntrusiveDList<CUtlReference<T>>::m_pHead;
@@ -206,15 +212,27 @@ public:
 template <class T>
 class CUtlReferenceVector : public CUtlBlockVector<CUtlReference<T>>
 {
+	using Base = CUtlBlockVector<CUtlReference<T>>;
 public:
+
+	void AddToTail( T* src )
+	{
+		Base::AddToTail( src );
+	}
+
 	void RemoveAll()
 	{
 		for ( int i = 0; i < Count(); i++ )
 		{
-			CUtlBlockVector<CUtlReference<T>>::Element( i ).KillRef();
+			Base::Element( i ).KillRef();
 		}
 
-		CUtlBlockVector<CUtlReference<T>>::RemoveAll();
+		Base::RemoveAll();
+	}
+
+	int Find( T* src ) const
+	{
+		return FindMatch( [&src]( const CUtlReference<T> & ref ) -> bool { return ref.GetObject() == src; } );
 	}
 
 	void FastRemove( int elem )
@@ -225,14 +243,14 @@ public:
 		{
 			if ( elem != m_Size -1 )
 			{
-				CUtlBlockVector<CUtlReference<T>>::Element( elem ).Set( CUtlBlockVector<CUtlReference<T>>::Element( m_Size - 1 ).GetObject() );
+				Base::Element( elem ) = Base::Element( m_Size - 1 );
 			}
-			Destruct( &CUtlBlockVector<CUtlReference<T>>::Element( m_Size - 1 ) );
+			Destruct( &Base::Element( m_Size - 1 ) );
 			--m_Size;
 		}
 	}
 
-	bool FindAndFastRemove( const CUtlReference<T>& src )
+	bool FindAndFastRemove( T* src )
 	{
 		int elem = Find( src );
 		if ( elem != -1 )
@@ -251,15 +269,15 @@ public:
 		{
 			for ( int i = elem; i < ( m_Size - 1 ); i++ )
 			{
-				CUtlBlockVector<CUtlReference<T>>::Element( i ).Set( CUtlBlockVector<CUtlReference<T>>::Element( i + 1 ).GetObject() );
+				Base::Element( i ) = Base::Element( i + 1 );
 			}
 
-			Destruct( &CUtlBlockVector<CUtlReference<T>>::Element( m_Size - 1 ) );
+			Destruct( &Base::Element( m_Size - 1 ) );
 			--m_Size;
 		}
 	}
 
-	bool FindAndRemove( const CUtlReference< T >& src )
+	bool FindAndRemove( T* src )
 	{
 		int elem = Find( src );
 		if ( elem != -1 )
@@ -272,12 +290,12 @@ public:
 
 	T* operator[]( int i ) const
 	{
-		return CUtlBlockVector<CUtlReference<T>>::operator[]( i );
+		return Base::operator[]( i );
 	}
 
 	T* Element( int i ) const
 	{
-		return CUtlBlockVector<CUtlReference<T>>::Element( i );
+		return Base::Element( i );
 	}
 
 private:

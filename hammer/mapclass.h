@@ -23,6 +23,7 @@
 #include "UtlVector.h"
 #include "visgroup.h"
 #include "fgdlib/wckeyvalues.h"
+#include "tier1/smartptr.h"
 #include "tier1/utlobjectreference.h"
 
 
@@ -107,6 +108,53 @@ struct EnumChildrenPos_t
 	int nDepth;
 };
 
+// This is a reference-counted class that holds a pointer to an object.
+// When the object goes away, it can set the pointer in here to NULL
+// and anyone else who holds a reference to this can know that the
+// object has gone away. It's similar to the EHANDLEs in the engine,
+// except there's no finite list of objects that's managed anywhere.
+template<class T>
+class CSafeObject
+{
+public:
+	static CSmartPtr<CSafeObject<T>> Create( T* pObject )
+	{
+		CSafeObject<T>* pRet = new CSafeObject<T>( pObject );
+		return CSmartPtr<CSafeObject<T>>( pRet );
+	}
+
+	int GetRefCount() const
+	{
+		return m_RefCount;
+	}
+
+public:
+	T* m_pObject;
+
+private:
+	void AddRef()
+	{
+		++m_RefCount;
+	}
+
+	void Release()
+	{
+		--m_RefCount;
+		if ( m_RefCount <= 0 )
+			delete this;
+	}
+
+	CSafeObject( T * pObject )
+	{
+		m_RefCount = 0;
+		m_pObject = pObject;
+	}
+
+	int m_RefCount;	// This object goes away when all smart pointers to it go away.
+
+	friend class CRefCountAccessor;
+};
+
 struct InstanceCollapseData_t
 {
 	CMapObjectList newChildren;
@@ -125,6 +173,8 @@ public:
 	//
 	CMapClass(void);
 	virtual ~CMapClass(void);
+
+	const CSmartPtr<CSafeObject<CMapClass>>& GetSafeObjectSmartPtr() const { return m_pSafeObject; }
 
 	inline int GetID(void) const;
 	inline void SetID(int nID);
@@ -393,6 +443,8 @@ protected:
 	CMapClass *UpdateDependency(CMapClass *pOldAttached, CMapClass *pNewAttached);
 
 	void UpdateParent(CMapClass *pNewParent);
+
+	CSmartPtr<CSafeObject<CMapClass>> m_pSafeObject;
 
 	BoundBox m_CullBox;				// Our bounds for culling in the 3D views and intersecting with the cordon.
 	BoundBox m_Render2DBox;			// Our bounds for rendering in the 2D views.

@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //
@@ -115,6 +115,7 @@ public:
 	int InsertAfter( int elem, const T& src );
 #ifdef VALVE_RVALUE_REFS
 	int AddToTail( T&& src );
+	template<typename... Args> int AddToTail( Args&&... src );
 #endif
 
 	// Adds multiple elements, uses default constructor
@@ -248,7 +249,7 @@ public:
 		const_iterator begin() const { const ThisType* pVec = reinterpret_cast<const ThisType*>( this ); return const_iterator( this, pVec->m_Memory.First().index ); }
 		const_iterator end() const { return const_iterator( this, ThisType::InvalidIndex() ); }
 	};
-	
+
 	iterator begin()				{ return reinterpret_cast<ProxyTypeIterate*>( this )->begin(); }
 	iterator end()					{ return reinterpret_cast<ProxyTypeIterate*>( this )->end(); }
 	const_iterator begin() const	{ return reinterpret_cast<const ProxyTypeIterate*>( this )->begin(); }
@@ -956,7 +957,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddToHead( const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 	return InsertBefore( 0, src );
 }
 
@@ -964,7 +965,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddToTail( const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 	return InsertBefore( m_Size, src );
 }
 
@@ -972,7 +973,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::InsertAfter( int elem, const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 	return InsertBefore( elem + 1, src );
 }
 
@@ -980,7 +981,7 @@ template< typename T, class A >
 int CUtlVector<T, A>::InsertBefore( int elem, const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 
 	// Can insert at the end
 	Assert( (elem == Count()) || IsValidIndex(elem) );
@@ -1001,6 +1002,16 @@ int CUtlVector<T, A>::AddToTail( T&& src )
 	int elem = m_Size;
 	GrowVector();
 	CopyConstruct( &Element( elem ), std::forward<T>( src ) );
+	return elem;
+}
+
+template< typename T, class A>
+template <typename... Args>
+int CUtlVector<T, A>::AddToTail( Args&&... src )
+{
+	int elem = m_Size;
+	GrowVector();
+	CopyConstruct( &Element( elem ), std::forward<Args...>( src )... );
 	return elem;
 }
 #endif

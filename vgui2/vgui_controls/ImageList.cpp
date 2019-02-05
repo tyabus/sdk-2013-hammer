@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -74,7 +74,7 @@ void ImageList::SetImageAtIndex(int index, vgui::IImage *image)
 	// allocate more images if necessary
 	while (m_Images.Count() <= index)
 	{
-		m_Images.AddToTail(NULL);
+		m_Images.AddToTail( nullptr );
 	}
 
 	m_Images[index] = image;
