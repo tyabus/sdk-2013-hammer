@@ -79,33 +79,33 @@ CRTFBuilder &doUnderline(CRTFBuilder &r, bool b)
 
 CRTFBuilder &doColor(CRTFBuilder &r, int n)
 {
-	r.color((COLORREF)n);
+	r.color(static_cast<COLORREF>(n));
 	return r;
 }
 
 
 CRTFBuilder &doBackColor(CRTFBuilder &r, int n)
 {
-	r.backColor((COLORREF)n);
+	r.backColor(static_cast<COLORREF>(n));
 	return r;
 }
 
 
 CRTFBuilder &doAddColor(CRTFBuilder &r, int n)
 {
-	r.addColor((COLORREF)n);
+	r.addColor(static_cast<COLORREF>(n));
 	return r;
 }
 
 
-CRTFBuilder &doFont(CRTFBuilder &r, CString &s)
+CRTFBuilder &doFont(CRTFBuilder &r, const CString &s)
 {
 	r.font(s);
 	return r;
 }
 
 
-CRTFBuilder &doAddFont(CRTFBuilder &r, CString &s)
+CRTFBuilder &doAddFont(CRTFBuilder &r, const CString &s)
 {
 	r.addFont(s);
 	return r;
@@ -183,7 +183,7 @@ CRTFBuilder &operator<<(CRTFBuilder &b, RTFSM_PFUNC f)
 }
 
 
-CRTFBuilder &operator<<(CRTFBuilder &b, CManip &f)
+CRTFBuilder &operator<<(CRTFBuilder &b, const CManip &f)
 {
 	return f.go(b);
 }
@@ -342,7 +342,7 @@ void CRTFBuilder::size(int n)
 void CRTFBuilder::font(const CString &strFont)
 {
 	int nCount =  0;
-	for (list<CString>::iterator i = m_fontList.begin(); i != m_fontList.end(); i++, nCount++)
+	for (auto i = m_fontList.begin(); i != m_fontList.end(); ++i, nCount++)
 	{
 		if ((*i) == strFont)
 		{
@@ -392,18 +392,18 @@ void CRTFBuilder::normal()
 
 static DWORD CALLBACK EditStreamCallBack(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
 {
-	CString *pstr = (CString *)dwCookie;
+	CString *pstr = reinterpret_cast<CString *>(dwCookie);
 
 	if (pstr->GetLength() < cb)
 	{
 		*pcb = pstr->GetLength();
-		memcpy(pbBuff, (LPCSTR)*pstr, *pcb);
+		memcpy(pbBuff, static_cast<LPCSTR>(*pstr), *pcb);
 		pstr->Empty();
 	}
 	else
 	{
 		*pcb = cb;
-		memcpy(	pbBuff, (LPCSTR)*pstr, *pcb);
+		memcpy(	pbBuff, static_cast<LPCSTR>(*pstr), *pcb);
 		*pstr = pstr->Right(pstr->GetLength() - cb);
 	}
 	return 0;
@@ -416,7 +416,7 @@ void CRTFBuilder::write(CRichEditCtrl &c)
 
 //	CRtfStringDlg d(m_string);
 
-	EDITSTREAM es = {(DWORD)&m_string, 0, EditStreamCallBack };
+	EDITSTREAM es = {reinterpret_cast<DWORD>(&m_string), 0, EditStreamCallBack };
 
 	// richEd is the rich edit control
 	c.StreamIn(SF_RTF | SFF_SELECTION, es);
@@ -427,12 +427,17 @@ void CRTFBuilder::write(CRichEditCtrl &c)
 
 CRTFBuilder &CRTFBuilder::operator+=(LPCTSTR p)
 {
-	CString s(p) , s2;
+	return operator+=( CString( p ) );
+}
+
+CRTFBuilder &CRTFBuilder::operator+=(const CString& s)
+{
+	CString s2;
 	for (int i = 0; i < s.GetLength(); i ++)
 	{
 		if (s[i]=='\n')
 		{
-			s2 += (CString)"\r\n" += "\\par ";//\\par ";
+			s2 += "\r\n\\par ";
 		}
 		else
 		{
@@ -440,12 +445,9 @@ CRTFBuilder &CRTFBuilder::operator+=(LPCTSTR p)
 		}
 	}
 
-	m_string +=
-	(CString)"{\\rtf1\\ansi\\ansicpg1252\\deff0\\deftab720" +=
-	(CString)m_fontList +=
-	(CString)m_colorList +=
-	(CString)m_attr +=
-	s2 ;
+	m_string += R"({\rtf1\ansi\ansicpg1252\deff0\deftab720)" +
+	(CString)m_fontList + (CString)m_colorList +
+	(CString)m_attr + s2;
 	return *this;
 }
 
@@ -461,7 +463,7 @@ CRTFBuilder &CRTFBuilder::operator<<(int n)
 {
 	CString s;
 	s.Format("%d", n);
-	*this += (LPCTSTR)s;
+	*this += s;
 	return *this;
 }
 

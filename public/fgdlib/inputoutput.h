@@ -28,7 +28,7 @@ enum InputOutputType_t
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 class CClassInputOutputBase
 {
@@ -52,7 +52,7 @@ class CClassInputOutputBase
 
 	protected:
 
-		static char *g_pszEmpty;
+		static const char *g_pszEmpty;
 
 		char m_szName[MAX_IO_NAME_LEN];
 		InputOutputType_t m_eType;
@@ -75,7 +75,7 @@ const char *CClassInputOutputBase::GetDescription(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 class CClassInput : public CClassInputOutputBase
 {
@@ -87,7 +87,7 @@ class CClassInput : public CClassInputOutputBase
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 class CClassOutput : public CClassInputOutputBase
 {

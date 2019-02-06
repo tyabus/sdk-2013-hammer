@@ -16,23 +16,7 @@
 #include <stack>
 #pragma warning(pop)
 
-using namespace std;
-#pragma  warning(disable : 4786)
-
-
-#ifdef RICHED_IMPL
-	#ifdef _AFXEXT
-		#define RICHED_DECL __declspec(dllexport)
-	#else
-		#define RICHED_DECL
-	#endif
-#else
-	#ifdef _AFXEXT
-		#define RICHED_DECL __declspec(dllimport)
-	#else
-		#define RICHED_DECL
-	#endif//_AFXEXT
-#endif //RICHED_IMPL
+#define RICHED_DECL
 
 
 class CRTFBuilder;
@@ -40,199 +24,188 @@ class CStringManip;
 class CIntManip;
 
 
-typedef CRTFBuilder &(*RTFSM_PFUNC)	(CRTFBuilder &);
-typedef CRTFBuilder &(*RTFSM_STRINGPFUNC) (CRTFBuilder &, CString &);
-typedef CRTFBuilder &(*RTFSM_INTPFUNC) (CRTFBuilder &, int);
-typedef CRTFBuilder &(*RTFSM_BOOLPFUNC)	(CRTFBuilder &, bool);
-typedef CRTFBuilder &(*RTFSM_CONTROLPFUNC) (CRTFBuilder &, CRichEditCtrl &);
+using RTFSM_PFUNC = CRTFBuilder&(*)( CRTFBuilder& );
+using RTFSM_STRINGPFUNC = CRTFBuilder&(*)( CRTFBuilder&, const CString& );
+using RTFSM_INTPFUNC = CRTFBuilder&(*)( CRTFBuilder&, int );
+using RTFSM_BOOLPFUNC = CRTFBuilder&(*)( CRTFBuilder&, bool );
+using RTFSM_CONTROLPFUNC = CRTFBuilder&(*)( CRTFBuilder&, CRichEditCtrl& );
 
 
 class CBoolString
 {
-	private:
+private:
+	bool m_b;
+	CString m_strOn;
+	CString m_strOff;
 
-		bool m_b;
-		CString m_strOn;
-		CString m_strOff;
+public:
 
-	public:
+	CBoolString( CString strOn, CString strOff = "" )
+	{
+		m_strOn = strOn;
+		m_strOff = strOff;
+		m_b = false;
+	}
 
-		CBoolString(CString strOn, CString strOff = "")
-		{
-			m_strOn = strOn;
-			m_strOff = strOff;
-			m_b = false;
-		}
+	void operator=( bool b )
+	{
+		m_b = b;
+	}
 
-		void operator=(bool b)
-		{
-			m_b = b;
-		}
-
-		operator CString() const
-		{
-			return m_b ? m_strOn : m_strOff;
-		}
+	operator CString() const
+	{
+		return m_b ? m_strOn : m_strOff;
+	}
 };
 
 
 class CTextAttributes
 {
-	protected:
+protected:
+	int m_nFontSize;
 
-		int m_nFontSize;
+	CBoolString m_bsBold;
+	CBoolString m_bsUnderline;
+	CBoolString m_bsItalic;
+	CBoolString m_bsStrike;
 
-		CBoolString m_bsBold;
-		CBoolString m_bsUnderline;
-		CBoolString m_bsItalic;
-		CBoolString m_bsStrike;
+	int m_nFontNumber;
+	int m_nColorFground;
+	int m_nColorBground;
 
-		int m_nFontNumber;
-		int m_nColorFground;
-		int m_nColorBground;
+public:
 
-	public:
+	CTextAttributes()
+		: m_bsBold( "\\b" ),
+		  m_bsUnderline( "\\ul" ),
+		  m_bsItalic( "\\i" ),
+		  m_bsStrike( "\\strike" )
+	{
+		m_nColorBground = m_nColorFground = m_nFontNumber = m_nFontSize = 0;
+		m_bsBold = false;
+	}
 
-		CTextAttributes()
-			: m_bsBold("\\b") ,
-			  m_bsUnderline("\\ul"),
-			  m_bsItalic("\\i"),
-			  m_bsStrike("\\strike")
-		{
-			m_nColorBground = m_nColorFground = m_nFontNumber = m_nFontSize = 0;
-			m_bsBold = false;
-		}
-
-		operator CString() const
-		{
-			CString s;
-			s.Format("\\plain%s%s%s%s\\f%d\\fs%d\\cb%d\\cf%d ",
-					(LPCTSTR)(CString)m_bsBold,
-					(LPCTSTR)(CString)m_bsUnderline, (LPCTSTR)(CString)m_bsItalic, (LPCTSTR)(CString)m_bsStrike,
-					m_nFontNumber ,
-					m_nFontSize ,
-					m_nColorBground,
-					m_nColorFground);
-			return s;
-		}
+	operator CString() const
+	{
+		CString s;
+		s.Format( R"(\plain%s%s%s%s\f%d\fs%d\cb%d\cf%d )",
+				  (LPCTSTR)(CString)m_bsBold,
+				  (LPCTSTR)(CString)m_bsUnderline, (LPCTSTR)(CString)m_bsItalic, (LPCTSTR)(CString)m_bsStrike,
+				  m_nFontNumber,
+				  m_nFontSize,
+				  m_nColorBground,
+				  m_nColorFground );
+		return s;
+	}
 
 	friend class CRTFBuilder;
 };
 
 
-
-class CFontList : public list<CString>
+class CFontList : public std::list<CString>
 {
-	public:
+public:
+	operator CString() const
+	{
+		CString s = "{\\fonttbl";
 
-		operator CString() const
+		int nCount = 0;
+		for ( const auto& i : *this )
 		{
-			CString s;
-			s = "{\\fonttbl";
-
-			int nCount = 0;
-			for (const_iterator i = begin(); i!=end(); i++)
-			{
-				CString s2;
-				s2.Format("{\\f%d %s;}", nCount++, (LPCTSTR)(*i));
-				s+=s2;
-			}
-
-			s+='}';
-			return s;
+			CString s2;
+			s2.Format( "{\\f%d %s;}", nCount++, static_cast<LPCTSTR>( i ) );
+			s += s2;
 		}
 
-		void add(const CString &s)
-		{
-			push_back(s);
-		}
+		s += '}';
+		return s;
+	}
+
+	void add( const CString& s )
+	{
+		push_back( s );
+	}
 };
 
 
-class CColorList : public list<COLORREF>
+class CColorList : public std::list<COLORREF>
 {
-	public:
+public:
+	int add( COLORREF c )
+	{
+		push_back( c );
+		return size() - 1;
+	}
 
-		int add(COLORREF c)
+	int find( COLORREF c )
+	{
+		int n = 0;
+		for ( auto i = begin(); i != end(); ++i, n++ )
 		{
-			push_back(c);
-			return size() - 1;
+			const COLORREF cComp( *i );
+			if ( cComp == c )
+				return n;
 		}
 
-		int find(COLORREF c)
-		{
-			int n = 0;
-			for (iterator i = begin(); i != end(); i++, n++)
-			{
-				COLORREF cComp(*i);
-				if (cComp == c)
-				{
-					return n;
-				}
-			}
+		return -1;
+	}
 
-			return -1;
+
+	operator CString() const
+	{
+		CString s( "{\\colortbl" );
+		for ( const COLORREF& c : *this )
+		{
+			const int r( ( c & 0x000000ff ) );
+			const int g( ( c >> 8 ) & 0x000000ff );
+			const int b( ( c >> 16 ) & 0x000000ff );
+
+			CString s2;
+			s2.Format( R"(\red%d\green%d\blue%d;)", r, g, b );
+			s += s2;
 		}
 
-
-		operator CString() const
-		{
-			CString s("{\\colortbl");
-			for (const_iterator i = begin(); i != end(); i++)
-			{
-				COLORREF c(*i);
-				int r((c & 0x000000ff));
-				int g((c >> 8) & 0x000000ff);
-				int b((c >> 16) & 0x000000ff);
-
-				CString s2;
-				s2.Format("\\red%d\\green%d\\blue%d;", r, g, b);
-				s += s2;
-			}
-
-			s += '}';
-			return s;
-		}
+		s += '}';
+		return s;
+	}
 };
 
 
 class RICHED_DECL CManip
 {
-	protected:
+protected:
+	CString m_strVal;
+	int m_nVal;
+	LPVOID m_pFunc;
+	bool m_bVal;
 
-		CString	m_strVal;
-		int m_nVal;
-		LPVOID m_pFunc;
-		bool m_bVal;
+public:
+	virtual CRTFBuilder& go( CRTFBuilder& ) const = 0;
 
-	public:
+	CManip()
+	{
+		m_pFunc = NULL;
+		m_nVal = 0;
+		m_strVal = "";
+	}
 
-		virtual CRTFBuilder &go(CRTFBuilder &) = 0;
+	CManip( LPVOID p, CString s )
+	{
+		m_pFunc = p;
+		m_strVal = s;
+	}
 
-		CManip()
-		{
-			m_pFunc =  NULL;
-			m_nVal = 0;
-			m_strVal = "";
-		}
+	CManip( LPVOID p, int n )
+	{
+		m_pFunc = p;
+		m_nVal = n;
+	}
 
-		CManip(LPVOID p, CString s)
-		{
-			m_pFunc = p;
-			m_strVal = s;
-		}
-
-		CManip(LPVOID p, int n)
-		{
-			m_pFunc = p;
-			m_nVal = n;
-		}
-
-		CManip(LPVOID p, bool b)
-		{
-			m_pFunc = p;
-			m_bVal = b;
-		}
+	CManip( LPVOID p, bool b )
+	{
+		m_pFunc = p;
+		m_bVal = b;
+	}
 };
 
 
@@ -240,199 +213,205 @@ class RICHED_DECL CStringManip : public CManip
 {
 public:
 
-	CStringManip(RTFSM_STRINGPFUNC p, CString s = "") : CManip ((LPVOID)p, s) {};
-
-	CRTFBuilder &go(CRTFBuilder &b)
+	CStringManip( RTFSM_STRINGPFUNC p, const CString& s = "" ) : CManip( static_cast<LPVOID>(p), s )
 	{
-		return((RTFSM_STRINGPFUNC)m_pFunc) (b, m_strVal);
+	};
+
+	CRTFBuilder& go( CRTFBuilder& b ) const override
+	{
+		return static_cast<RTFSM_STRINGPFUNC>(m_pFunc)( b, m_strVal );
 	}
 };
 
 
 class RICHED_DECL CControlManip : public CManip
 {
-	protected:
+protected:
 
-		CRichEditCtrl &m_control;
+	CRichEditCtrl& m_control;
 
-	public:
+public:
 
-		CControlManip(RTFSM_CONTROLPFUNC p, CRichEditCtrl& c) : m_control(c), CManip((LPVOID)p, (CString)"") {};
+	CControlManip( RTFSM_CONTROLPFUNC p, CRichEditCtrl& c ) : CManip( static_cast<LPVOID>(p), "" ), m_control( c )
+	{
+	};
 
-		CRTFBuilder &go(CRTFBuilder &b)
-		{
-			return((RTFSM_CONTROLPFUNC)m_pFunc)(b, m_control);
-		}
+	CRTFBuilder& go( CRTFBuilder& b ) const override
+	{
+		return static_cast<RTFSM_CONTROLPFUNC>(m_pFunc)( b, m_control );
+	}
 };
 
 
 class RICHED_DECL CIntManip : public CManip
 {
-	public:
+public:
 
-		CIntManip(RTFSM_INTPFUNC p,	int n = 0) : CManip ((LPVOID)p, n) {};
+	CIntManip( RTFSM_INTPFUNC p, int n = 0 ) : CManip( static_cast<LPVOID>(p), n )
+	{
+	};
 
-		CRTFBuilder &go(CRTFBuilder &b)
-		{
-			return((RTFSM_INTPFUNC)m_pFunc)(b, m_nVal);
-		}
+	CRTFBuilder& go( CRTFBuilder& b ) const override
+	{
+		return static_cast<RTFSM_INTPFUNC>(m_pFunc)( b, m_nVal );
+	}
 };
 
 
 class RICHED_DECL CBoolManip : public CManip
 {
-	public:
+public:
 
-		CBoolManip(RTFSM_BOOLPFUNC p, bool b) : CManip((LPVOID)p, b) {};
+	CBoolManip( RTFSM_BOOLPFUNC p, bool b ) : CManip( static_cast<LPVOID>(p), b )
+	{
+	};
 
-		CRTFBuilder &go(CRTFBuilder &b)
-		{
-			return ((RTFSM_BOOLPFUNC	) m_pFunc)(	b, 	m_bVal);
-		}
+	CRTFBuilder& go( CRTFBuilder& b ) const override
+	{
+		return static_cast<RTFSM_BOOLPFUNC>(m_pFunc)( b, m_bVal );
+	}
 };
 
 
 class RICHED_DECL CRTFBuilder
 {
-	protected:
+protected:
+	CString m_string;
+	CTextAttributes m_attr;
+	CFontList m_fontList;
+	CColorList m_colorList;
+	std::stack<CTextAttributes> m_attrStack;
 
-		CString m_string;
-		CTextAttributes m_attr;
-		CFontList m_fontList;
-		CColorList m_colorList;
-		stack<CTextAttributes> m_attrStack;
+public:
 
-	public:
+	void bold( bool b = true );
+	void strike( bool b = true );
+	void italic( bool b = true );
+	void underline( bool b = true );
+	void normal();
+	void size( int n );
+	void font( const CString& i );
+	void black();
+	void blue();
+	void green();
+	void red();
+	void color( COLORREF );
+	void backColor( COLORREF );
 
-		void bold (bool b = true);
-		void strike(bool b = true);
-		void italic(bool b = true);
-		void underline(bool b = true);
-		void normal();
-		void size(int n);
-		void font(const CString &i);
-		void black();
-		void blue();
-		void green();
-		void red();
-		void color(COLORREF);
-		void backColor(COLORREF);
+	void push();
+	void pop();
 
-		void push();
-		void pop();
+	CRTFBuilder();
+	virtual ~CRTFBuilder();
 
-		CRTFBuilder &operator+=(CString &s);
-		CRTFBuilder();
-		virtual ~CRTFBuilder();
+	void addFont( const CString& s )
+	{
+		m_fontList.add( s );
+	}
 
-		void addFont(const CString &s)
-		{
-			m_fontList.add(s);
-		}
+	void addColor( COLORREF c )
+	{
+		m_colorList.add( c );
+	}
 
-		void addColor(COLORREF c)
-		{
-			m_colorList.add(c);
-		}
+	CRTFBuilder& operator+=( const CString& s );
+	CRTFBuilder& operator+=( LPCTSTR p );
 
+	operator CString() const
+	{
+		return m_string;
+	}
 
-		CRTFBuilder & operator+=(LPCTSTR p);
+	void write( CRichEditCtrl& );
 
-		operator CString() const
-		{
-			return m_string;
-		}
+	int colorCount() const
+	{
+		return m_colorList.size();
+	}
 
-		void write(CRichEditCtrl &);
+public:
 
-		int colorCount() const
-		{
-			return m_colorList.size();
-		}
+	CRTFBuilder& operator<<( LPCTSTR );
+	CRTFBuilder& operator<<( int );
+	CRTFBuilder& operator>>( CRichEditCtrl& );
 
-	public:
-
-		CRTFBuilder & operator<<(LPCTSTR);
-		CRTFBuilder & operator<<(int);
-		CRTFBuilder & operator>>(CRichEditCtrl &);
-
-	friend RICHED_DECL CRTFBuilder &normal(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &push(CRTFBuilder&);
-	friend RICHED_DECL CRTFBuilder &pop(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &black(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &red(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &green(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &blue(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &bold(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &strike(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &italic(CRTFBuilder &);
-	friend RICHED_DECL CRTFBuilder &underline(CRTFBuilder &);
+	friend RICHED_DECL CRTFBuilder& normal( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& push( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& pop( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& black( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& red( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& green( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& blue( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& bold( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& strike( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& italic( CRTFBuilder& );
+	friend RICHED_DECL CRTFBuilder& underline( CRTFBuilder& );
 };
 
 
-RICHED_DECL CControlManip	write		(CRichEditCtrl &);
-RICHED_DECL CIntManip		normal		(int = 0);
-RICHED_DECL CIntManip		push		(int = 0);
-RICHED_DECL CIntManip		pop			(int = 0);
-RICHED_DECL CIntManip		size		(int);
-RICHED_DECL CIntManip		color		(int);
-RICHED_DECL CIntManip		backColor	(int);
-RICHED_DECL CIntManip		addColor	(int);
-RICHED_DECL CIntManip		font		(int);
-RICHED_DECL CStringManip	font		(LPCTSTR);
-RICHED_DECL CStringManip	addFont		(LPCTSTR);
-RICHED_DECL CBoolManip		bold		(bool);
-RICHED_DECL CBoolManip		strike		(bool);
-RICHED_DECL CBoolManip		italic		(bool);
-RICHED_DECL CBoolManip		underline	(bool);
+RICHED_DECL CControlManip write( CRichEditCtrl& );
+RICHED_DECL CIntManip normal( int = 0 );
+RICHED_DECL CIntManip push( int = 0 );
+RICHED_DECL CIntManip pop( int = 0 );
+RICHED_DECL CIntManip size( int );
+RICHED_DECL CIntManip color( int );
+RICHED_DECL CIntManip backColor( int );
+RICHED_DECL CIntManip addColor( int );
+RICHED_DECL CIntManip font( int );
+RICHED_DECL CStringManip font( LPCTSTR );
+RICHED_DECL CStringManip addFont( LPCTSTR );
+RICHED_DECL CBoolManip bold( bool );
+RICHED_DECL CBoolManip strike( bool );
+RICHED_DECL CBoolManip italic( bool );
+RICHED_DECL CBoolManip underline( bool );
 
-RICHED_DECL CRTFBuilder & operator<<(CRTFBuilder &, RTFSM_PFUNC);
-RICHED_DECL CRTFBuilder & operator<<(CRTFBuilder &, CManip & m);
+RICHED_DECL CRTFBuilder& operator<<( CRTFBuilder&, RTFSM_PFUNC );
+RICHED_DECL CRTFBuilder& operator<<( CRTFBuilder&, const CManip& m );
 
 
 class RICHED_DECL CRichEditCtrlEx : public CRichEditCtrl
 {
-	public:
+public:
 
-		// Construction
-		CRichEditCtrlEx();
+	// Construction
+	CRichEditCtrlEx();
 
-	public:
+public:
 
-		void enable(bool b = true)
-		{
-			ModifyStyle(b ? WS_DISABLED : 0, b ?  0 : WS_DISABLED, 0);
-		}
+	void enable( bool b = true )
+	{
+		ModifyStyle( b ? WS_DISABLED : 0, b ? 0 : WS_DISABLED, 0 );
+	}
 
-		void disable(bool b = true)
-		{
-			enable(!b);
-		}
+	void disable( bool b = true )
+	{
+		enable( !b );
+	}
 
-		void readOnly(bool b = true)
-		{
-			SetReadOnly(b);
-		}
+	void readOnly( bool b = true )
+	{
+		SetReadOnly( b );
+	}
 
-		void writable(bool b = true)
-		{
-			readOnly(!b);
-		}
+	void writable( bool b = true )
+	{
+		readOnly( !b );
+	}
 
-		// ClassWizard generated virtual function overrides
-		//{{AFX_VIRTUAL(CRichEditCtrlEx)
-		protected:
-		virtual void PreSubclassWindow();
-		//}}AFX_VIRTUAL
+	// ClassWizard generated virtual function overrides
+	//{{AFX_VIRTUAL(CRichEditCtrlEx)
+protected:
+	virtual void PreSubclassWindow();
+	//}}AFX_VIRTUAL
 
-	public:
-		virtual ~CRichEditCtrlEx();
+public:
+	virtual ~CRichEditCtrlEx();
 
-	protected:
-		//{{AFX_MSG(CRichEditCtrlEx)
-		//}}AFX_MSG
+protected:
+	//{{AFX_MSG(CRichEditCtrlEx)
+	//}}AFX_MSG
 
-		DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 };
 
 #endif // RICHEDITCTRLEX_H

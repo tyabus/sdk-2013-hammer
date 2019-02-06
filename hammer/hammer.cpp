@@ -278,7 +278,6 @@ CHammer::CHammer(void)
 	m_bActiveApp = true;
 	m_SuppressVideoAllocation = false;
 	m_bForceRenderNextFrame = false;
-	m_bClosing = false;
 
 	m_CmdLineInfo = new CHammerCmdLine();
 }
@@ -1224,10 +1223,12 @@ int CHammer::ExitInstance()
 	m_pConfig = NULL;
 
 	FILE* file;
-	fopen_s( &file, CFmtStrN<MAX_PATH>( "%s" CORRECT_PATH_SEPARATOR_S "HammerConfig.vdf", (const char*)Options.configs.m_strConfigDir ), "w" );
-	fwrite( buffer.String(), sizeof( char ), buffer.TellPut(), file );
-	fflush( file );
-	fclose( file );
+	if ( fopen_s( &file, CFmtStrN<MAX_PATH>( "%s" CORRECT_PATH_SEPARATOR_S "HammerConfig.vdf", (const char*)Options.configs.m_strConfigDir ), "w" ) == 0 )
+	{
+		fwrite( buffer.String(), sizeof( char ), buffer.TellPut(), file );
+		fflush( file );
+		fclose( file );
+	}
 
 	return CWinApp::ExitInstance();
 }
