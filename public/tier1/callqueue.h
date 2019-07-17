@@ -15,72 +15,12 @@
 #endif
 
 //-----------------------------------------------------
-// Avert thy eyes! Imagine rather:
-//
-// void QueueCall( <function>, [args1, [arg2,]...]
-// void QueueCall( <object>, <function>, [args1, [arg2,]...]
-// void QueueRefCall( <object>, <<function>, [args1, [arg2,]...]
-//-----------------------------------------------------
 
-#define DEFINE_CALLQUEUE_NONMEMBER_QUEUE_CALL(N) \
-	template <typename FUNCTION_RETTYPE FUNC_TEMPLATE_FUNC_PARAMS_##N FUNC_TEMPLATE_ARG_PARAMS_##N> \
-	void QueueCall(FUNCTION_RETTYPE (*pfnProxied)( FUNC_BASE_TEMPLATE_FUNC_PARAMS_##N ) FUNC_ARG_FORMAL_PARAMS_##N ) \
-		{ \
-		QueueFunctorInternal( CreateFunctor( pfnProxied FUNC_FUNCTOR_CALL_ARGS_##N ) ); \
-		}
-
-//-------------------------------------
-
-#define DEFINE_CALLQUEUE_MEMBER_QUEUE_CALL(N) \
-	template <typename OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE FUNC_TEMPLATE_FUNC_PARAMS_##N FUNC_TEMPLATE_ARG_PARAMS_##N> \
-	void QueueCall(OBJECT_TYPE_PTR pObject, FUNCTION_RETTYPE ( FUNCTION_CLASS::*pfnProxied )( FUNC_BASE_TEMPLATE_FUNC_PARAMS_##N ) FUNC_ARG_FORMAL_PARAMS_##N ) \
-		{ \
-		QueueFunctorInternal( CreateFunctor( pObject, pfnProxied FUNC_FUNCTOR_CALL_ARGS_##N ) ); \
-		}
-
-//-------------------------------------
-
-#define DEFINE_CALLQUEUE_CONST_MEMBER_QUEUE_CALL(N) \
-	template <typename OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE FUNC_TEMPLATE_FUNC_PARAMS_##N FUNC_TEMPLATE_ARG_PARAMS_##N> \
-	void QueueCall(OBJECT_TYPE_PTR pObject, FUNCTION_RETTYPE ( FUNCTION_CLASS::*pfnProxied )( FUNC_BASE_TEMPLATE_FUNC_PARAMS_##N ) const FUNC_ARG_FORMAL_PARAMS_##N ) \
-		{ \
-		QueueFunctorInternal( CreateFunctor( pObject, pfnProxied FUNC_FUNCTOR_CALL_ARGS_##N ) ); \
-		}
-
-//-------------------------------------
-
-#define DEFINE_CALLQUEUE_REF_COUNTING_MEMBER_QUEUE_CALL(N) \
-	template <typename OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE FUNC_TEMPLATE_FUNC_PARAMS_##N FUNC_TEMPLATE_ARG_PARAMS_##N> \
-	void QueueRefCall(OBJECT_TYPE_PTR pObject, FUNCTION_RETTYPE ( FUNCTION_CLASS::*pfnProxied )( FUNC_BASE_TEMPLATE_FUNC_PARAMS_##N ) FUNC_ARG_FORMAL_PARAMS_##N ) \
-		{ \
-		QueueFunctorInternal( CreateRefCountingFunctor( pObject, pfnProxied FUNC_FUNCTOR_CALL_ARGS_##N ) ); \
-		}
-
-//-------------------------------------
-
-#define DEFINE_CALLQUEUE_REF_COUNTING_CONST_MEMBER_QUEUE_CALL(N) \
-	template <typename OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE FUNC_TEMPLATE_FUNC_PARAMS_##N FUNC_TEMPLATE_ARG_PARAMS_##N> \
-	void QueueRefCall(OBJECT_TYPE_PTR pObject, FUNCTION_RETTYPE ( FUNCTION_CLASS::*pfnProxied )( FUNC_BASE_TEMPLATE_FUNC_PARAMS_##N ) const FUNC_ARG_FORMAL_PARAMS_##N ) \
-		{ \
-		QueueFunctorInternal( CreateRefCountingFunctor( pObject, pfnProxied FUNC_FUNCTOR_CALL_ARGS_##N ) ); \
-		\
-		}
-
-#define FUNC_GENERATE_QUEUE_METHODS() \
-	FUNC_GENERATE_ALL( DEFINE_CALLQUEUE_NONMEMBER_QUEUE_CALL ); \
-	FUNC_GENERATE_ALL( DEFINE_CALLQUEUE_MEMBER_QUEUE_CALL ); \
-	FUNC_GENERATE_ALL( DEFINE_CALLQUEUE_CONST_MEMBER_QUEUE_CALL );\
-	FUNC_GENERATE_ALL( DEFINE_CALLQUEUE_REF_COUNTING_MEMBER_QUEUE_CALL ); \
-	FUNC_GENERATE_ALL( DEFINE_CALLQUEUE_REF_COUNTING_CONST_MEMBER_QUEUE_CALL )
-
-//-----------------------------------------------------
-
-template <typename QUEUE_TYPE = CTSQueue<CFunctor *> >
+template <typename QUEUE_TYPE = CTSQueue<CFunctor*>>
 class CCallQueueT
 {
 public:
-	CCallQueueT()
-		: m_bNoQueue( false )
+	CCallQueueT() : m_bNoQueue( false )
 	{
 #ifdef _DEBUG
 		m_nCurSerialNumber = 0;
@@ -117,11 +57,11 @@ public:
 			return;
 		}
 
-		m_queue.PushItem( NULL );
+		m_queue.PushItem( nullptr );
 
 		CFunctor *pFunctor;
 
-		while ( m_queue.PopItem( &pFunctor ) && pFunctor != NULL )
+		while ( m_queue.PopItem( &pFunctor ) && pFunctor != nullptr )
 		{
 #ifdef _DEBUG
 			if ( pFunctor->m_nUserID == m_nBreakSerialNumber)
@@ -143,20 +83,48 @@ public:
 
 	void Flush()
 	{
-		m_queue.PushItem( NULL );
+		m_queue.PushItem( nullptr );
 
 		CFunctor *pFunctor;
 
-		while ( m_queue.PopItem( &pFunctor ) && pFunctor != NULL )
+		while ( m_queue.PopItem( &pFunctor ) && pFunctor != nullptr )
 		{
 			pFunctor->Release();
 		}
 	}
 
-	FUNC_GENERATE_QUEUE_METHODS();
+	template <typename RetType, typename... FuncArgs, typename... Args>
+	auto QueueCall( RetType( *pfnProxied )( FuncArgs... ), Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateFunctor( pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ), Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ) const, Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueRefCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ), Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateRefCountingFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueRefCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ) const, Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateRefCountingFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
 
 private:
-	void QueueFunctorInternal( CFunctor *pFunctor )
+	void QueueFunctorInternal( CFunctor* pFunctor )
 	{
 		if ( !m_bNoQueue )
 		{
@@ -167,7 +135,7 @@ private:
 		}
 		else
 		{
-			(*pFunctor)();
+			( *pFunctor )();
 			pFunctor->Release();
 		}
 	}
@@ -189,15 +157,43 @@ class CCallQueue : public CCallQueueT<>
 class ICallQueue
 {
 public:
-	void QueueFunctor( CFunctor *pFunctor )
+	void QueueFunctor( CFunctor* pFunctor )
 	{
 		QueueFunctorInternal( RetAddRef( pFunctor ) );
 	}
 
-	FUNC_GENERATE_QUEUE_METHODS();
+	template <typename RetType, typename... FuncArgs, typename... Args>
+	auto QueueCall( RetType( *pfnProxied )( FuncArgs... ), Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateFunctor( pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ), Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ) const, Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueRefCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ), Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateRefCountingFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
+
+	template <class OBJECT_TYPE_PTR, typename FUNCTION_CLASS, typename FUNCTION_RETTYPE, typename... FuncArgs, typename... Args>
+	auto QueueRefCall( OBJECT_TYPE_PTR* pObject, FUNCTION_RETTYPE( FUNCTION_CLASS::* pfnProxied )( FuncArgs... ) const, Args&&... args ) -> std::enable_if_t<std::is_same<detail::param_pack<std::decay_t<Args>...>, detail::param_pack<std::decay_t<FuncArgs>...>>::value>
+	{
+		QueueFunctorInternal( CreateRefCountingFunctor( pObject, pfnProxied, std::forward<Args>( args )... ) );
+	}
 
 private:
-	virtual void QueueFunctorInternal( CFunctor *pFunctor ) = 0;
+	virtual void QueueFunctorInternal( CFunctor* pFunctor ) = 0;
 };
 
 #endif // CALLQUEUE_H

@@ -10,9 +10,63 @@
 #define UTLCOMMON_H
 #pragma once
 
+#include <type_traits>
+
 //-----------------------------------------------------------------------------
 // Henry Goffin (henryg) was here. Questions? Bugs? Go slap him around a bit.
 //-----------------------------------------------------------------------------
+
+namespace detail
+{
+#if __cplusplus < 201703
+	// C++17's void_t
+	/*template <class...>
+	using void_t = void;*/
+	template <typename... Ts>
+	struct make_void
+	{
+		typedef void type;
+	};
+	template <typename... Ts>
+	using void_t = typename make_void<Ts...>::type;
+#else
+	using std::void_t;
+#endif
+
+	// Pack of arbitrary types
+	template <typename...>
+	struct param_pack {};
+
+	template <typename F, class = void_t<>>
+	struct parameters {};
+
+	template<typename F, typename Ret, typename... Rest>
+	param_pack<Rest...> helper( Ret( F::* )( Rest... ) );
+
+	template<typename F, typename Ret, typename... Rest>
+	param_pack<Rest...> helper( Ret( F::* )( Rest... ) const );
+
+	template <typename F>
+	struct parameters<F, void_t<decltype( &F::operator() )>>
+	{
+		using type = decltype( helper( &F::operator() ) );
+	};
+
+	template <typename R, typename... Params>
+	struct parameters<R( Params... )>
+	{
+		using type = param_pack<Params...>;
+	};
+
+	template <typename R, typename... Params>
+	struct parameters<R(*)( Params... )> : parameters<R( Params... )>
+	{
+	};
+}
+
+// Retrieve the parameter list from a functionoid
+template <class F>
+using parameters_t = typename detail::parameters<std::remove_reference_t<F>>::type;
 
 // empty_t is the canonical "no-value" type which is fully defined but empty.
 struct empty_t {};

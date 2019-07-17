@@ -1418,13 +1418,6 @@ inline const char *GetPlatformExt( void )
 // Methods to invoke the constructor, copy constructor, and destructor
 //-----------------------------------------------------------------------------
 
-template <class T>
-inline T* Construct( T* pMemory )
-{
-	HINT( pMemory != nullptr );
-	return ::new( pMemory ) T{};
-}
-
 template <class T, typename...Args>
 inline T* Construct( T* pMemory, const Args& ... args )
 {
