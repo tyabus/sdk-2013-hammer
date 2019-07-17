@@ -15,9 +15,9 @@
 #include "basetypes.h"
 #include "dbgflag.h"
 #include "platform.h"
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdarg>
 
 #ifdef POSIX
 #define __cdecl
@@ -288,13 +288,9 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 
 #define  AssertFatal( _exp )									_AssertMsg( _exp, _T("Assertion Failed: ") _T(#_exp), ((void)0), true )
 #define  AssertFatalOnce( _exp )								_AssertMsgOnce( _exp, _T("Assertion Failed: ") _T(#_exp), true )
-#define  AssertFatalMsg( _exp, _msg, ... )						_AssertMsg( _exp, (const tchar *)CDbgFmtMsg( _msg, ##__VA_ARGS__ ), ((void)0), true )
+#define  AssertFatalMsg( _exp, _msg, ... )						_AssertMsg( _exp, CDbgFmtMsg( _msg, ##__VA_ARGS__ ).Get(), ((void)0), true )
 #define  AssertFatalMsgOnce( _exp, _msg )						_AssertMsgOnce( _exp, _msg, true )
 #define  AssertFatalFunc( _exp, _f )							_AssertMsg( _exp, _T("Assertion Failed: " _T(#_exp), _f, true )
-#define  AssertFatalEquals( _exp, _expectedValue )				AssertFatalMsg2( (_exp) == (_expectedValue), _T("Expected %d but got %d!"), (_expectedValue), (_exp) )
-#define  AssertFatalFloatEquals( _exp, _expectedValue, _tol )   AssertFatalMsg2( fabs((_exp) - (_expectedValue)) <= (_tol), _T("Expected %f but got %f!"), (_expectedValue), (_exp) )
-#define  VerifyFatal( _exp )									AssertFatal( _exp )
-#define  VerifyEqualsFatal( _exp, _expectedValue )				AssertFatalEquals( _exp, _expectedValue )
 
 #define  AssertFatalMsg1( _exp, _msg, a1 )									AssertFatalMsg( _exp, _msg, a1 )
 #define  AssertFatalMsg2( _exp, _msg, a1, a2 )								AssertFatalMsg( _exp, _msg, a1, a2 )
@@ -305,6 +301,23 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #define  AssertFatalMsg7( _exp, _msg, a1, a2, a3, a4, a5, a6, a7 )			AssertFatalMsg( _exp, _msg, a1, a2, a3, a4, a5, a6, a7 )
 #define  AssertFatalMsg8( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8 )		AssertFatalMsg( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8 )
 #define  AssertFatalMsg9( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8, a9 )	AssertFatalMsg( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8, a9 )
+
+#define  AssertFatalEquals( _exp, _expectedValue )	\
+	do {																					\
+		const auto&	val = _exp;																\
+		const auto& expe = _expectedValue;													\
+		AssertFatalMsg2( (val) == (expe), _T("Expected %d but got %d!"), (expe), (val) );	\
+	} while (0)
+
+#define  AssertFatalFloatEquals( _exp, _expectedValue, _tol )	\
+	do {																									\
+		const auto&	val = _exp;																				\
+		const auto& expe = _expectedValue;																	\
+		AssertFatalMsg2( fabsf((val) - (expe)) <= (_tol), _T("Expected %f but got %f!"), (expe), (val) );	\
+	} while (0)
+
+#define  VerifyFatal( _exp )									AssertFatal( _exp )
+#define  VerifyEqualsFatal( _exp, _expectedValue )				AssertFatalEquals( _exp, _expectedValue )
 
 #else // DBGFLAG_ASSERTFATAL
 
@@ -337,19 +350,12 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #ifdef DBGFLAG_ASSERT
 
 #define  Assert( _exp )           							_AssertMsg( _exp, _T("Assertion Failed: ") _T(#_exp), ((void)0), false )
-#define  AssertMsg( _exp, _msg, ... )  						_AssertMsg( _exp, (const tchar *)CDbgFmtMsg( _msg, ##__VA_ARGS__ ), ((void)0), false )
+#define  AssertMsg( _exp, _msg, ... )  						_AssertMsg( _exp, CDbgFmtMsg( _msg, ##__VA_ARGS__ ).Get(), ((void)0), false )
 #define  AssertOnce( _exp )       							_AssertMsgOnce( _exp, _T("Assertion Failed: ") _T(#_exp), false )
 #define  AssertMsgOnce( _exp, _msg )  						_AssertMsgOnce( _exp, _msg, false )
 #define  AssertFunc( _exp, _f )   							_AssertMsg( _exp, _T("Assertion Failed: ") _T(#_exp), _f, false )
-#define  AssertEquals( _exp, _expectedValue )              	AssertMsg2( (_exp) == (_expectedValue), _T("Expected %d but got %d!"), (_expectedValue), (_exp) )
-#define  AssertFloatEquals( _exp, _expectedValue, _tol )  	AssertMsg2( fabs((_exp) - (_expectedValue)) <= (_tol), _T("Expected %f but got %f!"), (_expectedValue), (_exp) )
-#define  Verify( _exp )           							Assert( _exp )
-#define  VerifyMsg1( _exp, _msg, a1 )						AssertMsg1( _exp, _msg, a1 )
-#define	 VerifyMsg2( _exp, _msg, a1, a2 )					AssertMsg2( _exp, _msg, a1, a2 )
-#define	 VerifyMsg3( _exp, _msg, a1, a2, a3 )				AssertMsg3( _exp, _msg, a1, a2, a3 )
-#define  VerifyEquals( _exp, _expectedValue )           	AssertEquals( _exp, _expectedValue )
-#define  DbgVerify( _exp )           						Assert( _exp )
 
+#define  AssertMsg0( _exp, _msg )  										_AssertMsg( _exp, _msg, ((void)0), false )
 #define  AssertMsg1( _exp, _msg, a1 )									AssertMsg( _exp, _msg, a1 )
 #define  AssertMsg2( _exp, _msg, a1, a2 )								AssertMsg( _exp, _msg, a1, a2 )
 #define  AssertMsg3( _exp, _msg, a1, a2, a3 )							AssertMsg( _exp, _msg, a1, a2, a3 )
@@ -359,6 +365,26 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #define  AssertMsg7( _exp, _msg, a1, a2, a3, a4, a5, a6, a7 )			AssertMsg( _exp, _msg, a1, a2, a3, a4, a5, a6, a7 )
 #define  AssertMsg8( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8 )		AssertMsg( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8 )
 #define  AssertMsg9( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8, a9 )	AssertMsg( _exp, _msg, a1, a2, a3, a4, a5, a6, a7, a8, a9 )
+
+#define  AssertEquals( _exp, _expectedValue )	\
+	do {																				\
+		const auto&	val = _exp;															\
+		const auto& expe = _expectedValue;												\
+		AssertMsg2( (val) == (expe), _T("Expected %d but got %d!"), (expe), (val) );	\
+	} while (0)
+
+#define  AssertFloatEquals( _exp, _expectedValue, _tol )	\
+	do {																								\
+		const auto&	val = _exp;																			\
+		const auto& expe = _expectedValue;																\
+		AssertMsg2( fabsf((val) - (expe)) <= (_tol), _T("Expected %f but got %f!"), (expe), (val) );	\
+	} while (0)
+
+#define  Verify( _exp )           							Assert( _exp )
+#define  VerifyMsg1( _exp, _msg, a1 )						AssertMsg1( _exp, _msg, a1 )
+#define	 VerifyMsg2( _exp, _msg, a1, a2 )					AssertMsg2( _exp, _msg, a1, a2 )
+#define	 VerifyMsg3( _exp, _msg, a1, a2, a3 )				AssertMsg3( _exp, _msg, a1, a2, a3 )
+#define  VerifyEquals( _exp, _expectedValue )           	AssertEquals( _exp, _expectedValue )
 
 #else // DBGFLAG_ASSERT
 
@@ -376,6 +402,7 @@ DBG_INTERFACE struct SDL_Window * GetAssertDialogParent();
 #define  VerifyEquals( _exp, _expectedValue )           	(_exp)
 #define  DbgVerify( _exp )									(_exp)
 
+#define  AssertMsg0( _exp, _msg )  										((void)0)
 #define  AssertMsg1( _exp, _msg, a1 )									((void)0)
 #define  AssertMsg2( _exp, _msg, a1, a2 )								((void)0)
 #define  AssertMsg3( _exp, _msg, a1, a2, a3 )							((void)0)
@@ -681,6 +708,8 @@ public:
 	{
 		return m_szBuf;
 	}
+
+	const tchar* Get() const { return m_szBuf; }
 
 private:
 	tchar m_szBuf[256];
