@@ -688,6 +688,7 @@ $Project "hammer_dll"
 		$Lib		"datamodel"
 		$Lib		"matsys_controls"
 		$Lib		"dmxloader"
+		$Lib		"dmserializers"
 	}
 
 	$File	"whatsnew.txt"

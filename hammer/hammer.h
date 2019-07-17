@@ -50,20 +50,20 @@ enum DirIndex_t
 // combines a list of commands & a name:
 class CCommandSequence
 {
-	public:
+public:
 
-		CCommandArray m_Commands;
-		char m_szName[128];
+	CCommandArray m_Commands;
+	char m_szName[128];
 };
 
 
-class CHammer : public CWinApp, public CTier3AppSystem< IHammer >
+class CHammer : public CWinApp, public CTier3DmAppSystem<IHammer>
 {
-	typedef CTier3AppSystem< IHammer > BaseClass;
+	typedef CTier3DmAppSystem<IHammer> BaseClass;
 
 public:
-	CHammer(void);
-	virtual ~CHammer(void);
+	CHammer();
+	~CHammer();
 
 	// Methods of IAppSystem
 	virtual bool Connect( CreateInterfaceFn factory );

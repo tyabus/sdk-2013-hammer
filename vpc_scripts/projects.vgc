@@ -58,6 +58,11 @@ $Project "dmxloader"
 	"dmxloader\dmxloader.vpc" [$WIN32||$POSIX]
 }
 
+$Project "dmserializers"
+{
+	"dmserializers\dmserializers.vpc" [$WIN32||$POSIX]
+}
+
 $Project "hammer_dll"
 {
 	"hammer\hammer_dll.vpc"

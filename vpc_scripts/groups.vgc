@@ -22,4 +22,5 @@ $Group "hammer"
 	"movieobjects"
 	"datamodel"
 	"dmxloader"
+	"dmserializers"
 }
