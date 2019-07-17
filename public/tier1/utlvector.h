@@ -622,7 +622,7 @@ inline CUtlVector<T, A>::CUtlVector( std::initializer_list<T> initializerList ) 
 {
 	EnsureCapacity( static_cast<int>( initializerList.size() ) );
 
-	for ( const auto& v : initializerList )
+	for ( T& v : initializerList )
 		AddToTail( v );
 }
 #endif // VALVE_INITIALIZER_LIST_SUPPORT
@@ -1011,7 +1011,7 @@ int CUtlVector<T, A>::AddToTail( Args&&... src )
 {
 	int elem = m_Size;
 	GrowVector();
-	CopyConstruct( &Element( elem ), std::forward<Args...>( src )... );
+	CopyConstruct( &Element( elem ), std::forward<Args>( src )... );
 	return elem;
 }
 #endif
