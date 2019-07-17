@@ -68,7 +68,7 @@ $Project "hammer_dll"
 				}
 			}
 		}
-		
+
 		$File	"$SRCDIR\public\bone_setup.cpp"						\
 				"$SRCDIR\public\builddisp.cpp"						\
 				"Camera.cpp"										\
@@ -97,7 +97,7 @@ $Project "hammer_dll"
 						}
 					}
 				}
-	
+
 		$File	"ActiveItemList.h"
 		$File	"$SRCDIR\public\tier0\afxmem_override.cpp"
 		$File	"AnchorMgr.cpp"
@@ -199,8 +199,8 @@ $Project "hammer_dll"
 		}
 		// $File	"irender2d.h"
 		$File	"$SRCDIR\public\ivraddll.h"
-        $File "KeyBinds.cpp"
-        $File "KeyBinds.h"
+		$File "KeyBinds.cpp"
+		$File "KeyBinds.h"
 		$File	"Keyboard.cpp"
 		$File	"Keyboard.h"
 		$File	"$SRCDIR\public\KeyFrame\keyframe.h"
@@ -679,15 +679,15 @@ $Project "hammer_dll"
 		$File	"$SRCDIR\lib\public\choreoobjects.lib"
 		$File	"$SRCDIR\lib\public\tier2.lib"
 		$File	"$SRCDIR\lib\public\tier3.lib"
-        $Lib "vgui_controls"
-        $Lib "raytrace"
-        $Lib "mathlib"
-        $Lib "fgdlib"
-        $Lib "movieobjects"
-        $Lib "dme_controls"
-        $Lib "datamodel"
-        $Lib "matsys_controls"
-		$File	"$SRCDIR\lib\public\dmxloader.lib"
+		$Lib		"vgui_controls"
+		$Lib		"raytrace"
+		$Lib		"mathlib"
+		$Lib		"fgdlib"
+		$Lib		"movieobjects"
+		$Lib		"dme_controls"
+		$Lib		"datamodel"
+		$Lib		"matsys_controls"
+		$Lib		"dmxloader"
 	}
 
 	$File	"whatsnew.txt"

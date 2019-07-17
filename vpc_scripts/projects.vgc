@@ -35,22 +35,27 @@ $Project "vgui_controls"
 
 $Project "dme_controls"
 {
-    "vgui2\dme_controls\dme_controls.vpc" [$WIN32||$POSIX]
+	"vgui2\dme_controls\dme_controls.vpc" [$WIN32||$POSIX]
 }
 
 $Project "matsys_controls"
 {
-    "vgui2\matsys_controls\matsys_controls.vpc" [$WIN32||$POSIX]
+	"vgui2\matsys_controls\matsys_controls.vpc" [$WIN32||$POSIX]
 }
 
 $Project "movieobjects"
 {
-    "movieobjects\movieobjects.vpc" [$WIN32||$POSIX]
+	"movieobjects\movieobjects.vpc" [$WIN32||$POSIX]
 }
 
 $Project "datamodel"
 {
-    "datamodel\datamodel.vpc" [$WIN32||$POSIX]
+	"datamodel\datamodel.vpc" [$WIN32||$POSIX]
+}
+
+$Project "dmxloader"
+{
+	"dmxloader\dmxloader.vpc" [$WIN32||$POSIX]
 }
 
 $Project "hammer_dll"

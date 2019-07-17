@@ -48,9 +48,16 @@ Global
 		{8F28E772-D187-2ACE-6704-A05C90DBB78B}.Debug|x86.Build.0 = Debug|Win32
 		{8F28E772-D187-2ACE-6704-A05C90DBB78B}.Release|x86.ActiveCfg = Release|Win32
 		{8F28E772-D187-2ACE-6704-A05C90DBB78B}.Release|x86.Build.0 = Release|Win32
+		{53920C3D-8E89-A4CC-DA19-DCBA9C7B7FCE}.Debug|x86.ActiveCfg = Debug|Win32
+		{53920C3D-8E89-A4CC-DA19-DCBA9C7B7FCE}.Debug|x86.Build.0 = Debug|Win32
+		{53920C3D-8E89-A4CC-DA19-DCBA9C7B7FCE}.Release|x86.ActiveCfg = Release|Win32
+		{53920C3D-8E89-A4CC-DA19-DCBA9C7B7FCE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {97BF9E0E-C383-4B1C-8F2E-E9E799CCDA2E}
 	EndGlobalSection
 EndGlobal
 VisualStudioVersion = 15.0.27703.2042

@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -52,11 +52,11 @@ struct DmElementAttribute_t
 	UtlSymId_t m_ElementType;
 };
 
-struct DmElementArray_t : public CUtlVector< DmElementHandle_t >
+struct DmElementArray_t : public CUtlVector<DmElementHandle_t>
 {
 	DmElementArray_t() : m_ElementType( UTL_INVAL_SYMBOL ) {}
 
-	UtlSymId_t m_ElementType;	
+	UtlSymId_t m_ElementType;
 };
 
 
@@ -103,7 +103,7 @@ enum DmAttributeType_t
 	AT_TYPE_COUNT,
 };
 
-const char *GetTypeString( DmAttributeType_t type );
+const char* GetTypeString( DmAttributeType_t type );
 
 inline bool IsValueType( DmAttributeType_t type )
 {
@@ -165,69 +165,79 @@ inline int NumComponents( DmAttributeType_t type )
 	}
 }
 
-template< typename T >
-inline float GetComponent( const T &value, int i )
+template <typename T>
+inline float GetComponent( const T& value, int i )
 {
 	Assert( 0 );
 	return 0.0f;
 }
 
-template <> inline float GetComponent( const bool &value, int i )
+template <>
+inline float GetComponent( const bool& value, int i )
 {
 	Assert( i == 0 );
 	return value ? 1.0f : 0.0f;
 }
 
-template <> inline float GetComponent( const int &value, int i )
+template <>
+inline float GetComponent( const int& value, int i )
 {
 	Assert( i == 0 );
 	return float( value );
 }
 
-template <> inline float GetComponent( const float &value, int i )
+template <>
+inline float GetComponent( const float& value, int i )
 {
 	Assert( i == 0 );
 	return value;
 }
 
-template <> inline float GetComponent( const Vector2D &value, int i )
+template <>
+inline float GetComponent( const Vector2D& value, int i )
 {
 	return value[ i ];
 }
 
-template <> inline float GetComponent( const Vector &value, int i )
+template <>
+inline float GetComponent( const Vector& value, int i )
 {
 	return value[ i ];
 }
 
-template <> inline float GetComponent( const QAngle &value, int i )
+template <>
+inline float GetComponent( const QAngle& value, int i )
 {
 	return value[ i ];
 }
 
-template <> inline float GetComponent( const Color &value, int i )
+template <>
+inline float GetComponent( const Color& value, int i )
 {
 	return value[ i ];
 }
 
-template <> inline float GetComponent( const Vector4D &value, int i )
+template <>
+inline float GetComponent( const Vector4D& value, int i )
 {
 	return value[ i ];
 }
 
-template <> inline float GetComponent( const Quaternion &value, int i )
+template <>
+inline float GetComponent( const Quaternion& value, int i )
 {
 	return value[ i ];
 }
 
-template <> inline float GetComponent( const VMatrix &value, int i )
+template <>
+inline float GetComponent( const VMatrix& value, int i )
 {
 	return value.Base()[ i ];
 }
 
 
 //-----------------------------------------------------------------------------
-// Attribute info... 
+// Attribute info...
 //-----------------------------------------------------------------------------
 template <typename T>
 class CDmAttributeInfo
@@ -237,12 +247,12 @@ public:
 
 	typedef T StorageType_t;
 
-	static DmAttributeType_t AttributeType()
+	static constexpr DmAttributeType_t AttributeType()
 	{
 		return AT_UNKNOWN;
 	}
 
-	static const char *AttributeTypeName()
+	static constexpr const char* AttributeTypeName()
 	{
 		return "unknown";
 	}
@@ -255,32 +265,32 @@ public:
 
 
 #define DECLARE_ATTRIBUTE_TYPE_INTERNAL( _className, _storageType, _attributeType, _attributeName, _defaultSetStatement ) \
-	template< > class CDmAttributeInfo< _className >						\
+	template <> class CDmAttributeInfo<_className>							\
 	{																		\
 	public:																	\
 		enum { ATTRIBUTE_TYPE = _attributeType };							\
-		typedef _storageType StorageType_t;									\
-		static DmAttributeType_t AttributeType() { return _attributeType; }	\
-		static const char *AttributeTypeName() { return _attributeName; }	\
+		using StorageType_t = _storageType;									\
+		static constexpr DmAttributeType_t AttributeType() { return _attributeType; }	\
+		static constexpr const char* AttributeTypeName() { return _attributeName; }	\
 		static void SetDefaultValue( _className& value ) { _defaultSetStatement }	\
 	};																		\
 
 #define DECLARE_ATTRIBUTE_ARRAY_TYPE_INTERNAL( _className, _storageType, _attributeType, _attributeName ) \
-	template< > class CDmAttributeInfo< CUtlVector<_className> >				\
+	template <> class CDmAttributeInfo<CUtlVector<_className>>					\
 	{																			\
 	public:																		\
 		enum { ATTRIBUTE_TYPE = _attributeType };								\
-		typedef _storageType StorageType_t;										\
-		static DmAttributeType_t AttributeType() { return _attributeType; }		\
-		static const char *AttributeTypeName() { return _attributeName; }		\
-		static void SetDefaultValue( CUtlVector< _className >& value ) { value.RemoveAll(); }	\
+		using StorageType_t = _storageType;										\
+		static constexpr DmAttributeType_t AttributeType() { return _attributeType; }	\
+		static constexpr const char* AttributeTypeName() { return _attributeName; }		\
+		static void SetDefaultValue( CUtlVector<_className>& value ) { value.RemoveAll(); }	\
 	};																			\
 
 #define DECLARE_ATTRIBUTE_TYPE( _className, _attributeType, _attributeName, _defaultSetStatement ) \
 	DECLARE_ATTRIBUTE_TYPE_INTERNAL( _className, _className, _attributeType, _attributeName, _defaultSetStatement )
 
 #define DECLARE_ATTRIBUTE_ARRAY_TYPE( _className, _attributeType, _attributeName )\
-	DECLARE_ATTRIBUTE_ARRAY_TYPE_INTERNAL( _className, CUtlVector< _className >, _attributeType, _attributeName )
+	DECLARE_ATTRIBUTE_ARRAY_TYPE_INTERNAL( _className, CUtlVector<_className>, _attributeType, _attributeName )
 
 // NOTE: If you add an attribute type here, also add it to the list of DEFINE_ATTRIBUTE_TYPES in dmattribute.cpp
 DECLARE_ATTRIBUTE_TYPE( int,					AT_INT,					"int",			value = 0; )
@@ -293,8 +303,8 @@ DECLARE_ATTRIBUTE_TYPE( Vector4D,				AT_VECTOR4,				"vector4",		value.Init( 0.0f
 DECLARE_ATTRIBUTE_TYPE( QAngle,					AT_QANGLE,				"qangle",		value.Init( 0.0f, 0.0f, 0.0f ); )
 DECLARE_ATTRIBUTE_TYPE( Quaternion,				AT_QUATERNION,			"quaternion",	value.Init( 0.0f, 0.0f, 0.0f, 1.0f ); )
 DECLARE_ATTRIBUTE_TYPE( VMatrix,				AT_VMATRIX,				"matrix",		MatrixSetIdentity( value ); )
-DECLARE_ATTRIBUTE_TYPE( CUtlString,				AT_STRING,				"string",		value.Set( NULL ); )
-DECLARE_ATTRIBUTE_TYPE( CUtlBinaryBlock,		AT_VOID,				"binary",		value.Set( NULL, 0 ); )
+DECLARE_ATTRIBUTE_TYPE( CUtlString,				AT_STRING,				"string",		value.Set( nullptr ); )
+DECLARE_ATTRIBUTE_TYPE( CUtlBinaryBlock,		AT_VOID,				"binary",		value.Set( nullptr, 0 ); )
 DECLARE_ATTRIBUTE_TYPE( DmObjectId_t,			AT_OBJECTID,			"elementid",	InvalidateUniqueId( &value ); )
 DECLARE_ATTRIBUTE_TYPE_INTERNAL( DmElementHandle_t, DmElementAttribute_t, AT_ELEMENT,	"element", value = DMELEMENT_HANDLE_INVALID; )
 
