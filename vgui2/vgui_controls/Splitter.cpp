@@ -172,8 +172,6 @@ public:
 		SetPaintBorderEnabled( false );
 	}
 
-	virtual ~SplitterChildPanel() {}
-
 	// Children may have user config settings
 	bool HasUserConfigSettings()
 	{

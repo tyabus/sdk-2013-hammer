@@ -57,7 +57,6 @@ class CAttributeBoolChoicePanel : public CBaseAttributeChoicePanel
 
 public:
 	CAttributeBoolChoicePanel( vgui::Panel *parent,	const AttributeWidgetInfo_t &info );
-    ~CAttributeBoolChoicePanel() {}
 
 private:
 	// Derived classes can re-implement this to fill the combo box however they like

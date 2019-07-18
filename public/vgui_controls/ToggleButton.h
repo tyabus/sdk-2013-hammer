@@ -27,7 +27,6 @@ class ToggleButton : public Button
 
 public:
 	ToggleButton(Panel *parent, const char *panelName, const char *text);
-	virtual ~ToggleButton() {}
 
 	virtual void DoClick();
 

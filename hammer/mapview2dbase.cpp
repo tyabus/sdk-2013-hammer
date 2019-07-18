@@ -56,8 +56,6 @@ public:
 		m_pMapView = pMapView;
 	}
 
-	virtual ~CMapView2DBasePanel() {}
-
 	virtual void OnSizeChanged(int newWide, int newTall)
 	{
 		// call Panel and not EditablePanel OnSizeChanged.

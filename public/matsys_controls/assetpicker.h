@@ -32,7 +32,6 @@ class CAssetPicker : public CBaseAssetPicker
 public:
 	CAssetPicker( vgui::Panel *pParent, const char *pAssetType,
 		const char *pExt, const char *pSubDir, const char *pTextType );
-	virtual ~CAssetPicker() {}
 };
 
 
@@ -46,7 +45,6 @@ class CAssetPickerFrame : public CBaseAssetPickerFrame
 public:
 	CAssetPickerFrame( vgui::Panel *pParent, const char *pTitle,
 		const char *pAssetType, const char *pExt, const char *pSubDir, const char *pTextType );
-	virtual ~CAssetPickerFrame() {}
 };
 
 

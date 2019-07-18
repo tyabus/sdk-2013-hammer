@@ -31,7 +31,6 @@ class CChannelGraphPanel : public Panel
 
 public:
 	CChannelGraphPanel( Panel *parent, const char *name );
-    ~CChannelGraphPanel() {}
 
 	void SetChannel( CDmeChannel *pChannel );
 
@@ -75,7 +74,6 @@ class CChannelGraphFrame : public Frame
 
 public:
 	CChannelGraphFrame( Panel *parent, const char *pTitle );
-    ~CChannelGraphFrame() {}
 
 	void SetChannel( CDmeChannel *pChannel );
 

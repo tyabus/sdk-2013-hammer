@@ -685,7 +685,6 @@ class CHistoryMenuButton : public MenuButton
 DECLARE_CLASS_SIMPLE( CHistoryMenuButton, MenuButton );
 public:
 	CHistoryMenuButton( Panel *parent, const char *panelName, const char *text, CElementPropertiesTreeInternal *tree, int whichMenu );
-    ~CHistoryMenuButton() {}
 
 	virtual void OnShowMenu( Menu *menu );
 	virtual int	 OnCheckMenuItemCount();
@@ -726,7 +725,6 @@ class CSearchComboBox : public ComboBox
 public:
 
 	CSearchComboBox( CElementPropertiesTreeInternal *tree, vgui::Panel *parent, const char *panelName, int numLines, bool allowEdit );
-    ~CSearchComboBox() {}
 
 	virtual void OnMenuItemSelected();
 	virtual void OnShowMenu(Menu *menu);
@@ -775,7 +773,6 @@ class CPropertiesTreeToolbar : public Panel
 	DECLARE_CLASS_SIMPLE( CPropertiesTreeToolbar, Panel );
 public:
 	CPropertiesTreeToolbar( vgui::Panel *parent, const char *panelName, CElementPropertiesTreeInternal *tree );
-    ~CPropertiesTreeToolbar() {}
 
 	virtual void ApplySchemeSettings( IScheme *scheme );
 

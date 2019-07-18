@@ -92,7 +92,6 @@ class CSequencePickerFrame : public vgui::Frame
 
 public:
 	CSequencePickerFrame( vgui::Panel *pParent, int nFlags );
-    ~CSequencePickerFrame() {}
 
 	// Inherited from Frame
 	virtual void OnCommand( const char *pCommand );

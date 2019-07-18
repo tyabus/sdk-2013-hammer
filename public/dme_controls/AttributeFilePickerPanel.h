@@ -56,7 +56,6 @@ private:
 	public:																		\
 		_className( vgui::Panel *parent, const AttributeWidgetInfo_t &info ) :	\
 			BaseClass( parent, info ) {}										\
-            ~_className() {} \
 	private:																	\
 		virtual void SetupFileOpenDialog( vgui::FileOpenDialog *pDialog );		\
 	}

@@ -46,7 +46,6 @@ class CBaseAttributePanel : public vgui::Panel
 
 public:
 	CBaseAttributePanel( vgui::Panel *pParent, const AttributeWidgetInfo_t &info );
-    ~CBaseAttributePanel() {}
 
 	virtual void	PostConstructor();
 	virtual void	PerformLayout();

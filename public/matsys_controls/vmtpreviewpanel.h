@@ -35,7 +35,6 @@ class CVMTPreviewPanel : public vgui::Panel
 public:
 	// constructor
 	CVMTPreviewPanel( vgui::Panel *pParent, const char *pName );
-    ~CVMTPreviewPanel() {}
 	void SetVMT( const char *pMaterialName );
 	const char *GetVMT() const;
 

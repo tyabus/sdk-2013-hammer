@@ -35,7 +35,6 @@ class CFileListManager : public vgui::ListPanel
 
 public:
 	CFileListManager( vgui::Panel *parent );
-    ~CFileListManager() {}
 
 	virtual void Refresh();
 	virtual void OnCommand( const char *cmd );
@@ -73,7 +72,6 @@ class CFileManagerFrame : public vgui::Frame
 
 public:
 	CFileManagerFrame( vgui::Panel *parent );
-    ~CFileManagerFrame() {}
 
 	virtual void Refresh();
 	virtual void OnCommand( const char *cmd );

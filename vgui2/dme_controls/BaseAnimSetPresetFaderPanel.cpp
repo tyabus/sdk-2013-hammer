@@ -42,7 +42,6 @@ class CAddPresetDialog : public vgui::BaseInputDialog
 
 public:
 	CAddPresetDialog( vgui::Panel *parent );
-    ~CAddPresetDialog() {}
 
 	void DoModal( CDmeAnimationSet *pAnimationSet, KeyValues *pContextKeyValues = NULL );
 
@@ -160,7 +159,6 @@ class CPresetSliderEdgeButton : public Button
 	DECLARE_CLASS_SIMPLE( CPresetSliderEdgeButton, Button );
 public:
 	CPresetSliderEdgeButton( CPresetSlider *parent, const char *panelName, const char *text );
-    ~CPresetSliderEdgeButton() {}
 
 private:
 	virtual void OnCursorMoved(int x, int y);
@@ -905,7 +903,6 @@ class CSliderListPanel : public PanelListPanel
 
 public:
 	CSliderListPanel( CBaseAnimSetPresetFaderPanel *parent, vgui::Panel *pParent, const char *panelName );
-    ~CSliderListPanel() {}
 
 	virtual void OnMouseReleased( vgui::MouseCode code );
 	virtual void OnMousePressed( vgui::MouseCode code );

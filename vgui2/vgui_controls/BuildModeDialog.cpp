@@ -56,7 +56,6 @@ public:
 		BaseClass( parent, panelName )
 	{
 	}
-	virtual ~CSmallTextEntry() {}
 
 	virtual void ApplySchemeSettings( IScheme *scheme )
 	{
@@ -115,9 +114,7 @@ class BuildModeLocalizedStringEditDialog : public Frame
 
 public:
 
-#pragma warning( push )
-#pragma warning( disable : 4355 )
-	BuildModeLocalizedStringEditDialog() : Frame(this, NULL)
+	BuildModeLocalizedStringEditDialog() : Frame(nullptr, NULL)
 	{
 		m_pTokenEntry = new TextEntry(this, NULL);
 		m_pValueEntry = new TextEntry(this, NULL);
@@ -134,8 +131,6 @@ public:
 			m_pFileCombo->AddItem(g_pVGuiLocalize->GetLocalizationFileName(i), NULL);
 		}
 	}
-#pragma warning( pop )
-	virtual ~BuildModeLocalizedStringEditDialog() {}
 
 	virtual void DoModal(const char *token)
 	{
@@ -308,8 +303,6 @@ public:
 	{
 		m_hContext = context;
 	}
-
-	virtual ~CBuildModeNavCombo() {}
 
 	virtual void OnShowMenu(Menu *menu)
 	{

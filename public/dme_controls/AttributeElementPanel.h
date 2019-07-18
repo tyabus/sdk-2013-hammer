@@ -37,7 +37,6 @@ class CAttributeElementPanel : public CBaseAttributePanel
 
 public:
 	CAttributeElementPanel( vgui::Panel *parent, const AttributeWidgetInfo_t &info );
-    ~CAttributeElementPanel() {}
 
 	virtual void PostConstructor();
 	virtual void Apply();

@@ -209,7 +209,6 @@ class CDmeInputControlListPanel : public vgui::ListPanel
 public:
 	// constructor, destructor
 	CDmeInputControlListPanel( vgui::Panel *pParent, const char *pName, CDmeCombinationControlsPanel *pComboPanel );
-    ~CDmeInputControlListPanel() {}
 
 	virtual void OnCreateDragData( KeyValues *msg );
 	virtual bool IsDroppable( CUtlVector< KeyValues * >& msgList );
@@ -237,7 +236,6 @@ class CDmeRawControlListPanel : public vgui::ListPanel
 public:
 	// constructor, destructor
 	CDmeRawControlListPanel( vgui::Panel *pParent, const char *pName, CDmeCombinationControlsPanel *pComboPanel );
-    ~CDmeRawControlListPanel() {}
 
 	virtual void OnKeyCodeTyped( vgui::KeyCode code );
 	virtual void OnMouseDoublePressed( vgui::MouseCode code );

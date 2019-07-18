@@ -37,7 +37,6 @@ class CAttributeTextPanel : public CBaseAttributePanel
 
 public:
 	CAttributeTextPanel( vgui::Panel *parent, const AttributeWidgetInfo_t &info );
-    ~CAttributeTextPanel() {}
 	virtual void SetFont( HFont font );
 	virtual void PostConstructor();
 	virtual void Apply();

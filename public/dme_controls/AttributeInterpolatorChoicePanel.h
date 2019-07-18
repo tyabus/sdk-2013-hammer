@@ -38,7 +38,6 @@ class CAttributeInterpolatorChoicePanel : public CBaseAttributeDoubleChoicePanel
 
 public:
 	CAttributeInterpolatorChoicePanel( vgui::Panel *parent,	const AttributeWidgetInfo_t &info );
-    ~CAttributeInterpolatorChoicePanel() {}
 
 private:
 	virtual void PopulateComboBoxes( vgui::ComboBox *pComboBox[2] );

@@ -29,8 +29,6 @@ public:
 		m_pBrowser = pBrowser;
 	}
 
-	virtual ~CModelBrowserPanel() {}
-
 	virtual	void OnSizeChanged(int newWide, int newTall)
 	{
 		// call Panel and not EditablePanel OnSizeChanged.

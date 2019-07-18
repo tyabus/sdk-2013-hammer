@@ -53,7 +53,6 @@ class CElementTreeViewListControl : public vgui::CTreeViewListControl
 
 public:
 	CElementTreeViewListControl( Panel *pParent, const char *pName );
-    ~CElementTreeViewListControl() {}
 
 	virtual void	ApplySchemeSettings( vgui::IScheme *pScheme );
 	virtual int		AddItem( KeyValues *data, bool allowLabelEditing, int parentItemIndex, CUtlVector< vgui::Panel * >& columnPanels );
@@ -423,7 +422,6 @@ class CElementPropertiesTree : public vgui::Frame
 public:
 
 	CElementPropertiesTree( vgui::Panel *parent, IDmNotify *pNotify, CDmElement *pObject, CDmeEditorTypeDictionary *pDict = NULL );
-    ~CElementPropertiesTree() {}
 
 	virtual void Init( );
 	virtual void Refresh( CElementPropertiesTreeInternal::RefreshType_t rebuild = CElementPropertiesTreeInternal::REFRESH_REBUILD, bool preservePrevSelectedItem = false );
@@ -460,7 +458,6 @@ class CDmeElementPanel : public CElementPropertiesTreeInternal, public IDmNotify
 
 public:
 	CDmeElementPanel( vgui::Panel *pParent, const char *pPanelName );
-    ~CDmeElementPanel() {}
 
 	void SetDmeElement( CDmElement *pElement );
 

@@ -28,7 +28,6 @@ class CTGAPreviewPanel : public CProceduralTexturePanel
 public:
 	// constructor
 	CTGAPreviewPanel( vgui::Panel *pParent, const char *pName );
-    ~CTGAPreviewPanel() {}
 	void SetTGA( const char *pFullPath );
 	const char *GetTGA() const;
 

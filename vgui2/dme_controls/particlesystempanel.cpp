@@ -331,7 +331,6 @@ class CControlPointPage : public vgui::PropertyPage
 public:
 	// constructor, destructor
 	CControlPointPage( vgui::Panel *pParent, const char *pName, CParticleSystemPanel *pParticleSystemPanel );
-    ~CControlPointPage() {}
 
 	virtual void PerformLayout();
 

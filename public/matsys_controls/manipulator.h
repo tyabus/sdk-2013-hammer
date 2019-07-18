@@ -19,7 +19,7 @@
 class IManipulator
 {
 public:
-	virtual ~IManipulator(){}
+	virtual ~IManipulator() = default;
 	virtual void OnBeginManipulation( void ) = 0;
 	virtual void OnAcceptManipulation( void ) = 0;
 	virtual void OnCancelManipulation( void ) = 0;

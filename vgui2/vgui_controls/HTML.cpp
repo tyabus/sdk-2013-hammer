@@ -40,7 +40,6 @@ public:
 		SetKeyBoardInputEnabled( false );
 		SetMouseInputEnabled( false );
 	}
-	virtual ~HTMLInterior() {}
 
 private:
 	HTML *m_pHTML;
@@ -57,7 +56,6 @@ class HTMLPopup : public vgui::Frame
 		DECLARE_CLASS_SIMPLE( PopupHTML, vgui::HTML );
 	public:
 		PopupHTML( Frame *parent, const char *pchName, bool allowJavaScript , bool bPopupWindow  ) : HTML( parent, pchName, allowJavaScript, bPopupWindow ) { m_pParent = parent; }
-		~PopupHTML() {}
 
 		virtual void OnSetHTMLTitle( const char *pchTitle )
 		{

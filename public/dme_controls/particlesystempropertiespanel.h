@@ -52,7 +52,6 @@ class CParticleSystemPropertiesPanel : public vgui::EditablePanel
 
 public:
 	CParticleSystemPropertiesPanel( IParticleSystemPropertiesPanelQuery *pQuery, vgui::Panel* pParent );   // standard constructor
-    ~CParticleSystemPropertiesPanel() {}
 
 	// Sets the particle system to look at
 	void SetParticleSystem( CDmeParticleSystemDefinition *pParticleSystem );
