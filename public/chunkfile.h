@@ -101,9 +101,8 @@ class CChunkHandlerMap
 		~CChunkHandlerMap(void);
 
 		template <typename T1, typename T2>
-		FORCEINLINE void AddHandler( const char* pszChunkName, ChunkFileResult_t (*pfnHandler)( CChunkFile*, T1* ), T2* pData )
+		FORCEINLINE auto AddHandler( const char* pszChunkName, ChunkFileResult_t (*pfnHandler)( CChunkFile*, T1* ), T2* pData ) -> std::enable_if_t<__is_base_of( T1, T2 )>
 		{
-			static_assert( __is_base_of( T1, T2 ) );
 			AddHandler( pszChunkName, (ChunkHandler_t)pfnHandler, (void*)dynamic_cast<T1*>( pData ) );
 		}
 
@@ -111,9 +110,8 @@ class CChunkHandlerMap
 		ChunkHandler_t GetHandler(const char *pszChunkName, void **pData);
 
 		template <typename T1, typename T2>
-		FORCEINLINE void SetErrorHandler( bool (*pfnHandler)( CChunkFile*, const char*, T1* ), T2* pData )
+		FORCEINLINE auto SetErrorHandler( bool (*pfnHandler)( CChunkFile*, const char*, T1* ), T2* pData ) -> std::enable_if_t<__is_base_of( T1, T2 )>
 		{
-			static_assert( __is_base_of( T1, T2 ) );
 			SetErrorHandler( (ChunkErrorHandler_t)pfnHandler, (void*)dynamic_cast<T1*>( pData ) );
 		}
 
@@ -161,9 +159,8 @@ class CChunkFile
 		// Functions for reading chunk files.
 		//
 		template <typename T1, typename T2>
-		FORCEINLINE ChunkFileResult_t ReadChunk( ChunkFileResult_t (*pfnKeyHandler)( const char*, const char*, T1* ), T2* pData )
+		FORCEINLINE auto ReadChunk( ChunkFileResult_t (*pfnKeyHandler)( const char*, const char*, T1* ), T2* pData ) -> std::enable_if_t<__is_base_of( T1, T2 ), ChunkFileResult_t>
 		{
-			static_assert( __is_base_of( T1, T2 ) );
 			return ReadChunk( (KeyHandler_t)pfnKeyHandler, (void*)pData );
 		}
 
@@ -192,9 +189,8 @@ class CChunkFile
 		void SetDefaultChunkHandler( DefaultChunkHandler_t pHandler, void *pData );
 
 		template <typename T1, typename T2>
-		FORCEINLINE void SetDefaultChunkHandler( ChunkFileResult_t (*pHandler)( CChunkFile*, T1*, char const* ), T2* pData )
+		FORCEINLINE auto SetDefaultChunkHandler( ChunkFileResult_t (*pHandler)( CChunkFile*, T1*, char const* ), T2* pData ) -> std::enable_if_t<__is_base_of( T1, T2 )>
 		{
-			static_assert( __is_base_of( T1, T2 ) );
 			SetDefaultChunkHandler( (DefaultChunkHandler_t)pHandler, (void*)dynamic_cast<T1*>( pData ) );
 		}
 

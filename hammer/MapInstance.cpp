@@ -196,10 +196,10 @@ void CMapInstance::DoTransform( const VMatrix& matrix )
 		angle[YAW] += 360;
 	}
 
-	if ( CMapEntity *pEntity = dynamic_cast<CMapEntity*>( m_pParent ) )
+	if ( CMapEntity* pEntity = dynamic_cast<CMapEntity*>( m_pParent ) )
 	{
 		char szValue[80];
-		sprintf(szValue, "%g %g %g", angle[0], angle[1], angle[2]);
+		sprintf( szValue, "%g %g %g", angle[0], angle[1], angle[2] );
 		pEntity->NotifyChildKeyChanged( this, "angles", szValue );
 	}
 }
@@ -289,7 +289,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		QAngle angle;
 		Vector origin;
 		DecompressMatrix( origin, angle );
-		sscanf( value, "%f %f %f", &angle.x, &angle.y, &angle.z );
+		sscanf_s( value, "%f %f %f", &angle.x, &angle.y, &angle.z );
 		ConstructMatrix( origin, angle );
 		PostUpdate( Notify_Changed );
 	}
@@ -298,7 +298,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 		QAngle angle;
 		Vector origin;
 		DecompressMatrix( origin, angle );
-		sscanf( value, "%f %f %f", &origin.x, &origin.y, &origin.z );
+		sscanf_s( value, "%f %f %f", &origin.x, &origin.y, &origin.z );
 		ConstructMatrix( origin, angle );
 		PostUpdate( Notify_Changed );
 	}
@@ -317,7 +317,7 @@ void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
 					continue;
 			}
 
-			pChild->Render2D(pRender);
+			pChild->Render2D( pRender );
 			Render2DChildren( pRender, pChild );
 		}
 	}
@@ -444,12 +444,9 @@ void CMapInstance::Render3D( CRender3D* pRender )
 		{
 			pRender->GetLocalTranform( localTransform );
 			pRender->EndLocalTransfrom();
-			VMatrix newTransform = localTransform * m_matTransform;
-			QAngle angle;
-			const Vector origin = newTransform.GetTranslation();
-			MatrixToAngles( newTransform, angle );
-			newTransform.SetupMatrixOrgAngles( origin, angle );
-			pRender->BeginLocalTransfrom( newTransform );
+			VMatrix newLocalTransform;
+			ConcatTransforms( localTransform.As3x4(), m_matTransform.As3x4(), newLocalTransform.As3x4() );
+			pRender->BeginLocalTransfrom( newLocalTransform );
 		}
 
 		CUtlVector<CMapClass*> deferred;
@@ -577,7 +574,7 @@ void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 
 // Logic from VBSP
 template <size_t N>
-static bool DeterminePath( const char *pszBaseFileName, const char *pszInstanceFileName, char (&pszOutFileName)[N] )
+static bool DeterminePath( const char* pszBaseFileName, const char* pszInstanceFileName, char( &pszOutFileName )[N] )
 {
 	char szInstanceFileNameFixed[ MAX_PATH ];
 	const char *pszMapPath = "\\maps\\";
@@ -604,7 +601,7 @@ static bool DeterminePath( const char *pszBaseFileName, const char *pszInstanceF
 	V_strlower( pszOutFileName );
 	V_strcat_safe( pszOutFileName, "\\" );
 
-	char *pos = strstr( pszOutFileName, pszMapPath );
+	char* pos = strstr( pszOutFileName, pszMapPath );
 	if ( pos )
 	{
 		pos += V_strlen( pszMapPath );
@@ -612,9 +609,7 @@ static bool DeterminePath( const char *pszBaseFileName, const char *pszInstanceF
 		V_strcat_safe( pszOutFileName, szInstanceFileNameFixed );
 
 		if ( g_pFullFileSystem->FileExists( pszOutFileName ) )
-		{
 			return true;
-		}
 	}
 
 	if ( g_pGameConfig->m_szInstanceDir[0] )
@@ -631,7 +626,7 @@ static bool DeterminePath( const char *pszBaseFileName, const char *pszInstanceF
 		}
 	}
 
-	pszOutFileName[ 0 ] = 0;
+	pszOutFileName[0] = 0;
 	return false;
 }
 
@@ -666,12 +661,12 @@ bool CMapInstance::LoadVMFInternal( const char* pVMFPath )
 	ChunkFileResult_t eResult = file.Open( pVMFPath, ChunkFile_Read );
 	if ( eResult == ChunkFile_Ok )
 	{
-		ChunkFileResult_t (*LoadWorldCallback)(CChunkFile*, CMapInstance*) = []( CChunkFile* pFile, CMapInstance* pDoc )
+		ChunkFileResult_t( *LoadWorldCallback )( CChunkFile*, CMapInstance* ) = []( CChunkFile* pFile, CMapInstance* pDoc )
 		{
 			return pDoc->m_pTemplate->LoadVMF( pFile );
 		};
 
-		ChunkFileResult_t (*LoadEntityCallback)(CChunkFile*, CMapInstance*) = [](CChunkFile* pFile, CMapInstance* pDoc)
+		ChunkFileResult_t( *LoadEntityCallback )( CChunkFile*, CMapInstance* ) = []( CChunkFile* pFile, CMapInstance* pDoc )
 		{
 			CMapEntity* pEntity = new CMapEntity;
 			pEntity->SetInstance( true );
@@ -728,7 +723,7 @@ void CMapInstance::GetBounds( Vector& mins, Vector& maxs ) const
 {
 	if ( m_pTemplate )
 	{
-		(m_pTemplate->*type).GetBounds( mins, maxs );
+		( m_pTemplate->*type ).GetBounds( mins, maxs );
 		Vector box[8];
 		PointsFromBox( mins, maxs, box );
 		for ( int i = 0; i < 8; ++i )
@@ -737,13 +732,9 @@ void CMapInstance::GetBounds( Vector& mins, Vector& maxs ) const
 			for ( int j = 0; j < 3; ++j )
 			{
 				if ( i == 0 || transformed[j] < mins[j] )
-				{
 					mins[j] = transformed[j];
-				}
 				if ( i == 0 || transformed[j] > maxs[j] )
-				{
 					maxs[j] = transformed[j];
-				}
 			}
 		}
 		return;
@@ -774,34 +765,35 @@ void CMapInstance::ConstructMatrix( const Vector& origin, const QAngle& angle )
 }
 #pragma float_control(pop)
 
+
+// TODO: Move out these lambdas
 void CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseData )
 {
-	if (m_strCurrentVMF.IsEmpty())
+	if ( m_strCurrentVMF.IsEmpty() )
 		return;
-	CMapWorld* world = GetWorldObject(GetParent());
-	Assert(world);
+	CMapWorld* world = GetWorldObject( GetParent() );
+	Assert( world );
 	char instancePath[MAX_PATH];
-	if (!DeterminePath(world->GetVMFPath(), m_strCurrentVMF, instancePath))
+	if ( !DeterminePath( world->GetVMFPath(), m_strCurrentVMF, instancePath ) )
 		return;
 
 	CChunkFile file;
-	ChunkFileResult_t eResult = file.Open(instancePath, ChunkFile_Read);
-	if (eResult == ChunkFile_Ok)
+	ChunkFileResult_t eResult = file.Open( instancePath, ChunkFile_Read );
+	if ( eResult == ChunkFile_Ok )
 	{
-		ChunkFileResult_t(*LoadWorldCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+		ChunkFileResult_t( *LoadWorldCallback )( CChunkFile*, InstanceCollapseData_t* ) = []( CChunkFile* pFile, InstanceCollapseData_t* pDoc )->ChunkFileResult_t
 		{
-			ChunkFileResult_t(*LoadSolidCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+			ChunkFileResult_t( *LoadSolidCallback )( CChunkFile*, InstanceCollapseData_t* ) = []( CChunkFile* pFile, InstanceCollapseData_t* pDoc )->ChunkFileResult_t
 			{
-				CMapSolid *pSolid = new CMapSolid;
+				CMapSolid* pSolid = new CMapSolid;
 
 				bool bValid;
-				ChunkFileResult_t eResult = pSolid->LoadVMF(pFile, bValid);
-
-				if (eResult == ChunkFile_Ok && bValid)
+				const ChunkFileResult_t eResult = pSolid->LoadVMF( pFile, bValid );
+				if ( eResult == ChunkFile_Ok && bValid )
 				{
-					const char *pszValue = pSolid->GetEditorKeyValue("cordonsolid");
-					if (pszValue == nullptr)
-						pDoc->newChildren.AddToTail(pSolid);
+					const char* pszValue = pSolid->GetEditorKeyValue( "cordonsolid" );
+					if ( pszValue == nullptr )
+						pDoc->newChildren.AddToTail( pSolid );
 				}
 				else
 					delete pSolid;
@@ -812,51 +804,53 @@ void CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 			struct SubLoadHiddenData
 			{
 				InstanceCollapseData_t& data;
-				ChunkFileResult_t(*LoadSolidCallback)(CChunkFile*, InstanceCollapseData_t*);
+				ChunkFileResult_t( *callback )( CChunkFile*, InstanceCollapseData_t* );
 			};
 
-			ChunkFileResult_t(*LoadHiddenCallback)(CChunkFile*, SubLoadHiddenData*) = [](CChunkFile* pFile, SubLoadHiddenData* pDoc) -> ChunkFileResult_t
+			ChunkFileResult_t( *LoadHiddenCallback )( CChunkFile*, SubLoadHiddenData* ) = []( CChunkFile* pFile, SubLoadHiddenData* pDoc )->ChunkFileResult_t
 			{
-				CChunkHandlerMap Handlers;
-				Handlers.AddHandler("solid", pDoc->LoadSolidCallback, &pDoc->data);
+				CChunkHandlerMap handlers;
+				handlers.AddHandler( "solid", pDoc->callback, &pDoc->data );
 
-				pFile->PushHandlers(&Handlers);
+				pFile->PushHandlers( &handlers );
 				const ChunkFileResult_t eResult = pFile->ReadChunk();
 				pFile->PopHandlers();
 
 				return eResult;
 			};
 
-			ChunkFileResult_t(*LoadGroupCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+			ChunkFileResult_t( *LoadGroupCallback )( CChunkFile*, InstanceCollapseData_t* ) = []( CChunkFile* pFile, InstanceCollapseData_t* pDoc )->ChunkFileResult_t
 			{
 				CMapGroup* pGroup = new CMapGroup;
-				const ChunkFileResult_t eResult = pGroup->LoadVMF(pFile);
-				if (eResult == ChunkFile_Ok)
-					pDoc->newChildren.AddToTail(pGroup);
+				const ChunkFileResult_t eResult = pGroup->LoadVMF( pFile );
+				if ( eResult == ChunkFile_Ok )
+					pDoc->newChildren.AddToTail( pGroup );
+				else
+					delete pGroup;
 
 				return eResult;
 			};
 
 			SubLoadHiddenData subLoadHidden { *pDoc, LoadSolidCallback };
 
-			CChunkHandlerMap Handlers;
-			Handlers.AddHandler("solid", LoadSolidCallback, pDoc);
-			Handlers.AddHandler("hidden", LoadHiddenCallback, &subLoadHidden);
-			Handlers.AddHandler("group", LoadGroupCallback, pDoc);
+			CChunkHandlerMap handlers;
+			handlers.AddHandler( "solid", LoadSolidCallback, pDoc );
+			handlers.AddHandler( "hidden", LoadHiddenCallback, &subLoadHidden );
+			handlers.AddHandler( "group", LoadGroupCallback, pDoc );
 
-			pFile->PushHandlers(&Handlers);
+			pFile->PushHandlers( &handlers );
 			const ChunkFileResult_t eResult = pFile->ReadChunk();
 			pFile->PopHandlers();
 
 			return eResult;
 		};
 
-		ChunkFileResult_t(*LoadEntityCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+		ChunkFileResult_t( *LoadEntityCallback )( CChunkFile*, InstanceCollapseData_t* ) = []( CChunkFile* pFile, InstanceCollapseData_t* pDoc )->ChunkFileResult_t
 		{
 			CMapEntity* pEntity = new CMapEntity;
-			pEntity->SetInstance(true);
-			if (pEntity->LoadVMF(pFile) == ChunkFile_Ok)
-				pDoc->newChildren.AddToTail(pEntity);
+			pEntity->SetInstance( true );
+			if ( pEntity->LoadVMF( pFile ) == ChunkFile_Ok )
+				pDoc->newChildren.AddToTail( pEntity );
 			else
 				delete pEntity;
 			return ChunkFile_Ok;
@@ -865,59 +859,61 @@ void CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 		struct SubLoadHiddenData
 		{
 			InstanceCollapseData_t& data;
-			ChunkFileResult_t(*LoadEntityCallback)(CChunkFile*, InstanceCollapseData_t*);
+			ChunkFileResult_t( *callback )( CChunkFile*, InstanceCollapseData_t* );
 		};
 
-		ChunkFileResult_t(*LoadHiddenCallback)(CChunkFile*, SubLoadHiddenData*) = [](CChunkFile* pFile, SubLoadHiddenData* pDoc) -> ChunkFileResult_t
+		ChunkFileResult_t( *LoadHiddenCallback )( CChunkFile*, SubLoadHiddenData* ) = []( CChunkFile* pFile, SubLoadHiddenData* pDoc )->ChunkFileResult_t
 		{
-			CChunkHandlerMap Handlers;
-			Handlers.AddHandler("entity", pDoc->LoadEntityCallback, &pDoc->data);
+			CChunkHandlerMap handlers;
+			handlers.AddHandler( "entity", pDoc->callback, &pDoc->data );
 
-			pFile->PushHandlers(&Handlers);
+			pFile->PushHandlers( &handlers );
 			const ChunkFileResult_t eResult = pFile->ReadChunk();
 			pFile->PopHandlers();
 
 			return eResult;
 		};
 
-		ChunkFileResult_t(*LoadVisGroupsCallback)(CChunkFile*, InstanceCollapseData_t*) = [](CChunkFile* pFile, InstanceCollapseData_t* pDoc) -> ChunkFileResult_t
+		ChunkFileResult_t( *LoadVisGroupsCallback )( CChunkFile*, InstanceCollapseData_t* ) = []( CChunkFile* pFile, InstanceCollapseData_t* pDoc )->ChunkFileResult_t
 		{
 			// Fill out a little context blob for passing to the handler.
 			struct SubLoadVisData
 			{
-				ChunkFileResult_t(*LoadVisGroupCallback)(CChunkFile*, SubLoadVisData*);
-				InstanceCollapseData_t& pData;
-				CVisGroup* pParent;
+				ChunkFileResult_t( *callback )( CChunkFile*, SubLoadVisData* );
+				InstanceCollapseData_t& data;
+				CVisGroup* parent;
 			};
 
-			ChunkFileResult_t(*LoadVisGroupCallback)(CChunkFile*, SubLoadVisData*) = [](CChunkFile* pFile, SubLoadVisData* pLoadData) -> ChunkFileResult_t
+			ChunkFileResult_t( *LoadVisGroupCallback )( CChunkFile*, SubLoadVisData* ) = []( CChunkFile* pFile, SubLoadVisData* pLoadData ) -> ChunkFileResult_t
 			{
-				const auto& LoadVMF = [](CVisGroup* pGroup, CChunkFile* pFile, SubLoadVisData* pLoadData) -> ChunkFileResult_t
+				const auto& LoadVMF = []( CVisGroup* pGroup, CChunkFile* pFile, SubLoadVisData* pLoadData ) -> ChunkFileResult_t
 				{
-					SubLoadVisData InstanceCollapseData_t { pLoadData->LoadVisGroupCallback, pLoadData->pData, pGroup };
+					SubLoadVisData data { pLoadData->callback, pLoadData->data, pGroup };
 
-					CChunkHandlerMap Handlers;
-					Handlers.AddHandler("visgroup", pLoadData->LoadVisGroupCallback, &InstanceCollapseData_t);
+					CChunkHandlerMap handlers;
+					handlers.AddHandler( "visgroup", pLoadData->callback, &data );
 
-					pFile->PushHandlers(&Handlers);
-					const ChunkFileResult_t eResult = pFile->ReadChunk(CVisGroup::LoadKeyCallback, pGroup);
+					pFile->PushHandlers( &handlers );
+					const ChunkFileResult_t eResult = pFile->ReadChunk( CVisGroup::LoadKeyCallback, pGroup );
 					pFile->PopHandlers();
 
 					return eResult;
 				};
 				CVisGroup* pVisGroup = new CVisGroup;
-				const ChunkFileResult_t eResult = LoadVMF(pVisGroup, pFile, pLoadData);
-				if (eResult == ChunkFile_Ok)
+				const ChunkFileResult_t eResult = LoadVMF( pVisGroup, pFile, pLoadData );
+				if ( eResult == ChunkFile_Ok )
 				{
-					if (pLoadData->pParent != nullptr)
+					if ( pLoadData->parent != nullptr )
 					{
-						pLoadData->pParent->AddChild(pVisGroup);
-						pVisGroup->SetParent(pLoadData->pParent);
+						pLoadData->parent->AddChild( pVisGroup );
+						pVisGroup->SetParent( pLoadData->parent );
 					}
 
-					if (!pVisGroup->IsAutoVisGroup())
-						pLoadData->pData.visGroups.AddToTail(pVisGroup);
+					if ( !pVisGroup->IsAutoVisGroup() )
+						pLoadData->data.visGroups.AddToTail( pVisGroup );
 				}
+				else
+					delete pVisGroup;
 
 				return eResult;
 			};
@@ -927,39 +923,39 @@ void CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 			//
 			// Set up handlers for the subchunks that we are interested in.
 			//
-			CChunkHandlerMap Handlers;
-			Handlers.AddHandler("visgroup", LoadVisGroupCallback, &subData);
+			CChunkHandlerMap handlers;
+			handlers.AddHandler( "visgroup", LoadVisGroupCallback, &subData );
 
-			pFile->PushHandlers(&Handlers);
+			pFile->PushHandlers( &handlers );
 			const ChunkFileResult_t eResult = pFile->ReadChunk();
 			pFile->PopHandlers();
 
 			return eResult;
 		};
 
-		SubLoadHiddenData subLoadHidden{ collapseData, LoadEntityCallback };
+		SubLoadHiddenData subLoadHidden { collapseData, LoadEntityCallback };
 
 		CChunkHandlerMap handlers;
-		handlers.AddHandler("world", LoadWorldCallback, &collapseData);
-		handlers.AddHandler("hidden", LoadHiddenCallback, &subLoadHidden);
-		handlers.AddHandler("entity", LoadEntityCallback, &collapseData);
-		handlers.AddHandler("visgroups", LoadVisGroupsCallback, &collapseData);
-		handlers.SetErrorHandler([](CChunkFile*, const char*, void*) { return false; }, nullptr);
+		handlers.AddHandler( "world", LoadWorldCallback, &collapseData );
+		handlers.AddHandler( "hidden", LoadHiddenCallback, &subLoadHidden );
+		handlers.AddHandler( "entity", LoadEntityCallback, &collapseData );
+		handlers.AddHandler( "visgroups", LoadVisGroupsCallback, &collapseData );
+		handlers.SetErrorHandler( []( CChunkFile*, const char*, void* ) { return false; }, nullptr );
 
-		file.PushHandlers(&handlers);
+		file.PushHandlers( &handlers );
 
-		while (eResult == ChunkFile_Ok)
+		while ( eResult == ChunkFile_Ok )
 			eResult = file.ReadChunk();
 
-		if (eResult == ChunkFile_EOF)
+		if ( eResult == ChunkFile_EOF )
 			eResult = ChunkFile_Ok;
 
 		file.PopHandlers();
 	}
 
-	if (eResult == ChunkFile_Ok)
+	if ( eResult == ChunkFile_Ok )
 	{
-		if (bRecursive)
+		if ( bRecursive )
 		{
 			for ( CMapClass* child : std::as_const( collapseData.newChildren ) )
 			{

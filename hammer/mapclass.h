@@ -331,11 +331,10 @@ public:
 
 	virtual CMapClass* GetPreferredPickObject();
 
-	template <typename T1, typename T2 = CMapClass, size_t N = 1>
-	FORCEINLINE BOOL EnumChildren( BOOL (*pfn)( T2*, T1* ), T1* dwParam, MAPCLASSTYPE Type = NULL )
+	template <typename T1, typename T2 = CMapClass>
+	FORCEINLINE auto EnumChildren( BOOL (*pfn)( T2*, T1* ), T1* dwParam, MAPCLASSTYPE Type = NULL ) -> std::enable_if_t<__is_base_of( CMapClass, T2 ), BOOL>
 	{
 		static_assert( sizeof( unsigned int ) == sizeof( T1* ) );
-		static_assert( __is_base_of( CMapClass, T2 ) );
 		return EnumChildren( (ENUMMAPCHILDRENPROC)pfn, reinterpret_cast<unsigned int>( dwParam ), Type );
 	}
 
