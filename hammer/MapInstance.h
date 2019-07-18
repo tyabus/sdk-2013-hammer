@@ -53,7 +53,7 @@ public:
 	bool RenderPreload( CRender3D* pRender, bool bNewContext ) override;
 	void AddShadowingTriangles( CUtlVector<Vector>& tri_list ) override;
 
-	void Collapse( bool bRecursive, InstanceCollapseData_t& collapseData );
+	[[nodiscard]] bool Collapse( bool bRecursive, InstanceCollapseData_t& collapseData );
 private:
 	void LoadVMF( CMapClass* pParent = NULL );
 	bool LoadVMFInternal( const char* pVMFPath );

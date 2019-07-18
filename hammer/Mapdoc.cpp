@@ -10183,8 +10183,10 @@ void CMapDoc::CollapseInstances( bool bSelected, bool bRecursive )
 		{
 			if ( subChild && subChild->IsMapClass( MAPCLASS_TYPE( CMapInstance ) ) )
 			{
-				static_cast<CMapInstance*>( subChild )->Collapse( bRecursive, collapseData[collapseData.AddToTail()]);
-				toRemove.AddToTail( child );
+				if ( static_cast<CMapInstance*>( subChild )->Collapse( bRecursive, collapseData[collapseData.AddToTail()] ) )
+					toRemove.AddToTail( child );
+				else
+					collapseData.Remove( collapseData.Count() - 1 ); // Do not delete func_instance if failed
 				break;
 			}
 		}

@@ -767,15 +767,17 @@ void CMapInstance::ConstructMatrix( const Vector& origin, const QAngle& angle )
 
 
 // TODO: Move out these lambdas
-void CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseData )
+bool CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseData )
 {
 	if ( m_strCurrentVMF.IsEmpty() )
-		return;
+		return false;
 	CMapWorld* world = GetWorldObject( GetParent() );
 	Assert( world );
 	char instancePath[MAX_PATH];
 	if ( !DeterminePath( world->GetVMFPath(), m_strCurrentVMF, instancePath ) )
-		return;
+		return false;
+
+	auto [chiCount, conCount, visCount] = std::tuple( collapseData.newChildren.Count(), collapseData.connections.Count(), collapseData.visGroups.Count() );
 
 	CChunkFile file;
 	ChunkFileResult_t eResult = file.Open( instancePath, ChunkFile_Read );
@@ -957,22 +959,63 @@ void CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 	{
 		if ( bRecursive )
 		{
+			CUtlVector<CMapClass*> toRemove;
 			for ( CMapClass* child : std::as_const( collapseData.newChildren ) )
 			{
 				for ( CMapClass* subChild : std::as_const( *child->GetChildren() ) )
 				{
 					if ( subChild && subChild->IsMapClass( MAPCLASS_TYPE( CMapInstance ) ) )
 					{
-						static_cast<CMapInstance*>( subChild )->Collapse( bRecursive, collapseData);
-						//toRemove.AddToTail( child );
+						if ( static_cast<CMapInstance*>( subChild )->Collapse( bRecursive, collapseData ) )
+							toRemove.AddToTail( child );
 						break;
 					}
 				}
 			}
+			for ( CMapClass* c : toRemove )
+			{
+				collapseData.newChildren.FindAndRemove( c );
+				delete c;
+			}
 		}
+		return true;
+	}
+
+	// Cleanup if failed
+	CUtlVector<CMapClass*> del;
+#undef GetObject // fu
+	if ( chiCount == 0 )
+	{
+		for ( const auto& c : collapseData.newChildren )
+			del.AddToTail( c.GetObject() );
+		collapseData.newChildren.RemoveAll();
 	}
 	else
 	{
-		// TODO: Cleanup if failed
+		for ( int i = chiCount; i < collapseData.newChildren.Count(); ++i )
+			del.AddToTail( collapseData.newChildren[i] );
+		while ( chiCount < collapseData.newChildren.Count() )
+			collapseData.newChildren.Remove( collapseData.newChildren.Count() - 1 );
 	}
+	del.PurgeAndDeleteElements(); // cannot delete until CMapObjectList is empty
+
+	if ( conCount == 0 )
+		collapseData.connections.PurgeAndDeleteElements();
+	else
+	{
+		for ( int i = conCount; i < collapseData.connections.Count(); ++i )
+			delete collapseData.connections[i];
+		collapseData.connections.RemoveMultipleFromTail( collapseData.connections.Count() - conCount );
+	}
+
+	if ( visCount == 0 )
+		collapseData.visGroups.PurgeAndDeleteElements();
+	else
+	{
+		for ( int i = visCount; i < collapseData.visGroups.Count(); ++i )
+			delete collapseData.visGroups[i];
+		collapseData.visGroups.RemoveMultipleFromTail( collapseData.visGroups.Count() - visCount );
+	}
+
+	return false;
 }

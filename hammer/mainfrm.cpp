@@ -182,7 +182,6 @@ struct
 };
 
 
-static GameData gd;
 static CMainFrame *pMainWnd;
 
 
@@ -1165,7 +1164,7 @@ void CMainFrame::SetUndoActive(BOOL bActive)
 void SetInstanceBoxChecked( UINT nID, CMainFrame* pFrm )
 {
 	CMenu* pMenu = pFrm->GetMenu();
-	
+
 	switch ( nID )
 	{
 	case ID_INSTANCE_VIS_HIDE:
