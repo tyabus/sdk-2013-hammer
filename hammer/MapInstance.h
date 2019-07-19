@@ -16,7 +16,7 @@ public:
 	static CMapClass* Create( CHelperInfo* pHelperInfo, CMapEntity* pParent );
 	CMapInstance();
 	CMapInstance( CMapEntity* pParent );
-	~CMapInstance();
+	~CMapInstance() override;
 
 	size_t GetSize() override { return sizeof(*this); }
 
@@ -55,7 +55,7 @@ public:
 
 	[[nodiscard]] bool Collapse( bool bRecursive, InstanceCollapseData_t& collapseData );
 private:
-	void LoadVMF( CMapClass* pParent = NULL );
+	void LoadVMF( CMapClass* pParent = nullptr );
 	bool LoadVMFInternal( const char* pVMFPath );
 	void Render2DChildren( CRender2D* pRender, CMapClass* pEnt );
 	void Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>& deferred, CMapClass* pEnt, bool ignoreFrameCount );
@@ -66,6 +66,8 @@ private:
 	static void FixAngles( QAngle& angle );
 	void DecompressMatrix( Vector& origin, QAngle& angle ) const;
 	void ConstructMatrix( const Vector& origin, const QAngle& angle );
+	template <size_t N>
+	static bool DeterminePath( const char* pszBaseFileName, const char* pszInstanceFileName, char( &pszOutFileName )[N] );
 
 	CMapWorld* m_pTemplate;
 	CUtlString m_strCurrentVMF;

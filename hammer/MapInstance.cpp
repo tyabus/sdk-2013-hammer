@@ -574,7 +574,7 @@ void CMapInstance::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
 
 // Logic from VBSP
 template <size_t N>
-static bool DeterminePath( const char* pszBaseFileName, const char* pszInstanceFileName, char( &pszOutFileName )[N] )
+bool CMapInstance::DeterminePath( const char* pszBaseFileName, const char* pszInstanceFileName, char( &pszOutFileName )[N] )
 {
 	char szInstanceFileNameFixed[ MAX_PATH ];
 	const char *pszMapPath = "\\maps\\";
@@ -777,7 +777,9 @@ bool CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 	if ( !DeterminePath( world->GetVMFPath(), m_strCurrentVMF, instancePath ) )
 		return false;
 
-	auto [chiCount, conCount, visCount] = std::tuple( collapseData.newChildren.Count(), collapseData.connections.Count(), collapseData.visGroups.Count() );
+	const int chiCount = collapseData.newChildren.Count();
+	const int conCount = collapseData.connections.Count();
+	const int visCount = collapseData.visGroups.Count();
 
 	CChunkFile file;
 	ChunkFileResult_t eResult = file.Open( instancePath, ChunkFile_Read );
