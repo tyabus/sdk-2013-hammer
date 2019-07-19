@@ -506,10 +506,15 @@ void CMapInstance::Render3D( CRender3D* pRender )
 					mat->Refresh();
 				}
 
+				constexpr float redEmpty = 121 / 255.f;
+				constexpr float redSelect = 175 / 255.f;
+				constexpr float green = 114 / 255.f;
+				constexpr float blue = 2 / 255.f;
+
 				if ( GetSelectionState() == SELECT_NONE )
-					mat->ColorModulate( 134 / 255.f, 130 / 255.f, 0 );
+					mat->ColorModulate( redEmpty, green, blue );
 				else
-					mat->ColorModulate( 186 / 255.f, 126 / 255.f, 0 );
+					mat->ColorModulate( redSelect, green, blue );
 				CMatRenderContextPtr pRenderContext( materials );
 				//pRenderContext->ClearBuffersObeyStencilEx( false, true, false );
 				pRenderContext->OverrideColorWriteEnable( false, false );
