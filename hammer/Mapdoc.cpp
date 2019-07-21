@@ -792,8 +792,6 @@ void CMapDoc::CenterLogicalViewsOnSelection()
 //-----------------------------------------------------------------------------
 void CMapDoc::CountGUIDs(void)
 {
-	CTypedPtrList<CPtrList, MapObjectPair_t *> GroupedObjects;
-
 	// This increments the CMapWorld face ID but it doesn't matter since we're setting it below.
 	int nNextFaceID = m_pWorld->FaceID_GetNext();
 
@@ -10197,6 +10195,24 @@ void CMapDoc::CollapseInstances( bool bSelected, bool bRecursive )
 
 	m_pSelection->RemoveDead();
 
-	/*for ( CMapClass* newChild : newChildren )
-		AddObjectToWorld( newChild );*/
+#ifdef FIXME
+	for ( const auto& data : std::as_const( collapseData ) )
+	{
+		for ( CVisGroup* visGroup : std::as_const( data.visGroups ) )
+			if ( !m_VisGroups.FindMatch( [visGroup]( CVisGroup* g ) { return !stricmp( g->GetName(), visGroup->GetName() ); } ) )
+				VisGroups_AddGroup( visGroup );
+			else
+				delete visGroup;
+
+		for ( const auto& c : std::as_const( data.newChildren ) )
+		{
+			m_pWorld->AddChild( c.GetObject() );
+			c->PostloadWorld( m_pWorld );
+			m_pWorld->EntityList_Add( c.GetObject() );
+			m_pWorld->m_pCullTree->UpdateCullTreeObjectRecurse( c.GetObject() );
+			// TODO: renumber faceids and nodeids
+		}
+	}
+	m_pWorld->CalcBounds();
+#endif
 }

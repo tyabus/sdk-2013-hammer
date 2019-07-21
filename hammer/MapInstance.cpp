@@ -307,7 +307,7 @@ void CMapInstance::OnParentKeyChanged( const char* key, const char* value )
 void CMapInstance::Render2DChildren( CRender2D* pRender, CMapClass* pEnt )
 {
 	const CMapObjectList& children = pEnt->m_Children;
-	for( CMapClass* pChild : children )
+	for ( CMapClass* pChild : children )
 	{
 		if ( pChild && pChild->IsVisible() && pChild->IsVisible2D() )
 		{
@@ -366,7 +366,7 @@ void CMapInstance::Render3DChildren( CRender3D* pRender, CUtlVector<CMapClass*>&
 {
 	const EditorRenderMode_t renderMode = pRender->GetCurrentRenderMode();
 	const CMapObjectList& children = pEnt->m_Children;
-	for( CMapClass* pChild : children )
+	for ( CMapClass* pChild : children )
 	{
 		if ( pChild && pChild->IsVisible() && ( ignoreFrameCount || pChild->GetRenderFrame() <= GetRenderFrame() ) )
 		{
@@ -712,7 +712,7 @@ bool CMapInstance::LoadVMFInternal( const char* pVMFPath )
 void CMapInstance::AddShadowingTrianglesChildren( CUtlVector<Vector>& tri_list, CMapClass* pEnt )
 {
 	CMapObjectList& children = pEnt->m_Children;
-	for( CMapClass* pChild : children )
+	for ( CMapClass* pChild : children )
 	{
 		if ( pChild && pChild->IsVisible() && pChild->ShouldAppearInLightingPreview() )
 		{
@@ -783,7 +783,6 @@ bool CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 		return false;
 
 	const int chiCount = collapseData.newChildren.Count();
-	const int conCount = collapseData.connections.Count();
 	const int visCount = collapseData.visGroups.Count();
 
 	CChunkFile file;
@@ -857,7 +856,6 @@ bool CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 		ChunkFileResult_t( *LoadEntityCallback )( CChunkFile*, InstanceCollapseData_t* ) = []( CChunkFile* pFile, InstanceCollapseData_t* pDoc )->ChunkFileResult_t
 		{
 			CMapEntity* pEntity = new CMapEntity;
-			pEntity->SetInstance( true );
 			if ( pEntity->LoadVMF( pFile ) == ChunkFile_Ok )
 				pDoc->newChildren.AddToTail( pEntity );
 			else
@@ -964,6 +962,8 @@ bool CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 
 	if ( eResult == ChunkFile_Ok )
 	{
+		for ( CMapClass* child : std::as_const( collapseData.newChildren ) )
+			child->Transform( m_matTransform );
 		if ( bRecursive )
 		{
 			CUtlVector<CMapClass*> toRemove;
@@ -1005,15 +1005,6 @@ bool CMapInstance::Collapse( bool bRecursive, InstanceCollapseData_t& collapseDa
 			collapseData.newChildren.Remove( collapseData.newChildren.Count() - 1 );
 	}
 	del.PurgeAndDeleteElements(); // cannot delete until CMapObjectList is empty
-
-	if ( conCount == 0 )
-		collapseData.connections.PurgeAndDeleteElements();
-	else
-	{
-		for ( int i = conCount; i < collapseData.connections.Count(); ++i )
-			delete collapseData.connections[i];
-		collapseData.connections.RemoveMultipleFromTail( collapseData.connections.Count() - conCount );
-	}
 
 	if ( visCount == 0 )
 		collapseData.visGroups.PurgeAndDeleteElements();

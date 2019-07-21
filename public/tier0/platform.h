@@ -411,8 +411,11 @@ typedef void * HINSTANCE;
 #define offsetof(s,m)	(size_t)&(((s *)0)->m)
 #endif
 
-
-#define ALIGN_VALUE( val, alignment ) ( ( (val) + (alignment) - 1 ) & ~( (alignment) - 1 ) ) //  need macro for constant expression
+template <typename T1, typename T2>
+static __forceinline constexpr auto ALIGN_VALUE( const T1& val, const T2& alignment )
+{
+	return ( ( val + alignment - 1 ) & ~( alignment - 1 ) );
+}
 
 // Used to step into the debugger
 #if defined( _WIN32 ) && !defined( _X360 )

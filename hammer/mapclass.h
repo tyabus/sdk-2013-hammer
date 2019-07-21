@@ -158,7 +158,6 @@ private:
 struct InstanceCollapseData_t
 {
 	CMapObjectList newChildren;
-	CUtlVector<class CEntityConnection*> connections; // CEntityConnectionList
 	CUtlVector<CVisGroup*> visGroups;
 };
 

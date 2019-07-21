@@ -9,8 +9,6 @@
 #ifndef FMTSTR_H
 #define FMTSTR_H
 
-#undef sprintf
-
 #include <stdarg.h>
 #include <stdio.h>
 #include "tier0/platform.h"
@@ -78,48 +76,47 @@
 // Purpose: String formatter with specified size
 //
 
-template <int SIZE_BUF, bool QUIET_TRUNCATION = false >
+template <int SIZE_BUF, bool QUIET_TRUNCATION = false>
 class CFmtStrN
 {
 public:
 	CFmtStrN()
 	{
-		InitQuietTruncation();
+		m_bQuietTruncation = QUIET_TRUNCATION;
 		m_szBuf[0] = 0;
 		m_nLength = 0;
 	}
 
 	// Standard C formatting
-	FMTFUNCTION_WIN( 2, 3 ) CFmtStrN(PRINTF_FORMAT_STRING const char *pszFormat, ...) FMTFUNCTION( 2, 3 )
+	FMTFUNCTION_WIN( 2, 3 ) CFmtStrN( PRINTF_FORMAT_STRING const char* pszFormat, ... ) FMTFUNCTION( 2, 3 )
 	{
-		InitQuietTruncation();
+		m_bQuietTruncation = QUIET_TRUNCATION;
 		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat );
 	}
 
 	// Use this for pass-through formatting
-	CFmtStrN(const char ** ppszFormat, ...)
+	CFmtStrN( const char** ppszFormat, ... )
 	{
-		InitQuietTruncation();
+		m_bQuietTruncation = QUIET_TRUNCATION;
 		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, ppszFormat, 0, ppszFormat );
 	}
 
 	// Explicit reformat
-	FMTFUNCTION_WIN( 2, 3 ) const char *sprintf(PRINTF_FORMAT_STRING const char *pszFormat, ...) FMTFUNCTION( 2, 3 )
+	FMTFUNCTION_WIN( 2, 3 ) const char* sprintf( PRINTF_FORMAT_STRING const char* pszFormat, ... ) FMTFUNCTION( 2, 3 )
 	{
-		InitQuietTruncation();
+		m_bQuietTruncation = QUIET_TRUNCATION;
 		FmtStrVSNPrintf(m_szBuf, SIZE_BUF, m_bQuietTruncation, &pszFormat, 0, pszFormat );
 		return m_szBuf;
 	}
 
 	// Use this for va_list formatting
-	const char *sprintf_argv(const char *pszFormat, va_list arg_ptr)
+	const char* sprintf_argv( const char* pszFormat, va_list arg_ptr )
 	{
-		int result;
 		bool bTruncated = false;
 		static int s_nWarned = 0;
 
-		InitQuietTruncation();
-		result = V_vsnprintfRet( m_szBuf, SIZE_BUF - 1, pszFormat, arg_ptr, &bTruncated );
+		m_bQuietTruncation = QUIET_TRUNCATION;
+		V_vsnprintfRet( m_szBuf, SIZE_BUF - 1, pszFormat, arg_ptr, &bTruncated );
 		m_szBuf[SIZE_BUF - 1] = 0;
 		if ( bTruncated && !m_bQuietTruncation && ( s_nWarned < 5 ) )
 		{
@@ -132,30 +129,30 @@ public:
 	}
 
 	// Use this for pass-through formatting
-	void VSprintf(const char **ppszFormat, ...)
+	void VSprintf( const char** ppszFormat, ... )
 	{
-		InitQuietTruncation();
+		m_bQuietTruncation = QUIET_TRUNCATION;
 		FmtStrVSNPrintf( m_szBuf, SIZE_BUF, m_bQuietTruncation, ppszFormat, 0, ppszFormat );
 	}
 
 	// Compatible API with CUtlString for converting to const char*
-	const char *Get( ) const					{ return m_szBuf; }
-	const char *String( ) const					{ return m_szBuf; }
+	const char* Get() const						{ return m_szBuf; }
+	const char* String() const					{ return m_szBuf; }
 	// Use for access
-	operator const char *() const				{ return m_szBuf; }
-	char *Access()								{ return m_szBuf; }
+	operator const char*() const				{ return m_szBuf; }
+	char* Access()								{ return m_szBuf; }
 
 	// Access template argument
 	static inline int GetMaxLength() { return SIZE_BUF-1; }
 
-	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator=( const char *pchValue )
+	CFmtStrN<SIZE_BUF, QUIET_TRUNCATION>& operator=( const char* pchValue )
 	{
 		V_strncpy( m_szBuf, pchValue, SIZE_BUF );
 		m_nLength = V_strlen( m_szBuf );
 		return *this;
 	}
 
-	CFmtStrN<SIZE_BUF,QUIET_TRUNCATION> & operator+=( const char *pchValue )
+	CFmtStrN<SIZE_BUF, QUIET_TRUNCATION>& operator+=( const char* pchValue )
 	{
 		Append( pchValue );
 		return *this;
@@ -175,15 +172,15 @@ public:
 		m_nLength = 0;
 	}
 
-	FMTFUNCTION_WIN( 2, 3 ) void AppendFormat( PRINTF_FORMAT_STRING const char *pchFormat, ... ) FMTFUNCTION( 2, 3 )
+	FMTFUNCTION_WIN( 2, 3 ) void AppendFormat( PRINTF_FORMAT_STRING const char* pchFormat, ... ) FMTFUNCTION( 2, 3 )
 	{
 		char *pchEnd = m_szBuf + m_nLength;
 		FmtStrVSNPrintf( pchEnd, SIZE_BUF - m_nLength, m_bQuietTruncation, &pchFormat, m_nLength, pchFormat );
 	}
 
-	void AppendFormatV( const char *pchFormat, va_list args );
+	void AppendFormatV( const char* pchFormat, va_list args );
 
-	void Append( const char *pchValue )
+	void Append( const char* pchValue )
 	{
 		// This function is close to the metal to cut down on the CPU cost
 		// of the previous incantation of Append which was implemented as
@@ -223,11 +220,6 @@ public:
 	void SetQuietTruncation( bool bQuiet ) { m_bQuietTruncation = bQuiet; }
 
 protected:
-	virtual void InitQuietTruncation()
-	{
-		m_bQuietTruncation = QUIET_TRUNCATION;
-	}
-
 	bool m_bQuietTruncation;
 
 private:
@@ -238,10 +230,8 @@ private:
 
 // Version which will not assert if strings are truncated
 
-template < int SIZE_BUF >
-class CFmtStrQuietTruncationN : public CFmtStrN<SIZE_BUF, true >
-{
-};
+template <int SIZE_BUF>
+using CFmtStrQuietTruncationN = CFmtStrN<SIZE_BUF, true>;
 
 
 template< int SIZE_BUF, bool QUIET_TRUNCATION >
@@ -340,7 +330,7 @@ public:
 
 	inline void SetHexUint64( uint64 un64 )	{ Q_binarytohex( (byte *)&un64, sizeof( un64 ), m_szBuf, sizeof( m_szBuf ) ); }
 
-	operator const char *() const { return m_szBuf; }
+	operator const char*() const { return m_szBuf; }
 	const char* String() const { return m_szBuf; }
 
 	void AddQuotes()
