@@ -50,20 +50,20 @@ enum DirIndex_t
 // combines a list of commands & a name:
 class CCommandSequence
 {
-	public:
+public:
 
-		CCommandArray m_Commands;
-		char m_szName[128];
+	CCommandArray m_Commands;
+	char m_szName[128];
 };
 
 
-class CHammer : public CWinApp, public CTier3AppSystem< IHammer >
+class CHammer : public CWinApp, public CTier3DmAppSystem<IHammer>
 {
-	typedef CTier3AppSystem< IHammer > BaseClass;
+	typedef CTier3DmAppSystem<IHammer> BaseClass;
 
 public:
-	CHammer(void);
-	virtual ~CHammer(void);
+	CHammer();
+	~CHammer();
 
 	// Methods of IAppSystem
 	virtual bool Connect( CreateInterfaceFn factory );
@@ -100,7 +100,12 @@ public:
 	void GetDirectory(DirIndex_t dir, char *p);
 	void SetDirectory(DirIndex_t dir, const char *p);
 
+	UINT GetProfileIntA(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault) override;
+	CString GetProfileStringA(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault = NULL) override;
 	COLORREF GetProfileColor(const char *pszSection, const char *pszKey, int r, int g, int b);
+
+	BOOL WriteProfileInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue) override;
+	BOOL WriteProfileStringA(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszValue) override;
 
 	void OnActivateApp(bool bActive);
 	bool IsActiveApp();
@@ -111,8 +116,6 @@ public:
 
 	void BeginClosing();
 	bool IsClosing();
-
-	void Enable3DRender(bool bEnable);
 
 	void ReleaseVideoMemory();
 	void SuppressVideoAllocation( bool bSuppress );
@@ -139,7 +142,6 @@ public:
 	bool GetForceRenderNextFrame();
 
 	CMultiDocTemplate *pMapDocTemplate;
-	CMultiDocTemplate *pPakDocTemplate;
 
 	//{{AFX_MSG(CHammer)
 	afx_msg void OnAppAbout();
@@ -172,7 +174,8 @@ protected:
 	char m_szAppDir[MAX_PATH];
 	char m_szAutosaveDir[MAX_PATH];
 
-    CHammerCmdLine *m_CmdLineInfo;
+	CHammerCmdLine *m_CmdLineInfo;
+	KeyValues* m_pConfig;
 };
 
 

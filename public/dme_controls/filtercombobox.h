@@ -23,7 +23,6 @@ class CFilterComboBox : public vgui::ComboBox
 
 public:
 	CFilterComboBox( Panel *parent, const char *panelName, int numLines, bool allowEdit );
-    ~CFilterComboBox() {}
 	virtual void OnKillFocus();
 };
 

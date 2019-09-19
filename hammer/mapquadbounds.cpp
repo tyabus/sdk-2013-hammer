@@ -76,7 +76,7 @@ void CMapQuadBounds::PresaveWorld(void)
 	{
 		return;
 	}
-	CMapSolid *pSolid = pMapEntity->GetChildOfType((CMapSolid*)NULL);
+	CMapSolid *pSolid = pMapEntity->GetChildOfType<CMapSolid>();
 
 	if (pSolid)
 	{

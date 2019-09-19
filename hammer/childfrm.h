@@ -1,6 +1,6 @@
 //===== Copyright © 1996-2005, Valve Corporation, All rights reserved. ======//
 //
-// Purpose: 
+// Purpose:
 //
 //===========================================================================//
 
@@ -28,11 +28,11 @@ public:
 class CChildFrame : public CMDIChildWnd
 {
 	DECLARE_DYNCREATE(CChildFrame)
-		
+
 		public:
-	
+
 	CChildFrame(void);
-	
+
 	CView *ReplaceView(CRuntimeClass *pViewClass);
 	void SetSplitterMode(BOOL bSplitter);
 	CView *GetActiveView(void);
@@ -64,7 +64,7 @@ protected:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 
 	//{{AFX_MSG(CChildFrame)
-	afx_msg void OnSetFocus( CWnd* pOldWnd ); 
+	afx_msg void OnSetFocus( CWnd* pOldWnd );
 
 	afx_msg void OnClose();
 	afx_msg void OnView2dxy();

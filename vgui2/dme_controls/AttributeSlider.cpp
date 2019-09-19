@@ -102,8 +102,6 @@ public:
 		Assert( m_pSlider );
 	}
 
-    ~CAttributeSliderTextEntry() {}
-
 	MESSAGE_FUNC_PARAMS( OnKillFocus, "KillFocus", kv );
 	virtual void OnMouseWheeled( int delta );
 

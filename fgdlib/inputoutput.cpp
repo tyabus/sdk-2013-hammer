@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -15,17 +15,17 @@
 typedef struct
 {
 	InputOutputType_t eType;	// The enumeration of this type.
-	char *pszName;				// The name of this type.
+	const char *pszName;				// The name of this type.
 } TypeMap_t;
 
 
-char *CClassInputOutputBase::g_pszEmpty = "";
+const char *CClassInputOutputBase::g_pszEmpty = "";
 
 
 //-----------------------------------------------------------------------------
 // Maps type names to type enums for inputs and outputs.
 //-----------------------------------------------------------------------------
-static TypeMap_t TypeMap[] =
+static constexpr const TypeMap_t TypeMap[] =
 {
 	{ iotVoid,		"void" },
 	{ iotInt,		"integer" },
@@ -40,7 +40,7 @@ static TypeMap_t TypeMap[] =
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CClassInputOutputBase::CClassInputOutputBase(void)
 {
@@ -50,9 +50,9 @@ CClassInputOutputBase::CClassInputOutputBase(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszName - 
-//			eType - 
+// Purpose:
+// Input  : pszName -
+//			eType -
 //-----------------------------------------------------------------------------
 CClassInputOutputBase::CClassInputOutputBase(const char *pszName, InputOutputType_t eType)
 {
@@ -75,7 +75,7 @@ CClassInputOutputBase::~CClassInputOutputBase(void)
 //-----------------------------------------------------------------------------
 const char *CClassInputOutputBase::GetTypeText(void)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for (int i = 0; i < ARRAYSIZE( TypeMap ); i++)
 	{
 		if (TypeMap[i].eType == m_eType)
 		{
@@ -88,13 +88,13 @@ const char *CClassInputOutputBase::GetTypeText(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : szType - 
+// Purpose:
+// Input  : szType -
 // Output : InputOutputType_t
 //-----------------------------------------------------------------------------
 InputOutputType_t CClassInputOutputBase::SetType(const char *szType)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for (int i = 0; i < ARRAYSIZE( TypeMap ); i++)
 	{
 		if (!stricmp(TypeMap[i].pszName, szType))
 		{
@@ -121,8 +121,7 @@ CClassInputOutputBase &CClassInputOutputBase::operator =(CClassInputOutputBase &
 	delete m_pszDescription;
 	if (Other.m_pszDescription != NULL)
 	{
-		m_pszDescription = new char[strlen(Other.m_pszDescription) + 1];
-		strcpy(m_pszDescription, Other.m_pszDescription);
+		m_pszDescription = V_strdup( Other.m_pszDescription );
 	}
 	else
 	{
@@ -134,7 +133,7 @@ CClassInputOutputBase &CClassInputOutputBase::operator =(CClassInputOutputBase &
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CClassInput::CClassInput(void)
 {
@@ -142,9 +141,9 @@ CClassInput::CClassInput(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszName - 
-//			eType - 
+// Purpose:
+// Input  : pszName -
+//			eType -
 //-----------------------------------------------------------------------------
 CClassInput::CClassInput(const char *pszName, InputOutputType_t eType)
 	: CClassInputOutputBase(pszName, eType)
@@ -153,7 +152,7 @@ CClassInput::CClassInput(const char *pszName, InputOutputType_t eType)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CClassOutput::CClassOutput(void)
 {
@@ -161,9 +160,9 @@ CClassOutput::CClassOutput(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszName - 
-//			eType - 
+// Purpose:
+// Input  : pszName -
+//			eType -
 //-----------------------------------------------------------------------------
 CClassOutput::CClassOutput(const char *pszName, InputOutputType_t eType)
 	: CClassInputOutputBase(pszName, eType)

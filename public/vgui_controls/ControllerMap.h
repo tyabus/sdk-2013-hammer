@@ -23,7 +23,6 @@ class CControllerMap : public vgui::Panel
 
 public:
 	CControllerMap( vgui::Panel *parent, const char *name );
-	virtual ~CControllerMap() {}
 
 	virtual void ApplySettings( KeyValues *inResourceData );
 

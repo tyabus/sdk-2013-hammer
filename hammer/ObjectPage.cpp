@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -15,7 +15,7 @@
 //
 // Used to indicate multiselect of entities with different keyvalues.
 //
-char *CObjectPage::VALUE_DIFFERENT_STRING = "(different)";
+const char *CObjectPage::VALUE_DIFFERENT_STRING = "(different)";
 
 //
 // Set while we are changing the page layout.
@@ -39,7 +39,7 @@ BOOL CObjectPage::OnSetActive(void)
 	}
 
 	CObjectProperties *pParent = (CObjectProperties *)GetParent();
-	
+
 	pParent->UpdateAnchors( this );
 
 	if (m_bFirstTimeActive)
@@ -53,10 +53,10 @@ BOOL CObjectPage::OnSetActive(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 PVOID CObjectPage::GetEditObject()
-{ 
+{
 	//VPROF_BUDGET( "CObjectPage::GetEditObject", "Object Properties" );
 	return ((CObjectProperties*) GetParent())->GetEditObject(GetEditObjectRuntimeClass());
 }

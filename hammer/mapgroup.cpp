@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -33,8 +33,8 @@ void CMapGroup::AddChild(CMapClass *pChild)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pobj - 
+// Purpose:
+// Input  : *pobj -
 // Output : CMapClass *
 //-----------------------------------------------------------------------------
 CMapClass *CMapGroup::CopyFrom(CMapClass *pobj, bool bUpdateDependencies)
@@ -44,7 +44,7 @@ CMapClass *CMapGroup::CopyFrom(CMapClass *pobj, bool bUpdateDependencies)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : CMapClass *
 //-----------------------------------------------------------------------------
 CMapClass *CMapGroup::Copy(bool bUpdateDependencies)
@@ -72,9 +72,9 @@ void CMapGroup::SetLogicalPosition( const Vector2D &vecPosition )
 	  && ( vecPosition != m_vecLogicalPosition ) )
 	{
 		Vector2D	vecDelta = vecPosition - m_vecLogicalPosition;
-		
+
 		FOR_EACH_OBJ( m_Children, pos )
-		{		
+		{
 			CMapClass *pobj = m_Children[pos];
 			// update logical bounds
 			pobj->SetLogicalPosition( pobj->GetLogicalPosition() + vecDelta );
@@ -89,13 +89,13 @@ const Vector2D& CMapGroup::GetLogicalPosition()
 	return m_vecLogicalPosition;
 }
 
-void CMapGroup::GetRenderLogicalBox( Vector2D &mins, Vector2D &maxs ) 
-{ 
-	mins.Init( COORD_NOTINIT, COORD_NOTINIT ); 
-	maxs.Init( -COORD_NOTINIT, -COORD_NOTINIT ); 
+void CMapGroup::GetRenderLogicalBox( Vector2D &mins, Vector2D &maxs )
+{
+	mins.Init( COORD_NOTINIT, COORD_NOTINIT );
+	maxs.Init( -COORD_NOTINIT, -COORD_NOTINIT );
 
 	FOR_EACH_OBJ( m_Children, pos )
-	{		
+	{
 		CMapClass *pobj = m_Children[pos];
 		// update logical bounds
 		Vector2D logicalMins,logicalMaxs;
@@ -107,17 +107,17 @@ void CMapGroup::GetRenderLogicalBox( Vector2D &mins, Vector2D &maxs )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
+// Purpose:
+// Input  : *pFile -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapGroup::LoadVMF(CChunkFile *pFile)
 {
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("editor", (ChunkHandler_t)CMapClass::LoadEditorCallback, this);
+	Handlers.AddHandler("editor", LoadEditorCallback, this);
 
 	pFile->PushHandlers(&Handlers);
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)CMapClass::LoadEditorKeyCallback, this);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadEditorKeyCallback, this);
 	pFile->PopHandlers();
 
 	return(eResult);
@@ -125,8 +125,8 @@ ChunkFileResult_t CMapGroup::LoadVMF(CChunkFile *pFile)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
+// Purpose:
+// Input  : *pFile -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapGroup::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
@@ -152,7 +152,7 @@ ChunkFileResult_t CMapGroup::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 	if (eResult == ChunkFile_Ok)
 	{
 		eResult = CMapClass::SaveVMF(pFile, pSaveInfo);
-	}	
+	}
 
 	if (eResult == ChunkFile_Ok)
 	{
@@ -164,8 +164,8 @@ ChunkFileResult_t CMapGroup::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Groups don't accept visgroups themselves, they 
-// Input  : *pVisGroup - 
+// Purpose: Groups don't accept visgroups themselves, they
+// Input  : *pVisGroup -
 //-----------------------------------------------------------------------------
 void CMapGroup::AddVisGroup(CVisGroup *pVisGroup)
 {

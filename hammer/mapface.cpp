@@ -1347,9 +1347,7 @@ void CMapFace::SetTexture(IEditorTexture *pTexture, bool bRescaleTextureCoordina
 	}
 
 	if (bTexValid)
-	{
 		CalcTextureCoords();
-	}
 
 	UpdateFaceFlags();
 }
@@ -2565,8 +2563,8 @@ ChunkFileResult_t CMapFace::LoadPointDataCallback(CChunkFile* pFile, CMapFace* p
 {
     SignalUpdate(EVTYPE_FACE_CHANGED);
 
-    ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadPointDataKeyCallback, pFace);
-    
+    ChunkFileResult_t eResult = pFile->ReadChunk(LoadPointDataKeyCallback, pFace);
+
     return eResult;
 }
 
@@ -2621,7 +2619,7 @@ ChunkFileResult_t CMapFace::LoadKeyCallback(const char *szKey, const char *szVal
 			&pFace->plane.planepts[0][0], &pFace->plane.planepts[0][1], &pFace->plane.planepts[0][2],
 			&pFace->plane.planepts[1][0], &pFace->plane.planepts[1][1], &pFace->plane.planepts[1][2],
 			&pFace->plane.planepts[2][0], &pFace->plane.planepts[2][1], &pFace->plane.planepts[2][2]);
-        
+
 		if (nRead != 9)
 		{
 			// TODO: need specific error message
@@ -2679,8 +2677,8 @@ ChunkFileResult_t CMapFace::LoadVMF(CChunkFile *pFile)
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("dispinfo", (ChunkHandler_t)LoadDispInfoCallback, this);
-    Handlers.AddHandler("point_data", (ChunkHandler_t) LoadPointDataCallback, this);
+	Handlers.AddHandler("dispinfo", LoadDispInfoCallback, this);
+    Handlers.AddHandler("point_data", LoadPointDataCallback, this);
 
 	//
 	// Read the keys and sub-chunks.
@@ -2690,7 +2688,7 @@ ChunkFileResult_t CMapFace::LoadVMF(CChunkFile *pFile)
 	LoadFace.pFace = this;
 
 	pFile->PushHandlers(&Handlers);
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadKeyCallback, &LoadFace);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadKeyCallback, &LoadFace);
 	pFile->PopHandlers();
 
 	if (eResult == ChunkFile_Ok)
@@ -3200,12 +3198,8 @@ void CMapFace::RemoveSmoothingGroup( int iGroup )
 //-----------------------------------------------------------------------------
 bool CMapFace::InSmoothingGroup( int iGroup )
 {
-	if ( ( m_fSmoothingGroups & ( 1 << ( iGroup - 1 ) ) ) != 0 )
-		return true;
-
-	return false;
+	return ( m_fSmoothingGroups & ( 1 << ( iGroup - 1 ) ) ) != 0;
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: Performs an intersection of this list with another.

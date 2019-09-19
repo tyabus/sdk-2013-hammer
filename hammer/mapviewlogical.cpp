@@ -54,7 +54,7 @@ END_MESSAGE_MAP()
 #define LOGICAL_CONN_COLOR_COUNT		7
 #define LOGICAL_CONN_SELECTION_STATES	2
 
-static color32 s_pWireColors[LOGICAL_CONN_COLOR_COUNT][LOGICAL_CONN_SELECTION_STATES] = 
+static color32 s_pWireColors[LOGICAL_CONN_COLOR_COUNT][LOGICAL_CONN_SELECTION_STATES] =
 {
 	{ { MID, MID, 0,	255 },		/* Mid Yellow */	{ BRITE, BRITE, 0,	255 },		/* Bright Yellow  */	},
 	{ { MID, DARK, 0,	255 },		/* Dark Orange */	{ BRITE, MID, 0,	255 },		/* Bright Orange */		},
@@ -67,7 +67,7 @@ static color32 s_pWireColors[LOGICAL_CONN_COLOR_COUNT][LOGICAL_CONN_SELECTION_ST
 
 static color32 s_pBrokenWireColor[LOGICAL_CONN_SELECTION_STATES] =
 {
-	{ DARK, 0, 0, 255 },			/* Dark Red */		{ BRITE, 0, 0, 255 },			/* Bright Red */	
+	{ DARK, 0, 0, 255 },			/* Dark Red */		{ BRITE, 0, 0, 255 },			/* Bright Red */
 };
 
 //-----------------------------------------------------------------------------
@@ -100,15 +100,15 @@ void CMapViewLogical::OnInitialUpdate(void)
 	UpdateClientView();
 	CMapView2DBase::OnInitialUpdate();
 	// FIXME: Hardcoded light gray background - should be from a new "Logical View" options settings dialog
-	m_ClearColor.SetColor( BACKGROUND, BACKGROUND, BACKGROUND, 255 );  
+	m_ClearColor.SetColor( BACKGROUND, BACKGROUND, BACKGROUND, 255 );
 	m_clrGrid.SetColor( MID, MID, MID, 255 );
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Input  : point - Point in client coordinates.
-//			bMakeFirst - 
+//			bMakeFirst -
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CMapViewLogical::SelectAtCascading( const Vector2D &ptClient, bool bMakeFirst )
@@ -126,7 +126,7 @@ bool CMapViewLogical::SelectAtCascading( const Vector2D &ptClient, bool bMakeFir
 
 	HitInfo_t HitData[MAX_PICK_HITS];
 	int nHits = ObjectsAt(ptClient, HitData, MAX_PICK_HITS);
-	
+
 	// If there were no hits at the given point, clear selection.
 	if ( nHits == 0 )
 	{
@@ -146,7 +146,7 @@ bool CMapViewLogical::SelectAtCascading( const Vector2D &ptClient, bool bMakeFir
 		CMapClass *pSelObject = HitData[i].pObject->PrepareSelection( eSelectMode );
 		if ( !pSelObject )
 			continue;
-		
+
 		pSelection->AddHit( pSelObject );
 	}
 
@@ -173,7 +173,7 @@ void CMapViewLogical::OnRenderListDirty()
 	m_bUpdateRenderObjects = true;
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Purpose: Builds up list of mapclasses to render
 //-----------------------------------------------------------------------------
@@ -194,7 +194,7 @@ void CMapViewLogical::AddToRenderLists( CMapClass *pObject )
 
 	if ( !pObject->IsVisibleLogical() )
 		return;
-	
+
 	// Don't render groups, render their children instead.
 	if ( !pObject->IsGroup() && pObject->IsLogical() )
 	{
@@ -224,7 +224,7 @@ void CMapViewLogical::AddToRenderLists( CMapClass *pObject )
 // Purpose: Builds up list of mapclasses to render
 //-----------------------------------------------------------------------------
 void CMapViewLogical::PopulateConnectionList( )
-{			  
+{
 	while ( m_ConnectionUpdate.Count() )
 	{
 		CMapClass *pObject;
@@ -245,7 +245,7 @@ void CMapViewLogical::PopulateConnectionList( )
 					for ( int i = 0; i < nCount; ++i )
 					{
 						CEntityConnection *pConn = pClass->Connections_Get( i );
-						 
+
 						// Find the input entity associated with this connection
 						CMapEntityList *pEntityList = pConn->GetTargetEntityList();
 
@@ -255,7 +255,7 @@ void CMapViewLogical::PopulateConnectionList( )
 						{
 							CMapEntity *pEntity = pEntityList->Element(j);
 							if ( m_RenderDict.Find( pEntity ) != m_RenderDict.InvalidIndex() )
-							{ 
+							{
 								m_ConnectionList.AddToTail( pObject );
 								break;
 							}
@@ -278,10 +278,10 @@ void CMapViewLogical::PopulateConnectionList( )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nIDEvent - 
+// Purpose:
+// Input  : nIDEvent -
 //-----------------------------------------------------------------------------
-void CMapViewLogical::OnTimer(UINT nIDEvent) 
+void CMapViewLogical::OnTimer(UINT nIDEvent)
 {
 	if ( nIDEvent == TIMER_CONNECTIONUPDATE )
 	{
@@ -300,7 +300,7 @@ void CMapViewLogical::OnTimer(UINT nIDEvent)
 
 const color32 & CMapViewLogical::GetWireColor(const char *pszName, const bool bSelected, const bool bError, const bool bAnySelected)
 {
-	// Select the connecting color based on the string passed in 
+	// Select the connecting color based on the string passed in
 	// (using OutputName for instance, gives varying "wire colors" by entity output type).
 
 	Assert( LOGICAL_CONN_COLOR_COUNT == (sizeof(s_pWireColors) / sizeof(color32) ) / LOGICAL_CONN_SELECTION_STATES );
@@ -317,7 +317,7 @@ const color32 & CMapViewLogical::GetWireColor(const char *pszName, const bool bS
 		// Index based on the number of colors available
 		nIndex %= LOGICAL_CONN_COLOR_COUNT;
 
-		// Only blink non-errors if the drawing object is selected 
+		// Only blink non-errors if the drawing object is selected
 //		bool bBlinkingState = bSelected ? (GetTickCount() / TIMER_BLINK_INTERVAL) & 1 : 0;
 		return s_pWireColors[nIndex][bSelected];
 	}
@@ -339,7 +339,7 @@ const color32 & CMapViewLogical::GetWireColor(const char *pszName, const bool bS
 void CMapViewLogical::DrawConnectingWire( float x, float y, CMapEntity *pSource, CEntityConnection *pConnection, CMapEntity *pTarget )
 {
 	CRender2D *pRender = GetRender();
-	  
+
 	// FIXME: Deal with bad input type
 	Vector2D vecEndPosition, vecConnector;
 	pTarget->GetLogicalConnectionPosition( LOGICAL_CONNECTION_INPUT, vecConnector );
@@ -395,7 +395,7 @@ void CMapViewLogical::DrawConnectingWire( float x, float y, CMapEntity *pSource,
 	float flHalfY = ( y + vecEndPosition.y ) * 0.5f;
 	if ( flHalfY > vecTargetMins.y && flHalfY < vecTargetMaxs.y )
 	{
-		flHalfY = ( flHalfY < vecEndPosition.y ) ? vecTargetMins.y : vecTargetMaxs.y; 
+		flHalfY = ( flHalfY < vecEndPosition.y ) ? vecTargetMins.y : vecTargetMaxs.y;
 	}
 
 	pRender->DrawLineTo( Vector( x, flHalfY, 0.0f ) );
@@ -409,7 +409,7 @@ void CMapViewLogical::RenderConnections(const bool bDrawSelected, const bool bAn
 	Vector2D pt, pt2;
 	WorldToClient( pt, Vector( 0.0f, 0.0f, 0.0f ) );
 	WorldToClient( pt2, Vector( 0.0f, LOGICAL_CONN_VERT_SPACING, 0.0f ) );
-	
+
 	int nCount = m_ConnectionList.Count();
 
 	for ( int i = 0; i < nCount ; ++i )
@@ -449,7 +449,7 @@ void CMapViewLogical::RenderConnections(const bool bDrawSelected, const bool bAn
 			bool bDrawDelay = ( fabs( pt.y - pt2.y ) >= 20 );
 			bool bDrawInput = ( fabs( pt.y - pt2.y ) >= 24 );
 			bool bDrawTarget = ( fabs( pt.y - pt2.y ) >= 28 );
-	  
+
 			bool bEntitySelected = ( pMapClass->GetSelectionState() != SELECT_NONE );
 			bool bInputSelected = false;
 
@@ -466,15 +466,15 @@ void CMapViewLogical::RenderConnections(const bool bDrawSelected, const bool bAn
 			// Make sure we only draw the selected OR unselected connections as requested
 			if ( bDrawSelected == (bEntitySelected || bInputSelected) )
 			{
-				color32 c = GetWireColor( pConn->GetOutputName(), 
-										  bEntitySelected || bInputSelected, 
-										  bBadConnection || bBadInput, 
+				color32 c = GetWireColor( pConn->GetOutputName(),
+										  bEntitySelected || bInputSelected,
+										  bBadConnection || bBadInput,
 										  bAnySelected );
 
 				if ( bDrawDelay || bDrawOutput || bDrawInput || bDrawTarget )
 				{
 					char pBuf[1024];
-					
+
  					pRender->SetTextColor( c.r, c.g, c.b );
 
 					int nChars = 0;
@@ -485,7 +485,7 @@ void CMapViewLogical::RenderConnections(const bool bDrawSelected, const bool bAn
 
 					if ( nChars )
 						pRender->DrawText( pBuf, Vector2D( vecStartPosition.x + LOGICAL_CONN_SPREAD_DIST, y ), 2, 1, CRender2D::TEXT_JUSTIFY_TOP | CRender2D::TEXT_JUSTIFY_RIGHT );
-					
+
 					nChars = 0;
 					if ( bDrawInput )
 						nChars += Q_snprintf( pBuf+nChars, sizeof(pBuf), "%s", pConn->GetInputName() );
@@ -500,7 +500,7 @@ void CMapViewLogical::RenderConnections(const bool bDrawSelected, const bool bAn
 				pRender->MoveTo( Vector( vecStartPosition.x, vecStartPosition.y, 0.0f ) );
 				pRender->DrawLineTo( Vector( vecStartPosition.x + LOGICAL_CONN_SPREAD_DIST, y, 0.0f ) );
 				pRender->DrawLineTo( Vector( x, y, 0.0f ) );
-			    
+
 				if ( bBadConnection )
 				{
 					// Draw an X for a bogus connection.
@@ -524,10 +524,10 @@ void CMapViewLogical::RenderConnections(const bool bDrawSelected, const bool bAn
 					Vector vecStart( x + LOGICAL_CONN_MULTI_CIRCLE_RADIUS, y, 0.0f );
 					Vector vecDelta;
 					for ( int k = 0; k < nInputCount; ++k )
-					{ 
+					{
 						// bBadInput = false; // This should be based on whether downstream entity has the specificied named input
 						bInputSelected = ( pEntityList->Element( k )->GetSelectionState() != SELECT_NONE );
-						color32 c = GetWireColor( pConn->GetOutputName(), 
+						color32 c = GetWireColor( pConn->GetOutputName(),
 												  bEntitySelected || bInputSelected,
 												  bBadInput,
 												  bAnySelected );
@@ -559,7 +559,7 @@ void CMapViewLogical::RenderConnections(const bool bDrawSelected, const bool bAn
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CMapViewLogical::Render()
 {
@@ -567,7 +567,7 @@ void CMapViewLogical::Render()
 	CMapWorld *pWorld = pDoc->GetMapWorld();
 
 	GetRender()->StartRenderFrame();
-	
+
 	// Draw grid if enabled.
 	if ( pDoc->m_bShowLogicalGrid )
 	{
@@ -577,7 +577,7 @@ void CMapViewLogical::Render()
 	// Draw the world if we have one.
 	if (pWorld == NULL)
 		return;
-			   
+
 	// Traverse the entire world, sorting visible elements into two arrays:
 	// Normal objects and selected objects, so that we can render the selected
 	// objects last.
@@ -632,7 +632,7 @@ void CMapViewLogical::Render()
 			unselectedObjects.AddToTail( pObject );
 		}
 	}
-	
+
 	// Render unselected connections first
 	RenderConnections(false, bAnySelected);
 
@@ -684,7 +684,7 @@ void CMapViewLogical::Render()
 
 
 //-----------------------------------------------------------------------------
-// convert client view space to map world coordinates (2D versions for convenience) 
+// convert client view space to map world coordinates (2D versions for convenience)
 //-----------------------------------------------------------------------------
 void CMapViewLogical::WorldToClient( Vector2D &ptClient, const Vector2D &vWorld )
 {

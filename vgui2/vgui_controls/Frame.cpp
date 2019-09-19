@@ -67,8 +67,6 @@ namespace vgui
 			SetBlockDragChaining( true );
 		}
 
-		virtual ~GripPanel() {}
-
 		// Purpose- handle window resizing
 		// Input- dx, dy, the offet of the mouse pointer from where we started dragging
 		virtual void moved(int dx, int dy)
@@ -265,8 +263,6 @@ namespace vgui
 		CaptionGripPanel(Frame* frame, const char *name) : GripPanel(frame, name, 0, 0)
 		{
 		}
-
-		virtual ~CaptionGripPanel() {}
 
 		void moved(int dx, int dy)
 		{
@@ -527,8 +523,6 @@ namespace vgui
 			SetBlockDragChaining( true );
 		}
 
-		virtual ~FrameButton() {}
-
 		virtual void ApplySchemeSettings(IScheme *pScheme)
 		{
 			Button::ApplySchemeSettings(pScheme);
@@ -633,7 +627,6 @@ public:
 		SetMouseClickEnabled( MOUSE_RIGHT, true );
 		SetBlockDragChaining( true );
 	}
-	virtual ~FrameSystemButton() {}
 
 	void SetImages( const char *pEnabledImage, const char *pDisabledImage = NULL )
 	{

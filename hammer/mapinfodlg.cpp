@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -16,10 +16,6 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-
-static BOOL CountObject(CMapClass *pobj);
-
-
 BEGIN_MESSAGE_MAP(CMapInfoDlg, CDialog)
 	//{{AFX_MSG_MAP(CMapInfoDlg)
 	//}}AFX_MSG_MAP
@@ -33,10 +29,8 @@ END_MESSAGE_MAP()
 // Input  : *pobj - Object to count.
 // Output : Returns TRUE to continue enumerating.
 //-----------------------------------------------------------------------------
-static BOOL CountObject(CMapClass *pobj, unsigned int dwParam)
+static BOOL CountObject(CMapClass *pobj, CMapInfoDlg* pdlg)
 {
-	CMapInfoDlg *pdlg = (CMapInfoDlg *)dwParam;
-
 	if (pdlg != NULL)
 	{
 		if (pobj->IsMapClass(MAPCLASS_TYPE(CMapSolid)))
@@ -55,7 +49,7 @@ static BOOL CountObject(CMapClass *pobj, unsigned int dwParam)
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor.
-// Input  : pWorld - 
+// Input  : pWorld -
 //			pParent
 //-----------------------------------------------------------------------------
 CMapInfoDlg::CMapInfoDlg(CMapWorld *pWorld, CWnd* pParent /*=NULL*/)
@@ -157,7 +151,7 @@ void CMapInfoDlg::CountTexture(IEditorTexture *pTex)
 
 //-----------------------------------------------------------------------------
 // Purpose: Sets up child windows.
-// Input  : pDX - 
+// Input  : pDX -
 //-----------------------------------------------------------------------------
 void CMapInfoDlg::DoDataExchange(CDataExchange *pDX)
 {
@@ -180,7 +174,7 @@ void CMapInfoDlg::DoDataExchange(CDataExchange *pDX)
 BOOL CMapInfoDlg::OnInitDialog(void)
 {
 	CDialog::OnInitDialog();
-	
+
 	m_uSolidCount = 0;
 	m_uPointEntityCount = 0;
 	m_uSolidEntityCount = 0;
@@ -189,7 +183,7 @@ BOOL CMapInfoDlg::OnInitDialog(void)
 	m_uTextureMemory = 0;
 
 	// count objects!
-	pWorld->EnumChildren(ENUMMAPCHILDRENPROC(CountObject), (DWORD)this);
+	pWorld->EnumChildren(CountObject, this);
 
 	char szBuf[128];
 	ultoa(m_uSolidCount, szBuf, 10);
@@ -200,7 +194,7 @@ BOOL CMapInfoDlg::OnInitDialog(void)
 
 	ultoa(m_uPointEntityCount, szBuf, 10);
 	m_PointEntities.SetWindowText(szBuf);
-	
+
 	ultoa(m_uFaceCount, szBuf, 10);
 	m_Faces.SetWindowText(szBuf);
 
@@ -210,7 +204,7 @@ BOOL CMapInfoDlg::OnInitDialog(void)
 	ultoa(m_uTextureMemory, szBuf, 10);
 	sprintf(szBuf, "%u bytes (%.2f MB)", m_uTextureMemory, (float)m_uTextureMemory / 1024000.0f);
 	m_TextureMemory.SetWindowText(szBuf);
-	
+
 	return TRUE;
 }
 

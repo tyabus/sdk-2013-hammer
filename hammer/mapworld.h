@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -13,6 +13,7 @@
 #include "MapEntity.h"
 #include "EditGameClass.h"
 #include "MapClass.h"
+#include "MapDoc.h"
 #include "MapPath.h"
 
 // Flags for SaveVMF.
@@ -55,8 +56,8 @@ public:
 				return i;
 			}
 		}
-		
-		return -1;	
+
+		return -1;
 	}
 };
 
@@ -98,7 +99,7 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		ChunkFileResult_t LoadVMF(CChunkFile *pFile);
 		void PostloadWorld(void);
 		void PostloadVisGroups(void);
-		
+
 		// saveFlags is a combination of SAVEFLAGS_ defines.
 		ChunkFileResult_t SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo, int saveFlags);
 
@@ -132,13 +133,22 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		bool FindEntitiesByName(CMapEntityList &Found, const char *szName, bool bVisiblesOnly);
 		bool FindEntitiesByClassName(CMapEntityList &Found, const char *szClassName, bool bVisiblesOnly);
 		bool FindEntitiesByNameOrClassName(CMapEntityList &Found, const char *pszName, bool bVisiblesOnly);
-		
+
 		bool GenerateNewTargetname( const char *startName, char *newName, int newNameBufferSize, bool bMakeUnique, const char *szPrefix, CMapClass *pRoot = NULL );
 
 		// displacement management
 		inline IWorldEditDispMgr *GetWorldEditDispManager( void ) { return m_pWorldDispMgr; }
 
 		int GetGroupList(CUtlVector<CMapGroup *> &GroupList);
+
+		CMapClass* GetPreferredPickObject() override { return m_pPreferredPickObject; }
+		void SetPreferredPickObject( CMapClass* pObject ) { m_pPreferredPickObject = pObject; }
+
+		void SetVMFPath( const char* pVMFPath );
+		const char* GetVMFPath() const;
+
+		void SetOwningDoc( CMapDoc* pDoc ) { m_pOwningDocument = pDoc; }
+		ShowInstance_t GetInstanceVisibility() const { return m_pOwningDocument ? m_pOwningDocument->GetInstanceVisibility() : ShowInstance_t::INSTANCES_SHOW_NORMAL; }
 
 	protected:
 
@@ -174,13 +184,19 @@ class CMapWorld : public CMapClass, public CEditGameClass
 		void CullTree_Free(void);
 
 		CCullTreeNode *m_pCullTree;		// This world's objects stored in a spatial hierarchy for culling.
-		
+
 		CMapEntityList m_EntityList;									// A flat list of all the entities in this world.
 		CMapEntityList m_EntityListByName[NUM_HASHED_ENTITY_BUCKETS];	// A list of all the entities in the world, hashed by name checksum.
 
 		int m_nNextFaceID;						// Used for assigning unique IDs to every solid face in this world.
 
 		IWorldEditDispMgr	*m_pWorldDispMgr;	// world editable displacement manager
+
+		CMapClass* m_pPreferredPickObject;
+
+		CString m_strVMFPath;
+
+		CMapDoc* m_pOwningDocument;
 };
 
 

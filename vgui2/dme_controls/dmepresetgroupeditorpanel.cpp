@@ -400,7 +400,6 @@ class CDmePresetGroupListPanel : public vgui::ListPanel
 public:
 	// constructor, destructor
 	CDmePresetGroupListPanel( vgui::Panel *pParent, const char *pName, CDmePresetGroupEditorPanel *pComboPanel );
-    ~CDmePresetGroupListPanel() {}
 
 	virtual void OnCreateDragData( KeyValues *msg );
 	virtual bool IsDroppable( CUtlVector< KeyValues * >& msgList );
@@ -428,7 +427,6 @@ class CDmePresetListPanel : public vgui::ListPanel
 public:
 	// constructor, destructor
 	CDmePresetListPanel( vgui::Panel *pParent, const char *pName, CDmePresetGroupEditorPanel *pComboPanel );
-    ~CDmePresetListPanel() {}
 
 	virtual void OnKeyCodeTyped( vgui::KeyCode code );
 	virtual void OnCreateDragData( KeyValues *msg );

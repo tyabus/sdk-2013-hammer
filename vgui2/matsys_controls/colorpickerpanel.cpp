@@ -93,7 +93,6 @@ class CColorXYPreview : public CProceduralTexturePanel
 public:
 	// constructor
 	CColorXYPreview( vgui::Panel *pParent, const char *pName );
-    ~CColorXYPreview() {}
 
 	virtual void RegenerateTextureBits( ITexture *pTexture, IVTFTexture *pVTFTexture, Rect_t *pRect );
  	virtual void Paint( void );
@@ -404,7 +403,6 @@ class CColorZPreview : public CProceduralTexturePanel
 public:
 	// constructor
 	CColorZPreview( vgui::Panel *pParent, const char *pName );
-    ~CColorZPreview() {}
 
 	virtual void RegenerateTextureBits( ITexture *pTexture, IVTFTexture *pVTFTexture, Rect_t *pRect );
  	virtual void PerformLayout();

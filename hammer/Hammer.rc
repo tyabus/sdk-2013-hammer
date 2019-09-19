@@ -468,6 +468,22 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_TOOLS_OPTIONS
     END
+    POPUP "&Instancing"
+    BEGIN
+        POPUP "Collapse"
+        BEGIN
+            MENUITEM "Selection",                   ID_INSTANCE_COLLAPSE_SEL
+            MENUITEM "Selection Recursive",         ID_INSTANCE_COLLAPSE_SEL_RECURSIVE
+            MENUITEM "All",                         ID_INSTANCE_COLLAPSE_ALL
+            MENUITEM "All Recursive",               ID_INSTANCE_COLLAPSE_ALL_RECURSIVE
+        END
+        POPUP "View Instances"
+        BEGIN
+            MENUITEM "Hide",                        ID_INSTANCE_VIS_HIDE
+            MENUITEM "Show Tinted",                 ID_INSTANCE_VIS_TINTED, CHECKED
+            MENUITEM "Show Normal",                 ID_INSTANCE_VIS_NORMAL
+        END
+    END
     POPUP "&Window"
     BEGIN
         MENUITEM "&New Window",                 ID_WINDOW_NEW
@@ -1950,7 +1966,7 @@ BEGIN
             VALUE "FileDescription", "Hammer"
             VALUE "FileVersion", "4.0.0"
             VALUE "InternalName", "Hammer"
-            VALUE "LegalCopyright", "Copyright � 1996-2004 Valve Corporation"
+            VALUE "LegalCopyright", "Copyright © 1996-2004 Valve Corporation"
             VALUE "OriginalFilename", "WC.EXE"
             VALUE "ProductName", "Valve Hammer Editor (tm)"
             VALUE "ProductVersion", "4.0.0"
@@ -2714,6 +2730,22 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_MAP_GRIDHIGHER       "Raise the size of the grid\nLarger Grid (right bracket)"
+    ID_INSTANCE_COLLAPSE_SEL "Selection"
+    ID_INSTANCE_COLLAPSE_SEL_RECURSIVE "Selection Recursive"
+    ID_INSTANCE_COLLAPSE_ALL "All"
+    ID_INSTANCE_COLLAPSE_ALL_RECURSIVE "All Recursive"
+    ID_INSTANCE_VIS_HIDE    "Hide"
+    ID_INSTANCE_VIS_TINTED  "Show Tinted"
+    ID_INSTANCE_VIS_NORMAL  "Show Normal"
+    ID_TOOLS_ALIGNLEFT      "Align the selected objects along the leftmost side\nAlign Left"
+    ID_TOOLS_ALIGNRIGHT     "Align the selected objects along the rightmost side\nAlign Right"
+    ID_TOOLS_ALIGNTOP       "Align the selected objects along the topmost side\nAlign Top"
+    ID_TOOLS_ALIGNBOTTOM    "Align the selected objects along the bottom-most side\nAlign Bottom"
+END
+
+STRINGTABLE
+BEGIN
     ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
     ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
     ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
@@ -2878,15 +2910,6 @@ END
 STRINGTABLE
 BEGIN
     ID_TOOLS_CAMERA         "Camera\nCamera [Shift+C]"
-END
-
-STRINGTABLE
-BEGIN
-    ID_MAP_GRIDHIGHER       "Raise the size of the grid\nLarger Grid (right bracket)"
-    ID_TOOLS_ALIGNLEFT      "Align the selected objects along the leftmost side\nAlign Left"
-    ID_TOOLS_ALIGNRIGHT     "Align the selected objects along the rightmost side\nAlign Right"
-    ID_TOOLS_ALIGNTOP       "Align the selected objects along the topmost side\nAlign Top"
-    ID_TOOLS_ALIGNBOTTOM    "Align the selected objects along the bottom-most side\nAlign Bottom"
 END
 
 STRINGTABLE

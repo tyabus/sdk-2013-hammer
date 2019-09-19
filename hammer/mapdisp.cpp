@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -62,7 +62,7 @@ CMapDisp::CMapDisp()
 	m_bSubdiv = false;
 	m_bReSubdiv = false;
 
-	m_CoreDispInfo.InitDispInfo( 4, 0, 0, NULL, NULL, NULL ); 
+	m_CoreDispInfo.InitDispInfo( 4, 0, 0, NULL, NULL, NULL );
 	Paint_Init( DISPPAINT_CHANNEL_POSITION );
 
 	m_CoreDispInfo.AllowedVerts_Clear();
@@ -94,7 +94,7 @@ bool CMapDisp::InitDispSurfaceData( CMapFace *pFace, bool bGenerateStartPoint )
 	if( pointCount != 4 )
 		return false;
 
-	// get the displacement surface 
+	// get the displacement surface
 	CCoreDispSurface *pSurf = m_CoreDispInfo.GetSurface();
 
 	//
@@ -340,7 +340,7 @@ void CMapDisp::UpdateSurfData( CMapFace *pFace )
 	Create();
 }
 
-	
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CMapDisp::UpdateSurfDataAndVectorField( CMapFace *pFace )
@@ -609,7 +609,7 @@ void CMapDisp::UpSample( int oldPower )
 				GetSubdivNormal( oldIndex, subNVector[0] );
 				GetSubdivNormal( oldIndex + oldHeight, subNVector[1] );
 				subdivNormals[newIndex+height] = ( subNVector[0] + subNVector[1] ) * 0.5f;
-				
+
 				bUp = true;
 			}
 
@@ -662,8 +662,8 @@ void CMapDisp::UpSample( int oldPower )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CMapDisp::SamplePoints( int index, int width, int height, bool *pValidPoints, 
-							 float *pValue, float *pAlpha, Vector& newDispVector, 
+void CMapDisp::SamplePoints( int index, int width, int height, bool *pValidPoints,
+							 float *pValue, float *pAlpha, Vector& newDispVector,
 							 Vector& newSubdivPos, Vector &newSubdivNormal )
 {
 	//
@@ -813,7 +813,7 @@ void CMapDisp::DownSample( int oldPower )
 			Vector newDispVector;
 			Vector newSubdivPos;
 			Vector newSubdivNormal;
-			SamplePoints( oldIndex, oldWidth, oldHeight, validPoints, &newValue, &newAlpha, 
+			SamplePoints( oldIndex, oldWidth, oldHeight, validPoints, &newValue, &newAlpha,
 				          newDispVector, newSubdivPos, newSubdivNormal );
 
 			//
@@ -929,7 +929,7 @@ void CMapDisp::Split( EditDispHandle_t hBuilderDisp )
 	}
 
 	// Prepare the destination surface for painting.
-	pBuilderDisp->Paint_Init( DISPPAINT_CHANNEL_POSITION );	
+	pBuilderDisp->Paint_Init( DISPPAINT_CHANNEL_POSITION );
 
 	int nVertCount = pBuilderDisp->GetSize();
 	for ( int iVert = 0; iVert < nVertCount; ++iVert )
@@ -953,7 +953,7 @@ void CMapDisp::Split( EditDispHandle_t hBuilderDisp )
 		pBuilderDisp->SetAlpha( iVert, flNewAlpha );
 		pBuilderDisp->Paint_SetValue(iVert, vecNewVert );
 	}
-	
+
 	pBuilderDisp->Paint_Update( true );
 
 #undef SPLIT_EPSILON
@@ -968,7 +968,7 @@ bool CMapDisp::ComparePoints( const Vector& pt1, const Vector& pt2, const float 
 		if( fabs( pt1[i] - pt2[i] ) > tolerance )
 			return false;
 	}
-	
+
 	return true;
 }
 
@@ -1034,7 +1034,7 @@ void CMapDisp::CreatePlanesFromBoundingBox( Plane_t *planes, const Vector& bbMin
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CMapDisp::CollideWithBoundingBoxes( const Vector& rayStart, const Vector& rayEnd, 
+void CMapDisp::CollideWithBoundingBoxes( const Vector& rayStart, const Vector& rayEnd,
 										 BBox_t *pBBox, int bboxCount, Tri_t *pTris, int *triCount )
 {
 	const float DIST_EPSILON = 0.01f;
@@ -1065,7 +1065,7 @@ void CMapDisp::CollideWithBoundingBoxes( const Vector& rayStart, const Vector& r
 		{
 			float dist1 = DotProduct( planes[j].normal, start ) - planes[j].dist;
 			float dist2 = DotProduct( planes[j].normal, end ) - planes[j].dist;
-		
+
 			//
 			// entry intersection point - move ray start up to intersection
 			//
@@ -1153,7 +1153,7 @@ void CMapDisp::CreateBoundingBoxes( BBox_t *pBBox, int count, float bloat )
 				if( v[0] < pBBox[bboxIndex].min[0] ) { pBBox[bboxIndex].min[0] = v[0]; }
 				if( v[1] < pBBox[bboxIndex].min[1] ) { pBBox[bboxIndex].min[1] = v[1]; }
 				if( v[2] < pBBox[bboxIndex].min[2] ) { pBBox[bboxIndex].min[2] = v[2]; }
-				
+
 				if( v[0] > pBBox[bboxIndex].max[0] ) { pBBox[bboxIndex].max[0] = v[0]; }
 				if( v[1] > pBBox[bboxIndex].max[1] ) { pBBox[bboxIndex].max[1] = v[1]; }
 				if( v[2] > pBBox[bboxIndex].max[2] ) { pBBox[bboxIndex].max[2] = v[2]; }
@@ -1204,7 +1204,7 @@ bool CMapDisp::TraceLine( Vector &vecHitPos, Vector &vecHitNormal, Vector const 
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-bool CMapDisp::TraceLineSnapTo( Vector &HitPos, Vector &HitNormal, 
+bool CMapDisp::TraceLineSnapTo( Vector &HitPos, Vector &HitNormal,
 							    Vector const &RayStart, Vector const &RayEnd )
 {
 #define LOWER_TOLERANCE		-0.1f
@@ -1231,14 +1231,14 @@ bool CMapDisp::TraceLineSnapTo( Vector &HitPos, Vector &HitNormal,
 		GetVert( ndx + 1, tri.v[2] );
 
 		ComputeIntersectionBarycentricCoordinates( ray, tri.v[0], tri.v[1], tri.v[2], u, v );
-		
+
 		// along edge (0.0 < v < 1.0) and below (u < 0.0)
 		if( ( v >= LOWER_TOLERANCE ) && ( v <= UPPER_TOLERANCE ) && ( u < 0.0f ) )
 		{
 			v = clamp( v, 0.0f, 1.0f );
 
 			// snap u (u = 0.0)
-			HitPos = tri.v[0] + ( tri.v[2] - tri.v[0] ) * v; 
+			HitPos = tri.v[0] + ( tri.v[2] - tri.v[0] ) * v;
 			return true;
 		}
 
@@ -1258,16 +1258,16 @@ bool CMapDisp::TraceLineSnapTo( Vector &HitPos, Vector &HitNormal,
 		GetVert( ( ndx * width ) + 1, tri.v[2] );
 
 		ComputeIntersectionBarycentricCoordinates( ray, tri.v[0], tri.v[1], tri.v[2], u, v );
-		
+
 		// along edge (0.0 < u < 1.0) and left (v < 0.0)
 		if( ( u >= LOWER_TOLERANCE ) && ( u <= UPPER_TOLERANCE ) && ( v < 0.0f ) )
 		{
 			u = clamp( u, 0.0f, 1.0f );
 
 			// snap v (v = 0.0)
-			HitPos = tri.v[0] + ( tri.v[1] - tri.v[0] ) * u; 
+			HitPos = tri.v[0] + ( tri.v[1] - tri.v[0] ) * u;
 			return true;
-		}	
+		}
 
 		// special corner 1
 		if( ( ndx == ( height - 2 ) ) && ( u > 1.0f ) && ( v < 0.0f ) )
@@ -1285,14 +1285,14 @@ bool CMapDisp::TraceLineSnapTo( Vector &HitPos, Vector &HitNormal,
 		GetVert( ( ( height - 1 ) * width ) + ndx, tri.v[2] );
 
 		ComputeIntersectionBarycentricCoordinates( ray, tri.v[0], tri.v[1], tri.v[2], u, v );
-		
+
 		// along edge (0.0 < v < 1.0) and above (u < 0.0)
 		if( ( v >= LOWER_TOLERANCE ) && ( v <= UPPER_TOLERANCE ) && ( u < 0.0f ) )
 		{
 			v = clamp( v, 0.0f, 1.0f );
 
 			// snap u (u = 0.0)
-			HitPos = tri.v[0] + ( tri.v[2] - tri.v[0] ) * v; 
+			HitPos = tri.v[0] + ( tri.v[2] - tri.v[0] ) * v;
 			return true;
 		}
 
@@ -1312,16 +1312,16 @@ bool CMapDisp::TraceLineSnapTo( Vector &HitPos, Vector &HitNormal,
 		GetVert( ( ndx * width ) + ( ( 2 * width ) - 2 ), tri.v[2] );
 
 		ComputeIntersectionBarycentricCoordinates( ray, tri.v[0], tri.v[1], tri.v[2], u, v );
-		
+
 		// along edge (0.0 < u < 1.0) and right (v < 0.0)
 		if( ( u >= LOWER_TOLERANCE ) && ( u <= UPPER_TOLERANCE ) && ( v < 0.0f ) )
 		{
 			u = clamp( u, 0.0f, 1.0f );
 
 			// snap v (v = 0.0)
-			HitPos = tri.v[0] + ( tri.v[1] - tri.v[0] ) * u; 
+			HitPos = tri.v[0] + ( tri.v[1] - tri.v[0] ) * u;
 			return true;
-		}	
+		}
 
 		// special corner 3
 		if( ( ndx == 0 ) && ( u > 1.0f ) && ( v < 0.0f ) )
@@ -1540,7 +1540,7 @@ void CMapDisp::CreateShoreOverlays( CMapFace *pFace, Shoreline_t *pShoreline )
 		GetVert( i[0], v[0] );
 		GetVert( i[1], v[1] );
 		GetVert( i[2], v[2] );
-		
+
 		Vector vU, vV;
 		VectorSubtract( v[1], v[0], vU );
 		VectorSubtract( v[2], v[0], vV );
@@ -1607,8 +1607,8 @@ static void RenderDisplacementNormals( CCoreDispInfo& coreDispInfo, int numVerts
 		meshBuilder.AdvanceVertex();
 
 		meshBuilder.Color3f( 0.0f, 1.0f, 0.0f );
-        meshBuilder.Position3f( points[0][0] + ( normal[0] * 10.0f ), 
-								points[0][1] + ( normal[1] * 10.0f ), 
+        meshBuilder.Position3f( points[0][0] + ( normal[0] * 10.0f ),
+								points[0][1] + ( normal[1] * 10.0f ),
 								points[0][2] + ( normal[2] * 10.0f ) );
 		meshBuilder.AdvanceVertex();
     }
@@ -1638,8 +1638,8 @@ static void RenderDisplacementTangentsS( CCoreDispInfo &coreDispInfo, int numVer
 		meshBuilder.AdvanceVertex();
 
 		meshBuilder.Color3f( 1.0f, 0.0f, 0.0f );
-        meshBuilder.Position3f( points[0][0] + ( tangentS[0] * 10.0f ), 
-			                    points[0][1] + ( tangentS[1] * 10.0f ), 
+        meshBuilder.Position3f( points[0][0] + ( tangentS[0] * 10.0f ),
+			                    points[0][1] + ( tangentS[1] * 10.0f ),
 					            points[0][2] + ( tangentS[2] * 10.0f ) );
 		meshBuilder.AdvanceVertex();
 	}
@@ -1671,8 +1671,8 @@ static void RenderDisplacementTangentsT( CCoreDispInfo &coreDispInfo, int numVer
 		meshBuilder.AdvanceVertex();
 
 		meshBuilder.Color3f( 0.0f, 0.0f, 1.0f );
-        meshBuilder.Position3f( points[0][0] + ( tangentT[0] * 10.0f ), 
-			                    points[0][1] + ( tangentT[1] * 10.0f ), 
+        meshBuilder.Position3f( points[0][0] + ( tangentT[0] * 10.0f ),
+			                    points[0][1] + ( tangentT[1] * 10.0f ),
 					            points[0][2] + ( tangentT[2] * 10.0f ) );
 		meshBuilder.AdvanceVertex();
 	}
@@ -1704,8 +1704,8 @@ static void RenderFaceVertexNormals( CCoreDispInfo& coreDispInfo )
 		meshBuilder.AdvanceVertex();
 
 		meshBuilder.Color3f( 1.0f, 0.0f, 0.0f );
-        meshBuilder.Position3f( points[0][0] + ( normal[0] * 25.0f ), 
-								points[0][1] + ( normal[1] * 25.0f ), 
+        meshBuilder.Position3f( points[0][0] + ( normal[0] * 25.0f ),
+								points[0][1] + ( normal[1] * 25.0f ),
 								points[0][2] + ( normal[2] * 25.0f ) );
 		meshBuilder.AdvanceVertex();
     }
@@ -1789,28 +1789,28 @@ static void RenderDisplacementEdges( CCoreDispInfo& coreDispInfo )
 	pSurf->GetPoint( 1, points[1] );
 	pSurf->GetPoint( 2, points[2] );
 	pSurf->GetPoint( 3, points[3] );
-	
+
 	meshBuilder.Color3f( 1.0f, 0.0f, 0.0f );
 	meshBuilder.Position3f( points[0][0], points[0][1], points[0][2] );
 	meshBuilder.AdvanceVertex();
 	meshBuilder.Color3f( 1.0f, 0.0f, 0.0f );
 	meshBuilder.Position3f( points[1][0], points[1][1], points[1][2] );
 	meshBuilder.AdvanceVertex();
-	
+
 	meshBuilder.Color3f( 0.0f, 1.0f, 0.0f );
 	meshBuilder.Position3f( points[1][0], points[1][1], points[1][2] );
 	meshBuilder.AdvanceVertex();
 	meshBuilder.Color3f( 0.0f, 1.0f, 0.0f );
 	meshBuilder.Position3f( points[2][0], points[2][1], points[2][2] );
 	meshBuilder.AdvanceVertex();
-    
+
 	meshBuilder.Color3f( 0.0f, 0.0f, 1.0f );
 	meshBuilder.Position3f( points[2][0], points[2][1], points[2][2] );
 	meshBuilder.AdvanceVertex();
 	meshBuilder.Color3f( 0.0f, 0.0f, 1.0f );
 	meshBuilder.Position3f( points[3][0], points[3][1], points[3][2] );
 	meshBuilder.AdvanceVertex();
-	
+
 	meshBuilder.Color3f( 1.0f, 0.0f, 1.0f );
 	meshBuilder.Position3f( points[3][0], points[3][1], points[3][2] );
 	meshBuilder.AdvanceVertex();
@@ -1868,13 +1868,13 @@ void CMapDisp::Render3DDebug( CRender3D *pRender, bool isSelected )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CMapDisp::CalcColor( CRender3D *pRender, bool bIsSelected, 
+void CMapDisp::CalcColor( CRender3D *pRender, bool bIsSelected,
 						  SelectionState_t faceSelectionState,
 						  Color &pColor )
 {
 	// Get the current render mode.
 	EditorRenderMode_t renderMode = pRender->GetCurrentRenderMode();
-	
+
 	switch ( renderMode )
 	{
 		case RENDER_MODE_TEXTURED:
@@ -1922,7 +1922,7 @@ void CMapDisp::CalcColor( CRender3D *pRender, bool bIsSelected,
 			{
 				SelectFaceColor( pColor );
 			}
-			
+
 			break;
 		}
 		case RENDER_MODE_WIREFRAME:
@@ -1934,7 +1934,7 @@ void CMapDisp::CalcColor( CRender3D *pRender, bool bIsSelected,
 			break;
 		}
 		case RENDER_MODE_SMOOTHING_GROUP:
-		{			
+		{
 			// Render the non-smoothing group faces in white, yellow for the others.
 			CMapDoc *pDoc = CMapDoc::GetActiveMapDoc();
 			if ( pDoc )
@@ -1946,12 +1946,12 @@ void CMapDisp::CalcColor( CRender3D *pRender, bool bIsSelected,
 					pColor[2] = 0;
 				}
 			}
-			
+
 			break;
 		}
 		default:
 		{
-			assert( 0 );
+			Assert( 0 );
 			break;
 		}
 	}
@@ -1983,7 +1983,7 @@ void CMapDisp::AddShadowingTriangles( CUtlVector<Vector> &tri_list )
 // NOTE: most of the rendering mode is set in the parent face render call!!!
 //-----------------------------------------------------------------------------
 void CMapDisp::Render3D( CRender3D *pRender, bool bIsSelected, SelectionState_t faceSelectionState )
-{	
+{
     // Get the current rendermode.
     EditorRenderMode_t renderMode = pRender->GetCurrentRenderMode();
 
@@ -2044,12 +2044,12 @@ void CMapDisp::RenderOverlaySurface( CRender3D *pRender, bool bIsSelected, Selec
 
 	int nVertCount = m_CoreDispInfo.GetSize();
 	int nIndexCount = m_CoreDispInfo.GetRenderIndexCount();
-	
+
 	CMeshBuilder meshBuilder;
 	CMatRenderContextPtr pRenderContext( MaterialSystemInterface() );
 	IMesh *pMesh = pRenderContext->GetDynamicMesh();
 	meshBuilder.Begin( pMesh, MATERIAL_TRIANGLES, nVertCount, nIndexCount );
-	
+
 	CoreDispVert_t *pVert = m_CoreDispInfo.GetDispVertList();
 	for (int i = 0; i < nVertCount; ++i )
 	{
@@ -2058,14 +2058,14 @@ void CMapDisp::RenderOverlaySurface( CRender3D *pRender, bool bIsSelected, Selec
 		meshBuilder.Normal3fv( pVert[i].m_Normal.Base() );
 		meshBuilder.AdvanceVertex();
 	}
-	
+
 	unsigned short *pIndex = m_CoreDispInfo.GetRenderIndexList();
 	for ( int i = 0; i < nIndexCount; ++i )
 	{
 		meshBuilder.Index( pIndex[i] );
 		meshBuilder.AdvanceIndex();
 	}
-	
+
 	meshBuilder.End();
 	pMesh->Draw();
 }
@@ -2085,7 +2085,7 @@ void CMapDisp::RenderSurface( CRender3D *pRender, bool bIsSelected, SelectionSta
 	CMatRenderContextPtr pRenderContext( MaterialSystemInterface() );
 	IMesh *pMesh = pRenderContext->GetDynamicMesh();
 	meshBuilder.Begin( pMesh, MATERIAL_TRIANGLES, numVerts,	numIndices );
-	
+
 	CoreDispVert_t *pVert = m_CoreDispInfo.GetDispVertList();
 	for (int i = 0; i < numVerts; ++i )
 	{
@@ -2098,14 +2098,14 @@ void CMapDisp::RenderSurface( CRender3D *pRender, bool bIsSelected, SelectionSta
 		meshBuilder.TexCoord2fv( 1, pVert[i].m_LuxelCoords[0].Base() );
 		meshBuilder.AdvanceVertex();
 	}
-	
+
 	unsigned short *pIndex = m_CoreDispInfo.GetRenderIndexList();
 	for ( int i = 0; i < numIndices; ++i )
 	{
 		meshBuilder.Index( pIndex[i] );
 		meshBuilder.AdvanceIndex();
 	}
-	
+
 	meshBuilder.End();
 	pMesh->Draw();
 }
@@ -2131,7 +2131,7 @@ void CMapDisp::RenderWalkableSurface( CRender3D *pRender, bool bIsSelected, Sele
 			color.SetColor( 255, 255, 0, 255 );
 			CalcColor( pRender, false, faceSelectionState, color );
 		}
-		
+
 		int nVertCount = m_aWalkableVerts.Count();
 		int nIndexCount = m_aWalkableIndices.Count();
 
@@ -2139,25 +2139,25 @@ void CMapDisp::RenderWalkableSurface( CRender3D *pRender, bool bIsSelected, Sele
 		CMatRenderContextPtr pRenderContext( MaterialSystemInterface() );
 		IMesh *pMesh = pRenderContext->GetDynamicMesh();
 		meshBuilder.Begin( pMesh, MATERIAL_TRIANGLES, nVertCount, nIndexCount );
-		
+
 		CoreDispVert_t **ppVerts = m_aWalkableVerts.Base();
 		for (int i = 0; i < nVertCount; ++i )
 		{
 			CoreDispVert_t *pVert = ppVerts[i];
-			
+
 			meshBuilder.Position3fv( pVert->m_Vert.Base() );
 			meshBuilder.Color4ub( color[0], color[1], color[2], color[3] );
 			meshBuilder.Normal3fv( pVert->m_Normal.Base() );
 			meshBuilder.AdvanceVertex();
 		}
-		
+
 		unsigned short *pIndex = m_aWalkableIndices.Base();
 		for ( int i = 0; i < nIndexCount; ++i )
 		{
 			meshBuilder.Index( pIndex[i] );
 			meshBuilder.AdvanceIndex();
 		}
-		
+
 		meshBuilder.End();
 		pMesh->Draw();
 
@@ -2180,7 +2180,7 @@ void CMapDisp::RenderWalkableSurface( CRender3D *pRender, bool bIsSelected, Sele
 			color.SetColor( 0, 255, 0, 255 );
 			CalcColor( pRender, false, faceSelectionState, color );
 		}
-		
+
 		int nVertCount = m_aWalkableVerts.Count();
 		int nIndexCount = m_aForcedWalkableIndices.Count();
 
@@ -2188,25 +2188,25 @@ void CMapDisp::RenderWalkableSurface( CRender3D *pRender, bool bIsSelected, Sele
 		CMatRenderContextPtr pRenderContext( MaterialSystemInterface() );
 		IMesh *pMesh = pRenderContext->GetDynamicMesh();
 		meshBuilder.Begin( pMesh, MATERIAL_TRIANGLES, nVertCount, nIndexCount );
-		
+
 		CoreDispVert_t **ppVerts = m_aWalkableVerts.Base();
 		for (int i = 0; i < nVertCount; ++i )
 		{
 			CoreDispVert_t *pVert = ppVerts[i];
-			
+
 			meshBuilder.Position3fv( pVert->m_Vert.Base() );
 			meshBuilder.Color4ub( color[0], color[1], color[2], color[3] );
 			meshBuilder.Normal3fv( pVert->m_Normal.Base() );
 			meshBuilder.AdvanceVertex();
 		}
-		
+
 		unsigned short *pIndex = m_aForcedWalkableIndices.Base();
 		for ( int i = 0; i < nIndexCount; ++i )
 		{
 			meshBuilder.Index( pIndex[i] );
 			meshBuilder.AdvanceIndex();
 		}
-		
+
 		meshBuilder.End();
 		pMesh->Draw();
 
@@ -2235,7 +2235,7 @@ void CMapDisp::RenderBuildableSurface( CRender3D *pRender, bool bIsSelected, Sel
 			color.SetColor( 255, 255, 0, 255 );
 			CalcColor( pRender, false, faceSelectionState, color );
 		}
-		
+
 		int nVertCount = m_aBuildableVerts.Count();
 		int nIndexCount = m_aBuildableIndices.Count();
 
@@ -2243,25 +2243,25 @@ void CMapDisp::RenderBuildableSurface( CRender3D *pRender, bool bIsSelected, Sel
 		CMatRenderContextPtr pRenderContext( MaterialSystemInterface() );
 		IMesh *pMesh = pRenderContext->GetDynamicMesh();
 		meshBuilder.Begin( pMesh, MATERIAL_TRIANGLES, nVertCount, nIndexCount );
-		
+
 		CoreDispVert_t **ppVerts = m_aBuildableVerts.Base();
 		for (int i = 0; i < nVertCount; ++i )
 		{
 			CoreDispVert_t *pVert = ppVerts[i];
-			
+
 			meshBuilder.Position3fv( pVert->m_Vert.Base() );
 			meshBuilder.Color4ub( color[0], color[1], color[2], color[3] );
 			meshBuilder.Normal3fv( pVert->m_Normal.Base() );
 			meshBuilder.AdvanceVertex();
 		}
-		
+
 		unsigned short *pIndex = m_aBuildableIndices.Base();
 		for ( int i = 0; i < nIndexCount; ++i )
 		{
 			meshBuilder.Index( pIndex[i] );
 			meshBuilder.AdvanceIndex();
 		}
-		
+
 		meshBuilder.End();
 		pMesh->Draw();
 
@@ -2284,7 +2284,7 @@ void CMapDisp::RenderBuildableSurface( CRender3D *pRender, bool bIsSelected, Sel
 			color.SetColor( 0, 0, 255, 255 );
 			CalcColor( pRender, false, faceSelectionState, color );
 		}
-		
+
 		int nVertCount = m_aBuildableVerts.Count();
 		int nIndexCount = m_aForcedBuildableIndices.Count();
 
@@ -2292,25 +2292,25 @@ void CMapDisp::RenderBuildableSurface( CRender3D *pRender, bool bIsSelected, Sel
 		CMatRenderContextPtr pRenderContext( MaterialSystemInterface() );
 		IMesh *pMesh = pRenderContext->GetDynamicMesh();
 		meshBuilder.Begin( pMesh, MATERIAL_TRIANGLES, nVertCount, nIndexCount );
-		
+
 		CoreDispVert_t **ppVerts = m_aBuildableVerts.Base();
 		for (int i = 0; i < nVertCount; ++i )
 		{
 			CoreDispVert_t *pVert = ppVerts[i];
-			
+
 			meshBuilder.Position3fv( pVert->m_Vert.Base() );
 			meshBuilder.Color4ub( color[0], color[1], color[2], color[3] );
 			meshBuilder.Normal3fv( pVert->m_Normal.Base() );
 			meshBuilder.AdvanceVertex();
 		}
-		
+
 		unsigned short *pIndex = m_aForcedBuildableIndices.Base();
 		for ( int i = 0; i < nIndexCount; ++i )
 		{
 			meshBuilder.Index( pIndex[i] );
 			meshBuilder.AdvanceIndex();
 		}
-		
+
 		meshBuilder.End();
 		pMesh->Draw();
 
@@ -2330,15 +2330,15 @@ void CMapDisp::RenderWireframeSurface( CRender3D *pRender, bool bIsSelected, Sel
 
 	Color color( 255, 255, 255, 255 );
 	CalcColor( pRender, bIsSelected, faceSelectionState, color );
-	
+
 	int numVerts = m_CoreDispInfo.GetSize();
 	int numIndices = m_CoreDispInfo.GetRenderIndexCount();
-	
+
 	CMeshBuilder meshBuilder;
 	CMatRenderContextPtr pRenderContext( MaterialSystemInterface() );
 	IMesh *pMesh = pRenderContext->GetDynamicMesh();
 	meshBuilder.Begin( pMesh, MATERIAL_TRIANGLES, numVerts,	numIndices );
-	
+
 	CoreDispVert_t *pVert = m_CoreDispInfo.GetDispVertList();
 	for (int i = 0; i < numVerts; ++i )
 	{
@@ -2348,14 +2348,14 @@ void CMapDisp::RenderWireframeSurface( CRender3D *pRender, bool bIsSelected, Sel
 		meshBuilder.TexCoord2fv( 1, pVert[i].m_LuxelCoords[0].Base() );
 		meshBuilder.AdvanceVertex();
 	}
-	
+
 	unsigned short *pIndex = m_CoreDispInfo.GetRenderIndexList();
 	for ( int i = 0; i < numIndices; ++i )
 	{
 		meshBuilder.Index( pIndex[i] );
 		meshBuilder.AdvanceIndex();
 	}
-	
+
 	meshBuilder.End();
 	pMesh->Draw();
 
@@ -2387,7 +2387,7 @@ void CMapDisp::UpdateNeighborDependencies( bool bDestroy )
 			CMapDisp *pNeighborDisp = EditDispMgr()->GetDisp( handle );
 			pNeighborDisp->UpdateNeighborDependencies( false );
 		}
-		
+
 		//
 		// update corner neighbors
 		//
@@ -2420,7 +2420,7 @@ void CMapDisp::UpdateNeighborsOfDispsIntersectingBox( const Vector &bbMin, const
 	for ( int i=0; i < count; i++ )
 	{
 		CMapDisp *pDisp = pDispMgr->GetFromWorld( i );
-		
+
 		// Do the bbox test.
 		Vector testbbmin, testbbmax;
 		pDisp->GetBoundingBox( testbbmin, testbbmax );
@@ -2429,7 +2429,7 @@ void CMapDisp::UpdateNeighborsOfDispsIntersectingBox( const Vector &bbMin, const
 			pDisp->ResetNeighbors();
 			pDispMgr->FindWorldNeighbors( pDisp->GetEditHandle() );
 		}
-	}	
+	}
 }
 
 
@@ -2490,7 +2490,7 @@ void CMapDisp::UpdateBoundingBox( void )
 	for( int i = 0; i < size; i++ )
 	{
 		m_CoreDispInfo.GetVert( i, v );
-		
+
 		if( v[0] < m_BBox[0][0] ) { m_BBox[0][0] = v[0]; }
 		if( v[1] < m_BBox[0][1] ) { m_BBox[0][1] = v[1]; }
 		if( v[2] < m_BBox[0][2] ) { m_BBox[0][2] = v[2]; }
@@ -2539,7 +2539,7 @@ void CMapDisp::Scale( float scale )
 		float dist = GetFieldDistance( i );
 		dist *= scale;
 		SetFieldDistance( i, dist );
-		
+
 		// scale the subdivision pos
 		Vector vPos;
 		GetSubdivPosition( i, vPos );
@@ -2596,7 +2596,7 @@ void CMapDisp::ApplyNoise( float min, float max, float rockiness )
 
 		// apply noise to the subdivision normal direction
 		Vector vNoise;
-		
+
 		GetFieldVector( i, vNoise );
 		if( ( vNoise.x == 0 ) && ( vNoise.y == 0 ) && ( vNoise.z == 0 ) )
 		{
@@ -2655,22 +2655,22 @@ void CMapDisp::PostLoad( void )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
-//			*pDisp - 
+// Purpose:
+// Input  : *pFile -
+//			*pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispDistancesCallback(CChunkFile *pFile, CMapDisp *pDisp)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadDispDistancesKeyCallback, pDisp));
+	return pFile->ReadChunk(LoadDispDistancesKeyCallback, pDisp);
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : szKey - 
-//			szValue - 
-//			pDisp - 
+// Purpose:
+// Input  : szKey -
+//			szValue -
+//			pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispDistancesKeyCallback(const char *szKey, const char *szValue, CMapDisp *pDisp)
@@ -2702,22 +2702,22 @@ ChunkFileResult_t CMapDisp::LoadDispDistancesKeyCallback(const char *szKey, cons
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
-//			*pDisp - 
+// Purpose:
+// Input  : *pFile -
+//			*pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispOffsetsCallback(CChunkFile *pFile, CMapDisp *pDisp)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadDispOffsetsKeyCallback, pDisp));
+	return pFile->ReadChunk(LoadDispOffsetsKeyCallback, pDisp);
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : szKey - 
-//			szValue - 
-//			pDisp - 
+// Purpose:
+// Input  : szKey -
+//			szValue -
+//			pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispOffsetsKeyCallback(const char *szKey, const char *szValue, CMapDisp *pDisp)
@@ -2759,25 +2759,25 @@ ChunkFileResult_t CMapDisp::LoadDispOffsetsKeyCallback(const char *szKey, const 
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
-//			*pDisp - 
+// Purpose:
+// Input  : *pFile -
+//			*pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispOffsetNormalsCallback(CChunkFile *pFile, CMapDisp *pDisp)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadDispOffsetNormalsKeyCallback, pDisp ));
+	return pFile->ReadChunk(LoadDispOffsetNormalsKeyCallback, pDisp);
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : szKey - 
-//			szValue - 
-//			pDisp - 
+// Purpose:
+// Input  : szKey -
+//			szValue -
+//			pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
-ChunkFileResult_t CMapDisp::LoadDispOffsetNormalsKeyCallback(const char *szKey, const char *szValue, 
+ChunkFileResult_t CMapDisp::LoadDispOffsetNormalsKeyCallback(const char *szKey, const char *szValue,
 															 CMapDisp *pDisp)
 {
 	Vector normalVector;
@@ -2817,11 +2817,11 @@ ChunkFileResult_t CMapDisp::LoadDispOffsetNormalsKeyCallback(const char *szKey, 
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : szKey - 
-//			szValue - 
-//			pWorld - 
-// Output : 
+// Purpose:
+// Input  : szKey -
+//			szValue -
+//			pWorld -
+// Output :
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispKeyCallback(const char *szKey, const char *szValue, CMapDisp *pDisp)
 {
@@ -2901,21 +2901,21 @@ ChunkFileResult_t CMapDisp::LoadDispKeyCallback(const char *szKey, const char *s
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
-//			*pDisp - 
+// Purpose:
+// Input  : *pFile -
+//			*pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispAlphasCallback(CChunkFile *pFile, CMapDisp *pDisp)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadDispAlphasKeyCallback, pDisp));
+	return pFile->ReadChunk(LoadDispAlphasKeyCallback, pDisp);
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
-//			*pDisp - 
+// Purpose:
+// Input  : *pFile -
+//			*pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispAlphasKeyCallback(const char *szKey, const char *szValue, CMapDisp *pDisp)
@@ -2934,7 +2934,7 @@ ChunkFileResult_t CMapDisp::LoadDispAlphasKeyCallback(const char *szKey, const c
 
 		int nIndex = nRow * nCols;
 
-		while (pszNext != NULL) 
+		while (pszNext != NULL)
 		{
 			alpha = (float)atof(pszNext);
 
@@ -2953,7 +2953,7 @@ ChunkFileResult_t CMapDisp::LoadDispAlphasKeyCallback(const char *szKey, const c
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispTriangleTagsCallback(CChunkFile *pFile, CMapDisp *pDisp)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadDispTriangleTagsKeyCallback, pDisp));
+	return pFile->ReadChunk(LoadDispTriangleTagsKeyCallback, pDisp);
 }
 
 //-----------------------------------------------------------------------------
@@ -2975,7 +2975,7 @@ ChunkFileResult_t CMapDisp::LoadDispTriangleTagsKeyCallback(const char *szKey, c
 		int nIndex = nRow * nCols;
 		int iTri = nIndex * 2;
 
-		while ( pszNext != NULL ) 
+		while ( pszNext != NULL )
 		{
 			nTriTag = ( unsigned int )atoi( pszNext );
 			pDisp->m_CoreDispInfo.SetTriTagValue( iTri, nTriTag );
@@ -2991,7 +2991,7 @@ ChunkFileResult_t CMapDisp::LoadDispTriangleTagsKeyCallback(const char *szKey, c
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispAllowedVertsCallback( CChunkFile *pFile, CMapDisp *pDisp )
 {
-	return( pFile->ReadChunk( ( KeyHandler_t )LoadDispAllowedVertsKeyCallback, pDisp ) );
+	return pFile->ReadChunk( LoadDispAllowedVertsKeyCallback, pDisp );
 }
 
 //-----------------------------------------------------------------------------
@@ -3002,11 +3002,11 @@ ChunkFileResult_t CMapDisp::LoadDispAllowedVertsKeyCallback( const char *szKey, 
 	{
 		char szBuf[MAX_KEYVALUE_LEN];
 		strcpy( szBuf, szValue );
-		
+
 		int iValue = 0;
 
 		char *pszNext = strtok( szBuf, " " );
-		while ( pszNext != NULL ) 
+		while ( pszNext != NULL )
 		{
 			unsigned int nValue = ( unsigned int )atoi( pszNext );
 			unsigned long ulValue = ( unsigned long )nValue;
@@ -3020,21 +3020,21 @@ ChunkFileResult_t CMapDisp::LoadDispAllowedVertsKeyCallback( const char *szKey, 
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
-//			*pDisp - 
+// Purpose:
+// Input  : *pFile -
+//			*pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispNormalsCallback(CChunkFile *pFile, CMapDisp *pDisp)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadDispNormalsKeyCallback, pDisp));
+	return pFile->ReadChunk(LoadDispNormalsKeyCallback, pDisp);
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *szKey - 
-//			*szValue - 
-//			*pDisp - 
+// Purpose:
+// Input  : *szKey -
+//			*szValue -
+//			*pDisp -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadDispNormalsKeyCallback(const char *szKey, const char *szValue, CMapDisp *pDisp)
@@ -3075,8 +3075,8 @@ ChunkFileResult_t CMapDisp::LoadDispNormalsKeyCallback(const char *szKey, const 
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
+// Purpose:
+// Input  : *pFile -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::LoadVMF(CChunkFile *pFile)
@@ -3085,16 +3085,16 @@ ChunkFileResult_t CMapDisp::LoadVMF(CChunkFile *pFile)
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("normals", (ChunkHandler_t)LoadDispNormalsCallback, this);
-	Handlers.AddHandler("distances", (ChunkHandler_t)LoadDispDistancesCallback, this);
-	Handlers.AddHandler("offsets", (ChunkHandler_t)LoadDispOffsetsCallback, this);
-	Handlers.AddHandler("offset_normals", (ChunkHandler_t)LoadDispOffsetNormalsCallback, this);
-	Handlers.AddHandler("alphas", (ChunkHandler_t)LoadDispAlphasCallback, this);
-	Handlers.AddHandler("triangle_tags", (ChunkHandler_t)LoadDispTriangleTagsCallback, this );
-	Handlers.AddHandler("allowed_verts", (ChunkHandler_t)LoadDispAllowedVertsCallback, this );
+	Handlers.AddHandler("normals", LoadDispNormalsCallback, this);
+	Handlers.AddHandler("distances", LoadDispDistancesCallback, this);
+	Handlers.AddHandler("offsets", LoadDispOffsetsCallback, this);
+	Handlers.AddHandler("offset_normals", LoadDispOffsetNormalsCallback, this);
+	Handlers.AddHandler("alphas", LoadDispAlphasCallback, this);
+	Handlers.AddHandler("triangle_tags", LoadDispTriangleTagsCallback, this );
+	Handlers.AddHandler("allowed_verts", LoadDispAllowedVertsCallback, this );
 
 	pFile->PushHandlers(&Handlers);
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadDispKeyCallback, this);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadDispKeyCallback, this);
 	pFile->PopHandlers();
 
 	return(eResult);
@@ -3103,7 +3103,7 @@ ChunkFileResult_t CMapDisp::LoadVMF(CChunkFile *pFile)
 
 //-----------------------------------------------------------------------------
 // Purpose: Saves the displacement info into a special chunk in the MAP file.
-// Input  : *pFile - 
+// Input  : *pFile -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDisp::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
@@ -3200,7 +3200,7 @@ ChunkFileResult_t CMapDisp::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 
 			int nRows = (1 << power) + 1;;
 			int nCols = nRows;
-			
+
 			for (int nRow = 0; nRow < nRows; nRow++)
 			{
 				bool bFirst = true;
@@ -3264,7 +3264,7 @@ ChunkFileResult_t CMapDisp::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 					}
 
 					bFirst = false;
-					dispDistance = m_CoreDispInfo.GetFieldDistance( nIndex ); 
+					dispDistance = m_CoreDispInfo.GetFieldDistance( nIndex );
 					sprintf(szTemp, "%g", (double)dispDistance);
 					strcat(szBuf, szTemp);
 				}
@@ -3494,12 +3494,12 @@ ChunkFileResult_t CMapDisp::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 				{
 					strcat( szBuf, " " );
 				}
-				
+
 				unsigned long ulValue = m_CoreDispInfo.AllowedVerts_GetDWord( iCount );
 				sprintf( szTemp, "%d", ( int )ulValue );
 				strcat( szBuf, szTemp );
 			}
-			
+
 			char szKey[8];
 			sprintf( szKey, "%d", nCount );
 			eResult = pFile->WriteKeyValue( szKey, szBuf );
@@ -3552,7 +3552,7 @@ int CMapDisp::GetStartIndexFromLevel( int levelIndex )
 void CMapDisp::DoTransform(const VMatrix &matrix)
 {
 	// get the face
-	CCoreDispSurface *pSurf = m_CoreDispInfo.GetSurface();	
+	CCoreDispSurface *pSurf = m_CoreDispInfo.GetSurface();
 	CMapFace *pFace = ( CMapFace* )GetParent();
 
 	if( !pFace || !pSurf )
@@ -3566,11 +3566,11 @@ void CMapDisp::DoTransform(const VMatrix &matrix)
 	{
 		// get the displacement starting point, relative to the newly "flipped" points
 		// NOTE: this seems a bit hacky -- if flip goes NUTS later -- look here!!!
-		
-		int iStartIndex = pSurf->GetPointStartIndex(); 
+
+		int iStartIndex = pSurf->GetPointStartIndex();
 		pSurf->SetPointStartIndex( 3-iStartIndex );
 		Flip( FLIP_TRANSPOSE );
-	} 
+	}
 
 	Vector v;
 	int size = GetSize();
@@ -3733,7 +3733,7 @@ EditDispHandle_t CMapDisp::GetHitDispMap( void )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: UNDO is messy to begin with, and now with handles it gets even 
+// Purpose: UNDO is messy to begin with, and now with handles it gets even
 //          more fun!!!  Call through here to setup undo!!
 //-----------------------------------------------------------------------------
 void EditDisp_ForUndo( EditDispHandle_t editHandle, char *pszPositionName,
@@ -3760,7 +3760,7 @@ void EditDisp_ForUndo( EditDispHandle_t editHandle, char *pszPositionName,
 	CMapFace *pFace = ( CMapFace* )pDisp->GetParent();
 	CMapSolid *pSolid = ( CMapSolid* )pFace->GetParent();
 	GetHistory()->Keep( ( CMapClass* )pSolid );
-	
+
 	//
 	// neighbors in undo as well
 	//
@@ -3890,11 +3890,11 @@ void CMapDisp::PaintPosition_Update( int iVert )
 	Vector vSPos, vFlat;
 	GetFlatVert( iVert, vFlat );
 	GetSubdivPosition( iVert, vSPos );
-				
+
 	Vector vSeg;
 	vSeg = m_Canvas.m_Values[iVert] - vFlat;
 	vSeg -= vSPos;
-				
+
 	// Subtract out the elevation.
 	float elev = GetElevation();
 	if( elev != 0.0 )
@@ -3902,12 +3902,12 @@ void CMapDisp::PaintPosition_Update( int iVert )
 		Vector vNormal;
 		GetSurfNormal( vNormal );
 		vNormal *= elev;
-		
+
 		vSeg -= vNormal;
 	}
-				
+
 	float flDistance = VectorNormalize( vSeg );
-	
+
 	SetFieldVector( iVert, vSeg );
 	SetFieldDistance( iVert, flDistance );
 }
@@ -4017,30 +4017,30 @@ void CMapDisp::Paint_UpdateSelfAndNeighbors( bool bSplit )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CMapDisp::SetSelectMask( bool bSelectMask ) 
-{ 
-	m_bSelectMask = bSelectMask; 
+void CMapDisp::SetSelectMask( bool bSelectMask )
+{
+	m_bSelectMask = bSelectMask;
 }
-	
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-bool CMapDisp::HasSelectMask( void ) 
-{ 
-	return m_bSelectMask; 
-}	
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CMapDisp::SetGridMask( bool bGridMask ) 
-{ 
-	m_bGridMask = bGridMask; 
+bool CMapDisp::HasSelectMask( void )
+{
+	return m_bSelectMask;
 }
-	
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-bool CMapDisp::HasGridMask( void ) 
-{ 
-	return m_bGridMask; 
+void CMapDisp::SetGridMask( bool bGridMask )
+{
+	m_bGridMask = bGridMask;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool CMapDisp::HasGridMask( void )
+{
+	return m_bGridMask;
 }
 
 //-----------------------------------------------------------------------------
@@ -4087,7 +4087,7 @@ bool CMapDisp::SaveDXF(ExportDXFInfo_s *pInfo)
 	int nVertCount = GetSize();
 	int nTriFaces = TriangleCount();
 
-	fprintf(pInfo->fp,"0\nPOLYLINE\n8\n%s\n66\n1\n70\n64\n71\n%u\n72\n%u\n", 
+	fprintf(pInfo->fp,"0\nPOLYLINE\n8\n%s\n66\n1\n70\n64\n71\n%u\n72\n%u\n",
 		szName, nVertCount, nTriFaces);
 	fprintf(pInfo->fp,"62\n50\n");
 

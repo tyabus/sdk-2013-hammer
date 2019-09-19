@@ -39,7 +39,6 @@ class CDoubleComboBoxContainerPanel : public vgui::Panel
 	DECLARE_CLASS_SIMPLE( CDoubleComboBoxContainerPanel, vgui::Panel );
 public:
 	CDoubleComboBoxContainerPanel( vgui::Panel *parent, char const *name );
-    ~CDoubleComboBoxContainerPanel() {}
 	void AddComboBox( int slot, vgui::ComboBox *box );
 
 private:

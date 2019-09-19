@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -50,6 +50,7 @@ enum GDIV_TYPE
 	ivAngleNegativePitch,	// used for instance rotating when just a pitch value is present
 	ivInstanceVariable,		// used for instance variables for easy hammer editing
 	ivInstanceParm,			// used for instance parameter declaration
+	ivBoolean,
 
 	ivMax					// count of types
 };
@@ -77,7 +78,7 @@ class GDinputvariable
 		~GDinputvariable();
 
 		BOOL InitFromTokens(TokenReader& tr);
-		
+
 		// functions:
 		inline const char *GetName() { return m_szName; }
 		inline const char *GetLongName(void) { return m_szLongName; }
@@ -86,23 +87,24 @@ class GDinputvariable
 		inline int GetFlagCount() { return m_Items.Count(); }
 		inline int GetFlagMask(int nFlag);
 		inline const char *GetFlagCaption(int nFlag);
-		
+
 		inline int GetChoiceCount() { return m_Items.Count(); }
 		inline const char *GetChoiceCaption(int nChoice);
 
-		inline GDIV_TYPE GetType() { return m_eType; }
+		inline GDIV_TYPE GetType() const { return m_eType; }
 		const char *GetTypeText(void);
-		
+
 		inline void GetDefault(int *pnStore)
-		{ 
-			pnStore[0] = m_nDefault; 
+		{
+			pnStore[0] = m_nDefault;
 		}
 
-		inline void GetDefault(char *pszStore)
-		{ 
-			strcpy(pszStore, m_szDefault); 
+		template <size_t N>
+		inline void GetDefault(char (&pszStore)[N])
+		{
+			strncpy(pszStore, m_szDefault, Min<size_t>(N, MAX_STRING));
 		}
-		
+
 		GDIV_TYPE GetTypeFromToken(const char *pszToken);
 		trtoken_t GetStoreAsFromType(GDIV_TYPE eType);
 
@@ -120,7 +122,7 @@ class GDinputvariable
 		inline bool IsReportable(void);
 		inline bool IsReadOnly(void);
 
-		GDinputvariable &operator =(GDinputvariable &Other);
+		GDinputvariable& operator =(const GDinputvariable &Other);
 		void Merge(GDinputvariable &Other);
 
 		static const char *GetVarTypeName( GDIV_TYPE eType );
@@ -130,7 +132,7 @@ class GDinputvariable
 		// for choices/flags:
 		CUtlVector<GDIVITEM> m_Items;
 
-		static char *m_pszEmpty;
+		static const char *m_pszEmpty;
 
 		char m_szName[MAX_IDENT];
 		char m_szLongName[MAX_STRING];
@@ -152,12 +154,12 @@ class GDinputvariable
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 const char *GDinputvariable::GetDescription(void)
 {
 	if (m_pszDescription != NULL)
-	{	
+	{
 		return(m_pszDescription);
 	}
 

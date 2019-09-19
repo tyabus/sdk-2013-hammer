@@ -11,7 +11,7 @@
 #include "MapClass.h"
 #include "MapFace.h"			// FIXME: For PLANE definition.
 #include "EditGameClass.h"
-
+#include "tier1/utlobjectreference.h"
 
 class CMapAnimator;
 class CRender2D;
@@ -195,7 +195,7 @@ public:
 	//			entity, NULL if the first child of this entity is not MapClass.
 	//-----------------------------------------------------------------------------
 	template< class MapClass >
-	MapClass *GetChildOfType( MapClass *null )
+	MapClass *GetChildOfType()
 	{
 		FOR_EACH_OBJ( m_Children, pos )
 		{
@@ -219,6 +219,8 @@ public:
 // 	{
 // 		return m_KeyValues.GetValue(symbol );
 // 	}
+
+	void SetInstance( bool instance ) { m_bIsInstance = instance; }
 private:
 
 	void EnsureUniqueNodeID(CMapWorld *pWorld);
@@ -255,10 +257,14 @@ private:
 	CMapEntity *m_pMoveParent;			// for entity movement hierarchy
 	CMapAnimator *m_pAnimatorChild;
 	Vector2D m_vecLogicalPosition;	// Position in logical space
+
+	bool m_bIsInstance;
+
+	DECLARE_REFERENCED_CLASS( CMapEntity );
 };
 
 
-typedef CUtlVector<CMapEntity*> CMapEntityList;
+typedef CUtlReferenceVector<CMapEntity> CMapEntityList;
 
 bool MapEntityList_HasInput(const CMapEntityList *pList, const char *szInput, InputOutputType_t eType = iotInvalid);
 

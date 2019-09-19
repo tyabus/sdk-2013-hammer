@@ -54,6 +54,7 @@
 #include "KeyBinds.h"
 #include "fmtstr.h"
 #include "KeyValues.h"
+// #include "vgui/ILocalize.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -89,10 +90,6 @@
 extern LPCTSTR GetErrorString(void);
 extern void MakePrefabLibrary(LPCTSTR pszName);
 
-
-static bool bMakeLib = false;
-
-
 CHammer theApp;
 COptions Options;
 
@@ -114,7 +111,8 @@ EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CHammer, IHammer, INTERFACEVERSION_HAMMER, the
 //-----------------------------------------------------------------------------
 // global interfaces
 //-----------------------------------------------------------------------------
-IBaseFileSystem *g_pFileSystem;
+IBaseFileSystem* g_pFileSystem;
+IStudioDataCache* g_pStudioDataCache;
 CreateInterfaceFn g_Factory;
 
 bool g_bHDR = true;
@@ -148,7 +146,7 @@ int WrapFunctionWithMinidumpHandler( int (*pfn)(void *pParam), void *pParam, int
 // Input  : fmt - format specifier.
 //			... - arguments to format.
 //-----------------------------------------------------------------------------
-void DBG(char *fmt, ...)
+void DBG(const char *fmt, ...)
 {
     char ach[128];
     va_list va;
@@ -210,7 +208,7 @@ class CHammerCmdLine : public CCommandLineInfo
 			m_bShowLogo = true;
 			m_bGame = false;
 			m_bConfigDir = false;
-            m_bSetCustomConfigDir = false;
+			m_bSetCustomConfigDir = false;
 		}
 
 		void ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
@@ -256,7 +254,7 @@ class CHammerCmdLine : public CCommandLineInfo
 	bool m_bShowLogo;
 	bool m_bGame;			// Used to find and parse the "-game blah" parameter pair.
 	bool m_bConfigDir;		// Used to find and parse the "-configdir blah" parameter pair.
-    bool m_bSetCustomConfigDir; // Used with above
+	bool m_bSetCustomConfigDir; // Used with above
 	CString m_strGame;		// The name of the game to use for this session, ie "hl2" or "cstrike". This should match the mod dir, not the config name.
 };
 
@@ -280,9 +278,8 @@ CHammer::CHammer(void)
 	m_bActiveApp = true;
 	m_SuppressVideoAllocation = false;
 	m_bForceRenderNextFrame = false;
-	m_bClosing = false;
 
-    m_CmdLineInfo = new CHammerCmdLine();
+	m_CmdLineInfo = new CHammerCmdLine();
 }
 
 
@@ -307,12 +304,13 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 		return false;
 
 //	bool bCVarOk = ConnectStudioRenderCVars( factory );
-	g_pFileSystem = ( IBaseFileSystem * )factory( BASEFILESYSTEM_INTERFACE_VERSION, NULL );
-	g_pStudioRender = ( IStudioRender * )factory( STUDIO_RENDER_INTERFACE_VERSION, NULL );
-	g_pMDLCache = (IMDLCache*)factory( MDLCACHE_INTERFACE_VERSION, NULL );
+	g_pFileSystem = ( IBaseFileSystem* )factory( BASEFILESYSTEM_INTERFACE_VERSION, NULL );
+	g_pStudioRender = ( IStudioRender* )factory( STUDIO_RENDER_INTERFACE_VERSION, NULL );
+	g_pStudioDataCache = ( IStudioDataCache* )factory( STUDIO_DATA_CACHE_INTERFACE_VERSION, NULL );
+	g_pMDLCache = ( IMDLCache* )factory( MDLCACHE_INTERFACE_VERSION, NULL );
     g_Factory = factory;
 
-	if ( !g_pMDLCache || !g_pFileSystem || !g_pFullFileSystem || !materials || !g_pMaterialSystemHardwareConfig || !g_pStudioRender )
+	if ( !g_pMDLCache || !g_pFileSystem || !g_pFullFileSystem || !materials || !g_pMaterialSystemHardwareConfig || !g_pStudioRender || !g_pStudioDataCache )
 		return false;
 
     InstallDmElementFactories();
@@ -332,26 +330,33 @@ bool CHammer::Connect( CreateInterfaceFn factory )
     g_pFullFileSystem->CreateDirHierarchy("prefabs", "hammer"); // Create the prefabs folder if it doesn't already exist
     g_pFullFileSystem->AddSearchPath(hammerPrefabs, "hammer_prefabs", PATH_ADD_TO_HEAD);
 
+	// g_pVGuiLocalize->AddFile("resource/hammer_english.txt", "hammer");
+
 	// Create the message window object for capturing errors and warnings.
 	// This does NOT create the window itself. That happens later in CMainFrame::Create.
 	g_pwndMessage = CMessageWnd::CreateMessageWndObject();
 
-    ParseCommandLine(*m_CmdLineInfo);
-    if (!m_CmdLineInfo->m_bSetCustomConfigDir)
-    {
-        // Default location for GameConfig.txt is in ./hammer/cfg/ but this may be overridden on the command line
-        char szGameConfigDir[MAX_PATH];
-        APP()->GetDirectory(DIR_PROGRAM, szGameConfigDir);
-        CFmtStrN<MAX_PATH> dir("%s/hammer/cfg", szGameConfigDir);
-        g_pFullFileSystem->AddSearchPath(dir.Get(), "hammer_cfg", PATH_ADD_TO_HEAD);
-        Options.configs.m_strConfigDir = szGameConfigDir;
-    }
+	ParseCommandLine(*m_CmdLineInfo);
+	if (!m_CmdLineInfo->m_bSetCustomConfigDir)
+	{
+		// Default location for GameConfig.txt is in ./hammer/cfg/ but this may be overridden on the command line
+		char szGameConfigDir[MAX_PATH];
+		APP()->GetDirectory( DIR_PROGRAM, szGameConfigDir );
+		CFmtStrN<MAX_PATH> dir("%s/hammer/cfg", szGameConfigDir);
+		g_pFullFileSystem->AddSearchPath(dir.Get(), "hammer_cfg", PATH_ADD_TO_HEAD);
+		V_FixupPathName( szGameConfigDir, MAX_PATH, dir.Get() );
+		Options.configs.m_strConfigDir = szGameConfigDir;
+	}
 
-    // Load the options
-    // NOTE: Have to do this now, because we need it before Inits() are called
-    // NOTE: SetRegistryKey will cause hammer to look into the registry for its values
-    SetRegistryKey("Valve");
-    Options.Init();
+	m_pConfig = new KeyValues( "Config" );
+	m_pConfig->LoadFromFile( g_pFileSystem, "HammerConfig.vdf", "hammer_cfg" );
+
+	// Load the options
+	// NOTE: Have to do this now, because we need it before Inits() are called
+	// NOTE: SetRegistryKey will cause hammer to look into the registry for its values
+	m_pszAppName = strdup( "Hammer 2K13" );
+	SetRegistryKey( "Valve" );
+	Options.Init();
 	return true;
 }
 
@@ -359,6 +364,7 @@ bool CHammer::Connect( CreateInterfaceFn factory )
 void CHammer::Disconnect()
 {
 	g_pStudioRender = NULL;
+	g_pStudioDataCache = NULL;
 	g_pFileSystem = NULL;
 	g_pMDLCache = NULL;
 	BaseClass::Disconnect();
@@ -533,56 +539,41 @@ void CHammer::SetDirectory(DirIndex_t dir, const char *p)
 	}
 }
 
+UINT CHammer::GetProfileIntA( LPCTSTR lpszSection, LPCTSTR lpszEntry, int nDefault )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	return data->GetInt( lpszEntry, nDefault );
+}
+
+CString CHammer::GetProfileStringA( LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszDefault )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	return data->GetString( lpszEntry, lpszDefault );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Returns a color from the application configuration storage.
 //-----------------------------------------------------------------------------
 COLORREF CHammer::GetProfileColor(const char *pszSection, const char *pszKey, int r, int g, int b)
 {
-	int newR, newG, newB;
-
-	CString strDefault;
-	CString strReturn;
-	char szBuff[128];
-	sprintf(szBuff, "%i %i %i", r, g, b);
-
-	strDefault = szBuff;
-
-	strReturn = GetProfileString(pszSection, pszKey, strDefault);
-
-	if (strReturn.IsEmpty())
-		return 0;
-
-	// Parse out colors.
-	char *pStart;
-	char *pCurrent;
-	pStart = szBuff;
-	pCurrent = pStart;
-
-	strcpy( szBuff, (char *)(LPCSTR)strReturn );
-
-	while (*pCurrent && *pCurrent != ' ')
-		pCurrent++;
-
-	*pCurrent++ = 0;
-	newR = atoi(pStart);
-
-	pStart = pCurrent;
-	while (*pCurrent && *pCurrent != ' ')
-		pCurrent++;
-
-	*pCurrent++ = 0;
-	newG = atoi(pStart);
-
-	pStart = pCurrent;
-	while (*pCurrent)
-		pCurrent++;
-
-	*pCurrent++ = 0;
-	newB = atoi(pStart);
-
-	return COLORREF(RGB(newR, newG, newB));
+	KeyValues* data = m_pConfig->FindKey( pszSection, true );
+	const Color& color = data->GetColor( pszKey, Color( r, g, b ) );
+	return COLORREF( RGB( color.r(), color.g(), color.b() ) );
 }
 
+BOOL CHammer::WriteProfileInt( LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	data->SetInt( lpszEntry, nValue );
+	return true;
+}
+
+BOOL CHammer::WriteProfileStringA( LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCTSTR lpszValue )
+{
+	KeyValues* data = m_pConfig->FindKey( lpszSection, true );
+	data->SetString( lpszEntry, lpszValue );
+	return true;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -608,16 +599,42 @@ void CHammer::OpenURL(UINT nID, HWND hwnd)
 }
 
 
-static SpewRetval_t HammerDbgOutput( SpewType_t spewType, char const *pMsg )
+
+static SpewRetval_t HammerDbgOutput( SpewType_t spewType, const char* pMsg )
 {
 	// FIXME: The messages we're getting from the material system
 	// are ones that we really don't care much about.
 	// I'm disabling this for now, we need to decide about what to do with this
 
+	if ( g_pwndMessage )
+	{
+		Color clr = *GetSpewOutputColor();
+		if ( clr.GetRawColor() == 0xFFFFFFFF )
+		{
+			switch( spewType )
+			{
+			case SPEW_WARNING:
+				clr.SetColor( 196, 80, 80 );
+				break;
+			case SPEW_ASSERT:
+				clr.SetColor( 0, 255, 0 );
+				break;
+			case SPEW_ERROR:
+				clr.SetColor( 255, 0, 0 );
+				break;
+			case SPEW_MESSAGE:
+			case SPEW_LOG:
+				clr.SetColor( 0, 0, 0 );
+				break;
+			}
+		}
+		g_pwndMessage->AddMsg( clr, pMsg );
+	}
+
 	switch( spewType )
 	{
 	case SPEW_ERROR:
-		MessageBox( NULL, (LPCTSTR)pMsg, "Fatal Error", MB_OK | MB_ICONINFORMATION );
+		MessageBox( NULL, pMsg, "Fatal Error", MB_OK | MB_ICONINFORMATION );
 #ifdef _DEBUG
 		return SPEW_DEBUGGER;
 #else
@@ -696,7 +713,8 @@ void UpdatePrefabs_Shutdown()
 //-----------------------------------------------------------------------------
 BOOL CHammer::InitInstance()
 {
-	return TRUE;
+	SetRegistryKey( "Valve" );
+	return CWinApp::InitInstance();
 }
 
 
@@ -808,18 +826,18 @@ int CHammer::StaticHammerInternalInit( void *pParam )
 	return (int)((CHammer*)pParam)->HammerInternalInit();
 }
 
-
+static SpewOutputFunc_t oldSpewFunc = NULL;
 InitReturnVal_t CHammer::HammerInternalInit()
 {
+	oldSpewFunc = GetSpewOutputFunc();
 	SpewOutputFunc( HammerDbgOutput );
-	MathLib_Init( 2.2f, 2.2f, 0.0f, 2.0f, false, false, false, false );
+	MathLib_Init();
 	InitReturnVal_t nRetVal = BaseClass::Init();
 	if ( nRetVal != INIT_OK )
 		return nRetVal;
 
 	if ( !Check16BitColor() )
 		return INIT_FAILED;
-
 
 	//
 	// Create a custom window class for this application so that engine's
@@ -832,7 +850,7 @@ InitReturnVal_t CHammer::HammerInternalInit()
     wndcls.hInstance     = AfxGetInstanceHandle();
     wndcls.hIcon         = LoadIcon(IDR_MAINFRAME);
     wndcls.hCursor       = LoadCursor( IDC_ARROW );
-    wndcls.hbrBackground = (HBRUSH) 0; // (COLOR_WINDOW + 1);
+    wndcls.hbrBackground = (HBRUSH) 0; //  (COLOR_WINDOW + 1);
     wndcls.lpszMenuName  = "IDR_MAINFRAME";
 	wndcls.cbWndExtra    = 0;
 
@@ -856,9 +874,6 @@ InitReturnVal_t CHammer::HammerInternalInit()
 	//
 	g_ShellMessageWnd.Create();
 	g_ShellMessageWnd.SetShell(&g_Shell);
-
-	if (bMakeLib)
-		return INIT_FAILED;	// made library .. don't want to enter program
 
 	//
 	// Create and optionally display the splash screen.
@@ -943,7 +958,7 @@ InitReturnVal_t CHammer::HammerInternalInit()
 
 	materials->ModInit();
 
-    // Initialize Keybinds
+	// Initialize Keybinds
     if (!g_pKeyBinds->Init())
         Error("Unable to load keybinds!");
 
@@ -1196,10 +1211,24 @@ int CHammer::ExitInstance()
 
 	if ( GetSpewOutputFunc() == HammerDbgOutput )
 	{
-		SpewOutputFunc( NULL );
+		SpewOutputFunc( oldSpewFunc );
 	}
 
 	SaveStdProfileSettings();
+
+	// Too bad filesystem doesn't exist at this point
+	CUtlBuffer buffer( 0, 0, CUtlBuffer::TEXT_BUFFER );
+	m_pConfig->RecursiveSaveToFile( buffer, 0, true, true );
+	m_pConfig->deleteThis();
+	m_pConfig = NULL;
+
+	FILE* file;
+	if ( fopen_s( &file, CFmtStrN<MAX_PATH>( "%s" CORRECT_PATH_SEPARATOR_S "HammerConfig.vdf", (const char*)Options.configs.m_strConfigDir ), "w" ) == 0 )
+	{
+		fwrite( buffer.String(), sizeof( char ), buffer.TellPut(), file );
+		fflush( file );
+		fclose( file );
+	}
 
 	return CWinApp::ExitInstance();
 }
@@ -1239,8 +1268,6 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 
 
 
-//-----------------------------------------------------------------------------
-// Purpose:
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL CAboutDlg::OnInitDialog(void)
@@ -1254,11 +1281,11 @@ BOOL CAboutDlg::OnInitDialog(void)
 	if (pWnd != NULL)
 	{
 		char szTemp2[MAX_PATH];
-		const int nBuild = build_number();
+		constexpr int nBuild = build_number();
 		sprintf(szTemp2, "Build %d%s", nBuild,
-        //
-        // For SDK builds, append "SDK" to the version number.
-        //
+	//
+	// For SDK builds, append "SDK" to the version number.
+	//
 #ifdef SDK_BUILD
         " SDK"
 #else
@@ -1429,7 +1456,7 @@ void CHammer::LoadSequences(void)
     int bLoaded = 0;
 
     if (pKvSequences->LoadFromFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg"))
-    {
+	{
         bLoaded = 1;
     }
     else if (pKvSequences->LoadFromFile(g_pFullFileSystem, "CmdSeq_default.wc", "hammer_cfg"))
@@ -1438,26 +1465,26 @@ void CHammer::LoadSequences(void)
     }
 
     if (bLoaded)
-    {
+	{
         FOR_EACH_TRUE_SUBKEY(pKvSequences, pKvSequence)
-        {
+		{
             CCommandSequence *pSeq = new CCommandSequence;
             Q_strncpy(pSeq->m_szName, pKvSequence->GetName(), 128);
             FOR_EACH_TRUE_SUBKEY(pKvSequence, pKvCmd)
-            {
+			{
                 CCOMMAND cmd;
                 Q_memset(&cmd, 0, sizeof(CCOMMAND));
                 cmd.Load(pKvCmd);
-                pSeq->m_Commands.Add(cmd);
-            }
+				pSeq->m_Commands.Add(cmd);
+			}
 
-            m_CmdSequences.Add(pSeq);
-        }
+			m_CmdSequences.Add(pSeq);
+		}
 
         // Save em out if defaults were loaded
         if (bLoaded == 2)
             pKvSequences->SaveToFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg", true);
-    }
+	}
 
     pKvSequences->deleteThis();
 }
@@ -1472,19 +1499,16 @@ void CHammer::SaveSequences(void)
 
     int numSeq = m_CmdSequences.GetSize();
     for (int i = 0; i < numSeq; i++)
-    {
-        CCommandSequence *pSeq = m_CmdSequences[i];
+	{
+		CCommandSequence *pSeq = m_CmdSequences[i];
         KeyValues *pKvSequence = new KeyValues(pSeq->m_szName);
         int numCmds = pSeq->m_Commands.GetSize();
         for (int j = 0; j < numCmds; j++)
         {
-            KeyValues *pKvCmd = pKvSequence->CreateNewKey();
-
-            CCOMMAND cmd = pSeq->m_Commands[j];
-            cmd.Save(pKvCmd);
-        }
+            pSeq->m_Commands[j].Save( pKvSequence->CreateNewKey() );
+		}
         pKvSequences->AddSubKey(pKvSequence);
-    }
+	}
 
     pKvSequences->SaveToFile(g_pFullFileSystem, "CmdSeq.wc", "hammer_cfg", true);
     pKvSequences->deleteThis();

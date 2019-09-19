@@ -169,7 +169,7 @@ void CCOMMAND::Load(KeyValues* pKvCmd)
     bNoWait = pKvCmd->GetBool("no_wait");
 }
 
-void CCOMMAND::Save(KeyValues* pKvCmd)
+void CCOMMAND::Save(KeyValues* pKvCmd) const
 {
     pKvCmd->SetBool("enabled", bEnable);
     pKvCmd->SetInt("special_cmd", iSpecialCmd);

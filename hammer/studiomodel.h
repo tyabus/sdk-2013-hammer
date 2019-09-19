@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -59,7 +59,7 @@ class CStudioModelCache
 };
 
 
-// Calling these will monitor the filesystem for changes to model files and automatically 
+// Calling these will monitor the filesystem for changes to model files and automatically
 // incorporate changes to the models.
 void InitStudioFileChangeWatcher();
 void UpdateStudioFileChangeWatcher();
@@ -102,18 +102,18 @@ public:
 	void					SetAngles( QAngle& pfAngles );
 	bool					IsTranslucent();
 
+	CStudioHdr				*GetStudioHdr() const;
+	studiohwdata_t*			GetHardwareData();
 private:
 	CStudioHdr				*m_pStudioHdr;
-	CStudioHdr				*GetStudioHdr() const;
 	studiohdr_t*			GetStudioRenderHdr() const;
-	studiohwdata_t*			GetHardwareData();
 
 	// entity settings
 	Vector					m_origin;
-	QAngle					m_angles;	
+	QAngle					m_angles;
 	int						m_sequence;			// sequence index
 	float					m_cycle;			// pos in animation cycle
-	int						m_bodynum;			// bodypart selection	
+	int						m_bodynum;			// bodypart selection
 	int						m_skinnum;			// skin group selection
 	byte					m_controller[MAXSTUDIOBONECTRLS];	// bone controllers
 	float					m_poseParameter[MAXSTUDIOPOSEPARAM];		// animation blending
@@ -125,7 +125,7 @@ private:
 
 	// internal data
 	MDLHandle_t				m_MDLHandle;
-	mstudiomodel_t			*m_pModel;	
+	mstudiomodel_t			*m_pModel;
 
 	matrix3x4_t*			SetUpBones ( bool bUpdatePose );
 	void					SetupModel ( int bodypart );

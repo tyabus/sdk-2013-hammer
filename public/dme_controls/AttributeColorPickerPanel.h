@@ -36,7 +36,6 @@ class CAttributeColorPickerPanel : public CAttributeTextPanel
 
 public:
 	CAttributeColorPickerPanel( vgui::Panel *parent, const AttributeWidgetInfo_t &info );
-    ~CAttributeColorPickerPanel() {}
 
 	// Inherited from Panel
 	virtual void	OnCommand( const char *cmd );

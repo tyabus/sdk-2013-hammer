@@ -53,7 +53,6 @@ class CBaseAnimSetAttributeSliderPanel : public vgui::EditablePanel
 	DECLARE_CLASS_SIMPLE( CBaseAnimSetAttributeSliderPanel, vgui::EditablePanel );
 public:
 	CBaseAnimSetAttributeSliderPanel( vgui::Panel *parent, const char *className, CBaseAnimationSetEditor *editor );
-    ~CBaseAnimSetAttributeSliderPanel() {}
 
 public:
 

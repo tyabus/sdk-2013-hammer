@@ -193,6 +193,7 @@ CMapEntity::CMapEntity(void) : flags(0)
 	m_pMoveParent = NULL;
 	m_pAnimatorChild = NULL;
 	m_vecLogicalPosition.Init( COORD_NOTINIT, COORD_NOTINIT );
+	m_bIsInstance = false;
 	CalculateTypeFlags();
 }
 
@@ -247,7 +248,7 @@ void CMapEntity::AddBoundBoxForClass(GDclass *pClass, bool bLoading)
 	// Don't call AddObjectToWorld during VMF load because we don't want to call
 	// OnAddToWorld during VMF load. We update our helpers during PostloadWorld.
 	//
-	CMapWorld *pWorld = (CMapWorld *)GetWorldObject(this);
+	CMapWorld *pWorld = GetWorldObject(this);
 	if ((!bLoading) && (pWorld != NULL))
 	{
 		pWorld->AddObjectToWorld(pBox, this);
@@ -680,13 +681,16 @@ ChunkFileResult_t CMapEntity::LoadVMF(CChunkFile *pFile)
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("solid", (ChunkHandler_t)LoadSolidCallback, this);
-	Handlers.AddHandler("hidden", (ChunkHandler_t)LoadHiddenCallback, this);
-	Handlers.AddHandler("editor", (ChunkHandler_t)LoadEditorCallback, this);
-	Handlers.AddHandler("connections", (ChunkHandler_t)LoadConnectionsCallback, (CEditGameClass *)this);
+	Handlers.AddHandler("solid", LoadSolidCallback, this);
+	Handlers.AddHandler("editor", LoadEditorCallback, this);
+	if ( !m_bIsInstance )
+	{
+		Handlers.AddHandler("hidden", LoadHiddenCallback, this);
+		Handlers.AddHandler("connections", LoadConnectionsCallback, this);
+	}
 
 	pFile->PushHandlers(&Handlers);
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadKeyCallback, this);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadKeyCallback, this);
 	pFile->PopHandlers();
 
 	return(eResult);
@@ -732,8 +736,8 @@ ChunkFileResult_t CMapEntity::LoadHiddenCallback(CChunkFile *pFile, CMapEntity *
 	// Set up handlers for the subchunks that we are interested in.
 	//
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("solid", (ChunkHandler_t)LoadSolidCallback, pEntity);
-	Handlers.AddHandler("editor", (ChunkHandler_t)LoadEditorCallback, pEntity);
+	Handlers.AddHandler("solid", LoadSolidCallback, pEntity);
+	Handlers.AddHandler("editor", LoadEditorCallback, pEntity);
 
 	pFile->PushHandlers(&Handlers);
 	ChunkFileResult_t eResult = pFile->ReadChunk();
@@ -760,7 +764,7 @@ ChunkFileResult_t CMapEntity::LoadEditorKeyCallback( const char *szKey, const ch
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapEntity::LoadEditorCallback(CChunkFile *pFile, CMapEntity *pObject)
 {
-	return pFile->ReadChunk( (KeyHandler_t)LoadEditorKeyCallback, pObject );
+	return pFile->ReadChunk( LoadEditorKeyCallback, pObject );
 }
 
 
@@ -1260,9 +1264,10 @@ void CMapEntity::DeleteKeyValue(LPCSTR pszKey)
 	  szOldValue[0] = '\0';
 	}
 
+	const CString key = pszKey;
 	CEditGameClass::DeleteKeyValue(pszKey);
 
-	OnKeyValueChanged(pszKey, szOldValue, "");
+	OnKeyValueChanged(key, szOldValue, "");
 	CalculateTypeFlags();
 	SignalChanged();
 }
@@ -2034,7 +2039,7 @@ void CMapEntity::Render2D(CRender2D *pRender)
 
 			CMapObjectList FoundEntities;
 			FoundEntities.RemoveAll();
-			pWorld->EnumChildren((ENUMMAPCHILDRENPROC)FindKeyValue, (DWORD)&kv, MAPCLASS_TYPE(CMapEntity));
+			pWorld->EnumChildren(FindKeyValue, &kv, MAPCLASS_TYPE(CMapEntity));
 
 			Vector vCenter1,vCenter2;
 			GetBoundsCenter( vCenter1 );

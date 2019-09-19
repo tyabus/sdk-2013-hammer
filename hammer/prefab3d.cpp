@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -19,7 +19,7 @@
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CPrefab3D::CPrefab3D()
 {
@@ -28,7 +28,7 @@ CPrefab3D::CPrefab3D()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CPrefab3D::~CPrefab3D()
 {
@@ -37,7 +37,7 @@ CPrefab3D::~CPrefab3D()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPrefab3D::FreeData()
 {
@@ -47,7 +47,7 @@ void CPrefab3D::FreeData()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CMapClass *CPrefab3D::Create(void)
 {
@@ -64,7 +64,7 @@ CMapClass *CPrefab3D::Create(void)
 	//
 	if (m_pWorld->GetChildCount() == 1)
 	{
-		
+
 		pOriginal = m_pWorld->GetChildren()->Element(0);
 		pCopy = pOriginal->Copy(false);
 	}
@@ -90,7 +90,7 @@ CMapClass *CPrefab3D::Create(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Input  : point - Where to center the prefab.
 // Output : CMapClass
 //-----------------------------------------------------------------------------
@@ -125,9 +125,9 @@ CMapClass *CPrefab3D::CreateAtPoint(const Vector &point)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : 
-// Output : 
+// Purpose:
+// Input  :
+// Output :
 //-----------------------------------------------------------------------------
 CMapClass *CPrefab3D::CreateAtPointAroundOrigin( Vector const &point )
 {
@@ -151,9 +151,9 @@ CMapClass *CPrefab3D::CreateAtPointAroundOrigin( Vector const &point )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pBox - 
-// Output : 
+// Purpose:
+// Input  : pBox -
+// Output :
 //-----------------------------------------------------------------------------
 CMapClass *CPrefab3D::CreateInBox(BoundBox *pBox)
 {
@@ -206,7 +206,7 @@ CMapClass *CPrefab3D::CreateInBox(BoundBox *pBox)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPrefab3D::CenterOnZero()
 {
@@ -232,7 +232,7 @@ bool CPrefab3D::IsLoaded(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CPrefabVMF::CPrefabVMF()
 {
@@ -240,7 +240,7 @@ CPrefabVMF::CPrefabVMF()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CPrefabVMF::~CPrefabVMF()
 {
@@ -275,8 +275,8 @@ bool CPrefabVMF::IsLoaded(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : dwFlags - 
+// Purpose:
+// Input  : dwFlags -
 // Output : int
 //-----------------------------------------------------------------------------
 int CPrefabVMF::Load(DWORD dwFlags)
@@ -306,8 +306,8 @@ int CPrefabVMF::Load(DWORD dwFlags)
 		// Set up handlers for the subchunks that we are interested in.
 		//
 		CChunkHandlerMap Handlers;
-		Handlers.AddHandler("world", (ChunkHandler_t)CPrefabVMF::LoadWorldCallback, this);
-		Handlers.AddHandler("entity", (ChunkHandler_t)CPrefabVMF::LoadEntityCallback, this);
+		Handlers.AddHandler("world", LoadWorldCallback, this);
+		Handlers.AddHandler("entity", LoadEntityCallback, this);
 		// dvs: Handlers.SetErrorHandler((ChunkErrorHandler_t)CPrefabVMF::HandleLoadError, this);
 
 		File.PushHandlers(&Handlers);
@@ -359,9 +359,9 @@ int CPrefabVMF::Load(DWORD dwFlags)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pFile - 
-//			pData - 
+// Purpose:
+// Input  : pFile -
+//			pData -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CPrefabVMF::LoadEntityCallback(CChunkFile *pFile, CPrefabVMF *pPrefab)
@@ -381,9 +381,9 @@ ChunkFileResult_t CPrefabVMF::LoadEntityCallback(CChunkFile *pFile, CPrefabVMF *
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pFile - 
-//			pData - 
+// Purpose:
+// Input  : pFile -
+//			pData -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CPrefabVMF::LoadWorldCallback(CChunkFile *pFile, CPrefabVMF *pPrefab)
@@ -395,9 +395,9 @@ ChunkFileResult_t CPrefabVMF::LoadWorldCallback(CChunkFile *pFile, CPrefabVMF *p
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszFilename - 
-//			dwFlags - 
+// Purpose:
+// Input  : pszFilename -
+//			dwFlags -
 // Output : int
 //-----------------------------------------------------------------------------
 int CPrefabVMF::Save(LPCTSTR pszFilename, DWORD dwFlags)
@@ -407,7 +407,7 @@ int CPrefabVMF::Save(LPCTSTR pszFilename, DWORD dwFlags)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPrefabVMF::SetFilename(const char *szFilename)
 {

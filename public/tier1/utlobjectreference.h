@@ -14,6 +14,8 @@
 #include "tier1/utlintrusivelist.h"
 #include "mathlib/mathlib.h"
 
+#pragma push_macro("GetObject")
+#undef GetObject
 
 // Purpose: class for keeping track of all the references that exist to an object.  When the object
 // being referenced is freed, all of the references pointing at it will become null.
@@ -31,7 +33,8 @@
 
 
 
-template<class T> class CUtlReference
+template<class T>
+class CUtlReference
 {
 public:
 	FORCEINLINE CUtlReference(void)
@@ -39,18 +42,25 @@ public:
 		m_pNext = m_pPrev = NULL;
 		m_pObject = NULL;
 	}
-  
-	FORCEINLINE CUtlReference(T *pObj)
+
+	FORCEINLINE CUtlReference( T* pObj ) : CUtlReference()
 	{
-		m_pNext = m_pPrev = NULL;
 		AddRef( pObj );
+	}
+
+	FORCEINLINE CUtlReference( const CUtlReference<T>& other ) : CUtlReference()
+	{
+		if ( other.IsValid() )
+		{
+			AddRef( (T*)( other.GetObject() ) );
+		}
 	}
 
 	FORCEINLINE ~CUtlReference(void)
 	{
 		KillRef();
 	}
-  
+
 	FORCEINLINE void Set(T *pObj)
 	{
 		if ( m_pObject != pObj )
@@ -59,30 +69,30 @@ public:
 			AddRef( pObj );
 		}
 	}
-  
-	FORCEINLINE T * operator()(void) const
+
+	FORCEINLINE bool IsValid( void) const
+	{
+		return ( m_pObject != NULL );
+	}
+
+	FORCEINLINE T* operator()(void) const
 	{
 		return m_pObject;
 	}
 
-	FORCEINLINE operator T*()
+	FORCEINLINE operator T*() const
 	{
 		return m_pObject;
 	}
 
-	FORCEINLINE operator const T*() const
+	FORCEINLINE T* GetObject( void ) const
 	{
 		return m_pObject;
 	}
 
-	FORCEINLINE T* operator->()
-	{ 
-		return m_pObject; 
-	}
-
-	FORCEINLINE const T* operator->() const
-	{ 
-		return m_pObject; 
+	FORCEINLINE T* operator->() const
+	{
+		return m_pObject;
 	}
 
 	FORCEINLINE CUtlReference &operator=( const CUtlReference& otherRef )
@@ -97,11 +107,45 @@ public:
 		return *this;
 	}
 
+	FORCEINLINE bool operator==( T const *pOther ) const
+	{
+		return ( pOther == m_pObject );
+	}
+
+	FORCEINLINE bool operator==( T *pOther ) const
+	{
+		return ( pOther == m_pObject );
+	}
 
 	FORCEINLINE bool operator==( const CUtlReference& o ) const
 	{
 		return ( o.m_pObject == m_pObject );
-	}	
+	}
+
+	FORCEINLINE bool operator!=( T const *pOther ) const
+	{
+		return ( pOther != m_pObject );
+	}
+
+	FORCEINLINE bool operator!=( T *pOther ) const
+	{
+		return ( pOther != m_pObject );
+	}
+
+	FORCEINLINE bool operator!=( const CUtlReference& o ) const
+	{
+		return ( o.m_pObject != m_pObject );
+	}
+
+	FORCEINLINE bool operator!=( std::nullptr_t ) const
+	{
+		return IsValid();
+	}
+
+	FORCEINLINE bool operator==( std::nullptr_t ) const
+	{
+		return !IsValid();
+	}
 
 public:
 	CUtlReference *m_pNext;
@@ -109,6 +153,7 @@ public:
 
 	T *m_pObject;
 
+private:
 	FORCEINLINE void AddRef( T *pObj )
 	{
 		m_pObject = pObj;
@@ -127,14 +172,21 @@ public:
 		}
 	}
 
+	template<typename T> friend class CUtlReferenceVector;
 };
 
-template<class T> class CUtlReferenceList : public CUtlIntrusiveDList< CUtlReference<T> >
+template<class T>
+class CUtlReferenceList : public CUtlIntrusiveDList<CUtlReference<T>>
 {
 public:
+	CUtlReferenceList()
+	{
+		RemoveAll();
+	}
+
 	~CUtlReferenceList( void )
 	{
-		CUtlReference<T> *i = CUtlIntrusiveDList<CUtlReference<T> >::m_pHead;
+		CUtlReference<T> *i = CUtlIntrusiveDList<CUtlReference<T>>::m_pHead;
 		while( i )
 		{
 			CUtlReference<T> *n = i->m_pNext;
@@ -153,13 +205,114 @@ public:
 //-----------------------------------------------------------------------------
 #define DECLARE_REFERENCED_CLASS( _className )				\
 	private:												\
-		CUtlReferenceList< _className > m_References;		\
+		CUtlReferenceList<_className> m_References;			\
 		template<class T> friend class CUtlReference;
 
 
+template <class T>
+class CUtlReferenceVector : public CUtlBlockVector<CUtlReference<T>>
+{
+	using Base = CUtlBlockVector<CUtlReference<T>>;
+public:
+
+	void AddToTail( T* src )
+	{
+		Base::AddToTail( src );
+	}
+
+	void RemoveAll()
+	{
+		for ( int i = 0; i < Count(); i++ )
+		{
+			Base::Element( i ).KillRef();
+		}
+
+		Base::RemoveAll();
+	}
+
+	int Find( T* src ) const
+	{
+		return FindMatch( [&src]( const CUtlReference<T> & ref ) -> bool { return ref.GetObject() == src; } );
+	}
+
+	void FastRemove( int elem )
+	{
+		Assert( IsValidIndex( elem ) );
+
+		if ( m_Size > 0 )
+		{
+			if ( elem != m_Size -1 )
+			{
+				Base::Element( elem ) = Base::Element( m_Size - 1 );
+			}
+			Destruct( &Base::Element( m_Size - 1 ) );
+			--m_Size;
+		}
+	}
+
+	bool FindAndFastRemove( T* src )
+	{
+		int elem = Find( src );
+		if ( elem != -1 )
+		{
+			FastRemove( elem );
+			return true;
+		}
+		return false;
+	}
+
+	void Remove( int elem )
+	{
+		Assert( IsValidIndex( elem ) );
+
+		if ( m_Size > 0 )
+		{
+			for ( int i = elem; i < ( m_Size - 1 ); i++ )
+			{
+				Base::Element( i ) = Base::Element( i + 1 );
+			}
+
+			Destruct( &Base::Element( m_Size - 1 ) );
+			--m_Size;
+		}
+	}
+
+	bool FindAndRemove( T* src )
+	{
+		int elem = Find( src );
+		if ( elem != -1 )
+		{
+			Remove( elem );
+			return true;
+		}
+		return false;
+	}
+
+	T* operator[]( int i ) const
+	{
+		return Base::operator[]( i );
+	}
+
+	T* Element( int i ) const
+	{
+		return Base::Element( i );
+	}
+
+private:
+	//
+	// Disallow methods of CUtlBlockVector that can cause element addresses to change, thus
+	// breaking assumptions of CUtlReference. If any of these becomes needed just add a safe
+	// implementation to the public section.
+	//
+	void RemoveMultiple( int elem, int num );
+	void RemoveMultipleFromHead(int num);
+	void RemoveMultipleFromTail(int num);
+	void Swap( CUtlReferenceVector< T > &vec );
+	void Purge();
+	void PurgeAndDeleteElements();
+	void Compact();
+};
+
+#pragma pop_macro("GetObject")
+
 #endif
-
-
-
-
-

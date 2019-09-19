@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //
@@ -16,13 +16,13 @@
 #endif
 
 
-#include <string.h>
 #include "tier0/platform.h"
 #include "tier0/dbg.h"
 #include "tier0/threadtools.h"
 #include "tier1/utlmemory.h"
 #include "tier1/utlblockmemory.h"
 #include "tier1/strtools.h"
+#include "tier1/utliterator.h"
 #include "vstdlib/random.h"
 
 #define FOR_EACH_VEC( vecName, iteratorName ) \
@@ -50,8 +50,14 @@ public:
 	// constructor, destructor
 	explicit CUtlVector( int growSize = 0, int initSize = 0 );
 	explicit CUtlVector( T* pMemory, int allocationCount, int numElements = 0 );
+#ifdef VALVE_RVALUE_REFS
+	CUtlVector( CUtlVector<T, A>&& src );
+#endif // VALVE_RVALUE_REFS
+#ifdef VALVE_INITIALIZER_LIST_SUPPORT
+	CUtlVector( std::initializer_list<T> initializerList );
+#endif // VALVE_INITIALIZER_LIST_SUPPORT
 	~CUtlVector();
-	
+
 	// Copy the array.
 	CUtlVector<T, A>& operator=( const CUtlVector<T, A> &other );
 
@@ -83,6 +89,9 @@ public:
 	int Count() const;
 	int Size() const;	// don't use me!
 
+	template < typename TMatchFunc >
+	int CountIf( TMatchFunc&& func ) const;
+
 	/// are there no elements? For compatibility with lists.
 	inline bool IsEmpty( void ) const
 	{
@@ -104,10 +113,14 @@ public:
 	int AddToTail( const T& src );
 	int InsertBefore( int elem, const T& src );
 	int InsertAfter( int elem, const T& src );
+#ifdef VALVE_RVALUE_REFS
+	int AddToTail( T&& src );
+	template<typename... Args> int AddToTail( Args&&... src );
+#endif
 
 	// Adds multiple elements, uses default constructor
 	int AddMultipleToHead( int num );
-	int AddMultipleToTail( int num, const T *pToCopy=NULL );	   
+	int AddMultipleToTail( int num, const T *pToCopy=NULL );
 	int InsertMultipleBefore( int elem, int num, const T *pToCopy=NULL );	// If pToCopy is set, then it's an array of length 'num' and
 	int InsertMultipleAfter( int elem, int num );
 
@@ -115,18 +128,21 @@ public:
 	void SetSize( int size );
 	void SetCount( int count );
 	void SetCountNonDestructively( int count ); //sets count by adding or removing elements to tail TODO: This should probably be the default behavior for SetCount
-	
+
 	// Calls SetSize and copies each element.
 	void CopyArray( const T *pArray, int size );
 
 	// Fast swap
 	void Swap( CUtlVector< T, A > &vec );
-	
+
 	// Add the specified array to the tail.
 	int AddVectorToTail( CUtlVector<T, A> const &src );
 
 	// Finds an element (element needs operator== defined)
 	int Find( const T& src ) const;
+
+	template < typename TMatchFunc >
+	int FindMatch(TMatchFunc&& func) const;
 
 	bool HasElement( const T& src ) const;
 
@@ -152,7 +168,7 @@ public:
 	// Purges the list and calls delete on each element in it.
 	void PurgeAndDeleteElements();
 
-	// Compacts the vector to the number of elements actually in use 
+	// Compacts the vector to the number of elements actually in use
 	void Compact();
 
 	// Set the size by which it grows when it needs to allocate more memory.
@@ -200,22 +216,44 @@ private:
 
 
 // this is kind of ugly, but until C++ gets templatized typedefs in C++0x, it's our only choice
-template < class T >
-class CUtlBlockVector : public CUtlVector< T, CUtlBlockMemory< T, int > >
+template <class T>
+class CUtlBlockVector : public CUtlVector<T, CUtlBlockMemory<T, int>>
 {
+	typedef CUtlBlockVector<T> ThisType;
+	typedef CUtlBlockMemory<T, int> ThisMemory;
 public:
-	explicit CUtlBlockVector( int growSize = 0, int initSize = 0 )
-		: CUtlVector< T, CUtlBlockMemory< T, int > >( growSize, initSize ) {}
+	explicit CUtlBlockVector( int growSize = 0, int initSize = 0 ) : CUtlVector<T, CUtlBlockMemory<T, int>>( growSize, initSize ) {}
 
-private:
-	// Private and unimplemented because iterator semantics are not currently supported
-	// on CUtlBlockVector, due to its non-contiguous allocations.
-	// typename is require to disambiguate iterator as a type versus other possibilities.
-	typedef CUtlVector< T, CUtlBlockMemory< T, int > > Base;
-	typename Base::iterator begin();
-	typename Base::const_iterator begin() const;
-	typename Base::iterator end();
-	typename Base::const_iterator end() const;
+	struct ProxyTypeIterate;
+	using iterator = CUtlForwardIteratorImplT<ProxyTypeIterate, false>;
+	using const_iterator = CUtlForwardIteratorImplT<ProxyTypeIterate, true>;
+	struct ProxyTypeIterate // "this" pointer is reinterpret_cast from CUtlBlockVector!
+	{
+		using ElemType_t = T;
+		using IndexType_t = int;
+		T &Element( int i ) { return reinterpret_cast<ThisType*>( this )->Element( i ); }
+		const T &Element( int i ) const { return reinterpret_cast<const ThisType*>( this )->Element( i ); }
+		int IteratorNext( int i ) const
+		{
+			const ThisType* pVec = reinterpret_cast<const ThisType*>( this );
+			if ( pVec->IsValidIndex( i + 1 ) )
+				return pVec->m_Memory.Next( ThisMemory::Iterator_t( i ) ).index;
+			return ThisType::InvalidIndex();
+		}
+
+		using iterator = typename ThisType::iterator;
+		using const_iterator = typename ThisType::const_iterator;
+
+		iterator begin() { ThisType* pVec = reinterpret_cast<ThisType*>(this); return iterator( this, pVec->m_Memory.First().index ); }
+		iterator end() { return iterator( this, ThisType::InvalidIndex() ); }
+		const_iterator begin() const { const ThisType* pVec = reinterpret_cast<const ThisType*>( this ); return const_iterator( this, pVec->m_Memory.First().index ); }
+		const_iterator end() const { return const_iterator( this, ThisType::InvalidIndex() ); }
+	};
+
+	iterator begin()				{ return reinterpret_cast<ProxyTypeIterate*>( this )->begin(); }
+	iterator end()					{ return reinterpret_cast<ProxyTypeIterate*>( this )->end(); }
+	const_iterator begin() const	{ return reinterpret_cast<const ProxyTypeIterate*>( this )->begin(); }
+	const_iterator end() const		{ return reinterpret_cast<const ProxyTypeIterate*>( this )->end(); }
 };
 
 //-----------------------------------------------------------------------------
@@ -547,6 +585,7 @@ public:
 	explicit CCopyableUtlVector( T* pMemory, int numElements ) : BaseClass( pMemory, numElements ) {}
 	virtual ~CCopyableUtlVector() {}
 	CCopyableUtlVector( CCopyableUtlVector const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
+	CCopyableUtlVector( BaseClass const& vec ) { this->CopyArray( vec.Base(), vec.Count() ); }
 };
 
 // TODO (Ilya): It seems like all the functions in CUtlVector are simple enough that they should be inlined.
@@ -555,18 +594,38 @@ public:
 // constructor, destructor
 //-----------------------------------------------------------------------------
 template< typename T, class A >
-inline CUtlVector<T, A>::CUtlVector( int growSize, int initSize )	: 
+inline CUtlVector<T, A>::CUtlVector( int growSize, int initSize )	:
 	m_Memory(growSize, initSize), m_Size(0)
 {
 	ResetDbgInfo();
 }
 
 template< typename T, class A >
-inline CUtlVector<T, A>::CUtlVector( T* pMemory, int allocationCount, int numElements )	: 
+inline CUtlVector<T, A>::CUtlVector( T* pMemory, int allocationCount, int numElements )	:
 	m_Memory(pMemory, allocationCount), m_Size(numElements)
 {
 	ResetDbgInfo();
 }
+
+#ifdef VALVE_RVALUE_REFS
+template< typename T, class A >
+inline CUtlVector<T, A>::CUtlVector( CUtlVector<T, A>&& src ) : m_Size( 0 )
+{
+	Swap( src );
+}
+#endif // VALVE_RVALUE_REFS
+
+#ifdef VALVE_INITIALIZER_LIST_SUPPORT
+template< typename T, class A >
+inline CUtlVector<T, A>::CUtlVector( std::initializer_list<T> initializerList ) :
+	m_Size( 0 )
+{
+	EnsureCapacity( static_cast<int>( initializerList.size() ) );
+
+	for ( T& v : initializerList )
+		AddToTail( v );
+}
+#endif // VALVE_INITIALIZER_LIST_SUPPORT
 
 template< typename T, class A >
 inline CUtlVector<T, A>::~CUtlVector()
@@ -719,6 +778,21 @@ inline int CUtlVector<T, A>::Count() const
 }
 
 
+template< typename T, class A >
+template< typename TMatchFunc >
+inline int CUtlVector<T, A>::CountIf( TMatchFunc&& func ) const
+{
+	int count = 0;
+	for ( const auto& i : *this )
+	{
+		if ( func( i ) )
+			++count;
+	}
+	return count;
+}
+
+
+
 //-----------------------------------------------------------------------------
 // Is element index valid?
 //-----------------------------------------------------------------------------
@@ -727,7 +801,7 @@ inline bool CUtlVector<T, A>::IsValidIndex( int i ) const
 {
 	return (i >= 0) && (i < m_Size);
 }
- 
+
 
 //-----------------------------------------------------------------------------
 // Returns in invalid index
@@ -883,7 +957,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddToHead( const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 	return InsertBefore( 0, src );
 }
 
@@ -891,7 +965,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddToTail( const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 	return InsertBefore( m_Size, src );
 }
 
@@ -899,7 +973,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::InsertAfter( int elem, const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 	return InsertBefore( elem + 1, src );
 }
 
@@ -907,7 +981,7 @@ template< typename T, class A >
 int CUtlVector<T, A>::InsertBefore( int elem, const T& src )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || (&src < Base()) || (&src >= (Base() + Count()) ) );
 
 	// Can insert at the end
 	Assert( (elem == Count()) || IsValidIndex(elem) );
@@ -918,6 +992,29 @@ int CUtlVector<T, A>::InsertBefore( int elem, const T& src )
 	return elem;
 }
 
+#ifdef VALVE_RVALUE_REFS
+// Optimized AddToTail path with move constructor.
+template< typename T, class A >
+int CUtlVector<T, A>::AddToTail( T&& src )
+{
+	// Can't insert something that's in the list... reallocation may hose us
+	Assert( ( &src < Base() ) || ( &src >= ( Base() + Count() ) ) );
+	int elem = m_Size;
+	GrowVector();
+	CopyConstruct( &Element( elem ), std::forward<T>( src ) );
+	return elem;
+}
+
+template< typename T, class A>
+template <typename... Args>
+int CUtlVector<T, A>::AddToTail( Args&&... src )
+{
+	int elem = m_Size;
+	GrowVector();
+	CopyConstruct( &Element( elem ), std::forward<Args>( src )... );
+	return elem;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Adds multiple elements, uses default constructor
@@ -932,7 +1029,7 @@ template< typename T, class A >
 inline int CUtlVector<T, A>::AddMultipleToTail( int num, const T *pToCopy )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || !pToCopy || (pToCopy + num < Base()) || (pToCopy >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || !pToCopy || (pToCopy + num < Base()) || (pToCopy >= (Base() + Count()) ) );
 
 	return InsertMultipleBefore( m_Size, num, pToCopy );
 }
@@ -969,7 +1066,7 @@ template< typename T, class A >
 void CUtlVector<T, A>::CopyArray( const T *pArray, int size )
 {
 	// Can't insert something that's in the list... reallocation may hose us
-	Assert( (Base() == NULL) || !pArray || (Base() >= (pArray + size)) || (pArray >= (Base() + Count()) ) ); 
+	Assert( (Base() == NULL) || !pArray || (Base() >= (pArray + size)) || (pArray >= (Base() + Count()) ) );
 
 	SetSize( size );
 	for( int i=0; i < size; i++ )
@@ -995,11 +1092,11 @@ int CUtlVector<T, A>::AddVectorToTail( CUtlVector const &src )
 	Assert( &src != this );
 
 	int base = Count();
-	
+
 	// Make space.
 	AddMultipleToTail( src.Count() );
 
-	// Copy the elements.	
+	// Copy the elements.
 	for ( int i=0; i < src.Count(); i++ )
 	{
 		(*this)[base + i] = src[i];
@@ -1049,6 +1146,18 @@ int CUtlVector<T, A>::Find( const T& src ) const
 			return i;
 	}
 	return -1;
+}
+
+template< typename T, class A >
+template< typename TMatchFunc >
+int CUtlVector<T, A>::FindMatch( TMatchFunc&& func ) const
+{
+	for ( int i = 0; i < Count(); ++i )
+	{
+		if ( func( Element( i ) ) )
+			return i;
+	}
+	return InvalidIndex();
 }
 
 template< typename T, class A >
@@ -1218,6 +1327,8 @@ public:
 
 };
 
+#include "tier0/memdbgon.h"
+
 // easy string list class with dynamically allocated strings. For use with V_SplitString, etc.
 // Frees the dynamic strings in destructor.
 class CUtlStringList : public CUtlVectorAutoPurge< char *>
@@ -1250,7 +1361,7 @@ public:
 	}
 };
 
-
+#include "tier0/memdbgoff.h"
 
 // <Sergiy> placing it here a few days before Cert to minimize disruption to the rest of codebase
 class CSplitString: public CUtlVector<char*, CUtlMemory<char*, int> >

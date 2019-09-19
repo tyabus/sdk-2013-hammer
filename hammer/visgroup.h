@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -113,6 +113,8 @@ class CVisGroup
 
 		unsigned int m_dwID;
 		VisGroupState_t m_eVisible;
+
+		friend class CMapInstance;
 };
 
 
@@ -174,7 +176,7 @@ inline CVisGroup *CVisGroup::GetParent(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 inline void CVisGroup::SetParent(CVisGroup *pNewParent)
 {

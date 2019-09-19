@@ -20,8 +20,9 @@
 #pragma once
 #endif
 
-#include "UtlVector.h"
+#include "utlvector.h"
 #include "fgdlib/InputOutput.h"
+#include "tier1/utlobjectreference.h"
 
 
 #define EVENT_FIRE_ALWAYS	-1
@@ -40,7 +41,7 @@ enum
 };
 
 class CMapEntity;
-typedef CUtlVector<CMapEntity*> CMapEntityList;
+typedef CUtlReferenceVector<CMapEntity> CMapEntityList;
 
 class CEntityConnection
 {
@@ -51,21 +52,21 @@ public:
 
 	CEntityConnection &operator =(const CEntityConnection &Other);
 
-	inline bool CompareConnection(CEntityConnection *pConnection);
+	bool CompareConnection(CEntityConnection *pConnection);
 
-	inline float GetDelay(void) { return(m_fDelay); }
-	inline void SetDelay(float fDelay) { m_fDelay = fDelay; }
+	float GetDelay(void) { return(m_fDelay); }
+	void SetDelay(float fDelay) { m_fDelay = fDelay; }
 
-	inline const char *GetInputName(void) { return(m_szInput); }
-	inline void SetInputName(const char *pszName) { lstrcpyn(m_szInput, pszName, sizeof(m_szInput)); }
+	const char *GetInputName(void) { return(m_szInput); }
+	void SetInputName(const char *pszName) { lstrcpyn(m_szInput, pszName, sizeof(m_szInput)); }
 
-	inline const char *GetOutputName(void) { return(m_szOutput); }
-	inline void SetOutputName(const char *pszName) { lstrcpyn(m_szOutput, pszName, sizeof(m_szOutput)); }
+	const char *GetOutputName(void) { return(m_szOutput); }
+	void SetOutputName(const char *pszName) { lstrcpyn(m_szOutput, pszName, sizeof(m_szOutput)); }
 
-	inline const char *GetTargetName(void) { return(m_szTargetEntity); }
+	const char *GetTargetName(void) { return(m_szTargetEntity); }
 	void SetTargetName(const char *pszName);
 
-	inline const char *GetSourceName(void) { return(m_szSourceEntity); }
+	const char *GetSourceName(void) { return(m_szSourceEntity); }
 	void SetSourceName(const char *pszName);
 
 	void LinkSourceEntities();
@@ -73,14 +74,14 @@ public:
 
 	bool AreAnyTargetEntitiesVisible();
 
-	inline CMapEntityList *GetSourceEntityList() { return m_pSourceEntityList; }
-	inline CMapEntityList *GetTargetEntityList() { return m_pTargetEntityList; }
+	CMapEntityList *GetSourceEntityList() { return m_pSourceEntityList; }
+	CMapEntityList *GetTargetEntityList() { return m_pTargetEntityList; }
 
-	inline int GetTimesToFire(void) { return(m_nTimesToFire); }
-	inline void SetTimesToFire(int nTimesToFire) { m_nTimesToFire = nTimesToFire; }
+	int GetTimesToFire(void) { return(m_nTimesToFire); }
+	void SetTimesToFire(int nTimesToFire) { m_nTimesToFire = nTimesToFire; }
 
-	inline const char *GetParam(void) { return(m_szParam); }
-	inline void SetParam(const char *pszParam) { lstrcpyn(m_szParam, pszParam, sizeof(m_szParam)); }
+	const char *GetParam(void) { return(m_szParam); }
+	void SetParam(const char *pszParam) { lstrcpyn(m_szParam, pszParam, sizeof(m_szParam)); }
 
 	// Sorting functions
 	static int CALLBACK CompareDelaysSecondary(CEntityConnection *pConn1, CEntityConnection *pConn2, SortDirection_t eDirection);
@@ -117,20 +118,6 @@ protected:
 
 typedef CUtlVector<CEntityConnection *> CEntityConnectionList;
 
-//-----------------------------------------------------------------------------
-// Purpose: Returns true if the given connection is identical to this connection.
-// Input  : pConnection - Connection to compare.
-//-----------------------------------------------------------------------------
-bool CEntityConnection::CompareConnection(CEntityConnection *pConnection)
-{
-	// BUGBUG - Why not compare the GetSourceName() values too?  Why is this field not relevant?
-	return((!stricmp(GetOutputName(), pConnection->GetOutputName())) &&
-		   (!stricmp(GetTargetName(), pConnection->GetTargetName())) &&
-		   (!stricmp(GetInputName(), pConnection->GetInputName())) &&
-		   (!stricmp(GetParam(), pConnection->GetParam())) &&
-		   (GetDelay() == pConnection->GetDelay()) &&
-		   (GetTimesToFire() == pConnection->GetTimesToFire()));
-}
 
 
 

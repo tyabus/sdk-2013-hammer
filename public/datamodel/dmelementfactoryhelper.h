@@ -13,6 +13,7 @@
 #include "datamodel/idatamodel.h"
 #include "datamodel/dmelement.h"
 #include "datamodel/dmattribute.h"
+#include "datamodel/dmattributevar.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlsymbol.h"
 
@@ -120,7 +121,7 @@ public:
 	// Creation, destruction
 	virtual CDmElement* Create( DmElementHandle_t handle, const char *pElementType, const char *pElementName, DmFileId_t fileid, const DmObjectId_t &id )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	virtual void Destroy( DmElementHandle_t hElement )
@@ -148,13 +149,13 @@ private:
 	IMPLEMENT_ELEMENT( className )							\
 	CDmElementFactory< className > g_##className##_Factory( #lookupName );							\
 	CDmElementFactoryHelper g_##className##_Helper( #lookupName, &g_##className##_Factory, true );	\
-	className *g_##className##LinkerHack = NULL;
+	className *g_##className##LinkerHack = nullptr;
 
 #define IMPLEMENT_ABSTRACT_ELEMENT( lookupName, className )	\
 	IMPLEMENT_ELEMENT( className )							\
 	CDmAbstractElementFactory< className > g_##className##_Factory;									\
 	CDmElementFactoryHelper g_##className##_Helper( #lookupName, &g_##className##_Factory, true );	\
-	className *g_##className##LinkerHack = NULL;
+	className *g_##className##LinkerHack = nullptr;
 
 #else
 
@@ -162,13 +163,13 @@ private:
 	IMPLEMENT_ELEMENT( className )							\
 	CDmElementFactory< className > g_##className##_Factory( #lookupName );						\
 	CDmElementFactoryHelper g_##className##_Helper( #lookupName, &g_##className##_Factory, false );	\
-	className *g_##className##LinkerHack = NULL;
+	className *g_##className##LinkerHack = nullptr;
 
 #define IMPLEMENT_ABSTRACT_ELEMENT( lookupName, className )	\
 	IMPLEMENT_ELEMENT( className )							\
 	CDmAbstractElementFactory< className > g_##className##_Factory;									\
 	CDmElementFactoryHelper g_##className##_Helper( #lookupName, &g_##className##_Factory, false );	\
-	className *g_##className##LinkerHack = NULL;
+	className *g_##className##LinkerHack = nullptr;
 
 #endif
 
@@ -178,7 +179,7 @@ private:
 	IMPLEMENT_ELEMENT( className )							\
 	CDmElementFactory< className > g_##className##_Factory( #lookupName );						\
 	CDmElementFactoryHelper g_##className##_Helper( #lookupName, &g_##className##_Factory, false );	\
-	className *g_##className##LinkerHack = NULL;
+	className *g_##className##LinkerHack = nullptr;
 
 //-----------------------------------------------------------------------------
 // Installs dm element factories

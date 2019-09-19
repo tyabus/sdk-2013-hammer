@@ -37,7 +37,6 @@ class CAttributeElementPickerPanel : public CBaseAttributePanel
 
 public:
 	CAttributeElementPickerPanel( vgui::Panel *parent, const AttributeWidgetInfo_t &info );
-    ~CAttributeElementPickerPanel() {}
 
 	virtual void OnCommand( const char *cmd );
 	virtual void PerformLayout();

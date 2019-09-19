@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -9,13 +9,14 @@
 #pragma once
 
 #include <afxtempl.h>
-#include "GlobalFunctions.h"
+#include "globalfunctions.h"
+#include "Color.h"
 
 const int MAX_MESSAGE_WND_LINES = 5000;
 
 enum
 {
-	MESSAGE_WND_MESSAGE_LENGTH = 150
+	MESSAGE_WND_MESSAGE_LENGTH = 260
 };
 
 
@@ -41,14 +42,15 @@ protected:
 
 	struct MWMSGSTRUCT
 	{
-		MWMSGTYPE type;
+		Color color;
 		TCHAR szMsg[MESSAGE_WND_MESSAGE_LENGTH];
 		int MsgLen;	// length of message w/o 0x0
 	} ;
 
 // Attributes
 public:
-	void AddMsg(MWMSGTYPE type, TCHAR* msg);
+	void AddMsg(MWMSGTYPE type, const TCHAR* msg);
+	void AddMsg( const Color& color, const TCHAR* msg );
 
 // Operations
 public:

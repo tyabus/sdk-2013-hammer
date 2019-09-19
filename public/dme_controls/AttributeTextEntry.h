@@ -41,7 +41,6 @@ class CAttributeTextEntry : public vgui::TextEntry
 
 public:
 	CAttributeTextEntry( Panel *parent, const char *panelName );
-    ~CAttributeTextEntry() {}
 	virtual bool GetSelectedRange(int& cx0,int& cx1)
 	{
 		return BaseClass::GetSelectedRange( cx0, cx1 );

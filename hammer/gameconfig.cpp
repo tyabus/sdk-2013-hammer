@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -40,7 +40,7 @@ float g_MIN_MAP_COORD = -4096;
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CGameConfig *CGameConfig::GetActiveGame(void)
 {
@@ -49,8 +49,8 @@ CGameConfig *CGameConfig::GetActiveGame(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pGame - 
+// Purpose:
+// Input  : pGame -
 //-----------------------------------------------------------------------------
 void CGameConfig::SetActiveGame(CGameConfig *pGame)
 {
@@ -87,7 +87,6 @@ CGameConfig::CGameConfig(void)
 	nGDFiles = 0;
 	m_fDefaultTextureScale = DEFAULT_TEXTURE_SCALE;
 	m_nDefaultLightmapScale = DEFAULT_LIGHTMAP_SCALE;
-	m_MaterialExcludeCount = 0;
 
 	memset(szName, 0, sizeof(szName));
 	memset(szExecutable, 0, sizeof(szExecutable));
@@ -100,7 +99,7 @@ CGameConfig::CGameConfig(void)
 	memset(m_szGameExeDir, 0, sizeof(m_szGameExeDir));
 	memset(szBSPDir, 0, sizeof(szBSPDir));
 	memset(m_szModDir, 0, sizeof(m_szModDir));
-	memset(m_szMaterialExcludeDirs, 0, sizeof( m_szMaterialExcludeDirs ));
+	memset(m_szInstanceDir, 0, sizeof(m_szInstanceDir));
 	strcpy(m_szCordonTexture, "BLACK");
 
 	m_szSteamDir[0] = '\0';
@@ -149,7 +148,6 @@ bool CGameConfig::Load(KeyValues *pkv)
 
 	} while (bAdded);
 
-
 	m_fDefaultTextureScale = pkvHammer->GetFloat("DefaultTextureScale", DEFAULT_TEXTURE_SCALE);
 	if (m_fDefaultTextureScale == 0)
 	{
@@ -172,16 +170,26 @@ bool CGameConfig::Load(KeyValues *pkv)
 	SetCordonTexture( pkvHammer->GetString("CordonTexture", "BLACK") );
 
 	char szExcludeDir[MAX_PATH];
-	m_MaterialExcludeCount = pkvHammer->GetInt("MaterialExcludeCount");
-	for (int i = 0; i < m_MaterialExcludeCount; i++)
+	const int materialExcludeCount = pkvHammer->GetInt("MaterialExcludeCount");
+	for (int i = 0; i < materialExcludeCount; i++)
 	{
+		MatExlcusions_s& exclusion = m_MaterialExclusions[m_MaterialExclusions.AddToTail()];
 		sprintf(szExcludeDir, "-MaterialExcludeDir%d", i );
-		Q_strncpy(m_szMaterialExcludeDirs[i], pkvHammer->GetString(szExcludeDir), sizeof(m_szMaterialExcludeDirs[0])); 
-		Q_StripTrailingSlash(m_szMaterialExcludeDirs[i]);
+		V_strcpy_safe( exclusion.szDirectory, pkvHammer->GetString( szExcludeDir ) );
+		V_StripTrailingSlash( exclusion.szDirectory );
+		exclusion.bUserGenerated = true;
 	}
 
 	LoadGDFiles();
-	
+
+	for ( int i = 0; i < GD.m_FGDMaterialExclusions.Count(); ++i )
+	{
+		MatExlcusions_s& exclusion = m_MaterialExclusions[m_MaterialExclusions.AddToTail()];
+		const FGDMatExlcusions_s& fgdExclusion = GD.m_FGDMaterialExclusions[i];
+		V_strcpy_safe( exclusion.szDirectory, fgdExclusion.szDirectory );
+		exclusion.bUserGenerated = false;
+	}
+
 	return(true);
 }
 
@@ -237,11 +245,14 @@ bool CGameConfig::Save(KeyValues *pkv)
 	pkvHammer->SetString("CordonTexture", m_szCordonTexture);
 
 	char szExcludeDir[MAX_PATH];
-	pkvHammer->SetInt("MaterialExcludeCount", m_MaterialExcludeCount);
-	for (int i = 0; i < m_MaterialExcludeCount; i++)
+	pkvHammer->SetInt("MaterialExcludeCount", m_MaterialExclusions.CountIf( [](const MatExlcusions_s& e) { return e.bUserGenerated; }));
+	for (int i = 0; i < m_MaterialExclusions.Count(); i++)
 	{
+		const MatExlcusions_s& exclusion = m_MaterialExclusions[i];
+		if ( !exclusion.bUserGenerated )
+			continue;
 		sprintf(szExcludeDir, "-MaterialExcludeDir%d", i );
-		pkvHammer->SetString(szExcludeDir, m_szMaterialExcludeDirs[i]);
+		pkvHammer->SetString(szExcludeDir, exclusion.szDirectory);
 	}
 
 	return true;
@@ -249,8 +260,8 @@ bool CGameConfig::Save(KeyValues *pkv)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pConfig - 
+// Purpose:
+// Input  : *pConfig -
 //-----------------------------------------------------------------------------
 void CGameConfig::CopyFrom(CGameConfig *pConfig)
 {
@@ -270,19 +281,16 @@ void CGameConfig::CopyFrom(CGameConfig *pConfig)
 	strcpy(m_szGameExeDir, pConfig->m_szGameExeDir);
 	strcpy(szBSPDir, pConfig->szBSPDir);
 	strcpy(m_szModDir, pConfig->m_szModDir);
+	strcpy(m_szInstanceDir, pConfig->m_szInstanceDir);
 
-	pConfig->m_MaterialExcludeCount = m_MaterialExcludeCount;
-	for( int i = 0; i < m_MaterialExcludeCount; i++ )
-	{
-		strcpy( m_szMaterialExcludeDirs[i], pConfig->m_szMaterialExcludeDirs[i] );
-	}
+	pConfig->m_MaterialExclusions.CopyArray( m_MaterialExclusions.Base(), m_MaterialExclusions.Count() );
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pEntity - 
-//			pGD - 
+// Purpose:
+// Input  : pEntity -
+//			pGD -
 // Output : Returns TRUE to keep enumerating.
 //-----------------------------------------------------------------------------
 static BOOL UpdateClassPointer(CMapEntity *pEntity, GameData *pGD)
@@ -294,12 +302,12 @@ static BOOL UpdateClassPointer(CMapEntity *pEntity, GameData *pGD)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CGameConfig::LoadGDFiles(void)
 {
 	GD.ClearData();
-	
+
 	// Save the old working directory
 	char szOldDir[MAX_PATH];
 	_getcwd( szOldDir, sizeof(szOldDir) );
@@ -318,7 +326,7 @@ void CGameConfig::LoadGDFiles(void)
 	_chdir( szOldDir );
 
 	// All the class pointers have changed - now we have to
-	// reset all the class pointers in each map doc that 
+	// reset all the class pointers in each map doc that
 	// uses this game.
 	for ( int i=0; i<CMapDoc::GetDocumentCount(); i++ )
 	{
@@ -328,7 +336,7 @@ void CGameConfig::LoadGDFiles(void)
 		{
 			CMapWorld *pWorld = pDoc->GetMapWorld();
 			pWorld->SetClass(GD.ClassForName(pWorld->GetClassName()));
-			pWorld->EnumChildren((ENUMMAPCHILDRENPROC)UpdateClassPointer, (DWORD)&GD, MAPCLASS_TYPE(CMapEntity));
+			pWorld->EnumChildren(UpdateClassPointer, &GD, MAPCLASS_TYPE(CMapEntity));
 		}
 	}
 }
@@ -374,10 +382,10 @@ bool FindFileInTree(const char *szFile, const char *szStartDir, char *szFoundPat
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *szDir - 
-//			*szSteamDir - 
-//			*szSteamUserDir - 
+// Purpose:
+// Input  : *szDir -
+//			*szSteamDir -
+//			*szSteamUserDir -
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool FindSteamUserDir(const char *szAppDir, const char *szSteamDir, char *szSteamUserDir)
@@ -417,7 +425,7 @@ bool FindSteamUserDir(const char *szAppDir, const char *szSteamDir, char *szStea
 //-----------------------------------------------------------------------------
 void CGameConfig::ParseGameInfo()
 {
-	KeyValues *pkv = new KeyValues("gameinfo.txt");
+	KeyValuesAD pkv("gameinfo.txt");
 	if (!pkv->LoadFromFile(g_pFileSystem, "gameinfo.txt", "GAME"))
 	{
 		pkv->deleteThis();
@@ -427,10 +435,19 @@ void CGameConfig::ParseGameInfo()
 	KeyValues *pKey = pkv->FindKey("FileSystem");
 	if (pKey)
 	{
-		strcpy(m_szSteamAppID, pKey->GetString("SteamAppId", ""));
+		V_strcpy_safe(m_szSteamAppID, pKey->GetString("SteamAppId", ""));
 	}
 
-	pkv->deleteThis();
+	const char* instancePath = pkv->GetString( "InstancePath", nullptr );
+	if ( instancePath )
+	{
+		if ( !V_IsAbsolutePath( instancePath ) )
+		{
+			g_pFullFileSystem->RelativePathToFullPath_safe( instancePath, "GAME", m_szInstanceDir );
+		}
+		else
+			V_strcpy_safe( m_szInstanceDir, instancePath );
+	}
 
 	char szAppDir[MAX_PATH];
 	APP()->GetDirectory(DIR_PROGRAM, szAppDir);

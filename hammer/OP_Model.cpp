@@ -274,7 +274,7 @@ CMapStudioModel *COP_Model::GetModelHelper(void)
 		CMapEntity *pEntity = dynamic_cast <CMapEntity *>(pObject);
 		if (pEntity != NULL)
 		{
-			CMapStudioModel *pModel = pEntity->GetChildOfType((CMapStudioModel *)NULL);
+			CMapStudioModel *pModel = pEntity->GetChildOfType<CMapStudioModel>();
 			return pModel;
 		}
 	}

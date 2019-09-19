@@ -23,17 +23,6 @@
 #define SELECTION_BUFFER_SIZE	50
 
 //
-// Size of the texture cache. THis is the maximum number of unique textures that
-// a map can refer to and still render properly in the editor.
-//
-#define TEXTURE_CACHE_SIZE		2048
-
-//
-// Maximum number of objects that can be kept in the list of objects to render last.
-//
-#define MAX_RENDER_LAST_OBJECTS	256
-
-//
 // Maximum number of hits that can be returned by ObjectsAt.
 //
 #define MAX_PICK_HITS			512
@@ -54,11 +43,11 @@ enum Visibility_t;
 enum SelectionState_t;
 
 
-typedef struct TranslucentObjects_s {
+struct TranslucentObjects_t
+{
 	float		depth;
-	CMapAtom *	object;
-} TranslucentObjects_t;
-
+	CMapAtom*	object;
+};
 
 enum RenderState_t
 {
@@ -73,7 +62,7 @@ enum RenderState_t
 //
 // Render state information set via RenderEnable:
 //
-typedef struct
+struct RenderStateInfo_t
 {
 	bool bCenterCrosshair;	// Whether to render the center crosshair.
 	bool bDrawGrid;			// Whether to render the grid.
@@ -81,21 +70,20 @@ typedef struct
 	float fGridDistance;	// Maximum distance from camera to draw grid.
 	bool bFilterTextures;	// Whether to filter textures.
 	bool bReverseSelection;	// Driver issue fix - whether to return the largest (rather than smallest) Z value when picking
-} RenderStateInfo_t;
+};
 
 static inline bool RenderingModeIsTextured(EditorRenderMode_t mode)
 {
-	return (
-		(mode==RENDER_MODE_TEXTURED) ||
-		(mode==RENDER_MODE_TEXTURED_SHADED) ||
-		(mode==RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) ||
-		(mode==RENDER_MODE_LIGHT_PREVIEW2) );
+	return mode==RENDER_MODE_TEXTURED ||
+			mode==RENDER_MODE_TEXTURED_SHADED ||
+			mode==RENDER_MODE_LIGHT_PREVIEW_RAYTRACED ||
+			mode==RENDER_MODE_LIGHT_PREVIEW2;
 }
 
 //
 // Picking state information used when called from ObjectsAt.
 //
-typedef struct
+struct PickInfo_t
 {
 	bool bPicking;							// Whether we are rendering in pick mode or not.
 
@@ -112,41 +100,27 @@ typedef struct
 
 	unsigned int uSelectionBuffer[SELECTION_BUFFER_SIZE];
 	unsigned int uLastZ;
-} PickInfo_t;
+};
 
 
-typedef struct
+struct TextureCache_t
 {
 	IEditorTexture *pTexture;		// Pointer to the texture object that implements this texture.
 	int nTextureID;			// Unique ID of this texture across all renderers.
 	unsigned int uTexture;	// The texture name as returned by OpenGL when the texture was uploaded in this renderer.
-} TextureCache_t;
+};
 
 
-typedef struct
+struct MatWinData_t
 {
-    HINSTANCE        hInstance;
-    int              iCmdShow;
-    HWND             hWnd;
-	HDC				 hDC;
-    bool             bActive;
-    bool             bFullScreen;
-    ATOM             wndclass;
-    WNDPROC          wndproc;
-    bool             bChangeBPP;
-    bool             bAllowSoft;
-    char            *szCmdLine;
-    int              argc;
-    char           **argv;
-    int              iResCount;
-    int              iVidMode;
-} MatWinData_t;
+    HWND	hWnd;
+	HDC		hDC;
+};
 
 
 class CRender3D : public CRender
 {
 public:
-
 	// Constructor / Destructor.
 	CRender3D(void);
 	virtual ~CRender3D(void);
@@ -184,7 +158,7 @@ public:
 	void RenderEnable(RenderState_t eRenderState, bool bEnable);
 
 	void RenderCrossHair();
-	virtual void RenderWireframeBox(const Vector &Mins, const Vector &Maxs, unsigned char chRed, unsigned char chGreen, unsigned char chBlue);
+	void RenderWireframeBox(const Vector &Mins, const Vector &Maxs, unsigned char chRed, unsigned char chGreen, unsigned char chBlue);
 	void RenderBox(const Vector &Mins, const Vector &Maxs, unsigned char chRed, unsigned char chGreen, unsigned char chBlue, SelectionState_t eBoxSelectionState);
 	void RenderArrow(Vector const &vStartPt, Vector const &vEndPt, unsigned char chRed, unsigned char chGreen, unsigned char chBlue);
 	void RenderCone(Vector const &vBasePt, Vector const &vTipPt, float fRadius, int nSlices,
@@ -212,8 +186,6 @@ public:
 
 protected:
 
-	inline void DispatchRender3D(CMapClass *pMapClass);
-
 	// Rendering functions.
 	void RenderMapClass(CMapClass *pMapClass);
 	void RenderNode(CCullTreeNode *pNode, bool bForce);
@@ -228,7 +200,7 @@ protected:
 	Visibility_t IsBoxVisible(Vector const &BoxMins, Vector const &BoxMaxs);
 
 	// Frustum methods
-	void ComputeFrustumRenderGeometry(CCamera * pCamera);
+	void ComputeFrustumRenderGeometry(CCamera* pCamera);
 	void RenderFrustum();
 
 	float m_fFrameRate;					// Framerate in frames per second, calculated once per second.

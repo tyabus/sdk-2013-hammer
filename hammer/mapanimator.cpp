@@ -453,7 +453,7 @@ void CMapAnimator::RebuildPath( void )
 
 		if ( pNextEnt )
 		{
-			pNextKey = pNextEnt->GetChildOfType( ( CMapKeyFrame * )NULL );
+			pNextKey = pNextEnt->GetChildOfType<CMapKeyFrame>();
 			pCurKey->SetNextKeyFrame(pNextKey);
 		}
 		else

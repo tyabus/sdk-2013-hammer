@@ -46,7 +46,7 @@ CEditGroups::CEditGroups(CWnd* pParent /*=NULL*/)
 
 //-----------------------------------------------------------------------------
 // Purpose: Exchanges data between controls and data members.
-// Input  : pDX - 
+// Input  : pDX -
 //-----------------------------------------------------------------------------
 void CEditGroups::DoDataExchange(CDataExchange* pDX)
 {
@@ -74,7 +74,7 @@ static BOOL UpdateObjectColor(CMapClass *pObject, CVisGroup *pGroup)
 //-----------------------------------------------------------------------------
 // Purpose: Invokes the color picker dialog to modify the selected visgroup.
 //-----------------------------------------------------------------------------
-void CEditGroups::OnColor(void) 
+void CEditGroups::OnColor(void)
 {
 	CVisGroup *pGroup = m_cGroupList.GetSelectedVisGroup();
 
@@ -90,7 +90,7 @@ void CEditGroups::OnColor(void)
 			m_cColorBox.SetColor(dlg.m_cc.rgbResult, TRUE);
 
 			// change all object colors
-			GetActiveWorld()->EnumChildren(ENUMMAPCHILDRENPROC(UpdateObjectColor), DWORD(pGroup));
+			GetActiveWorld()->EnumChildren( UpdateObjectColor, pGroup );
 
 			CMapDoc::GetActiveMapDoc()->UpdateAllViews( MAPVIEW_UPDATE_COLOR );
 		}
@@ -132,7 +132,7 @@ void CEditGroups::OnNew(void)
 // Purpose: Called when the remove button is pressed from the visgroup editor.
 //			Deletes the selected visgroup and removes all references to it.
 //-----------------------------------------------------------------------------
-void CEditGroups::OnRemove(void) 
+void CEditGroups::OnRemove(void)
 {
 	CVisGroup *pGroup = m_cGroupList.GetSelectedVisGroup();
 	if (!pGroup)
@@ -178,7 +178,7 @@ LRESULT CEditGroups::OnSelChangeGroupList(WPARAM wParam, LPARAM lParam)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEditGroups::UpdateControlsForVisGroup(CVisGroup *pVisGroup)
 {
@@ -228,7 +228,7 @@ BOOL CEditGroups::OnInitDialog(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEditGroups::UpdateGroupList()
 {

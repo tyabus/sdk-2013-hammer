@@ -52,7 +52,6 @@ class CAssetTreeView : public vgui::TreeView
 
 public:
 	CAssetTreeView( vgui::Panel *parent, const char *name, const char *pRootFolderName, const char *pRootDir );
-    ~CAssetTreeView() {}
 
 	// Inherited from base classes
 	virtual void GenerateChildrenOfNode( int itemIndex );

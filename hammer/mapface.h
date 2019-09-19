@@ -1,6 +1,6 @@
 //====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -172,7 +172,7 @@ public:
 	void GetTextureName(char *pszName) const;
 
 	inline IEditorTexture *GetTexture(void) const;
-		
+
 	// Renders opaque faces
 	static void RenderOpaqueFaces( CRender3D* pRender );
 
@@ -243,7 +243,7 @@ public:
 		Vector	tangent;
 		Vector	binormal;
 	};
-		
+
 	void CalcTangentSpaceAxes( void );
 	bool AllocTangentSpaceAxes( int count );
 	void FreeTangentSpaceAxes( void );
@@ -302,7 +302,7 @@ public:
 	virtual void AddShadowingTriangles( CUtlVector<Vector> &tri_list );
 
 	DetailObjects		*m_pDetailObjects;
-	
+
 protected:
 
 	void ComputeColor( CRender3D* pRender, bool bRenderAsSelected, SelectionState_t faceSelectionState,
@@ -368,9 +368,9 @@ inline int CMapFace::GetFaceID(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : TexCoord - 
-//			nTexCoord - 
+// Purpose:
+// Input  : TexCoord -
+//			nTexCoord -
 //-----------------------------------------------------------------------------
 inline void CMapFace::GetLightmapCoord( Vector2D& LightmapCoord, int nIndex )
 {
@@ -380,9 +380,9 @@ inline void CMapFace::GetLightmapCoord( Vector2D& LightmapCoord, int nIndex )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &LightmapCoord - 
-//			nIndex - 
+// Purpose:
+// Input  : &LightmapCoord -
+//			nIndex -
 // Output : inline void
 //-----------------------------------------------------------------------------
 inline void CMapFace::SetLightmapCoord( const Vector2D &LightmapCoord, int nIndex )
@@ -393,9 +393,9 @@ inline void CMapFace::SetLightmapCoord( const Vector2D &LightmapCoord, int nInde
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : TexCoord - 
-//			nTexCoord - 
+// Purpose:
+// Input  : TexCoord -
+//			nTexCoord -
 //-----------------------------------------------------------------------------
 inline void CMapFace::GetTexCoord( Vector2D& TexCoord, int nTexCoord )
 {
@@ -463,7 +463,7 @@ inline void CMapFace::SetDisp( EditDispHandle_t handle, bool bDestroyPrevious )
 		// destroy old handle
 		EditDispMgr()->Destroy( m_DispHandle );
 	}
-		
+
 	Assert( ( handle == EDITDISPHANDLE_INVALID ) || ( EditDispMgr()->GetDisp( handle ) != NULL ) );
 
 	m_DispHandle = handle;
@@ -471,7 +471,7 @@ inline void CMapFace::SetDisp( EditDispHandle_t handle, bool bDestroyPrevious )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Returns the displacement surface applied to this face, 
+// Purpose: Returns the displacement surface applied to this face,
 //          DISPHANDLE_INVALID if none.
 //-----------------------------------------------------------------------------
 inline EditDispHandle_t CMapFace::GetDisp( void )
@@ -531,7 +531,7 @@ CMapFaceList::CMapFaceList(CMapFaceList const &other)
 
 //-----------------------------------------------------------------------------
 // Purpose: Assignment operator for copying face lists.
-// Input  : other - 
+// Input  : other -
 //-----------------------------------------------------------------------------
 CMapFaceList &CMapFaceList::operator =(CMapFaceList const &other)
 {
@@ -585,7 +585,7 @@ CMapFaceIDList::CMapFaceIDList(CMapFaceIDList const &other)
 
 //-----------------------------------------------------------------------------
 // Purpose: Assignment operator for copying face ID lists.
-// Input  : other - 
+// Input  : other -
 //-----------------------------------------------------------------------------
 CMapFaceIDList &CMapFaceIDList::operator =(CMapFaceIDList const &other)
 {

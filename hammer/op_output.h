@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -118,15 +118,15 @@ class COP_Output : public CObjectPage, public CFilteredComboBox::ICallbacks
 
 		CMapEntityList			m_EntityList;			// Filtered m_pObjectList that only includes map entities
 		const CMapEntityList*	m_pMapEntityList;		// List of all entities in the map.
-		CEntityConnectionList	m_EditList;				// List of selected connections being edited 
+		CEntityConnectionList	m_EditList;				// List of selected connections being edited
 
 		void UpdateEntityList();						// Generates m_EntityList from m_pObjectList
 
 
 	protected:
-	
+
 		CAnchorMgr m_AnchorMgr;
-		
+
 		CEditGameClass	*m_pEditGameClass;
 		CMapEntity		*m_pEntity;
 		bool			m_bNoParamEdit;

@@ -1076,7 +1076,7 @@ int CUtlBuffer::VaScanf( const char* pFmt, va_list list )
 
 #pragma warning ( default : 4706 )
 
-int CUtlBuffer::Scanf( const char* pFmt, ... )
+int CUtlBuffer::Scanf( SCANF_FORMAT_STRING const char* pFmt, ... )
 {
 	va_list args;
 
@@ -1453,7 +1453,7 @@ void CUtlBuffer::VaPrintf( const char* pFmt, va_list list )
 	PutString( temp );
 }
 
-void CUtlBuffer::Printf( const char* pFmt, ... )
+void CUtlBuffer::Printf( PRINTF_FORMAT_STRING const char* pFmt, ... )
 {
 	va_list args;
 

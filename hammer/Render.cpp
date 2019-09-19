@@ -361,7 +361,7 @@ void CRender::EndLocalTransfrom()
 	m_bIsLocalTransform = false;
 }
 
-bool CRender::IsInLocalTransformMode()
+bool CRender::IsInLocalTransformMode() const
 {
 	return m_bIsLocalTransform;
 }
@@ -749,7 +749,7 @@ void CRender::SetDrawColor( unsigned char r, unsigned char g, unsigned char b )
 	}
 }
 
-void CRender::SetHandleStyle( int size, int type  )
+void CRender::SetHandleStyle( int size, HandleStyle_t type  )
 {
 	m_nHandleType = type;
 	m_nHandleSize = size;

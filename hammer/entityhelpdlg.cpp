@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ====
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -26,7 +26,7 @@ END_MESSAGE_MAP()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityHelpDlg::ShowEntityHelpDialog(void)
 {
@@ -44,7 +44,7 @@ void CEntityHelpDlg::ShowEntityHelpDialog(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityHelpDlg::SetEditGameClass(GDclass *pClass)
 {
@@ -75,8 +75,8 @@ CEntityHelpDlg::~CEntityHelpDlg(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pDX - 
+// Purpose:
+// Input  : pDX -
 //-----------------------------------------------------------------------------
 void CEntityHelpDlg::DoDataExchange(CDataExchange *pDX)
 {
@@ -88,9 +88,9 @@ void CEntityHelpDlg::DoDataExchange(CDataExchange *pDX)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszText - 
-// Output : 
+// Purpose:
+// Input  : pszText -
+// Output :
 //-----------------------------------------------------------------------------
 int CEntityHelpDlg::GetTextWidth(const char *pszText, CDC *pDC)
 {
@@ -121,9 +121,9 @@ int CEntityHelpDlg::GetTextWidth(const char *pszText, CDC *pDC)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pClass - 
-// Output : 
+// Purpose:
+// Input  : pClass -
+// Output :
 //-----------------------------------------------------------------------------
 int CEntityHelpDlg::GetMaxVariableWidth(GDclass *pClass)
 {
@@ -150,7 +150,7 @@ int CEntityHelpDlg::GetMaxVariableWidth(GDclass *pClass)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityHelpDlg::OnClose(void)
 {
@@ -168,7 +168,7 @@ void CEntityHelpDlg::OnDestroy(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 BOOL CEntityHelpDlg::OnInitDialog(void)
 {
@@ -181,8 +181,8 @@ BOOL CEntityHelpDlg::OnInitDialog(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pClass - 
+// Purpose:
+// Input  : pClass -
 //-----------------------------------------------------------------------------
 void CEntityHelpDlg::UpdateClass(GDclass *pClass)
 {
@@ -193,7 +193,7 @@ void CEntityHelpDlg::UpdateClass(GDclass *pClass)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CEntityHelpDlg::UpdateHelp(void)
 {
@@ -205,8 +205,9 @@ void CEntityHelpDlg::UpdateHelp(void)
 
 		b << size(24);
 		b << bold(true);
-		b << color(1);
+		b << color( RGB( 255, 0, 0 ) );
 		b << m_pClass->GetName();
+		b << color( RGB( 0, 0, 0 ) );
 		b << "\n\n";
 		b << write(*m_pHelpText);
 
@@ -227,8 +228,9 @@ void CEntityHelpDlg::UpdateHelp(void)
 			//
 			b << size(24);
 			b << bold(true);
-			b << color(1);
+			b << color( RGB( 48, 190, 0 ) );
 			b << "KEYS";
+			b << color( RGB( 0, 0, 0 ) );
 			b << "\n\n";
 			b << write(*m_pHelpText);
 
@@ -248,11 +250,17 @@ void CEntityHelpDlg::UpdateHelp(void)
 				b << " ";
 
 				b << italic(true);
+				b << underline(true);
 				b << pVar->GetName();
+				b << underline(false);
 				b << italic(false);
 
 				b << " <";
+				b << color( RGB( 32, 54, 255 ) );
+				b << italic( true );
 				b << pVar->GetTypeText();
+				b << italic( false );
+				b << color( RGB( 0, 0, 0 ) );
 				b << "> ";
 
 				b << pVar->GetDescription();
@@ -273,8 +281,9 @@ void CEntityHelpDlg::UpdateHelp(void)
 			b << "\n";
 			b << size(24);
 			b << bold(true);
-			b << color(1);
+			b << color( RGB( 48, 190, 0 ) );
 			b << "INPUTS";
+			b << color( RGB( 0, 0, 0 ) );
 			b << "\n\n";
 			b << write(*m_pHelpText);
 
@@ -295,7 +304,11 @@ void CEntityHelpDlg::UpdateHelp(void)
 				if (pInput->GetType() != iotVoid)
 				{
 					b << "<";
+					b << color( RGB( 32, 54, 255 ) );
+					b << italic( true );
 					b << pInput->GetTypeText();
+					b << italic( false );
+					b << color( RGB( 0, 0, 0 ) );
 					b << "> ";
 				}
 
@@ -304,7 +317,7 @@ void CEntityHelpDlg::UpdateHelp(void)
 				b << write(*m_pHelpText);
 			}
 		}
-		
+
 		//
 		// Outputs section.
 		//
@@ -317,8 +330,9 @@ void CEntityHelpDlg::UpdateHelp(void)
 			b << "\n";
 			b << size(24);
 			b << bold(true);
-			b << color(1);
+			b << color( RGB( 48, 190, 0 ) );
 			b << "OUTPUTS";
+			b << color( RGB( 0, 0, 0 ) );
 			b << "\n\n";
 			b << write(*m_pHelpText);
 
@@ -339,7 +353,11 @@ void CEntityHelpDlg::UpdateHelp(void)
 				if (pOutput->GetType() != iotVoid)
 				{
 					b << "<";
+					b << color( RGB( 32, 54, 255 ) );
+					b << italic( true );
 					b << pOutput->GetTypeText();
+					b << italic( false );
+					b << color( RGB( 0, 0, 0 ) );
 					b << "> ";
 				}
 
@@ -353,10 +371,10 @@ void CEntityHelpDlg::UpdateHelp(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nType - 
-//			cx - 
-//			cy - 
+// Purpose:
+// Input  : nType -
+//			cx -
+//			cy -
 // Output : afx_msg void
 //-----------------------------------------------------------------------------
 void CEntityHelpDlg::OnSize( UINT nType, int cx, int cy )

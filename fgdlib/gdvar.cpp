@@ -14,7 +14,7 @@
 typedef struct
 {
 	GDIV_TYPE eType;		// The enumeration of this type.
-	char *pszName;			// The name of this type.
+	const char *pszName;			// The name of this type.
 	trtoken_t eStoreAs;		// How this type is stored (STRING, INTEGER, etc).
 } TypeMap_t;
 
@@ -22,7 +22,7 @@ typedef struct
 //-----------------------------------------------------------------------------
 // Maps type names to type enums and parsing logic for values.
 //-----------------------------------------------------------------------------
-static TypeMap_t TypeMap[] =
+static constexpr const TypeMap_t TypeMap[] =
 {
 	{ ivAngle,				"angle",				STRING },
 	{ ivChoices,			"choices",				STRING },
@@ -55,10 +55,12 @@ static TypeMap_t TypeMap[] =
 	{ ivAngleNegativePitch,	"angle_negative_pitch",	STRING },
 	{ ivInstanceVariable,	"instance_variable",	STRING },
 	{ ivInstanceParm,		"instance_parm",		STRING },
+	{ ivBoolean,			"boolean",		INTEGER },
 };
+static_assert(ivMax == ARRAYSIZE(TypeMap), "ivMax != ARRAYSIZE(TypeMap)");
 
 
-char *GDinputvariable::m_pszEmpty = "";
+const char *GDinputvariable::m_pszEmpty = "";
 
 
 //-----------------------------------------------------------------------------
@@ -106,7 +108,7 @@ GDinputvariable::~GDinputvariable(void)
 //-----------------------------------------------------------------------------
 // Purpose: Implements the copy operator.
 //-----------------------------------------------------------------------------
-GDinputvariable &GDinputvariable::operator =(GDinputvariable &Other)
+GDinputvariable &GDinputvariable::operator =(const GDinputvariable &Other)
 {
 	m_eType = Other.GetType();
 	strcpy(m_szName, Other.m_szName);
@@ -132,7 +134,7 @@ GDinputvariable &GDinputvariable::operator =(GDinputvariable &Other)
 	m_bReadOnly = Other.m_bReadOnly;
 
 	m_Items.RemoveAll();
-	
+
 	int nCount = Other.m_Items.Count();
 	for (int i = 0; i < nCount; i++)
 	{
@@ -151,16 +153,14 @@ GDinputvariable &GDinputvariable::operator =(GDinputvariable &Other)
 //-----------------------------------------------------------------------------
 trtoken_t GDinputvariable::GetStoreAsFromType(GDIV_TYPE eType)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for ( const TypeMap_t& i : TypeMap )
 	{
-		if (TypeMap[i].eType == eType)
-		{
-			return(TypeMap[i].eStoreAs);
-		}
+		if ( i.eType == eType)
+			return i.eStoreAs;
 	}
 
 	Assert(FALSE);
-	return(STRING);
+	return STRING;
 }
 
 
@@ -172,11 +172,11 @@ trtoken_t GDinputvariable::GetStoreAsFromType(GDIV_TYPE eType)
 //-----------------------------------------------------------------------------
 GDIV_TYPE GDinputvariable::GetTypeFromToken(const char *pszToken)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for ( const TypeMap_t& i : TypeMap )
 	{
-		if (IsToken(pszToken, TypeMap[i].pszName))
+		if (IsToken(pszToken, i.pszName))
 		{
-			return(TypeMap[i].eType);
+			return( i.eType);
 		}
 	}
 
@@ -189,11 +189,11 @@ GDIV_TYPE GDinputvariable::GetTypeFromToken(const char *pszToken)
 //-----------------------------------------------------------------------------
 const char *GDinputvariable::GetTypeText(void)
 {
-	for (int i = 0; i < sizeof(TypeMap) / sizeof(TypeMap[0]); i++)
+	for ( const TypeMap_t& i : TypeMap )
 	{
-		if (TypeMap[i].eType == m_eType)
+		if ( i.eType == m_eType)
 		{
-			return(TypeMap[i].pszName);
+			return( i.pszName);
 		}
 	}
 
@@ -202,8 +202,8 @@ const char *GDinputvariable::GetTypeText(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : tr - 
+// Purpose:
+// Input  : tr -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL GDinputvariable::InitFromTokens(TokenReader& tr)
@@ -474,7 +474,7 @@ BOOL GDinputvariable::InitFromTokens(TokenReader& tr)
 			// add item to array of items
 			m_Items.AddToTail(ivi);
 		}
-		
+
 		// Set the default value.
 		unsigned long nDefault = 0;
 		for (int i = 0; i < m_Items.Count(); i++)

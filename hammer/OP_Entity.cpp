@@ -35,6 +35,7 @@
 #include "Selection.h"
 #include "options.h"
 #include "op_flags.h"
+#include "fmtstr.h"
 
 extern GameData *pGD;		// current game data
 
@@ -53,6 +54,7 @@ extern GameData *pGD;		// current game data
 
 
 static WCKeyValues kvClipboard;
+static CUtlString kvClipboardClass;
 static BOOL bKvClipEmpty = TRUE;
 
 // Colors used for the keyvalues list control.
@@ -339,6 +341,7 @@ BEGIN_MESSAGE_MAP(COP_Entity, CObjectPage)
 	ON_EN_CHANGE(IDC_SMARTCONTROL, OnChangeSmartcontrol)
 	ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
 	ON_BN_CLICKED(IDC_PLAY_SOUND, OnPlaySound)
+	ON_BN_CLICKED(IDC_EDIT_INSTANCE, OnEditInstance)
 	ON_BN_CLICKED(IDC_MARK, OnMark)
 	ON_BN_CLICKED(IDC_MARK_AND_ADD, OnMarkAndAdd)
 	ON_BN_CLICKED(IDC_PICK_FACES, OnPickFaces)
@@ -487,7 +490,7 @@ BOOL COP_Entity::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 			LPNMLISTVIEW pListView = (LPNMLISTVIEW)lParam;
 
 			// Now sort by this column.
-			m_iSortColumn = max( 0, min( pListView->iSubItem, ARRAYSIZE( g_ColumnSortFunctions ) - 1 ) );
+			m_iSortColumn = max( 0, Min<int>( pListView->iSubItem, ARRAYSIZE( g_ColumnSortFunctions ) - 1 ) );
 			ResortItems();
 		}
 	}
@@ -1165,6 +1168,10 @@ void COP_Entity::RefreshKVListValues( const char *pOnlyThisVar )
 								pValue = pTestValue;
 						}
 					}
+					else if (eType == ivBoolean)
+					{
+						pValue = *pUnformattedValue == '0' ? "No" : "Yes";
+					}
 					else if (
 						(eType == ivStudioModel) || (eType == ivSprite) || (eType == ivSound) || (eType == ivDecal) ||
 						(eType == ivMaterial) || (eType == ivScene) )
@@ -1724,7 +1731,7 @@ void COP_Entity::CreateSmartControls(GDinputvariable *pVar, CUtlVector<const cha
 	//
 	// Choices, NPC classes and filter classes get a combo box.
 	//
-	if ((eType == ivChoices) || (eType == ivNPCClass) || (eType == ivFilterClass) || (eType == ivPointEntityClass) )
+	if ((eType == ivChoices) || (eType == ivNPCClass) || (eType == ivFilterClass) || (eType == ivPointEntityClass) || (eType == ivBoolean) )
 	{
 		CreateSmartControls_Choices( pVar, ctrlrect, hControlFont );
 	}
@@ -1742,16 +1749,16 @@ void COP_Entity::CreateSmartControls(GDinputvariable *pVar, CUtlVector<const cha
 		//
 		// Create a "Browse..." button for browsing for files.
 		//
-		if ((eType == ivStudioModel) || (eType == ivSprite) || (eType == ivSound) || (eType == ivDecal) ||
-			(eType == ivMaterial) || (eType == ivScene))
+		if (eType == ivStudioModel || eType == ivSprite || eType == ivSound || eType == ivDecal ||
+			eType == ivMaterial || eType == ivScene || eType == ivInstanceFile)
 		{
 			CreateSmartControls_BrowseAndPlayButtons( pVar, ctrlrect, hControlFont );
 		}
-		else if ((eType == ivTargetDest) || (eType == ivTargetNameOrClass) || (eType == ivTargetSrc) || (eType == ivNodeDest))
+		else if (eType == ivTargetDest || eType == ivTargetNameOrClass || eType == ivTargetSrc || eType == ivNodeDest)
 		{
 			CreateSmartControls_MarkAndEyedropperButtons( pVar, ctrlrect, hControlFont );
 		}
-		else if ((eType == ivSide) || (eType == ivSideList))
+		else if (eType == ivSide || eType == ivSideList)
 		{
 			CreateSmartControls_PickButton( pVar, ctrlrect, hControlFont );
 		}
@@ -1924,6 +1931,11 @@ void COP_Entity::CreateSmartControls_Choices( GDinputvariable *pVar, CRect &ctrl
 			}
 		}
 	}
+	else if (pVar->GetType() == ivBoolean)
+	{
+		pCombo->AddString("No");
+		pCombo->AddString("Yes");
+	}
 	//
 	// For pointentity fields, fill with all the point entity classes from the FGD.
 	//
@@ -1964,6 +1976,10 @@ void COP_Entity::CreateSmartControls_Choices( GDinputvariable *pVar, CRect &ctrl
 			if (pVar->GetType() == ivChoices)
 			{
 				p = pVar->ItemStringForValue(pszValue);
+			}
+			else if (pVar->GetType() == ivBoolean)
+			{
+				p = *pszValue == '0' ? "No" : "Yes";
 			}
 
 			if (p != NULL)
@@ -2097,6 +2113,19 @@ void COP_Entity::CreateSmartControls_BrowseAndPlayButtons( GDinputvariable *pVar
 		pButton->CreateEx(0, "Button", "Play", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
 			ButtonRect.left, ButtonRect.top, ButtonRect.Width(), ButtonRect.Height(),
 			GetSafeHwnd(), (HMENU)IDC_PLAY_SOUND);
+		pButton->SendMessage(WM_SETFONT, (WPARAM)hControlFont);
+
+		m_SmartControls.AddToTail(pButton);
+	}
+	else if ( pVar->GetType() == ivInstanceFile )
+	{
+		ButtonRect.left = ButtonRect.right + 8;
+		ButtonRect.right = ButtonRect.left + 54;
+
+		CButton *pButton = new CButton;
+		pButton->CreateEx(0, "Button", "Edit", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
+						   ButtonRect.left, ButtonRect.top, ButtonRect.Width(), ButtonRect.Height(),
+						   GetSafeHwnd(), (HMENU)IDC_EDIT_INSTANCE);
 		pButton->SendMessage(WM_SETFONT, (WPARAM)hControlFont);
 
 		m_SmartControls.AddToTail(pButton);
@@ -2871,6 +2900,10 @@ void COP_Entity::InternalOnChangeSmartcontrol( const char *szValue )
 			strValue = pszValueString;
 		}
 	}
+	else if (pVar->GetType() == ivBoolean)
+	{
+		strValue = !strcmpi( szValue, "No" ) ? "0" : "1";
+	}
 
 	UpdateKeyValue(szKey, strValue);
 
@@ -2920,7 +2953,8 @@ void COP_Entity::OnChangeSmartcontrolSel(void)
 		(pVar->GetType() != ivChoices) &&
 		(pVar->GetType() != ivNPCClass) &&
 		(pVar->GetType() != ivFilterClass) &&
-		(pVar->GetType() != ivPointEntityClass))
+		(pVar->GetType() != ivPointEntityClass) &&
+		(pVar->GetType() != ivBoolean))
 	{
 		return;
 	}
@@ -2949,6 +2983,13 @@ void COP_Entity::OnChangeSmartcontrolSel(void)
 		{
 			strcpy(szBuf, pszValue);
 		}
+	}
+	else if (pVar->GetType() == ivBoolean)
+	{
+		if ( !strcmpi(szBuf, "No") )
+			strcpy(szBuf, "0");
+		else
+			strcpy(szBuf, "1");
 	}
 
 	m_LastSmartControlVarValue = szBuf;
@@ -3018,6 +3059,25 @@ void COP_Entity::OnPlaySound(void)
 	int nIndex;
 	if ( g_Sounds.FindSoundByName( filename, &type, &nIndex ) )
 		g_Sounds.Play( type, nIndex );
+}
+
+void COP_Entity::OnEditInstance()
+{
+	if ( m_eEditType != ivInstanceFile )
+		return;
+
+	char szCurrentInstance[256];
+	m_pSmartControl->GetWindowText(szCurrentInstance, 256);
+	if ( !szCurrentInstance[0] || !m_pObjectList )
+		return;
+	Assert( m_pObjectList->Count() > 0 );
+	CMapWorld* world = CMapClass::GetWorldObject( m_pObjectList->Element( 0 ) );
+	Assert( world );
+	char parentDir[MAX_PATH];
+	V_ExtractFilePath( world->GetVMFPath(), parentDir, MAX_PATH );
+	const CFmtStr instancePath( "%s" CORRECT_PATH_SEPARATOR_S "%s", parentDir, szCurrentInstance );
+	if ( g_pFullFileSystem->FileExists( instancePath ) )
+		APP()->OpenDocumentFile( instancePath );
 }
 
 
@@ -3175,6 +3235,13 @@ void COP_Entity::OnBrowse(void)
 			goto Cleanup;
 		}
 
+		case ivInstanceFile:
+		{
+			pDlg->AddFileMask( "*.vmf" );
+			pDlg->SetInitialDir( "maps", pPathID );
+			break;
+		}
+
 		default:
 		{
 			pDlg->AddFileMask( "*.*" );
@@ -3188,7 +3255,7 @@ void COP_Entity::OnBrowse(void)
 	// into the SmartEdit control. If there is no backslash, put the whole filename.
 	//
 	int ret;
-	if ( g_pFullFileSystem->IsSteam() || CommandLine()->FindParm( "-NewDialogs" ) )
+	if ( m_eEditType != ivInstanceFile )
 		ret = pDlg->DoModal();
 	else
 		ret = pDlg->DoModal_WindowsDialog();
@@ -3237,16 +3304,15 @@ void COP_Entity::OnCopy(void)
 	// copy entity keyvalues
 	kvClipboard.RemoveAll();
 	bKvClipEmpty = FALSE;
-	for ( int i=m_kv.GetFirst(); i != m_kv.GetInvalidIndex(); i=m_kv.GetNext( i ) )
+	CString strClass = m_cClasses.GetCurrentItem();
+	kvClipboardClass.Set( strClass );
+	for ( int i = m_kv.GetFirst(); i != m_kv.GetInvalidIndex(); i=m_kv.GetNext( i ) )
 	{
-		if (stricmp(m_kv.GetKey(i), "origin"))
+		if ( !!stricmp( m_kv.GetKey( i ), "origin" ) )
 		{
-			kvClipboard.SetValue(m_kv.GetKey(i), m_kv.GetValue(i));
+			kvClipboard.SetValue( m_kv.GetKey( i ), m_kv.GetValue( i ) );
 		}
 	}
-
-	CString strClass = m_cClasses.GetCurrentItem();
-	kvClipboard.SetValue("xxxClassxxx", strClass);
 }
 
 
@@ -3433,25 +3499,30 @@ void COP_Entity::OnMarkAndAdd(void)
 //-----------------------------------------------------------------------------
 void COP_Entity::OnPaste(void)
 {
-	if(bKvClipEmpty)
+	if( bKvClipEmpty )
 		return;
 
 	CString str;
 	GetCurKey(str);
 
+	m_cClasses.SelectItem( kvClipboardClass );
+	UpdateEditClass( kvClipboardClass, false );
+	UpdateDisplayClass( kvClipboardClass );
+
 	// copy entity keyvalues
 	for (int i = kvClipboard.GetFirst(); i != kvClipboard.GetInvalidIndex(); i=kvClipboard.GetNext( i ) )
 	{
-		if (!strcmp(kvClipboard.GetKey(i), "xxxClassxxx"))
+		if ( V_stricmp( kvClipboard.GetKey( i ), SPAWNFLAGS_KEYNAME ) == 0 )
 		{
-			m_cClasses.SelectItem( kvClipboard.GetValue(i) );
-			UpdateEditClass(kvClipboard.GetValue(i), false);
-			UpdateDisplayClass(kvClipboard.GetValue(i));
+			unsigned long value;
+			sscanf( kvClipboard.GetValue( i ), "%lu", &value );
+			OnUpdateSpawnFlags( 0, value );
+			m_pFlagsPage->OnUpdateSpawnFlags( value );
 			continue;
 		}
 
-		m_kv.SetValue(kvClipboard.GetKey(i), kvClipboard.GetValue(i));
-		m_kvAdded.SetValue(kvClipboard.GetKey(i), "1");
+		m_kv.SetValue( kvClipboard.GetKey( i ), kvClipboard.GetValue( i ) );
+		m_kvAdded.SetValue( kvClipboard.GetKey( i ), "1" );
 	}
 
 	PresentProperties();

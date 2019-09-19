@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -19,6 +19,8 @@
 #include "Material.h"
 #include "Options.h"
 #include "camera.h"
+#include "optimize.h"
+#include "istudiorender.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
@@ -131,8 +133,8 @@ void CMapStudioModel::AdvanceAnimation(float flInterval)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bFullUpdate - 
+// Purpose:
+// Input  : bFullUpdate -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::CalcBounds(BOOL bFullUpdate)
 {
@@ -192,7 +194,7 @@ void CMapStudioModel::CalcBounds(BOOL bFullUpdate)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : CMapClass
 //-----------------------------------------------------------------------------
 CMapClass *CMapStudioModel::Copy(bool bUpdateDependencies)
@@ -243,8 +245,8 @@ CMapClass *CMapStudioModel::CopyFrom(CMapClass *pObject, bool bUpdateDependencie
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bEnable - 
+// Purpose:
+// Input  : bEnable -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::EnableAnimation(BOOL bEnable)
 {
@@ -281,7 +283,7 @@ void CMapStudioModel::GetRenderAngles(QAngle &Angles)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CMapStudioModel::Initialize(void)
 {
@@ -343,8 +345,8 @@ void CMapStudioModel::OnParentKeyChanged(const char* szKey, const char* szValue)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pRender - 
+// Purpose:
+// Input  : pRender -
 //-----------------------------------------------------------------------------
 bool CMapStudioModel::RenderPreload(CRender3D *pRender, bool bNewContext)
 {
@@ -372,7 +374,7 @@ static void DrawBasisVectors( CRender3D* pRender, const Vector &origin, const QA
 	meshBuilder.AdvanceVertex();
 
 	meshBuilder.Color3ub(255, 0, 0);
-	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][0]), 
+	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][0]),
 		origin[1] + (100 * fCurrentMatrix[1][0]), origin[2] + (100 * fCurrentMatrix[2][0]));
 	meshBuilder.AdvanceVertex();
 
@@ -381,7 +383,7 @@ static void DrawBasisVectors( CRender3D* pRender, const Vector &origin, const QA
 	meshBuilder.AdvanceVertex();
 
 	meshBuilder.Color3ub(0, 255, 0);
-	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][1]), 
+	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][1]),
 		origin[1] + (100 * fCurrentMatrix[1][1]), origin[2] + (100 * fCurrentMatrix[2][1]));
 	meshBuilder.AdvanceVertex();
 
@@ -390,7 +392,7 @@ static void DrawBasisVectors( CRender3D* pRender, const Vector &origin, const QA
 	meshBuilder.AdvanceVertex();
 
 	meshBuilder.Color3ub(0, 0, 255);
-	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][2]), 
+	meshBuilder.Position3f(origin[0] + (100 * fCurrentMatrix[0][2]),
 		origin[1] + (100 * fCurrentMatrix[1][2]), origin[2] + (100 * fCurrentMatrix[2][2]));
 	meshBuilder.AdvanceVertex();
 
@@ -442,7 +444,7 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 	int sizeY = abs(pt2.y-pt.y);
 
 	//
-	// Don't draw the center handle if the model is smaller than the handle cross 	
+	// Don't draw the center handle if the model is smaller than the handle cross
 	//
 	if ( sizeX >= 8 && sizeY >= 8 && pRender->IsActiveView() )
 	{
@@ -450,13 +452,13 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 
 		pRender->DrawHandle( (vecMins+vecMaxs)/2 );
 	}
-	
+
 	QAngle vecAngles;
 	GetRenderAngles(vecAngles);
 
-	bool bDrawAsModel = (Options.view2d.bDrawModels && ((sizeX+sizeY) > 50)) ||	
+	bool bDrawAsModel = (Options.view2d.bDrawModels && ((sizeX+sizeY) > 50)) ||
 						IsSelected() ||	pRender->IsInLocalTransformMode();
-						
+
 	if ( !bDrawAsModel || IsSelected() )
 	{
 		// Draw the bounding box.
@@ -480,7 +482,7 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 		}
 		else
 		{
-			// just draw the wireframe 
+			// just draw the wireframe
 			m_pStudioModel->DrawModel2D(pRender, 1.0 , true );
 		}
 	}
@@ -490,7 +492,7 @@ void CMapStudioModel::Render2D(CRender2D *pRender)
 		//
 		// Render the forward vector if the object is selected.
 		//
-		
+
 		Vector Forward;
 		AngleVectors(vecAngles, &Forward, NULL, NULL);
 
@@ -507,7 +509,7 @@ inline float CMapStudioModel::ComputeDistanceFade( CRender3D *pRender ) const
 	Vector vecViewPos;
 	pRender->GetCamera()->GetViewPoint( vecViewPos );
 
-	Vector vecDelta;		
+	Vector vecDelta;
 	vecDelta = m_Origin - vecViewPos;
 
 	float flMin = min(m_flFadeMinDist, m_flFadeMaxDist);
@@ -531,7 +533,7 @@ inline float CMapStudioModel::ComputeDistanceFade( CRender3D *pRender ) const
 			alpha = RemapValClamped( flDist, flMin, flMax, 1.0f, 0 );
 		}
 	}
-		
+
 	return alpha;
 }
 
@@ -617,7 +619,7 @@ void CMapStudioModel::Render3D(CRender3D *pRender)
 			}
 
 			bool bWireframe = pRender->GetCurrentRenderMode() == RENDER_MODE_WIREFRAME;
- 
+
 			if ( GetSelectionState() == SELECT_MODIFY )
 				bWireframe = true;
 
@@ -660,8 +662,8 @@ void CMapStudioModel::Render3D(CRender3D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : Angles - 
+// Purpose:
+// Input  : Angles -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::SetAngles(QAngle &Angles)
 {
@@ -719,8 +721,8 @@ void CMapStudioModel::SetRenderDistance(float fRenderDistance)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pTransBox - 
+// Purpose:
+// Input  : pTransBox -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::DoTransform(const VMatrix &matrix)
 {
@@ -743,7 +745,7 @@ void CMapStudioModel::DoTransform(const VMatrix &matrix)
 
 	QAngle angles;
 	GetAngles( angles );
-	
+
 	AngleMatrix( angles, fCurrentMatrix);
 	ConcatTransforms(fRotateMatrix, fCurrentMatrix, fMatrixNew);
 	MatrixAngles( fMatrixNew, angles );
@@ -751,8 +753,79 @@ void CMapStudioModel::DoTransform(const VMatrix &matrix)
 	SetAngles( angles );
 }
 
+extern IStudioDataCache* g_pStudioDataCache;
+const vertexFileHeader_t* mstudiomodel_t::CacheVertexData( void *pModelData )
+{
+	return g_pStudioDataCache->CacheVertexData( (studiohdr_t*)pModelData );
+}
+
+void CMapStudioModel::AddShadowingTriangles( CUtlVector<Vector>& tri_list )
+{
+	if ( m_pStudioModel != NULL )
+	{
+		Vector origin;
+		QAngle angles;
+		GetOrigin( origin );
+		GetAngles( angles );
+		VMatrix transform;
+		transform.SetupMatrixOrgAngles( origin, angles );
+		const studiohdr_t* pHdr = m_pStudioModel->GetStudioHdr()->GetRenderHdr();
+		studiomeshdata_t *pStudioMeshes = m_pStudioModel->GetHardwareData()->m_pLODs[0].m_pMeshData;
+		for ( int i = 0; i < pHdr->numbodyparts; ++i )
+		{
+			mstudiobodyparts_t* pBodypart = pHdr->pBodypart( i );
+			for ( int j = 0; j < pBodypart->nummodels; ++j )
+			{
+				const mstudiomodel_t* pModel = pBodypart->pModel( j );
+				for ( int k = 0; k < pModel->nummeshes; ++k )
+				{
+					mstudiomesh_t *pMesh = pModel->pMesh( k );
+					const mstudio_meshvertexdata_t* vertData = pMesh->GetVertexData( const_cast<studiohdr_t*>( pHdr ) );
+					studiomeshdata_t *pMeshData = &pStudioMeshes[pMesh->meshid];
+					if ( pMeshData->m_NumGroup == 0 )
+						continue;
+
+					for ( int stripGroupID = 0; stripGroupID < pMeshData->m_NumGroup; stripGroupID++ )
+					{
+						studiomeshgroup_t *pMeshGroup = &pMeshData->m_pMeshGroup[stripGroupID];
+						for ( int stripID = 0; stripID < pMeshGroup->m_NumStrips; stripID++ )
+						{
+							OptimizedModel::StripHeader_t *pStripData = &pMeshGroup->m_pStripData[stripID];
+
+							if ( pStripData->flags & OptimizedModel::STRIP_IS_TRILIST )
+							{
+								for ( int i = 0; i < pStripData->numIndices; i += 3 )
+								{
+									int idx = pStripData->indexOffset + i;
+
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 1 ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 2 ) ) ) );
+								}
+							}
+							else
+							{
+								Assert( pStripData->flags & OptimizedModel::STRIP_IS_TRISTRIP );
+								for (int i = 0; i < pStripData->numIndices - 2; ++i)
+								{
+									int idx = pStripData->indexOffset + i;
+									bool ccw = (i & 0x1) == 0;
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 1 + ccw ) ) ) );
+									tri_list.AddToTail( transform.VMul4x3( *vertData->Position( pMeshGroup->MeshIndex( idx + 2 - ccw ) ) ) );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapStudioModel::GetFrame(void)
@@ -763,8 +836,8 @@ int CMapStudioModel::GetFrame(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nFrame - 
+// Purpose:
+// Input  : nFrame -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::SetFrame(int nFrame)
 {
@@ -786,7 +859,7 @@ int CMapStudioModel::GetSequence(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : int
 //-----------------------------------------------------------------------------
 int CMapStudioModel::GetSequenceCount(void)
@@ -800,9 +873,9 @@ int CMapStudioModel::GetSequenceCount(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nIndex - 
-//			szName - 
+// Purpose:
+// Input  : nIndex -
+//			szName -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::GetSequenceName(int nIndex, char *szName)
 {
@@ -814,8 +887,8 @@ void CMapStudioModel::GetSequenceName(int nIndex, char *szName)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nIndex - 
+// Purpose:
+// Input  : nIndex -
 //-----------------------------------------------------------------------------
 void CMapStudioModel::SetSequence(int nIndex)
 {

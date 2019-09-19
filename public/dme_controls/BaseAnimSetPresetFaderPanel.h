@@ -58,7 +58,6 @@ class CBaseAnimSetPresetFaderPanel : public vgui::EditablePanel
 	DECLARE_CLASS_SIMPLE( CBaseAnimSetPresetFaderPanel, vgui::EditablePanel );
 public:
 	CBaseAnimSetPresetFaderPanel( vgui::Panel *parent, const char *className, CBaseAnimationSetEditor *editor );
-    ~CBaseAnimSetPresetFaderPanel() {}
 
 	void	GetPreviewFader( FaderPreview_t& fader );
 

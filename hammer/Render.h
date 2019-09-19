@@ -80,8 +80,6 @@ public:
 	CRender(void);
 	virtual ~CRender(void);
 
-
-
 	enum
 	{	TEXT_SINGLELINE           =   0x1,             // put all of the text on one line
 		TEXT_MULTILINE            =   0x2,             // the text is written on multiple lines
@@ -94,7 +92,7 @@ public:
 		TEXT_CLEAR_BACKGROUND     = 0x100
 	};           // clear the background behind the text
 
-	enum
+	enum HandleStyle_t
 	{	HANDLE_NONE			= 0,
 		HANDLE_SQUARE,
 		HANDLE_CIRCLE,
@@ -122,7 +120,7 @@ public:
 
 	void BeginLocalTransfrom( const VMatrix &matrix );
 	void EndLocalTransfrom();
-	bool IsInLocalTransformMode();
+	bool IsInLocalTransformMode() const;
 	void GetLocalTranform( VMatrix &matrix );
 
 	void SetTextColor( unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255 );
@@ -131,7 +129,7 @@ public:
 	void GetDrawColor( Color &color );
 	void SetHandleColor( unsigned char r, unsigned char g, unsigned char b );
 
-	void SetHandleStyle( int size, int type );
+	void SetHandleStyle( int size, HandleStyle_t type );
 
 	void SetDefaultRenderMode(EditorRenderMode_t eRenderMode);
 	void BindTexture(IEditorTexture *pTexture);
@@ -191,43 +189,41 @@ protected:
 
 
 	// Meshbuilder used for drawing
-	IMesh* m_pMesh;
-	CMeshBuilder meshBuilder;
+	IMesh*			m_pMesh;
+	CMeshBuilder	meshBuilder;
 
 	// colors
-	Color		m_DrawColor;         // current draw/fill color
-	Color		m_TextColor;         // current text color
-	Color		m_HandleColor;       // current text color
+	Color			m_DrawColor;         // current draw/fill color
+	Color			m_TextColor;         // current text color
+	Color			m_HandleColor;       // current text color
 
 	// handle styles
-	int			m_nHandleSize;
-	int			m_nHandleType;
+	int				m_nHandleSize;
+	HandleStyle_t	m_nHandleType;
 
 	// frame count
-	int			m_nFrameCount;		// increases each setup camera
-	bool		m_bIsRendering;
-	bool		m_bIsRenderingIntoVGUI;
+	int				m_nFrameCount;		// increases each setup camera
+	bool			m_bIsRendering;
+	bool			m_bIsRenderingIntoVGUI;
 
 	// materials
-	IMaterial*	m_pCurrentMaterial;	// The currently bound material
-	IMaterial*	m_pBoundMaterial;	// a material given from external caller
+	IMaterial*		m_pCurrentMaterial;	// The currently bound material
+	IMaterial*		m_pBoundMaterial;	// a material given from external caller
 
-	int			m_nDecalMode;			// 0 or 1
-	IMaterial*	m_pWireframe[2];		// default wireframe material
-	IMaterial*	m_pFlat[2];				// default flat material
-	IMaterial*	m_pDotted[2];			// default dotted material
-	IMaterial*	m_pFlatNoZ[2];			// default flat material, ignore Z
-	IMaterial*	m_pFlatNoCull[2];		// default flat material, no backface cull
-	IMaterial*	m_pTranslucentFlat[2];	// default translucent flat material
-	IMaterial*  m_pLightmapGrid[2];		// default lightmap grid material
-	IMaterial*  m_pSelectionOverlay[2];	// for selecting actual textures
+	int				m_nDecalMode;			// 0 or 1
+	IMaterial*		m_pWireframe[2];		// default wireframe material
+	IMaterial*		m_pFlat[2];				// default flat material
+	IMaterial*		m_pDotted[2];			// default dotted material
+	IMaterial*		m_pFlatNoZ[2];			// default flat material, ignore Z
+	IMaterial*		m_pFlatNoCull[2];		// default flat material, no backface cull
+	IMaterial*		m_pTranslucentFlat[2];	// default translucent flat material
+	IMaterial*		m_pLightmapGrid[2];		// default lightmap grid material
+	IMaterial*		m_pSelectionOverlay[2];	// for selecting actual textures
 
 	// render modes
 	EditorRenderMode_t m_eCurrentRenderMode;	// Current render mode setting - Wireframe, flat, or textured.
 	EditorRenderMode_t m_eDefaultRenderMode;	// Default render mode - Wireframe, flat, or textured.
 	CUtlStack<EditorRenderMode_t> m_RenderModeStack;
-
-
 };
 
 #endif // RENDER_H

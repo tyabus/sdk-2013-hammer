@@ -92,7 +92,7 @@ struct ExportDXFInfo_s
 //
 struct NotifyListEntry_t
 {
-	CSmartPtr< CSafeObject< CMapClass > > pObject;
+	CSmartPtr<CSafeObject<CMapClass>> pObject;
 	Notify_Dependent_t eNotifyType;
 };
 
@@ -117,6 +117,13 @@ struct portalfile_t
 	int					totalVerts;
 	CUtlVector<Vector>	verts;
 	CUtlVector<int>		vertCount;
+};
+
+enum class ShowInstance_t
+{
+	INSTANCES_HIDE = 0x0,
+	INSTANCES_SHOW_TINTED = 0x1,
+	INSTANCES_SHOW_NORMAL = 0x2,
 };
 
 class CMapDoc : public CDocument
@@ -375,6 +382,8 @@ class CMapDoc : public CDocument
 		// Default logical placement for new entities
 		void GetDefaultNewLogicalPosition( Vector2D &vecPosition );
 
+		void CollapseInstances(bool selected, bool recursive);
+
 	private:
 
 		void VisGroups_Validate();
@@ -401,7 +410,7 @@ class CMapDoc : public CDocument
 		// Save a VMF file. saveFlags is a combination of SAVEFLAGS_ defines.
 		bool SaveVMF(const char *pszFileName, int saveFlags );
 
-		bool LoadVMF(const char *pszFileName, bool bIsInstance = false);
+		bool LoadVMF(const char *pszFileName);
 		void Postload(void);
 		inline bool IsLoading(void);
 
@@ -428,6 +437,9 @@ class CMapDoc : public CDocument
 		// Builds a list of all objects which are connected to outputs of pObj
 		void BuildCascadingSelectionList( CMapClass *pObj, CUtlRBTree< CMapClass*, unsigned short > &list, bool bRecursive );
 
+		void SetInstanceVisibility( ShowInstance_t state ) { m_tShowInstance = state; }
+		ShowInstance_t GetInstanceVisibility() const { return m_tShowInstance; }
+
 	protected:
 
 		void Initialize();
@@ -446,9 +458,8 @@ class CMapDoc : public CDocument
 		bool m_bDispDrawRemovedVerts;
 
 		bool m_bLoading; // Set to true while we are being loaded from VMF.
-		bool m_bLoadingInstance; // Set to true while we are being loaded from VMF instance.
 
-		static BOOL GetBrushNumberCallback(CMapClass *pObject, void *pFindInfo);
+		static BOOL GetBrushNumberCallback(CMapClass *pObject, class CFindBrushInfo *pFindInfo);
 
 		//
 		// Serialization.
@@ -500,6 +511,7 @@ class CMapDoc : public CDocument
 		CMapObjectList m_UpdateList;		// List of objects that have changed since the last call to Update.
 		CString m_strLastExportFileName;	// The full path that we last exported this document to.
 		int m_nDocVersion;					// A number that increments every time the doc is modified after being saved.
+		int m_nFileFormatVersion;
 		BOOL m_bNeedsAutosave;				// True if the document has been changed and needs autosaved.
 		BOOL m_bIsAutosave;
 		CString m_strAutosavedFrom;
@@ -521,6 +533,8 @@ class CMapDoc : public CDocument
 
 		bool m_bShow3DGrid;				// Whether to render a grid in the 3D views.
 		bool m_bHideItems;				// Whether to render point entities in all views.
+
+		ShowInstance_t m_tShowInstance;
 
 		//
 		// Animation.
@@ -716,8 +730,6 @@ class CMapDoc : public CDocument
 		//}}AFX_MSG
 
 		DECLARE_MESSAGE_MAP()
-
-	friend class CMapInstance;
 };
 
 

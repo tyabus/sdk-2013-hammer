@@ -34,7 +34,6 @@ class ScrollableEditablePanel : public vgui::EditablePanel
 
 public:
 	ScrollableEditablePanel( vgui::Panel *pParent, vgui::EditablePanel *pChild, const char *pName );
-	virtual ~ScrollableEditablePanel() {}
 
 	virtual void ApplySettings( KeyValues *pInResourceData );
 	virtual void PerformLayout();

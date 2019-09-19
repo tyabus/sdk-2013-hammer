@@ -29,7 +29,6 @@ class ScrollBarSlider : public Panel
 
 public:
 	ScrollBarSlider(Panel *parent, const char *panelName, bool vertical);
-	virtual ~ScrollBarSlider() {}
 
 	// Set the ScrollBarSlider value of the nob.
 	virtual void SetValue(int value);

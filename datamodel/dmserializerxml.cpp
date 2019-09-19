@@ -1,6 +1,6 @@
 //====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================
 
@@ -17,7 +17,17 @@
 #include "tier1/utlstack.h"
 #include "parsifal/parsifal.h"
 #include "DmElementFramework.h"
+#include "tier0/dynfunction.h"
 
+#define EXT_FUNC( name ) CDynamicFunction<decltype( &name )> name##_Func( "hammer\\bin\\parsifal.dll", V_STRINGIFY( name ) )
+
+EXT_FUNC( XMLParser_Create );
+EXT_FUNC( XMLParser_Parse );
+EXT_FUNC( XMLParser_Free );
+EXT_FUNC( XMLParser_GetCurrentLine );
+EXT_FUNC( XMLParser_GetNamedItem );
+
+#undef EXT_FUNC
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -44,26 +54,8 @@ BEGIN_CHAR_CONVERSION( s_XMLCharConversion, "", '&' )
 	{ '\'', "apos;" },
 END_CHAR_CONVERSION( s_XMLCharConversion, "", '&' )
 
-// Just delimiters, no type conversion
-class CXMLInputStringConversion : public CUtlCharConversion
-{
-public:
-	CXMLInputStringConversion( char nEscapeChar, const char *pDelimiter, int nCount, ConversionArray_t *pArray ) :
-		CUtlCharConversion( '\0', pDelimiter, 0, NULL )
-	{
-	}
-
-	// Finds a conversion for the passed-in string, returns length
-	virtual char FindConversion( const char *pString, int *pLength )
-	{
-		*pLength = 0;
-		return '\0';
-	}
-};
-
-
 //-----------------------------------------------------------------------------
-// Base serialization class 
+// Base serialization class
 //-----------------------------------------------------------------------------
 class CXMLSerializer : public IDmSerializer
 {
@@ -88,7 +80,6 @@ private:
 	void SerializeArrayAttribute( CUtlBuffer& buf, CDmAttribute *pAttribute );
 	bool SerializeAttributes( CUtlBuffer& buf, CDmElementSerializationDictionary& dict, CDmElement *pElement );
 	bool SaveElement( CUtlBuffer& buf, CDmElementSerializationDictionary& dict, CDmElement *pElement, bool bWriteDelimiters = true );
-	bool UnserializeElements( CUtlBuffer &buf, const char *pFormatName, DmFileId_t fileid, DmConflictResolution_t idConflictResolution, CDmElement **ppRoot );
 
 	bool m_bFlatMode;
 };
@@ -102,6 +93,8 @@ static CXMLSerializer s_XMLSerializerFlat( true );
 
 void InstallXMLSerializer( IDataModel *pFactory )
 {
+	if ( !XMLParser_Create_Func )
+		return Warning( "parsifal.dll not found, xml support disabled!\n" );
 	pFactory->AddSerializer( &s_XMLSerializer );
 	pFactory->AddSerializer( &s_XMLSerializerFlat );
 }
@@ -128,7 +121,7 @@ void CXMLSerializer::SerializeElementReference( CUtlBuffer& buf, CDmElementSeria
 	}
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Serializes a single element attribute
 //-----------------------------------------------------------------------------
@@ -141,7 +134,7 @@ void CXMLSerializer::SerializeElementAttribute( CUtlBuffer& buf, CDmElementSeria
 		const DmObjectId_t &id = pElement->GetId();
 		UniqueIdToString( id, idBuf, sizeof(idBuf) );
 
-		buf.Printf( "<%s type=\"%s\" name=\"%s\" id=\"%s\">\n", 
+		buf.Printf( "<%s type=\"%s\" name=\"%s\" id=\"%s\">\n",
 			pName, pElement->GetTypeString(), pElement->GetName(), idBuf );
 		SaveElement( buf, dict, pElement, false );
 		buf.Printf( "</%s>\n", pName );
@@ -350,12 +343,12 @@ private:
 	void PopAttribute();
 	void PushElement( DmElementDictHandle_t hElement );
 	void PopElement();
-	
+
 	// Starts the various XML element types
 	int StartFileScopeElement( const char *pElementName );
 	int StartAttributeElement( const char *pAttributeName, const char *pAttributeType );
 	int StartChildElement( const char *pElementType );
-	
+
 	// Ends the various XML element types
 	int EndFileScopeElement( const char *pElementName );
 	int EndAttributeElement( const char *pAttributeName );
@@ -392,7 +385,7 @@ private:
 //-----------------------------------------------------------------------------
 // Callbacks needed by the XML parser
 //-----------------------------------------------------------------------------
-void ErrorHandler(LPXMLPARSER parser) 
+void ErrorHandler(LPXMLPARSER parser)
 {
 	/* dummy, only for switching ErrorString etc. on */
 	Assert(0);
@@ -447,7 +440,7 @@ bool CXMLUnserializationState::Unserialize( DmFileId_t fileid, CUtlBuffer &buf, 
 
 	m_idConflictResolution = idConflictResolution;
 
-	if (!XMLParser_Create(&m_Parser)) 
+	if (!XMLParser_Create_Func(&m_Parser))
 	{
 		Warning( "Error creating parser!\n" );
 		return false;
@@ -461,13 +454,13 @@ bool CXMLUnserializationState::Unserialize( DmFileId_t fileid, CUtlBuffer &buf, 
 	m_Parser->charactersHandler = ::Characters;
 	m_Parser->UserData = this;
 
-	bool bOk = ( XMLParser_Parse( m_Parser, cstream, &buf, 0) != XML_OK );
+	bool bOk = ( XMLParser_Parse_Func( m_Parser, cstream, &buf, 0) != XML_OK );
 	if ( !bOk )
 	{
 		Warning("Error: %s\nLine: %d Col: %d\n", m_Parser->ErrorString, m_Parser->ErrorLine, m_Parser->ErrorColumn );
 	}
 
-	XMLParser_Free(m_Parser);
+	XMLParser_Free_Func(m_Parser);
 
 	if ( bOk )
 	{
@@ -548,11 +541,11 @@ CDmElement *CXMLUnserializationState::GetTopmostElement()
 	return m_ElementDict.GetElement( m_hTopmostDictHandle );
 }
 
-	
+
 //-----------------------------------------------------------------------------
 // Push/pop the various parse types
 //-----------------------------------------------------------------------------
-void CXMLUnserializationState::PushAttribute( const char *pAttributeName, 
+void CXMLUnserializationState::PushAttribute( const char *pAttributeName,
 	CDmAttribute *pAttribute, DmElementDictHandle_t hElement, ParseState_t::ParseType_t type )
 {
 	Assert( type == ParseState_t::ATTRIBUTE || type == ParseState_t::ATTRIBUTE_ARRAY_VALUE || type == ParseState_t::ATTRIBUTE_ELEMENT_REFERENCE );
@@ -569,8 +562,8 @@ void CXMLUnserializationState::PushAttribute( const char *pAttributeName,
 
 void CXMLUnserializationState::PopAttribute()
 {
-	Assert( m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE || 
-		m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE_ARRAY_VALUE || 
+	Assert( m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE ||
+		m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE_ARRAY_VALUE ||
 		m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE_ELEMENT_REFERENCE );
 
 	m_ParseStack.Pop();
@@ -599,7 +592,7 @@ void CXMLUnserializationState::PopElement()
 //-----------------------------------------------------------------------------
 inline int CXMLUnserializationState::GetCurrentLine()
 {
-	return XMLParser_GetCurrentLine( m_Parser );
+	return XMLParser_GetCurrentLine_Func( m_Parser );
 }
 
 
@@ -609,7 +602,7 @@ inline int CXMLUnserializationState::GetCurrentLine()
 int CXMLUnserializationState::StartFileScopeElement( const char *pElementName )
 {
 	// First thing in the file has to be the starting token
-	if ( Q_stricmp( pElementName, DMX_FILE_STARTING_TOKEN ) ) 
+	if ( Q_stricmp( pElementName, DMX_FILE_STARTING_TOKEN ) )
 		return XML_ABORT;
 
 	int i = m_ParseStack.Push();
@@ -620,7 +613,7 @@ int CXMLUnserializationState::StartFileScopeElement( const char *pElementName )
 int CXMLUnserializationState::EndFileScopeElement( const char *pElementName )
 {
 	// First thing in the file has to be the starting token
-	if ( Q_stricmp( pElementName, DMX_FILE_ENDING_TOKEN ) ) 
+	if ( Q_stricmp( pElementName, DMX_FILE_ENDING_TOKEN ) )
 		return XML_ABORT;
 
 	m_ParseStack.Pop();
@@ -634,8 +627,8 @@ int CXMLUnserializationState::EndFileScopeElement( const char *pElementName )
 DmElementDictHandle_t CXMLUnserializationState::CreateDmElement( const char *pElementType )
 {
 	// When reading in elements, we can also try to read in name + id
-	LPXMLRUNTIMEATT nameAttr = XMLParser_GetNamedItem( m_Parser, (XMLCH*)"name" );
-	LPXMLRUNTIMEATT idAttr = XMLParser_GetNamedItem( m_Parser, (XMLCH*)"id" );
+	LPXMLRUNTIMEATT nameAttr = XMLParser_GetNamedItem_Func( m_Parser, (const XMLCH*)"name" );
+	LPXMLRUNTIMEATT idAttr = XMLParser_GetNamedItem_Func( m_Parser, (const XMLCH*)"id" );
 
 	const char *pName = nameAttr ? (const char*)nameAttr->value : NULL;
 
@@ -705,7 +698,7 @@ int CXMLUnserializationState::StartAttributeElement( const char *pAttributeName,
 		return XML_ABORT;
 	}
 
-	// Element types are never unserialized directly, 
+	// Element types are never unserialized directly,
 	// instead they are read in as object ids and are fixed up at a later time.
 	ParseState_t::ParseType_t type = (nAttrType != AT_ELEMENT) ? ParseState_t::ATTRIBUTE : ParseState_t::ATTRIBUTE_ELEMENT_REFERENCE;
 	PushAttribute( pAttributeName, pAttribute, ELEMENT_DICT_HANDLE_INVALID, type );
@@ -734,7 +727,7 @@ int CXMLUnserializationState::EndAttributeElement( const char *pAttributeName )
 int CXMLUnserializationState::StartChildElement( const char *pElementType )
 {
 	// If the current top of the stack is an array attribute, then add it to the array...
-	bool bIsElementArray = (m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE) && 
+	bool bIsElementArray = (m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE) &&
 		( GetTopAttribute()->GetType() == AT_ELEMENT_ARRAY );
 
 	// Look for an external child reference first
@@ -793,7 +786,7 @@ int CXMLUnserializationState::EndChildElement( const char *pElementType )
 	const char *pActualElementType = GetTopmostElement()->GetTypeString();
 	if ( Q_stricmp( pElementType, pActualElementType ) )
 	{
-		Warning("XML: (%d) Child element (%s) has mismatched ending element type %s\n", GetCurrentLine(), pElementType );
+		Warning("XML: (%d) Child element (%s) has mismatched ending element type %s != %s\n", GetCurrentLine(), GetTopmostElement()->GetName(), pElementType, pActualElementType );
 		return XML_ABORT;
 	}
 
@@ -805,15 +798,15 @@ int CXMLUnserializationState::EndChildElement( const char *pElementType )
 //-----------------------------------------------------------------------------
 // Called by the parser when we start a new XML element
 //-----------------------------------------------------------------------------
-int CXMLUnserializationState::StartElement( const XMLCH *uri, 
+int CXMLUnserializationState::StartElement( const XMLCH *uri,
 	const XMLCH *localName, const char *pElementName, LPXMLVECTOR atts )
 {
 	// Deal with file scope token
 	if ( !m_ParseStack.Count() )
 		return StartFileScopeElement( pElementName );
-	
+
 	// See if we're reading in an attribute. We are if there's an XML attribute called 'type'.
-	LPXMLRUNTIMEATT att = XMLParser_GetNamedItem( m_Parser, (XMLCH*)"type" );
+	LPXMLRUNTIMEATT att = XMLParser_GetNamedItem_Func( m_Parser, (const XMLCH*)"type" );
 	if (att)
 	{
 		return StartAttributeElement( pElementName, (const char*)att->value );
@@ -823,7 +816,7 @@ int CXMLUnserializationState::StartElement( const XMLCH *uri,
 
 	// If the current top of the stack is an array attribute, then add it to the array...
 	// To make this work, we need do
-	if ( ( m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE ) && 
+	if ( ( m_ParseStack.Top().m_Type == ParseState_t::ATTRIBUTE ) &&
 		( GetTopAttribute()->GetType() != AT_ELEMENT_ARRAY ) )
 	{
 		PushAttribute( NULL, GetTopAttribute(), ELEMENT_DICT_HANDLE_INVALID, ParseState_t::ATTRIBUTE_ARRAY_VALUE );
@@ -836,7 +829,7 @@ int CXMLUnserializationState::StartElement( const XMLCH *uri,
 
 
 //-----------------------------------------------------------------------------
-// Called by the parser when we get characters inside an element array reference 
+// Called by the parser when we get characters inside an element array reference
 //-----------------------------------------------------------------------------
 int CXMLUnserializationState::CharactersElementArrayReference( const XMLCH *pChars, int cbChars )
 {
@@ -852,7 +845,7 @@ int CXMLUnserializationState::CharactersElementArrayReference( const XMLCH *pCha
 
 
 //-----------------------------------------------------------------------------
-// Called by the parser when we get characters inside an element array reference 
+// Called by the parser when we get characters inside an element array reference
 //-----------------------------------------------------------------------------
 int CXMLUnserializationState::CharactersElementReference( const XMLCH *pChars, int cbChars )
 {
@@ -864,7 +857,7 @@ int CXMLUnserializationState::CharactersElementReference( const XMLCH *pChars, i
 
 
 //-----------------------------------------------------------------------------
-// Called by the parser when we get characters inside an attribute 
+// Called by the parser when we get characters inside an attribute
 //-----------------------------------------------------------------------------
 int CXMLUnserializationState::CharactersAttribute( const XMLCH *pChars, int cbChars )
 {
@@ -912,7 +905,7 @@ int CXMLUnserializationState::CharactersAttribute( const XMLCH *pChars, int cbCh
 
 
 //-----------------------------------------------------------------------------
-// Called by the parser when we get characters inside an XML element 
+// Called by the parser when we get characters inside an XML element
 //-----------------------------------------------------------------------------
 int CXMLUnserializationState::Characters( const XMLCH *pChars, int cbChars )
 {

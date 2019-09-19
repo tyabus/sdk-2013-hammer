@@ -40,7 +40,6 @@ class CBaseAttributeChoicePanel : public CBaseAttributePanel
 
 public:
 	CBaseAttributeChoicePanel( vgui::Panel *parent,	const AttributeWidgetInfo_t &info );
-    ~CBaseAttributeChoicePanel() {}
 
 	virtual void PostConstructor();
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );

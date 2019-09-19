@@ -55,7 +55,6 @@ class CVMTPickerFrame : public CBaseAssetPickerFrame
 
 public:
 	CVMTPickerFrame( vgui::Panel *pParent, const char *pTitle, bool bAllowMultiselect = false );
-	virtual ~CVMTPickerFrame() {}
 };
 
 

@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -76,7 +76,7 @@ public:
 		m_eSelectionState = eSelectionState;
 		return ePrevState;
 	}
-		
+
 	//-----------------------------------------------------------------------------
 	// Purpose: Sets the render color of this object.
 	//-----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ public:
 		g = green;
 		b = blue;
 	}
-		
+
 	//-----------------------------------------------------------------------------
 	// Purpose: Sets the render color of this object.
 	//-----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ public:
 		green = g;
 		blue = b;
 	}
-		
+
 	//-----------------------------------------------------------------------------
 	// Purpose: Returns the render color of this object.
 	//-----------------------------------------------------------------------------
@@ -120,10 +120,10 @@ public:
 
 		return rgbColor;
 	}
-		
+
 	//-----------------------------------------------------------------------------
 	// Purpose: Sets this object's parent.
-	// Input  : pParent - 
+	// Input  : pParent -
 	//-----------------------------------------------------------------------------
 	virtual void SetParent(CMapAtom *pParent)
 	{
@@ -167,7 +167,7 @@ public:
 	{
 	}
 
-	
+
 	virtual void AddShadowingTriangles( CUtlVector<Vector> &tri_list )
 	{
 		// should add triangles representing the shadows this object would cast
@@ -177,7 +177,7 @@ public:
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Returns a coordinate frame to render in
-	// Input  : matrix - 
+	// Input  : matrix -
 	// Output : returns true if a new matrix is returned, false if the new matrix is bad
 	//-----------------------------------------------------------------------------
 	virtual bool GetTransformMatrix( VMatrix& matrix )
@@ -196,7 +196,7 @@ public:
 	// Transformation functions.
 	//-----------------------------------------------------------------------------
 	void Transform(const VMatrix &matrix)
-	{ 
+	{
 		DoTransform(matrix);
 		PostUpdate(Notify_Transform);
 	}
@@ -268,7 +268,7 @@ protected:
 
 	static int s_nObjectIDCtr;
 
-	CMapAtom(void)
+	CMapAtom() : r( 255 ), g( 255 ), b( 255 )
 	{
 		m_eSelectionState = SELECT_NONE;
 		m_pParent = NULL;
@@ -279,14 +279,14 @@ protected:
 	// DoTransform functions. Virtual, called by base Transfom functions.
 	//-----------------------------------------------------------------------------
 	virtual void DoTransform(const VMatrix &matrix) {}
-		
+
 	CMapAtom *m_pParent;				// This object's parent.
 	SelectionState_t m_eSelectionState;	// The current selection state of this object.
 
 	unsigned char r;					// Red color component.
 	unsigned char g;					// Green color component.
 	unsigned char b;					// Blue color component.
-}; 
+};
 
 
 #endif // MAPATOM_H

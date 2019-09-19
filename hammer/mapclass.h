@@ -24,6 +24,7 @@
 #include "visgroup.h"
 #include "fgdlib/wckeyvalues.h"
 #include "tier1/smartptr.h"
+#include "tier1/utlobjectreference.h"
 
 
 class Box3D;
@@ -88,7 +89,7 @@ enum VisGroupSelection
 
 typedef const char * MAPCLASSTYPE;
 typedef BOOL (*ENUMMAPCHILDRENPROC)(CMapClass *, unsigned int dwParam);
-typedef CUtlVector<CMapClass*> CMapObjectList;
+typedef CUtlReferenceVector<CMapClass> CMapObjectList;
 
 
 #define MAX_ENUM_CHILD_DEPTH	16
@@ -107,14 +108,6 @@ struct EnumChildrenPos_t
 	int nDepth;
 };
 
-
-typedef struct
-{
-	MAPCLASSTYPE Type;
-	CMapClass * (*pfnNew)();
-} MCMSTRUCT;
-
-
 // This is a reference-counted class that holds a pointer to an object.
 // When the object goes away, it can set the pointer in here to NULL
 // and anyone else who holds a reference to this can know that the
@@ -124,44 +117,55 @@ template<class T>
 class CSafeObject
 {
 public:
-	static CSmartPtr< CSafeObject< T > > Create( T *pObject )
+	static CSmartPtr<CSafeObject<T>> Create( T* pObject )
 	{
-		CSafeObject<T> *pRet = new CSafeObject<T>( pObject );
-		return CSmartPtr< CSafeObject< T> >( pRet );
+		CSafeObject<T>* pRet = new CSafeObject<T>( pObject );
+		return CSmartPtr<CSafeObject<T>>( pRet );
 	}
 
-	void AddRef()
-	{
-		++m_RefCount;
-	}
-	void Release()
-	{
-		--m_RefCount;
-		if ( m_RefCount <= 0 )
-			delete this;
-	}
 	int GetRefCount() const
 	{
 		return m_RefCount;
 	}
 
 public:
-	T *m_pObject;
+	T* m_pObject;
 
 private:
-	CSafeObject( T *pObject )
+	void AddRef()
+	{
+		++m_RefCount;
+	}
+
+	void Release()
+	{
+		--m_RefCount;
+		if ( m_RefCount <= 0 )
+			delete this;
+	}
+
+	CSafeObject( T * pObject )
 	{
 		m_RefCount = 0;
 		m_pObject = pObject;
 	}
 
-private:
 	int m_RefCount;	// This object goes away when all smart pointers to it go away.
+
+	friend class CRefCountAccessor;
+};
+
+struct InstanceCollapseData_t
+{
+	CMapObjectList newChildren;
+	CUtlVector<CVisGroup*> visGroups;
 };
 
 
 class CMapClass : public CMapPoint
 {
+	DECLARE_REFERENCED_CLASS( CMapClass );
+
 public:
 	//
 	// Construction/destruction:
@@ -169,7 +173,7 @@ public:
 	CMapClass(void);
 	virtual ~CMapClass(void);
 
-	const CSmartPtr< CSafeObject< CMapClass > >& GetSafeObjectSmartPtr();
+	const CSmartPtr<CSafeObject<CMapClass>>& GetSafeObjectSmartPtr() const { return m_pSafeObject; }
 
 	inline int GetID(void) const;
 	inline void SetID(int nID);
@@ -324,8 +328,25 @@ public:
 
 	virtual const char* GetDescription() { return ""; }
 
+	virtual CMapClass* GetPreferredPickObject();
+
+	template <typename T1, typename T2 = CMapClass>
+	FORCEINLINE auto EnumChildren( BOOL (*pfn)( T2*, T1* ), T1* dwParam, MAPCLASSTYPE Type = NULL ) -> std::enable_if_t<__is_base_of( CMapClass, T2 ), BOOL>
+	{
+		static_assert( sizeof( unsigned int ) == sizeof( T1* ) );
+		return EnumChildren( (ENUMMAPCHILDRENPROC)pfn, reinterpret_cast<unsigned int>( dwParam ), Type );
+	}
+
+	template <typename T>
+	FORCEINLINE BOOL EnumChildrenRecurseGroupsOnly( BOOL (*pfn)( CMapClass*, T* ), T* dwParam, MAPCLASSTYPE Type = NULL )
+	{
+		static_assert( sizeof( unsigned int ) == sizeof( T* ) );
+		return EnumChildrenRecurseGroupsOnly( (ENUMMAPCHILDRENPROC)pfn, reinterpret_cast<unsigned int>( dwParam ), Type );
+	}
+
 	BOOL EnumChildren(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam = 0, MAPCLASSTYPE Type = NULL);
 	BOOL EnumChildrenRecurseGroupsOnly(ENUMMAPCHILDRENPROC pfn, unsigned int dwParam, MAPCLASSTYPE Type = NULL);
+
 	BOOL IsChildOf(CMapAtom *pObject);
 
 	virtual bool ShouldAppearInLightingPreview(void)
@@ -421,7 +442,7 @@ protected:
 
 	void UpdateParent(CMapClass *pNewParent);
 
-	CSmartPtr< CSafeObject< CMapClass > > m_pSafeObject;
+	CSmartPtr<CSafeObject<CMapClass>> m_pSafeObject;
 
 	BoundBox m_CullBox;				// Our bounds for culling in the 3D views and intersecting with the cordon.
 	BoundBox m_Render2DBox;			// Our bounds for rendering in the 2D views.
@@ -485,7 +506,6 @@ public:
 
 
 #define IMPLEMENT_MAPCLASS(class_name) \
-	char * class_name::__Type = #class_name; \
 	MAPCLASSTYPE class_name::GetType() { return __Type; }	\
 	BOOL class_name::IsMapClass(MAPCLASSTYPE Type) \
 		{ return (Type == __Type) ? TRUE : FALSE; } \
@@ -497,7 +517,7 @@ public:
 
 #define DECLARE_MAPCLASS(class_name,class_base) \
 	typedef class_base BaseClass; \
-	static char * __Type; \
+	static constexpr const char __Type[] = #class_name; \
 	virtual MAPCLASSTYPE GetType(); \
 	virtual BOOL IsMapClass(MAPCLASSTYPE Type);
 

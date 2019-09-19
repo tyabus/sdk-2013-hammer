@@ -53,7 +53,6 @@ class CVTFPickerFrame : public CBaseAssetPickerFrame
 
 public:
 	CVTFPickerFrame( vgui::Panel *pParent, const char *pTitle );
-	virtual ~CVTFPickerFrame() {}
 };
 
 

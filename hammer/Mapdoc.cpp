@@ -43,6 +43,7 @@
 #include "RunMap.h"
 #include "RunMapExpertDlg.h"
 #include "SaveInfo.h"
+#include "MapInstance.h"
 
 #include "ToolManager.h"
 #include "ToolCamera.h"
@@ -68,6 +69,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
+#undef GetObject
+
 #define KeyInt( key, dest ) \
 	if (stricmp(szKey, key) != 0) \
 		; \
@@ -91,8 +94,6 @@
 #define HALF_LIFE_2_EYE_HEIGHT 64
 
 #define VMF_FORMAT_VERSION	100
-static int g_nFileFormatVersion = 0;
-
 
 extern CShell g_Shell;
 
@@ -346,8 +347,6 @@ struct SelectLogicalBoxInfo_t
 CMapDoc::CMapDoc(void)
 {
 	m_nLogicalPositionCount = 0;
-	int nSize = sizeof(CMapFace);
-	nSize = sizeof(CMapSolid);
 
 	m_bLoading = false;
 	m_pWorld = NULL;
@@ -420,6 +419,8 @@ CMapDoc::CMapDoc(void)
 	m_bIsCordoning = false;
 	m_vCordonMins = Vector(-1024,-1024,-1024);
 	m_vCordonMaxs = Vector( 1024,1024,1024);
+
+	m_tShowInstance = ShowInstance_t::INSTANCES_SHOW_TINTED;
 }
 
 
@@ -666,7 +667,7 @@ void CMapDoc::VisGroups_Validate()
 		// could belong to visgroups, even if those visgroups no longer existed.
 
 		// For new versions of Hammer, just make sure that the object is allowed to belong to a visgroup.
-		if (((g_nFileFormatVersion < 100) && (!IsWorldObject(pParent))) ||
+		if (((m_nFileFormatVersion < 100) && (!IsWorldObject(pParent))) ||
 			!VisGroups_ObjectCanBelongToVisGroup(pChild))
 		{
 			int nCount = pChild->GetVisGroupCount();
@@ -791,8 +792,6 @@ void CMapDoc::CenterLogicalViewsOnSelection()
 //-----------------------------------------------------------------------------
 void CMapDoc::CountGUIDs(void)
 {
-	CTypedPtrList<CPtrList, MapObjectPair_t *> GroupedObjects;
-
 	// This increments the CMapWorld face ID but it doesn't matter since we're setting it below.
 	int nNextFaceID = m_pWorld->FaceID_GetNext();
 
@@ -1012,7 +1011,7 @@ CMapEntity *CMapDoc::FindEntity(const char *pszClassName, float x, float y, floa
 		FindInfo.Pos[1] = rint(y);
 		FindInfo.Pos[2] = rint(z);
 
-		m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)FindEntityCallback, (DWORD)&FindInfo, MAPCLASS_TYPE(CMapEntity));
+		m_pWorld->EnumChildren(FindEntityCallback, &FindInfo, MAPCLASS_TYPE(CMapEntity));
 
 		if (FindInfo.pEntityFound != NULL)
 		{
@@ -1218,9 +1217,8 @@ public:
 };
 
 
-BOOL CMapDoc::GetBrushNumberCallback(CMapClass *pObject, void *pFindInfoVoid)
+BOOL CMapDoc::GetBrushNumberCallback(CMapClass *pObject, CFindBrushInfo *pFindInfo)
 {
-	CFindBrushInfo *pFindInfo = (CFindBrushInfo*)pFindInfoVoid;
 	if ( pObject->IsVisible() )
 	{
 		if ( pObject == pFindInfo->m_pBrush )
@@ -1264,8 +1262,7 @@ void CMapDoc::OnMapShowSelectedBrushNumber()
 	}
 
 	// Enumerate the visible brushes..
-	m_pWorld->EnumChildrenRecurseGroupsOnly(
-		(ENUMMAPCHILDRENPROC)&CMapDoc::GetBrushNumberCallback, (DWORD)&info, MAPCLASS_TYPE(CMapSolid));
+	m_pWorld->EnumChildrenRecurseGroupsOnly(GetBrushNumberCallback, &info, MAPCLASS_TYPE(CMapSolid));
 
 	CString str;
 	if ( info.m_bFound )
@@ -1310,6 +1307,7 @@ void CMapDoc::Initialize(void)
 	Assert(!m_pWorld);
 
 	m_pWorld = new CMapWorld;
+	m_pWorld->SetOwningDoc( this );
 	m_pWorld->CullTree_Build();
 }
 
@@ -1330,6 +1328,8 @@ ChunkFileResult_t CMapDoc::LoadEntityCallback(CChunkFile *pFile, CMapDoc *pDoc)
 		CMapWorld *pWorld = pDoc->GetMapWorld();
 		pWorld->AddChild(pEntity);
 	}
+	else
+		delete pEntity;
 
 	return(ChunkFile_Ok);
 }
@@ -1344,7 +1344,7 @@ ChunkFileResult_t CMapDoc::LoadEntityCallback(CChunkFile *pFile, CMapDoc *pDoc)
 ChunkFileResult_t CMapDoc::LoadHiddenCallback(CChunkFile *pFile, CMapDoc *pDoc)
 {
 	CChunkHandlerMap Handlers;
-	Handlers.AddHandler("entity", (ChunkHandler_t)CMapDoc::LoadEntityCallback, pDoc);
+	Handlers.AddHandler("entity", LoadEntityCallback, pDoc);
 
 	pFile->PushHandlers(&Handlers);
 	ChunkFileResult_t eResult = pFile->ReadChunk();
@@ -1372,7 +1372,7 @@ bool CMapDoc::HandleLoadError(CChunkFile *pFile, const char *szChunkName, CMapDo
 // Input  : pszFileName - Full path of file to load.
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
+bool CMapDoc::LoadVMF(const char *pszFileName)
 {
 	//
 	// Create a new world to hold the loaded objects.
@@ -1380,25 +1380,23 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 	if (m_pWorld == NULL)
 	{
 		m_pWorld = new CMapWorld;
+		m_pWorld->SetOwningDoc( this );
 	}
 
-	m_bLoadingInstance = bIsInstance;
+	m_pWorld->SetVMFPath( pszFileName );
 
-	if ( !m_bLoadingInstance )
-	{
-		// Show our progress dialog.
-		pProgDlg = new CProgressDlg;
-		pProgDlg->Create();
-		pProgDlg->SetRange(0,18000);
-		pProgDlg->SetStep(1000);
+	// Show our progress dialog.
+	pProgDlg = new CProgressDlg;
+	pProgDlg->Create();
+	pProgDlg->SetRange(0,18000);
+	pProgDlg->SetStep(1000);
 
-		// Set the progress dialog title
-		CString caption;
-		caption.LoadString(IDS_LOADINGFILE);
-		pProgDlg->SetWindowText(caption);
-	}
+	// Set the progress dialog title
+	CString caption;
+	caption.LoadString(IDS_LOADINGFILE);
+	pProgDlg->SetWindowText(caption);
 
-	g_nFileFormatVersion = 0;
+	m_nFileFormatVersion = 0;
 
 	bool bLocked = VisGroups_LockUpdates( true );
 
@@ -1407,8 +1405,7 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 	//
 	CChunkFile File;
 	ChunkFileResult_t eResult = File.Open(pszFileName, ChunkFile_Read);
-	if ( !m_bLoadingInstance )
-		pProgDlg->StepIt();
+	pProgDlg->StepIt();
 
 	//
 	// Read the file.
@@ -1421,23 +1418,22 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 		// Set up handlers for the subchunks that we are interested in.
 		//
 		CChunkHandlerMap Handlers;
-		Handlers.AddHandler("world", (ChunkHandler_t)CMapDoc::LoadWorldCallback, this);
-		Handlers.AddHandler("hidden", (ChunkHandler_t)CMapDoc::LoadHiddenCallback, this);
-		Handlers.AddHandler("entity", (ChunkHandler_t)CMapDoc::LoadEntityCallback, this);
-		Handlers.AddHandler("versioninfo", (ChunkHandler_t)CMapDoc::LoadVersionInfoCallback, this);
-		Handlers.AddHandler("autosave", (ChunkHandler_t)CMapDoc::LoadAutosaveCallback, this);
-		Handlers.AddHandler("visgroups", (ChunkHandler_t)CVisGroup::LoadVisGroupsCallback, this);
-		Handlers.AddHandler("viewsettings", (ChunkHandler_t)CMapDoc::LoadViewSettingsCallback, this);
-		Handlers.AddHandler("cordon", (ChunkHandler_t)CMapDoc::LoadCordonCallback, this);
+		Handlers.AddHandler("world", LoadWorldCallback, this);
+		Handlers.AddHandler("hidden", LoadHiddenCallback, this);
+		Handlers.AddHandler("entity", LoadEntityCallback, this);
+		Handlers.AddHandler("versioninfo", LoadVersionInfoCallback, this);
+		Handlers.AddHandler("autosave", LoadAutosaveCallback, this);
+		Handlers.AddHandler("visgroups", CVisGroup::LoadVisGroupsCallback, this);
+		Handlers.AddHandler("viewsettings", LoadViewSettingsCallback, this);
+		Handlers.AddHandler("cordon", LoadCordonCallback, this);
 
 		m_pToolManager->AddToolHandlers( &Handlers );
 
-		Handlers.SetErrorHandler((ChunkErrorHandler_t)CMapDoc::HandleLoadError, this);
+		Handlers.SetErrorHandler(HandleLoadError, this);
 
 		File.PushHandlers(&Handlers);
 
-		if ( !m_bLoadingInstance )
-			SetActiveMapDoc( this );
+		SetActiveMapDoc( this );
 		m_bLoading = true;
 
 		//
@@ -1445,17 +1441,13 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 		// key value callback to ReadChunk.
 		//
 
-		if ( !m_bLoadingInstance )
-			pProgDlg->SetWindowText( "Reading Chunks..." );
+		pProgDlg->SetWindowText( "Reading Chunks..." );
 		while (eResult == ChunkFile_Ok)
 		{
 			eResult = File.ReadChunk();
 		}
-		if ( !m_bLoadingInstance )
-		{
-			pProgDlg->SetStep(5000);
-			pProgDlg->StepIt();
-		}
+		pProgDlg->SetStep(5000);
+		pProgDlg->StepIt();
 
 		if (eResult == ChunkFile_EOF)
 		{
@@ -1468,12 +1460,9 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 
 	if (eResult == ChunkFile_Ok)
 	{
-		if ( !m_bLoadingInstance )
-			pProgDlg->SetWindowText( "Postload Processing..." );
+		pProgDlg->SetWindowText( "Postload Processing..." );
 		Postload();
-
-		if ( !m_bLoadingInstance )
-			pProgDlg->StepIt();
+		pProgDlg->StepIt();
 		m_bLoading = false;
 	}
 	else
@@ -1484,7 +1473,7 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 	if ( bLocked )
 		VisGroups_LockUpdates( false );
 
-	if (pProgDlg && !m_bLoadingInstance)
+	if (pProgDlg)
 	{
 		pProgDlg->DestroyWindow();
 		delete pProgDlg;
@@ -1492,11 +1481,8 @@ bool CMapDoc::LoadVMF(const char *pszFileName, bool bIsInstance)
 	}
 
 	// force rendering even if application is not active
-	if ( !m_bLoadingInstance )
-	{
-		UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
-		APP()->SetForceRenderNextFrame();
-	}
+	UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
+	APP()->SetForceRenderNextFrame();
 
 	return(eResult == ChunkFile_Ok);
 }
@@ -1532,7 +1518,7 @@ void CMapDoc::BuildAllDetailObjects()
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDoc::LoadVersionInfoCallback(CChunkFile *pFile, CMapDoc *pDoc)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadVersionInfoKeyCallback, pDoc));
+	return pFile->ReadChunk(LoadVersionInfoKeyCallback, pDoc);
 }
 
 
@@ -1546,7 +1532,7 @@ ChunkFileResult_t CMapDoc::LoadVersionInfoCallback(CChunkFile *pFile, CMapDoc *p
 ChunkFileResult_t CMapDoc::LoadVersionInfoKeyCallback(const char *szKey, const char *szValue, CMapDoc *pDoc)
 {
 	KeyInt("mapversion", pDoc->m_nDocVersion);
-	KeyInt("formatversion", g_nFileFormatVersion);
+	KeyInt("formatversion", pDoc->m_nFileFormatVersion);
 	KeyBool("prefab", pDoc->m_bPrefab);
 
 	return(ChunkFile_Ok);
@@ -1554,7 +1540,7 @@ ChunkFileResult_t CMapDoc::LoadVersionInfoKeyCallback(const char *szKey, const c
 
 ChunkFileResult_t CMapDoc::LoadAutosaveCallback( CChunkFile *pFile, CMapDoc *pDoc)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadAutosaveKeyCallback, pDoc));
+	return pFile->ReadChunk(LoadAutosaveKeyCallback, pDoc);
 }
 
 ChunkFileResult_t CMapDoc::LoadAutosaveKeyCallback(const char *szKey, const char *szValue, CMapDoc *pDoc)
@@ -1574,7 +1560,7 @@ ChunkFileResult_t CMapDoc::LoadAutosaveKeyCallback(const char *szKey, const char
 
 ChunkFileResult_t CMapDoc::LoadCordonCallback(CChunkFile *pFile, CMapDoc *pDoc)
 {
-	return pFile->ReadChunk((KeyHandler_t)LoadCordonKeyCallback, pDoc);
+	return pFile->ReadChunk(LoadCordonKeyCallback, pDoc);
 }
 
 ChunkFileResult_t CMapDoc::LoadCordonKeyCallback(const char *szKey, const char *szValue, CMapDoc *pDoc)
@@ -1611,6 +1597,7 @@ ChunkFileResult_t CMapDoc::LoadViewSettingsKeyCallback(const char *szKey, const 
 	KeyBool( "bShowLogicalGrid", pDoc->m_bShowLogicalGrid);
 	KeyInt( "nGridSpacing", pDoc->m_nGridSpacing);
 	KeyBool( "bShow3DGrid", pDoc->m_bShow3DGrid);
+	KeyInt( "nInstanceVisibility", (int&)pDoc->m_tShowInstance);
 
 	return(ChunkFile_Ok);
 }
@@ -1621,7 +1608,7 @@ ChunkFileResult_t CMapDoc::LoadViewSettingsKeyCallback(const char *szKey, const 
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapDoc::LoadViewSettingsCallback(CChunkFile *pFile, CMapDoc *pDoc)
 {
-	ChunkFileResult_t eResult = pFile->ReadChunk((KeyHandler_t)LoadViewSettingsKeyCallback, pDoc);
+	ChunkFileResult_t eResult = pFile->ReadChunk(LoadViewSettingsKeyCallback, pDoc);
 	if (eResult == ChunkFile_Ok)
 	{
 		pDoc->UpdateStatusBarSnap();
@@ -1666,37 +1653,27 @@ void CMapDoc::Postload(void)
 	//
 	CountGUIDs();
 	m_pWorld->PostloadWorld();
-	if ( !m_bLoadingInstance )
-	{
-		pProgDlg->StepIt();
-		pProgDlg->SetStep(1000);
-	}
+	pProgDlg->StepIt();
+	pProgDlg->SetStep(1000);
 
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Assigning to groups..." );
+	pProgDlg->SetWindowText( "Assigning to groups..." );
 	AssignToGroups();
 	AssignToVisGroups();
-	if ( !m_bLoadingInstance )
-		pProgDlg->StepIt();
+	pProgDlg->StepIt();
 
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Postprocessing VisGroups..." );
+	pProgDlg->SetWindowText( "Postprocessing VisGroups..." );
 	m_pWorld->PostloadVisGroups();
-	if ( !m_bLoadingInstance )
-		pProgDlg->StepIt();
+	pProgDlg->StepIt();
 
 	// Do this after AssignToVisGroups, because deleting objects causes empty visgroups to be purged,
 	// and until AssignToVisGroups is called all the visgroups are empty!
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Updating Visibility..." );
+	pProgDlg->SetWindowText( "Updating Visibility..." );
 	RemoveEmptyGroups();
 	UpdateVisibilityAll();
-	if ( !m_bLoadingInstance )
-		pProgDlg->StepIt();
+	pProgDlg->StepIt();
 
 	// update displacement neighbors
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Updating Displacements..." );
+	pProgDlg->SetWindowText( "Updating Displacements..." );
 	IWorldEditDispMgr *pDispMgr = GetActiveWorldEditDispManager();
 	if( pDispMgr )
 	{
@@ -1711,14 +1688,12 @@ void CMapDoc::Postload(void)
 			}
 		}
 	}
-	if ( !m_bLoadingInstance )
-		pProgDlg->StepIt();
+	pProgDlg->StepIt();
 
 	//
 	// Do batch search and replace of textures from trans.txt if it exists.
 	//
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Updating Texture Names..." );
+	pProgDlg->SetWindowText( "Updating Texture Names..." );
 	char translationFilename[MAX_PATH];
 	Q_snprintf( translationFilename, sizeof( translationFilename ), "materials/trans.txt" );
 	FileHandle_t searchReplaceFP = g_pFileSystem->Open( translationFilename, "r" );
@@ -1727,24 +1702,18 @@ void CMapDoc::Postload(void)
 		BatchReplaceTextures( searchReplaceFP );
 		g_pFileSystem->Close( searchReplaceFP );
 	}
-	if ( !m_bLoadingInstance )
-		pProgDlg->StepIt();
-
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Building Cull Tree..." );
+	pProgDlg->StepIt();
+	pProgDlg->SetWindowText( "Building Cull Tree..." );
 	m_pWorld->CullTree_Build();
-	if ( !m_bLoadingInstance )
-		pProgDlg->StepIt();
+	pProgDlg->StepIt();
 
 	// We disabled building detail objects above to prevent it from generating them extra times.
 	// Now generate the ones that need to be generated.
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Building Detail Objects..." );
+	pProgDlg->SetWindowText( "Building Detail Objects..." );
 	DetailObjects::EnableBuildDetailObjects( true );
 	BuildAllDetailObjects();
 
-	if ( !m_bLoadingInstance )
-		pProgDlg->SetWindowText( "Finished Loading!" );
+	pProgDlg->SetWindowText( "Finished Loading!" );
 }
 
 
@@ -2522,9 +2491,9 @@ void CMapDoc::UpdateAllViews(int nFlags, UpdateBox *ub )
 //-----------------------------------------------------------------------------
 // Purpose: used during iteration, tells an map entity to
 //-----------------------------------------------------------------------------
-static BOOL _UpdateAnimation( CMapClass *mapClass, float animTime )
+static BOOL _UpdateAnimation( CMapClass *mapClass, float* animTime )
 {
-	mapClass->UpdateAnimation( animTime );
+	mapClass->UpdateAnimation( *animTime );
 	return TRUE;
 }
 
@@ -2548,16 +2517,9 @@ void CMapDoc::UpdateAnimation( void )
 	}
 
 	// get current animation time from animation toolbar
-	union {
-		float fl;
-		DWORD dw;
-	} animTime;
-
-	animTime.fl = GetAnimationTime();
-
+	float animTime = GetAnimationTime();
 	// iterate through all CMapEntity object and update their animation frame matrix
-	m_pWorld->EnumChildren( ENUMMAPCHILDRENPROC(_UpdateAnimation), animTime.dw, MAPCLASS_TYPE(CMapAnimator) );
-
+	m_pWorld->EnumChildren( _UpdateAnimation, &animTime, MAPCLASS_TYPE(CMapAnimator) );
 }
 
 
@@ -2733,7 +2695,7 @@ void CMapDoc::SelectRegion(BoundBox *pBox, bool bInsideOnly)
 
 	SelectObject(NULL, scSaveChanges);
 
-	m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)SelectInBox, (DWORD)&info);
+	m_pWorld->EnumChildren(SelectInBox, &info);
 }
 
 
@@ -2751,7 +2713,7 @@ void CMapDoc::SelectLogicalRegion( const Vector2D &vecMins, const Vector2D &vecM
 
 	SelectObject(NULL, scSaveChanges);
 
-	m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)SelectInLogicalBox, (DWORD)&info);
+	m_pWorld->EnumChildren(SelectInLogicalBox, &info);
 }
 
 bool CMapDoc::SelectObject(CMapClass *pObj, int cmd)
@@ -2909,7 +2871,10 @@ void CMapDoc::SetActiveMapDoc(CMapDoc *pDoc)
 
 		CHistory::SetHistory(m_pMapDoc->GetDocHistory());
 		m_pMapDoc->SetUndoActive(GetMainWnd()->IsUndoActive() == TRUE);
-	        m_pMapDoc->UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
+		m_pMapDoc->UpdateAllViews( MAPVIEW_UPDATE_OBJECTS );
+		extern void SetInstanceBoxChecked( UINT nID, CMainFrame* pFrm );
+		SetInstanceBoxChecked( m_pMapDoc->m_tShowInstance == ShowInstance_t::INSTANCES_HIDE ? ID_INSTANCE_VIS_HIDE
+			: m_pMapDoc->m_tShowInstance == ShowInstance_t::INSTANCES_SHOW_TINTED ? ID_INSTANCE_VIS_TINTED : ID_INSTANCE_VIS_NORMAL, GetMainWnd() );
 	}
 	else
 	{
@@ -3191,7 +3156,7 @@ void CMapDoc::OnEditApplytexture(void)
 			((CMapSolid*)pobj)->SetTexture(GetDefaultTextureName());
 		}
 
-		pobj->EnumChildren((ENUMMAPCHILDRENPROC)ApplyTextureToSolid, (DWORD)GetDefaultTextureName(), MAPCLASS_TYPE(CMapSolid));
+		pobj->EnumChildren(ApplyTextureToSolid, GetDefaultTextureName(), MAPCLASS_TYPE(CMapSolid));
 	}
 
 	SetModifiedFlag();
@@ -3245,14 +3210,14 @@ void CMapDoc::OnEditToEntity(void)
 		//
 		else if (pObject->IsGroup())
 		{
-			pObject->EnumChildren(ENUMMAPCHILDRENPROC(CopyObjectsToList), DWORD(&newobjects), MAPCLASS_TYPE(CMapSolid));
+			pObject->EnumChildren(CopyObjectsToList, &newobjects, MAPCLASS_TYPE(CMapSolid));
 		}
 		//
 		// If the object is an entity, add any solid children of the entity to our list.
 		//
 		else if (pObject->IsMapClass(MAPCLASS_TYPE(CMapEntity)))
 		{
-			pObject->EnumChildren(ENUMMAPCHILDRENPROC(CopyObjectsToList), DWORD(&newobjects), MAPCLASS_TYPE(CMapSolid));
+			pObject->EnumChildren(CopyObjectsToList, &newobjects, MAPCLASS_TYPE(CMapSolid));
 
 			//
 			// See if there is more than one solid entity selected. If so, we'll need to prompt the user
@@ -3635,7 +3600,7 @@ void CMapDoc::OnEditCopy(void)
 	BeginWaitCursor();
 
 	// Delete the contents of the clipboard.
-	s_Clipboard.Objects.PurgeAndDeleteElements();
+	s_Clipboard.Objects.RemoveAll();
 
 	m_pSelection->GetBoundsCenter(s_Clipboard.vecOriginalCenter);
 	m_pSelection->GetBounds(s_Clipboard.Bounds.bmins, s_Clipboard.Bounds.bmaxs);
@@ -4949,7 +4914,7 @@ void CMapDoc::UpdateForApplicator(BOOL bApplicator)
 				Solids.AddToTail(pSolid);
 			}
 
-			pObject->EnumChildren((ENUMMAPCHILDRENPROC)AddLeavesToListCallback, (DWORD)&Solids, MAPCLASS_TYPE(CMapSolid));
+			pObject->EnumChildren(AddLeavesToListCallback, &Solids, MAPCLASS_TYPE(CMapSolid));
 		}
 
 		//
@@ -5390,7 +5355,7 @@ void CMapDoc::OnToolsHollow(void)
 
 	FOR_EACH_OBJ( SelectedSolids, pos )
 	{
-		CMapSolid *pSelectedSolid = (CMapSolid *)SelectedSolids.Element(pos);
+		CMapSolid *pSelectedSolid = (CMapSolid *)SelectedSolids[pos];
 		CMapClass *pDestParent = pSelectedSolid->GetParent();
 
 		GetHistory()->Keep(pSelectedSolid);
@@ -6368,7 +6333,7 @@ BOOL CMapDoc::OnViewQuickHide(UINT nID)
     {
         m_QuickHideObjects.AddVectorToTail(*m_pSelection->GetList());
     }
-    else 
+    else
     {
         GetChildrenToHide(m_pWorld, false, m_QuickHideObjects);
     }
@@ -6425,7 +6390,7 @@ void CMapDoc::OnViewQuickHideConvert()
         AfxMessageBox(str);
         return;
     }
-    
+
     if (nFinalCount < nOriginalCount)
     {
         AfxMessageBox("Some objects could not put in the new Visible Group because\n"
@@ -6946,7 +6911,7 @@ void CMapDoc::ReplaceTextures(LPCTSTR pszFind, LPCTSTR pszReplace, BOOL bEveryth
 			SelectObject(NULL, scClear);
 		}
 
-		m_pWorld->EnumChildren((ENUMMAPCHILDRENPROC)ReplaceTexFunc, (DWORD)&info, MAPCLASS_TYPE(CMapSolid));
+		m_pWorld->EnumChildren(ReplaceTexFunc, &info, MAPCLASS_TYPE(CMapSolid));
 	}
 	else
 	{
@@ -6976,7 +6941,7 @@ void CMapDoc::ReplaceTextures(LPCTSTR pszFind, LPCTSTR pszReplace, BOOL bEveryth
 			{
 				ReplaceTexFunc((CMapSolid *)pobj, &info);
 			}
-			pobj->EnumChildren((ENUMMAPCHILDRENPROC)ReplaceTexFunc, (DWORD)&info, MAPCLASS_TYPE(CMapSolid));
+			pobj->EnumChildren(ReplaceTexFunc, &info, MAPCLASS_TYPE(CMapSolid));
 		}
 	}
 
@@ -7102,7 +7067,7 @@ void CMapDoc::BatchReplaceTextures( FileHandle_t fp )
 		}
 
 		// Search and replace all key textures with val.
-		m_pWorld->EnumChildren( ( ENUMMAPCHILDRENPROC )BatchReplaceTextureCallback, ( DWORD )&Info, MAPCLASS_TYPE( CMapSolid ) );
+		m_pWorld->EnumChildren( BatchReplaceTextureCallback, &Info, MAPCLASS_TYPE( CMapSolid ) );
 next_line:;
 	}
 }
@@ -7841,7 +7806,7 @@ void CMapDoc::OnFileExporttodxf(void)
 	info.pWorld = m_pWorld;
 	info.fp = fp;
 
-	m_pWorld->EnumChildren(ENUMMAPCHILDRENPROC(SaveDXF), DWORD(&info), MAPCLASS_TYPE(CMapSolid));
+	m_pWorld->EnumChildren(SaveDXF, &info, MAPCLASS_TYPE(CMapSolid));
 
 	EndWaitCursor();
 
@@ -8541,6 +8506,7 @@ void CMapDoc::RenderPreloadObject(CMapClass *pObject)
 CMapWorld *CMapDoc::CordonCreateWorld()
 {
 	CMapWorld *pWorld = new CMapWorld;
+	pWorld->SetOwningDoc( this );
 
 	GetHistory()->Pause();
 
@@ -8782,7 +8748,6 @@ bool CMapDoc::SaveVMF(const char *pszFileName, int saveFlags )
 	return(true);
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: Saves the version information chunk.
 // Input  : *pFile -
@@ -8799,7 +8764,8 @@ ChunkFileResult_t CMapDoc::SaveVersionInfoVMF(CChunkFile *pFile, bool bIsAutoSav
 
 	if (eResult == ChunkFile_Ok)
 	{
-		eResult = pFile->WriteKeyValueInt("editorbuild", build_number());
+		constexpr int build = build_number();
+		eResult = pFile->WriteKeyValueInt("editorbuild", build);
 	}
 
 	if (eResult == ChunkFile_Ok)
@@ -9059,7 +9025,7 @@ BOOL CMapDoc::UpdateVisibilityCallback(CMapClass *pObject, CMapDoc *pDoc)
 		//
 		if ((dynamic_cast<CMapEntity *>(pObject)) != NULL)
 		{
-			pObject->EnumChildren((ENUMMAPCHILDRENPROC)UpdateVisibilityCallback, (DWORD)pDoc);
+			pObject->EnumChildren(UpdateVisibilityCallback, pDoc);
 		}
 	}
 
@@ -9076,7 +9042,7 @@ void CMapDoc::UpdateVisibility(CMapClass *pObject)
 	UpdateVisibilityCallback(pObject, this);
 	if (pObject->IsGroup())
 	{
-		pObject->EnumChildrenRecurseGroupsOnly((ENUMMAPCHILDRENPROC)UpdateVisibilityCallback, (DWORD)this);
+		pObject->EnumChildrenRecurseGroupsOnly(UpdateVisibilityCallback, this);
 	}
 }
 
@@ -9090,7 +9056,7 @@ void CMapDoc::UpdateVisibilityAll(void)
 	// Two stage recursion: first we recurse groups only, then from the callback we recurse
 	// solid children of entities.
 	//
-	m_pWorld->EnumChildrenRecurseGroupsOnly((ENUMMAPCHILDRENPROC)UpdateVisibilityCallback, (DWORD)this);
+	m_pWorld->EnumChildrenRecurseGroupsOnly(UpdateVisibilityCallback, this);
 	m_pSelection->RemoveInvisibles();
 
 	CMainFrame *pwndMain = GetMainWnd();
@@ -9517,6 +9483,10 @@ ChunkFileResult_t CMapDoc::SaveViewSettingsVMF(CChunkFile *pFile, CSaveInfo *pSa
 		return eResult;
 
 	eResult = pFile->WriteKeyValueBool("bShow3DGrid", m_bShow3DGrid);
+	if (eResult != ChunkFile_Ok)
+		return eResult;
+
+	eResult = pFile->WriteKeyValueInt("nInstanceVisibility", (int)m_tShowInstance);
 	if (eResult != ChunkFile_Ok)
 		return eResult;
 
@@ -10199,4 +10169,50 @@ void CMapDoc::OnLogicalobjectLayoutdefault()
 void CMapDoc::OnLogicalobjectLayoutlogical()
 {
 	// TODO: Add your command handler code here
+}
+
+void CMapDoc::CollapseInstances( bool bSelected, bool bRecursive )
+{
+	CUtlVector<CMapClass*> toRemove;
+	CUtlVector<InstanceCollapseData_t> collapseData;
+	for ( CMapClass* child : std::as_const( bSelected ? *m_pSelection->GetList() : *m_pWorld->GetChildren() ) )
+	{
+		for ( CMapClass* subChild : std::as_const( *child->GetChildren() ) )
+		{
+			if ( subChild && subChild->IsMapClass( MAPCLASS_TYPE( CMapInstance ) ) )
+			{
+				if ( static_cast<CMapInstance*>( subChild )->Collapse( bRecursive, collapseData[collapseData.AddToTail()] ) )
+					toRemove.AddToTail( child );
+				else
+					collapseData.Remove( collapseData.Count() - 1 ); // Do not delete func_instance if failed
+				break;
+			}
+		}
+	}
+
+	for ( CMapClass* pChild : toRemove )
+		m_pWorld->RemoveObjectFromWorld( pChild, true );
+
+	m_pSelection->RemoveDead();
+
+#ifdef FIXME
+	for ( const auto& data : std::as_const( collapseData ) )
+	{
+		for ( CVisGroup* visGroup : std::as_const( data.visGroups ) )
+			if ( !m_VisGroups.FindMatch( [visGroup]( CVisGroup* g ) { return !stricmp( g->GetName(), visGroup->GetName() ); } ) )
+				VisGroups_AddGroup( visGroup );
+			else
+				delete visGroup;
+
+		for ( const auto& c : std::as_const( data.newChildren ) )
+		{
+			m_pWorld->AddChild( c.GetObject() );
+			c->PostloadWorld( m_pWorld );
+			m_pWorld->EntityList_Add( c.GetObject() );
+			m_pWorld->m_pCullTree->UpdateCullTreeObjectRecurse( c.GetObject() );
+			// TODO: renumber faceids and nodeids
+		}
+	}
+	m_pWorld->CalcBounds();
+#endif
 }
